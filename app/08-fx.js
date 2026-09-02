@@ -152,7 +152,7 @@ const WALL_CYCLE = ['ops', 'incidents', 'tasks', 'support'];
 let wallTimer = null;
 function syncWall() {
   clearInterval(wallTimer); wallTimer = null;
-  if (!S.wall) return;
+  if (!S.wall || !S.wallAuto) return;   /* الدوران بطلبك لا بذاته */
   let i = Math.max(0, WALL_CYCLE.indexOf(S.route.n));
   wallTimer = setInterval(() => {
     if (!S.wall) { clearInterval(wallTimer); return; }
@@ -199,6 +199,13 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (S.drawer && e.key === 'Escape') { S.drawer = null; renderDrawer(); return; }
+  /* Esc مخرج عام: من الجدار أولًا، ثم إلى لوحة العمليات */
+  if (e.key === 'Escape') {
+    if (S.wall) { S.wall = false; S.wallAuto = false; render(); return; }
+    if (S.wide) { S.wide = false; render(); return; }
+    if (S.route.n !== 'ops') { S.route = { n: 'ops' }; render(); return; }
+    return;
+  }
   if (typing) return;
 
   if (e.key >= '1' && e.key <= '9') {

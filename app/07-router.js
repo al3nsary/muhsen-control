@@ -38,7 +38,15 @@ function render() {
       icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span>' +
       '<i class="bar"></i></div>'
     : '';
-  document.getElementById('wallbar').innerHTML = S.wall ? '<div class="wallbar"><i></i></div>' : '';
+  /* في جدار العرض: شريط تقدّم إن كان الدوران مفعّلًا، ومخرج ظاهر دائمًا */
+  document.getElementById('wallbar').innerHTML = S.wall
+    ? (S.wallAuto ? '<div class="wallbar"><i></i></div>' : '') +
+      '<button class="wallexit" data-a="wall">' + icon('i-x','s16') +
+        'الخروج من جدار العرض · Esc</button>' +
+      '<button class="wallexit" style="inset-inline-start:auto;inset-inline-end:22px" ' +
+        'data-a="wallauto">' + icon(S.wallAuto ? 'i-stop' : 'i-play','s16') +
+        (S.wallAuto ? 'إيقاف الدوران' : 'دوران تلقائي') + '</button>'
+    : '';
   afterRender();
   renderPalette();
   renderDrawer();
@@ -66,7 +74,10 @@ document.addEventListener('click', ev => {
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
     case 'wide': S.wide = !S.wide; break;
-    case 'wall': S.wall = !S.wall; toast(S.wall ? 'جدار العرض — F للخروج' : 'عاد العرض العادي'); break;
+    case 'wall': S.wall = !S.wall; if (!S.wall) S.wallAuto = false;
+      toast(S.wall ? 'جدار العرض — Esc أو F للخروج' : 'عاد العرض العادي'); break;
+    case 'wallauto': S.wallAuto = !S.wallAuto;
+      toast(S.wallAuto ? 'يدور بين اللوحات كل ١٢ ثانية' : 'أُوقف الدوران'); break;
     case 'theme': toggleTheme(); break;
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;

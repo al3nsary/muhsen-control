@@ -60,6 +60,8 @@ function rail() {
         (n ? '<span class="dot"></span>' : '') + '</button>';
     }).join('') +
     '<span class="sp"></span>' +
+    '<button data-a="theme" title="تبديل الوضع · T">' +
+      icon(S.theme === 'day' ? 'i-sun' : 'i-hour') + '</button>' +
     '<button data-a="palette" title="لوحة الأوامر · Ctrl+K">' + icon('i-search') + '</button>' +
     '<button data-a="wide" title="طيّ اللوح · B">' + icon('i-menu') + '</button>' +
     '<button class="' + (r === 'settings' ? 'on' : '') + '" data-a="go" data-n="settings" ' +
@@ -81,6 +83,14 @@ function sidebar() {
           (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
         '</button>';
       }).join('')).join('') +
+    '<div class="grp">العرض</div>' +
+    '<button class="nav" data-a="theme">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
+      '<b>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</b>' +
+      '<span class="n q">T</span></button>' +
+    '<button class="nav" data-a="wall">' + icon('i-fullscreen','s18') +
+      '<b>جدار العرض</b><span class="n q">F</span></button>' +
+    '<button class="nav" data-a="shortcuts">' + icon('i-info','s18') +
+      '<b>الاختصارات</b><span class="n q">؟</span></button>' +
     '<div class="brandfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي</div>' +
   '</aside>';
 }
@@ -101,10 +111,13 @@ function topbar() {
       (navCount('incidents') ? '<span class="bdg">' + AR(navCount('incidents')) + '</span>' : '') + '</button>' +
     '<button class="iconbtn" data-a="palette" aria-label="لوحة الأوامر" title="Ctrl+K">' +
       icon('i-search','s18') + '</button>' +
-    '<button class="themebtn" data-a="theme" aria-label="تبديل الوضع" title="T">' +
-      '<i>' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</i></button>' +
-    '<button class="iconbtn" data-a="wall" aria-label="جدار العرض" title="F">' +
-      icon('i-target','s18') + '</button>' +
+    '<button class="themebtn" data-a="theme" title="تبديل الوضع · T">' +
+      '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
+      '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
+    '<button class="iconbtn" data-a="wall" aria-label="جدار العرض" title="جدار العرض · F">' +
+      icon('i-fullscreen','s18') + '</button>' +
+    '<button class="iconbtn" data-a="shortcuts" aria-label="الاختصارات" title="الاختصارات · ؟">' +
+      icon('i-info','s18') + '</button>' +
   '</header>';
 }
 

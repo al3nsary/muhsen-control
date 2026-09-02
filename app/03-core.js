@@ -3,7 +3,7 @@
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 1;
-const APP_VER = 'نسخة ٠٫٢';
+const APP_VER = 'نسخة ٠٫٣';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);

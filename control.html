@@ -84,7 +84,8 @@ a{color:inherit; text-decoration:none}
   grid-template-rows:100%; height:100%; overflow:hidden}
 #room > *{min-height:0; min-width:0}
 #room.wide{grid-template-columns:var(--rail) 0 1fr}
-#room.wall{grid-template-columns:0 0 1fr}
+/* جدار العرض يُخفي لوح التنقّل فقط — السكة تبقى، ولا نظام بلا مخرج */
+#room.wall{grid-template-columns:var(--rail) 0 1fr}
 
 /* ══ الخلفية الحيّة ══ */
 .bg{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
@@ -189,7 +190,18 @@ a{color:inherit; text-decoration:none}
   border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:800;
   display:grid; place-items:center; padding:0 5px; border:2px solid var(--deep)}
 /* مفتاح الوضع */
-.themebtn{width:62px; height:34px; border-radius:99px; flex:none; position:relative;
+.themebtn{width:auto; min-width:118px; padding:0 6px 0 12px; display:flex; align-items:center;
+  justify-content:space-between; gap:8px; font-size:11.5px; font-weight:700; color:var(--dim);
+  height:38px; border-radius:99px; flex:none; position:relative;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:background .3s var(--e), color .2s var(--e)}
+.themebtn:hover{color:var(--ink); background:var(--sheen2)}
+.themebtn .knob{width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+  color:var(--onGold); flex:none;
+  background:linear-gradient(150deg,var(--gold2),var(--gold));
+  transition:transform .42s var(--e2)}
+:root[data-theme="day"] .themebtn .knob{transform:rotate(180deg)}
+.themebtnOLD{width:62px; height:34px; border-radius:99px; flex:none; position:relative;
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line); transition:background .3s var(--e)}
 .themebtn i{position:absolute; top:3px; width:28px; height:28px; border-radius:50%;
   display:grid; place-items:center; color:var(--onGold);
@@ -417,9 +429,17 @@ a{color:inherit; text-decoration:none}
 .drawer .db::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 
 /* ══ جدار العرض ══ */
-#room.wall .top{display:none}
+#room.wall .top{height:52px}
+#room.wall .top .crumb, #room.wall .top .chip:nth-of-type(2){display:none}
 #room.wall .view{padding:26px 30px}
 .wallbar{position:fixed; inset-inline:0; top:0; z-index:8; height:4px; background:var(--line)}
+.wallexit{position:fixed; z-index:9; inset-inline-start:22px; bottom:22px;
+  display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:14px;
+  background:color-mix(in srgb,var(--panel) 94%,transparent); color:var(--ink);
+  font-size:12.5px; font-weight:700; backdrop-filter:blur(12px);
+  box-shadow:0 0 0 1px var(--gold2), 0 22px 44px -18px rgba(0,0,0,.9);
+  animation:pop .3s var(--e2) both}
+.wallexit:hover{background:var(--panel2)}
 .wallbar i{display:block; height:100%; background:linear-gradient(90deg,var(--gold),var(--live));
   animation:wallgo 12s linear infinite}
 @keyframes wallgo{from{width:0} to{width:100%}}
@@ -538,6 +558,7 @@ a{color:inherit; text-decoration:none}
   <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="12.4" height="12" rx="2.6"/><path d="M15.4 11.2l5.4-2.9v7.4l-5.4-2.9z"/></symbol>
   <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6.4h14M5 12h14M5 17.6h9"/></symbol>
   <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3.6 5.6h16.8l-6.6 7.6v5.6l-3.6 1.8v-7.4z"/></symbol>
+  <symbol id="i-fullscreen" viewBox="0 0 24 24"><path d="M3.6 9V3.6H9M15 3.6h5.4V9M20.4 15v5.4H15M9 20.4H3.6V15"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.6 12S6 5.8 12 5.8 21.4 12 21.4 12 18 18.2 12 18.2 2.6 12 2.6 12z"/><circle cx="12" cy="12" r="3.1"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M13.6 3.2H7.4a2 2 0 00-2 2v13.6a2 2 0 002 2h9.2a2 2 0 002-2V8.2z"/><path d="M13.6 3.2V8.2h5"/><path d="M8.8 13h6.4M8.8 16.4h4.4"/></symbol>
   <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9.2V3.8h10v5.4"/><rect x="3.8" y="9.2" width="16.4" height="7.2" rx="2"/><rect x="7" y="14.4" width="10" height="5.8" rx="1.4"/></symbol>
@@ -687,7 +708,7 @@ const FEED_SEED = [
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 1;
-const APP_VER = 'نسخة ٠٫٢';
+const APP_VER = 'نسخة ٠٫٣';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -925,6 +946,8 @@ function rail() {
         (n ? '<span class="dot"></span>' : '') + '</button>';
     }).join('') +
     '<span class="sp"></span>' +
+    '<button data-a="theme" title="تبديل الوضع · T">' +
+      icon(S.theme === 'day' ? 'i-sun' : 'i-hour') + '</button>' +
     '<button data-a="palette" title="لوحة الأوامر · Ctrl+K">' + icon('i-search') + '</button>' +
     '<button data-a="wide" title="طيّ اللوح · B">' + icon('i-menu') + '</button>' +
     '<button class="' + (r === 'settings' ? 'on' : '') + '" data-a="go" data-n="settings" ' +
@@ -946,6 +969,14 @@ function sidebar() {
           (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
         '</button>';
       }).join('')).join('') +
+    '<div class="grp">العرض</div>' +
+    '<button class="nav" data-a="theme">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
+      '<b>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</b>' +
+      '<span class="n q">T</span></button>' +
+    '<button class="nav" data-a="wall">' + icon('i-fullscreen','s18') +
+      '<b>جدار العرض</b><span class="n q">F</span></button>' +
+    '<button class="nav" data-a="shortcuts">' + icon('i-info','s18') +
+      '<b>الاختصارات</b><span class="n q">؟</span></button>' +
     '<div class="brandfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي</div>' +
   '</aside>';
 }
@@ -966,10 +997,13 @@ function topbar() {
       (navCount('incidents') ? '<span class="bdg">' + AR(navCount('incidents')) + '</span>' : '') + '</button>' +
     '<button class="iconbtn" data-a="palette" aria-label="لوحة الأوامر" title="Ctrl+K">' +
       icon('i-search','s18') + '</button>' +
-    '<button class="themebtn" data-a="theme" aria-label="تبديل الوضع" title="T">' +
-      '<i>' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</i></button>' +
-    '<button class="iconbtn" data-a="wall" aria-label="جدار العرض" title="F">' +
-      icon('i-target','s18') + '</button>' +
+    '<button class="themebtn" data-a="theme" title="تبديل الوضع · T">' +
+      '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
+      '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
+    '<button class="iconbtn" data-a="wall" aria-label="جدار العرض" title="جدار العرض · F">' +
+      icon('i-fullscreen','s18') + '</button>' +
+    '<button class="iconbtn" data-a="shortcuts" aria-label="الاختصارات" title="الاختصارات · ؟">' +
+      icon('i-info','s18') + '</button>' +
   '</header>';
 }
 
@@ -1655,7 +1689,7 @@ const WALL_CYCLE = ['ops', 'incidents', 'tasks', 'support'];
 let wallTimer = null;
 function syncWall() {
   clearInterval(wallTimer); wallTimer = null;
-  if (!S.wall) return;
+  if (!S.wall || !S.wallAuto) return;   /* الدوران بطلبك لا بذاته */
   let i = Math.max(0, WALL_CYCLE.indexOf(S.route.n));
   wallTimer = setInterval(() => {
     if (!S.wall) { clearInterval(wallTimer); return; }
@@ -1702,6 +1736,13 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (S.drawer && e.key === 'Escape') { S.drawer = null; renderDrawer(); return; }
+  /* Esc مخرج عام: من الجدار أولًا، ثم إلى لوحة العمليات */
+  if (e.key === 'Escape') {
+    if (S.wall) { S.wall = false; S.wallAuto = false; render(); return; }
+    if (S.wide) { S.wide = false; render(); return; }
+    if (S.route.n !== 'ops') { S.route = { n: 'ops' }; render(); return; }
+    return;
+  }
   if (typing) return;
 
   if (e.key >= '1' && e.key <= '9') {
@@ -1773,7 +1814,15 @@ function render() {
       icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span>' +
       '<i class="bar"></i></div>'
     : '';
-  document.getElementById('wallbar').innerHTML = S.wall ? '<div class="wallbar"><i></i></div>' : '';
+  /* في جدار العرض: شريط تقدّم إن كان الدوران مفعّلًا، ومخرج ظاهر دائمًا */
+  document.getElementById('wallbar').innerHTML = S.wall
+    ? (S.wallAuto ? '<div class="wallbar"><i></i></div>' : '') +
+      '<button class="wallexit" data-a="wall">' + icon('i-x','s16') +
+        'الخروج من جدار العرض · Esc</button>' +
+      '<button class="wallexit" style="inset-inline-start:auto;inset-inline-end:22px" ' +
+        'data-a="wallauto">' + icon(S.wallAuto ? 'i-stop' : 'i-play','s16') +
+        (S.wallAuto ? 'إيقاف الدوران' : 'دوران تلقائي') + '</button>'
+    : '';
   afterRender();
   renderPalette();
   renderDrawer();
@@ -1801,7 +1850,10 @@ document.addEventListener('click', ev => {
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
     case 'wide': S.wide = !S.wide; break;
-    case 'wall': S.wall = !S.wall; toast(S.wall ? 'جدار العرض — F للخروج' : 'عاد العرض العادي'); break;
+    case 'wall': S.wall = !S.wall; if (!S.wall) S.wallAuto = false;
+      toast(S.wall ? 'جدار العرض — Esc أو F للخروج' : 'عاد العرض العادي'); break;
+    case 'wallauto': S.wallAuto = !S.wallAuto;
+      toast(S.wallAuto ? 'يدور بين اللوحات كل ١٢ ثانية' : 'أُوقف الدوران'); break;
     case 'theme': toggleTheme(); break;
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
