@@ -80,11 +80,31 @@ function fillMeters(root) {
 }
 
 /* ---------- طبقة ما بعد الرسم ---------- */
+/* الأعمدة تبدأ من الصفر ثم تنمو — الارتفاع يُكتب بعد الرسم لا معه */
+function growBars(root) {
+  requestAnimationFrame(() => {
+    (root || document).querySelectorAll('.bar[data-h]').forEach(b => {
+      b.style.height = b.dataset.h + '%';
+    });
+  });
+}
+
+/* عمق التمرير: الشريط العلوي يعرف أن تحته محتوى */
+function bindScrollDepth(wrap) {
+  const v = wrap.querySelector('.view'), top = wrap.querySelector('.top');
+  if (!v || !top) return;
+  const on = () => top.classList.toggle('deep', v.scrollTop > 6);
+  v.addEventListener('scroll', on, { passive: true });
+  on();
+}
+
 function afterRender() {
   const wrap = document.getElementById('stagewrap');
   wrap.querySelectorAll('[data-n]').forEach(countUp);
   bindPointerLight(wrap);
   fillMeters(wrap);
+  growBars(wrap);
+  bindScrollDepth(wrap);
   moveRailMark();
 }
 

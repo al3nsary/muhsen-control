@@ -35,6 +35,7 @@
 
 /* ───────── الوضع النهاري — قريب من التطبيق ───────── */
 :root[data-theme="day"]{
+  --railInk:#5A6C63;
   --void:#F4F7F3;   --deep:#FBFCFA;   --panel:#FFFFFF;  --panel2:#F7FAF7;
   --raise:#EFF4EF;  --line:#E4EBE4;   --line2:#D3DFD5;  --hair:rgba(168,135,90,.32);
 
@@ -64,6 +65,7 @@
   --rail:80px; --side:268px; --top:66px;
   --e:cubic-bezier(.22,.7,.2,1);
   --e2:cubic-bezier(.34,1.4,.44,1);
+  --e3:cubic-bezier(.16,1,.3,1);
 }
 
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
@@ -71,7 +73,8 @@ html,body{height:100%; margin:0}
 body{
   direction:rtl; font-family:var(--f); font-size:14px; line-height:1.7;
   color:var(--ink); background:var(--void); overflow:hidden;
-  -webkit-font-smoothing:antialiased;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
   transition:background .5s var(--e), color .5s var(--e);
 }
 button{font:inherit; color:inherit; border:0; background:none; cursor:pointer; text-align:right}
@@ -121,7 +124,8 @@ a{color:inherit; text-decoration:none}
 .rail .mark i{display:block; width:24px; height:24px; background-size:contain;
   background-repeat:no-repeat; background-position:center}
 .rail button{width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
-  color:var(--dim2); position:relative; transition:color .2s var(--e), background .2s var(--e), transform .2s var(--e2)}
+  color:var(--railInk,var(--dim2)); position:relative;
+  transition:color .2s var(--e), background .2s var(--e), transform .2s var(--e2)}
 .rail button:hover{color:var(--ink); background:var(--sheen); transform:translateY(-1px)}
 .rail button:active{transform:scale(.92)}
 .rail button.on{color:var(--gold3); background:color-mix(in srgb, var(--gold) 14%, transparent)}
@@ -154,6 +158,8 @@ a{color:inherit; text-decoration:none}
   background:linear-gradient(90deg, color-mix(in srgb, var(--live) 18%, transparent), transparent);
   transition:opacity .24s var(--e)}
 .nav:hover{color:var(--ink); background:var(--sheen); transform:translateX(-2px)}
+.nav:active{transform:translateX(-2px) scale(.985)}
+.rail button:active{transform:scale(.93)}
 .nav.on{color:var(--ink); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--live) 26%, transparent)}
 .nav.on::before{opacity:1}
 .nav > *{position:relative}
@@ -173,6 +179,8 @@ a{color:inherit; text-decoration:none}
 .top .crumb{font-size:11px; color:var(--dim2); animation:slideIn .4s var(--e) .05s both}
 @keyframes slideIn{from{opacity:0; transform:translateX(10px)} to{opacity:1; transform:none}}
 .top .sp{flex:1}
+.top{transition:box-shadow .3s var(--e), background .3s var(--e)}
+.top.deep{box-shadow:0 1px 0 var(--line2), 0 14px 26px -22px rgba(0,0,0,.9)}
 .chip{display:flex; align-items:center; gap:9px; padding:6px 12px; border-radius:12px;
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line); white-space:nowrap}
 .chip b{font-size:13px; font-variant-numeric:tabular-nums; letter-spacing:.3px}
@@ -212,8 +220,8 @@ a{color:inherit; text-decoration:none}
 .themebtn .ic{width:15px; height:15px}
 
 /* ══ المسرح ══ */
-.view{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:22px 24px 34px;
-  display:flex; flex-direction:column; gap:16px; scroll-behavior:smooth}
+.view{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:22px 24px 40px;
+  display:flex; flex-direction:column; gap:18px; scroll-behavior:smooth}
 .view > *{flex:none}
 .view::-webkit-scrollbar{width:11px}
 .view::-webkit-scrollbar-track{background:transparent}
@@ -245,6 +253,11 @@ a{color:inherit; text-decoration:none}
 .h b{font-size:15px; letter-spacing:-.2px; display:block}
 .h .sp{flex:1; min-width:0}
 .h > .ic{color:var(--gold2); flex:none}
+/* علامة القسم: خطّ ذهبي رفيع — لا أيقونة معمّمة */
+.h .hm{width:3px; height:17px; border-radius:99px; flex:none;
+  background:linear-gradient(180deg,var(--gold3),var(--gold));
+  box-shadow:0 0 12px -2px var(--gold)}
+.card.gold .h .hm{height:20px}
 .muted{color:var(--dim)} .faint{color:var(--dim2)}
 .tiny{font-size:11.5px} .sm{font-size:12.5px}
 .num{font-variant-numeric:tabular-nums}
@@ -258,12 +271,16 @@ a{color:inherit; text-decoration:none}
 @media (max-width:1080px){ .g4{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:1fr} }
 
 /* ══ المؤشّرات ══ */
-.kpi{padding:17px 19px 0; min-height:126px; cursor:default}
+.kpi{padding:17px 19px 42px; min-height:150px; cursor:default;
+  display:flex; flex-direction:column; justify-content:flex-start; gap:2px}
 .kpi .lab{font-size:11.5px; color:var(--dim2); display:flex; align-items:center; gap:6px}
 .kpi b{display:block; font-size:36px; font-weight:800; line-height:1.2; letter-spacing:-1.4px;
   font-variant-numeric:tabular-nums; margin-top:5px}
-.kpi .sub{font-size:11px; color:var(--dim2)}
-.kpi .spark{position:absolute; inset-inline:0; bottom:0; height:44px; color:var(--spark); opacity:.75}
+.kpi .sub{font-size:11px; color:var(--dim2); position:relative; z-index:2; margin-top:auto}
+.kpi .spark{position:absolute; inset-inline:0; bottom:0; height:38px; color:var(--spark);
+  opacity:.7; z-index:1; pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 55%);
+  mask-image:linear-gradient(180deg,transparent,#000 55%)}
 .kpi .spark path{stroke-dasharray:400; stroke-dashoffset:400; animation:draw 1.4s var(--e) .25s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 .kpi.up b{color:var(--live)} .kpi.warn b{color:var(--amber)} .kpi.bad b{color:var(--red)}
@@ -317,6 +334,11 @@ a{color:inherit; text-decoration:none}
 
 /* ══ التدفّق ══ */
 .feed{display:flex; flex-direction:column; gap:10px; max-height:512px; overflow:auto; padding-inline-end:4px}
+/* بطاقة تملأ ارتفاع صفّها — فلا ينقطع آخر حدث في منتصفه */
+.card.fillcol{display:flex; flex-direction:column}
+.card.fillcol .feed{flex:1; min-height:0; max-height:none;
+  -webkit-mask-image:linear-gradient(180deg,#000 88%,transparent);
+  mask-image:linear-gradient(180deg,#000 88%,transparent)}
 .feed::-webkit-scrollbar{width:6px}
 .feed::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 .evt{display:flex; gap:11px; padding:12px; border-radius:14px; background:var(--sheen);
@@ -345,6 +367,9 @@ a{color:inherit; text-decoration:none}
 .map{position:relative; height:352px; border-radius:var(--r); overflow:hidden;
   background:var(--mapBg); box-shadow:inset 0 0 0 1px var(--line)}
 .map svg{position:absolute; inset:0; width:100%; height:100%}
+.map::before{content:""; position:absolute; inset:0; opacity:.5;
+  background-image:radial-gradient(var(--gridLine) 1px, transparent 1px);
+  background-size:26px 26px}
 .map .radar{position:absolute; inset:0; opacity:.35;
   background:conic-gradient(from 0deg, transparent 0deg,
     color-mix(in srgb,var(--live) 22%,transparent) 22deg, transparent 44deg);
@@ -364,6 +389,8 @@ a{color:inherit; text-decoration:none}
 .node.bad .pin{background:var(--red); animation:beat 1.5s var(--e) infinite;
   box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 20%,transparent), 0 0 26px 3px color-mix(in srgb,var(--red) 60%,transparent)}
 .node.bad .pin::after{color:var(--red)}
+.node.soon .pin{background:var(--gold2); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 16%,transparent)}
+.node.soon .pin::after{color:var(--gold2)}
 @keyframes beat{0%,100%{transform:scale(1)} 50%{transform:scale(1.34)}}
 .node .lbl{position:absolute; inset-inline-end:22px; top:-7px; white-space:nowrap; font-size:11px;
   background:color-mix(in srgb,var(--deep) 86%,transparent); padding:4px 10px; border-radius:9px;
@@ -371,6 +398,8 @@ a{color:inherit; text-decoration:none}
 .dash{stroke-dasharray:5 8; animation:march 1.5s linear infinite}
 @keyframes march{to{stroke-dashoffset:-26}}
 .convoy{fill:var(--live); filter:drop-shadow(0 0 4px var(--live))}
+.convoy.warm{fill:var(--gold2); filter:drop-shadow(0 0 3px var(--gold)); opacity:.7}
+.dash.slow{stroke-dasharray:3 10; animation-duration:3s}
 
 /* ══ الخط الزمني للموسم ══ */
 .tl{overflow:auto; padding-bottom:6px}
@@ -472,6 +501,143 @@ a{color:inherit; text-decoration:none}
   background-size:200% 100%; animation:shim 1.3s linear infinite}
 @keyframes shim{to{background-position:-200% 0}}
 
+
+/* ═══════════════════════════════════════════════════
+   طبقة الـ CRM — أدوات القراءة والقرار
+   ═══════════════════════════════════════════════════ */
+
+/* ══ صفّ الأدوات فوق اللوحة ══ */
+.opsbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:2px 2px 0; animation:rise .5s var(--e3) both}
+.opsbar .sp{flex:1; min-width:12px}
+.hello b{display:block; font-size:19px; letter-spacing:-.5px; line-height:1.35}
+.hello .tiny{display:block; margin-top:1px}
+.kbd2{font-size:9.5px; font-weight:800; letter-spacing:.4px; padding:2px 6px; border-radius:6px;
+  background:rgba(255,255,255,.16); color:inherit; margin-inline-start:2px}
+
+/* ══ مبدّل مدى بمؤشّر ينزلق ══ */
+.sw{position:relative; display:inline-flex; padding:4px; border-radius:13px; flex:none;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.sw > button{position:relative; z-index:2; display:flex; align-items:center; gap:6px;
+  height:32px; padding:0 15px; border-radius:10px; font-size:12px; font-weight:700;
+  color:var(--dim2); white-space:nowrap; transition:color .26s var(--e)}
+.sw > button:hover{color:var(--ink)}
+.sw > button.on{color:var(--ink)}
+.sw > button i{font-style:normal; font-size:10px; opacity:.7; font-variant-numeric:tabular-nums}
+.swmark{position:absolute; z-index:1; top:4px; bottom:4px; border-radius:10px;
+  inset-inline-start:calc(4px + (100% - 8px) / var(--n) * var(--i));
+  width:calc((100% - 8px) / var(--n));
+  background:var(--panel2); box-shadow:0 0 0 1px var(--line2), 0 8px 18px -12px rgba(0,0,0,.8);
+  transition:inset-inline-start .46s var(--e2)}
+
+/* ══ فارق عن المدة السابقة ══ */
+.delta{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800;
+  padding:2px 8px; border-radius:99px; font-variant-numeric:tabular-nums; flex:none;
+  animation:rise .5s var(--e3) .3s both}
+.delta.up{color:var(--live); background:color-mix(in srgb,var(--live) 14%,transparent)}
+.delta.dn{color:var(--red); background:color-mix(in srgb,var(--red) 14%,transparent)}
+.delta.flat{color:var(--dim2); background:var(--sheen2)}
+.kpi .kv{display:flex; align-items:baseline; gap:9px}
+.kpi .kv b{flex:none}
+
+/* ══ رسم الأعمدة ══ */
+.chart{padding-top:4px}
+.bars{display:flex; align-items:flex-end; gap:7px; height:186px}
+.barwrap{flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-end;
+  align-items:center; gap:8px; height:100%; cursor:default}
+.bar{width:100%; max-width:34px; border-radius:8px 8px 4px 4px; height:0; position:relative;
+  background:linear-gradient(180deg,var(--g2),color-mix(in srgb,var(--g3) 55%,transparent));
+  box-shadow:inset 0 0 0 1px var(--hair);
+  transition:height .8s var(--e3), background .3s var(--e), box-shadow .3s var(--e);
+  animation:barin .5s var(--e3) both}
+@keyframes barin{from{opacity:0} to{opacity:1}}
+.barwrap:hover .bar{background:linear-gradient(180deg,var(--live),var(--g2))}
+.bar.hot{background:linear-gradient(180deg,var(--gold3),var(--gold));
+  box-shadow:0 0 0 1px var(--gold2), 0 0 26px -4px var(--gold)}
+.bar.hot::after{content:""; position:absolute; inset-inline:0; top:-9px; height:4px; border-radius:99px;
+  background:var(--gold3); animation:tick 2.4s var(--e) infinite}
+.bl{font-size:10px; color:var(--faint); font-variant-numeric:tabular-nums}
+.barwrap:hover .bl{color:var(--ink)}
+
+/* ══ القرص ══ */
+.donutwrap{display:flex; flex-direction:column; align-items:center; gap:16px}
+.donut{position:relative; width:172px; height:172px; flex:none}
+.donut svg{width:100%; height:100%; overflow:visible}
+.arc{opacity:0; transform-origin:70px 70px; animation:arcin .8s var(--e3) both}
+@keyframes arcin{from{opacity:0; transform:scale(.72)} to{opacity:1; transform:none}}
+.donut .dc{position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; pointer-events:none}
+.donut .dc b{font-size:32px; font-weight:800; letter-spacing:-1.2px; line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.donut .dc span{font-size:11px; color:var(--dim2)}
+.legend{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 14px; width:100%}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:11.5px; color:var(--dim)}
+.legend i{width:9px; height:9px; border-radius:3px; flex:none}
+.legend b{color:var(--ink); font-variant-numeric:tabular-nums}
+
+/* ══ الجدول ══ */
+.tbl{margin:0 -4px}
+.tbl .th{display:grid; gap:10px; padding:0 10px 9px; border-bottom:1px solid var(--line)}
+.tbl .th button{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800;
+  letter-spacing:.2px; color:var(--faint); transition:color .2s var(--e)}
+.tbl .th button:hover{color:var(--ink)}
+.tbl .th button.on{color:var(--gold2)}
+.tbl .tb{display:flex; flex-direction:column}
+.tbl .tr{display:grid; gap:10px; align-items:center; padding:11px 10px; border-radius:12px;
+  border-bottom:1px solid var(--line); cursor:pointer; animation:trin .5s var(--e3) both;
+  transition:background .2s var(--e), transform .22s var(--e), box-shadow .22s var(--e)}
+@keyframes trin{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.tbl .tr:last-child{border-bottom:0}
+.tbl .tr:hover{background:var(--sheen); transform:translateX(-3px);
+  box-shadow:inset 0 0 0 1px var(--line2)}
+.tbl .tr > span{min-width:0; display:flex; align-items:center; gap:8px}
+.tbl .tr .av{width:32px; height:32px; border-radius:10px}
+.tbl .tr .nm b{font-size:12.5px} .tbl .tr .nm span{font-size:10.5px}
+.fl{display:flex; align-items:center; gap:10px; min-width:0}
+.tbl .tr > span > .fl{flex:1; width:100%}
+.tbl .tr .meter{min-width:44px}
+
+/* ══ صفّ القرارات ══ */
+.qlist{display:flex; flex-direction:column; gap:9px}
+.qrow{display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:15px;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  animation:land .55s var(--e3) both;
+  transition:transform .24s var(--e), box-shadow .24s var(--e), background .24s var(--e)}
+.qrow:hover{transform:translateX(-3px); background:var(--sheen2)}
+.qrow .qi{width:38px; height:38px; border-radius:12px; flex:none; display:grid; place-items:center}
+.qrow.bad{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--red) 30%,transparent)}
+.qrow.bad .qi{color:var(--red); background:color-mix(in srgb,var(--red) 13%,transparent)}
+.qrow.warn{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 28%,transparent)}
+.qrow.warn .qi{color:var(--amber); background:color-mix(in srgb,var(--amber) 13%,transparent)}
+.qrow .nm b{font-size:13px} .qrow .nm span{font-size:11.5px; color:var(--dim)}
+.qrow .qa{display:flex; align-items:center; gap:8px; flex:none;
+  opacity:.55; transform:translateX(-4px);
+  transition:opacity .26s var(--e), transform .26s var(--e)}
+.qrow:hover .qa{opacity:1; transform:none}
+@media (max-width:900px){
+  .qrow{flex-wrap:wrap} .qrow .qa{opacity:1; transform:none; width:100%}
+}
+
+/* ══ مفتاح الخريطة ══ */
+.maplegend{display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  margin-top:12px; font-size:11px; color:var(--dim2)}
+.maplegend span{display:inline-flex; align-items:center; gap:7px}
+.maplegend i{width:9px; height:9px; border-radius:50%; flex:none}
+.maplegend i.ok{background:var(--live)} .maplegend i.wr{background:var(--amber)}
+.maplegend i.bd{background:var(--red)}
+.maplegend i.sn{background:var(--gold2)}
+
+/* ══ بطاقة مصغّرة ══ */
+.card.mini{padding:13px 14px; min-height:0}
+.card.mini b{display:block; font-size:23px; font-weight:800; letter-spacing:-.9px; margin-top:2px;
+  font-variant-numeric:tabular-nums}
+
+/* ══ نعومة: الحركة الطويلة تسير بمنحنى أسّي ══ */
+.view > *{animation-duration:.55s; animation-timing-function:var(--e3)}
+.card{transition:transform .34s var(--e3), box-shadow .34s var(--e3), border-color .34s var(--e)}
+.card.hov:hover{transform:translateY(-4px)}
+.view, .feed, .drawer .db, .palette .res, .side{overscroll-behavior:contain}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms !important; animation-iteration-count:1 !important;
     transition-duration:.001ms !important}
@@ -543,6 +709,7 @@ a{color:inherit; text-decoration:none}
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.6 6.6h11.8M8.6 12h11.8M8.6 17.4h11.8"/><circle cx="4.4" cy="6.6" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.4" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.4" cy="17.4" r="1.3" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.6 21V4.2M5.6 5.2h11.6l-2 3.6 2 3.6H5.6"/></symbol>
+  <symbol id="i-pie" viewBox="0 0 24 24"><path d="M12 3.4a8.6 8.6 0 108.6 8.6H12z"/><path d="M14.6 2.2A8.6 8.6 0 0121.8 9.4h-7.2z"/></symbol>
   <symbol id="i-hist" viewBox="0 0 24 24"><path d="M3.6 12a8.4 8.4 0 112.5 6"/><path d="M3.4 20v-5h5"/><path d="M12 7.6V12l3 1.8"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5L10.6 13.4M20.5 3.5l-6.4 17-3.5-7.1-7.1-3.5z"/></symbol>
   <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.6 8.6A2 2 0 015.6 6.6h1.9l1.3-2.2h6.4l1.3 2.2h1.9a2 2 0 012 2v8.8a2 2 0 01-2 2H5.6a2 2 0 01-2-2z"/><circle cx="12" cy="13" r="3.6"/></symbol>
@@ -708,7 +875,7 @@ const FEED_SEED = [
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 1;
-const APP_VER = 'نسخة ٠٫٣';
+const APP_VER = 'نسخة ٠٫٤';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -748,7 +915,7 @@ function untilTxt(ts) {
 /* ---------- التهيئة ---------- */
 function seed() {
   const st = {
-    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, wide: false,
+    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null
   };
@@ -1019,8 +1186,8 @@ function kpi(lab, val, sub, cls, ic, num, suffix) {
       '<path d="M0 30 L28 24 L56 27 L84 16 L112 20 L140 10 L168 14 L200 6" ' +
       'fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/></svg></div>';
 }
-function head(t, sub, right) {
-  return '<div class="h">' + icon('i-hash','s16') +
+function head(t, sub, right, ic) {
+  return '<div class="h">' + (ic ? icon(ic, 's16') : '<i class="hm"></i>') +
     '<span class="sp"><b>' + E(t) + '</b>' +
     (sub ? '<div class="tiny faint">' + E(sub) + '</div>' : '') + '</span>' +
     (right || '') + '</div>';
@@ -1032,135 +1199,439 @@ function empty(t, s, ic) {
 const avatar = u => '<span class="av">' + icon(u.role === 'leader' ? 'i-shield' : 'i-user', 's18') + '</span>';
 
 /* ============================================================
-   لوحة العمليات — الشاشة التي تُقرأ من بعيد
+   مكوّنات النظام — لبنات تُعاد في كل شاشة
+   كل مكوّن هنا يرجع نصًّا، وحركته تُشغَّل في afterRender.
+   ============================================================ */
+
+/* ---------- شريط أقسام بمؤشّر ينزلق ---------- */
+function segmented(key, items, cur) {
+  const i = Math.max(0, items.findIndex(x => x[0] === cur));
+  return '<div class="sw" data-sw="' + key + '" style="--n:' + items.length + ';--i:' + i + '">' +
+    '<span class="swmark"></span>' +
+    items.map(x => '<button class="' + (x[0] === cur ? 'on' : '') + '" ' +
+      'data-a="seg" data-k="' + key + '" data-v="' + x[0] + '">' + E(x[1]) +
+      (x[2] != null ? '<i>' + AR(x[2]) + '</i>' : '') + '</button>').join('') +
+  '</div>';
+}
+
+/* ---------- فارق عن المدة السابقة ---------- */
+function delta(v) {
+  if (v === 0 || v == null) return '<span class="delta flat">' + icon('i-list','s14') + 'بلا تغيّر</span>';
+  const up = v > 0;
+  return '<span class="delta ' + (up ? 'up' : 'dn') + '">' +
+    '<svg class="ic s14" viewBox="0 0 24 24"><path d="M12 ' + (up ? '19V5M6 11l6-6 6 6' : '5v14M6 13l6 6 6-6') +
+    '"/></svg>' + AR(Math.abs(v)) + '</span>';
+}
+
+/* ---------- بطاقة مؤشّر كاملة ---------- */
+function stat(o) {
+  return '<div class="card kpi hov ' + (o.cls || '') + '">' +
+    '<span class="lab">' + icon(o.ic || 'i-hash','s14') + E(o.label) + '</span>' +
+    '<div class="kv"><b class="num" data-n="' + o.n + '"' +
+      (o.suffix ? ' data-suffix="' + o.suffix + '"' : '') + '>' + AR(0) + '</b>' +
+      (o.delta != null ? delta(o.delta) : '') + '</div>' +
+    '<span class="sub">' + E(o.sub || '') + '</span>' +
+    '<svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none">' +
+      '<path d="' + sparkPath(o.series || [4, 7, 5, 9, 6, 11, 8, 13]) + '" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.8"/></svg></div>';
+}
+function sparkPath(a) {
+  const mx = Math.max.apply(null, a) || 1, n = a.length;
+  return a.map((v, i) => (i ? 'L' : 'M') + (i / (n - 1) * 200).toFixed(1) + ' ' +
+    (36 - (v / mx) * 30).toFixed(1)).join(' ');
+}
+
+/* ---------- رسم أعمدة ---------- */
+function chartBars(o) {
+  const mx = Math.max.apply(null, o.data.map(d => d.v)) || 1;
+  return '<div class="chart">' +
+    '<div class="bars">' + o.data.map((d, i) =>
+      '<span class="barwrap" title="' + E(d.l + ': ' + AR(d.v)) + '">' +
+        '<span class="bar' + (d.hot ? ' hot' : '') + '" data-h="' + Math.max(3, d.v / mx * 100) + '" ' +
+          'style="animation-delay:' + (i * 45) + 'ms"><i></i></span>' +
+        '<span class="bl">' + E(d.l) + '</span>' +
+      '</span>').join('') + '</div>' +
+    (o.foot ? '<div class="tiny faint" style="margin-top:10px">' + E(o.foot) + '</div>' : '') +
+  '</div>';
+}
+
+/* ---------- قرص نسب ---------- */
+function donut(o) {
+  const tot = o.data.reduce((a, d) => a + d.v, 0) || 1;
+  let acc = 0;
+  const R = 54, C = 2 * Math.PI * R;
+  const arcs = o.data.map((d, i) => {
+    const frac = d.v / tot, len = frac * C, off = -acc * C;
+    acc += frac;
+    return '<circle class="arc" cx="70" cy="70" r="' + R + '" fill="none" stroke="' + d.c + '" ' +
+      'stroke-width="15" stroke-linecap="butt" ' +
+      'stroke-dasharray="' + len.toFixed(1) + ' ' + (C - len).toFixed(1) + '" ' +
+      'stroke-dashoffset="' + off.toFixed(1) + '" ' +
+      'style="animation-delay:' + (i * 110) + 'ms"/>';
+  }).join('');
+  return '<div class="donut">' +
+    '<svg viewBox="0 0 140 140"><g transform="rotate(-90 70 70)">' + arcs + '</g></svg>' +
+    '<span class="dc"><b class="num" data-n="' + tot + '">' + AR(0) + '</b>' +
+      '<span>' + E(o.center || '') + '</span></span>' +
+  '</div>' +
+  '<div class="legend">' + o.data.map(d =>
+    '<span><i style="background:' + d.c + '"></i>' + E(d.l) +
+    '<b class="num">' + AR(d.v) + '</b></span>').join('') + '</div>';
+}
+
+/* ---------- جدول يُفرز ---------- */
+function dataTable(o) {
+  const sk = S.sort && S.sort[o.key] || {};
+  const dir = sk.dir || 1, col = sk.col != null ? sk.col : (o.defaultCol || 0);
+  const rows = o.rows.slice().sort((a, b) => {
+    const A = a.sort[col], B = b.sort[col];
+    if (A === B) return 0;
+    return (A > B ? 1 : -1) * dir;
+  });
+  return '<div class="tbl">' +
+    '<div class="th" style="grid-template-columns:' + o.cols.map(c => c.w || '1fr').join(' ') + '">' +
+      o.cols.map((c, i) => '<button class="' + (i === col ? 'on' : '') + '" ' +
+        'data-a="sort" data-k="' + o.key + '" data-v="' + i + '">' + E(c.t) +
+        (i === col ? '<svg class="ic s14" viewBox="0 0 24 24"><path d="M12 ' +
+          (dir > 0 ? '19V5M6 11l6-6 6 6' : '5v14M6 13l6 6 6-6') + '"/></svg>' : '') +
+        '</button>').join('') + '</div>' +
+    '<div class="tb">' + (rows.length ? rows.map((r, i) =>
+      '<div class="tr" style="grid-template-columns:' + o.cols.map(c => c.w || '1fr').join(' ') + ';' +
+        'animation-delay:' + Math.min(i * 26, 300) + 'ms"' +
+        (r.act ? ' data-a="' + r.act + '" data-id="' + r.id + '"' : '') + '>' +
+        r.cells.map(c => '<span>' + c + '</span>').join('') + '</div>').join('')
+      : '<div class="empty" style="padding:34px">' + icon('i-search','s26') + '<b>لا صفوف</b></div>') +
+    '</div></div>';
+}
+
+/* ---------- صفّ القرارات: ما ينتظرك الآن ---------- */
+function decisionItems() {
+  const items = [];
+  openSupport().forEach(s => {
+    const t = taskById(s.taskId) || {}, L = userById(s.by) || {};
+    items.push({
+      kind: 'bad', ic: 'i-send', t: 'طلب دعم — ' + (t.kt || ''),
+      s: (L.name || '') + ' يطلب ' + AR(s.count) + ' محسن · ' + s.why,
+      at: s.at,
+      acts: '<button class="btn d sm" data-a="spno" data-id="' + s.id + '">اعتذار</button>' +
+            '<button class="btn p sm" data-a="spok" data-id="' + s.id + '">إسناد من الاحتياط</button>'
+    });
+  });
+  S.reports.filter(r => r.room && r.status !== 'مغلق').forEach(r => items.push({
+    kind: 'warn', ic: 'i-key', t: 'تعديل بيانات غرفة — ' + r.kt,
+    s: r.room.floor + ' · غرفة ' + r.room.no + ' — ' + r.title, at: r.at,
+    acts: '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">تحديث قاعدة البيانات</button>'
+  }));
+  escalatedReports().filter(r => !r.room).forEach(r => items.push({
+    kind: 'warn', ic: 'i-flag', t: 'تقرير مصعَّد — ' + r.kt,
+    s: r.title + ' — ' + r.body.slice(0, 70), at: r.at,
+    acts: '<button class="btn l sm" data-a="go" data-n="reports">فتح التقرير</button>'
+  }));
+  S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
+    kind: 'bad', ic: 'i-ticket', t: 'تذكرة حرجة — ' + k.kt,
+    s: k.title + ' · ' + k.from, at: k.at,
+    acts: '<button class="btn l sm" data-a="go" data-n="tickets">متابعة</button>'
+  }));
+  items.sort((a, b) => (a.kind === 'bad' ? -1 : 1) - (b.kind === 'bad' ? -1 : 1) || b.at - a.at);
+  return items;
+}
+
+function decisionQueue() {
+  const items = decisionItems();
+  return '<div class="card gold queue">' +
+    head('يحتاج قرارك الآن', items.length ? 'رتّبتُها بالأولوية ثم بالأحدث' : 'لا شيء معلّق',
+      items.length ? pill(AR(items.length) + ' بند', 'no') : pill('نظيف', 'live')) +
+    (items.length ? '<div class="qlist">' + items.slice(0, 5).map((x, i) =>
+      '<div class="qrow ' + x.kind + '" style="animation-delay:' + (i * 60) + 'ms">' +
+        '<span class="qi">' + icon(x.ic, 's18') + '</span>' +
+        '<span class="nm"><b>' + E(x.t) + '</b><span>' + E(x.s) + '</span></span>' +
+        '<span class="tiny faint">' + ago(x.at) + '</span>' +
+        '<span class="qa">' + x.acts + '</span>' +
+      '</div>').join('') + '</div>' +
+      (items.length > 5 ? '<div class="tiny faint" style="margin-top:10px">و' +
+        AR(items.length - 5) + ' بندًا آخر في أقسامها</div>' : '')
+      : '<div class="empty" style="padding:30px">' + icon('i-checkc','s26') +
+        '<b>لا قرار معلّقًا</b><div class="tiny" style="margin-top:6px">' +
+        'كل ما رفعه الميدان بُتَّ فيه.</div></div>') +
+  '</div>';
+}
+
+/* ---------- حِمل الساعات: كم مهمة تعمل في كل ساعة اليوم ---------- */
+function loadByHour() {
+  const d0 = dayStart(now()), out = [];
+  for (let h = 0; h < 24; h += 2) {
+    const a = d0 + h * HR, b = a + 2 * HR;
+    const n = S.tasks.filter(t => t.start < b && t.end > a).length;
+    out.push({ l: AR(h), v: n, hot: now() >= a && now() < b });
+  }
+  return out;
+}
+
+/* ---------- توزيع حالات المهام ---------- */
+function statusMix() {
+  const run = runningTasks().length;
+  const done = S.tasks.filter(t => t.status === 'done').length;
+  const next = S.tasks.filter(t => t.start > now()).length;
+  const auto = S.tasks.filter(t => t.autoStarted).length;
+  return [
+    { l:'جارية',  v:run,  c:'var(--live)' },
+    { l:'قادمة',  v:next, c:'var(--blue)' },
+    { l:'منجزة',  v:done - auto, c:'var(--gold)' },
+    { l:'بدأها النظام', v:auto, c:'var(--red)' }
+  ].filter(d => d.v > 0);
+}
+
+/* ---------- مقارنة الفرق ---------- */
+function ktTable() {
+  const rows = leaders().map(L => {
+    const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const done = ts.filter(t => t.status === 'done');
+    const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done').length;
+    const tk = openTickets().filter(k => k.leaderId === L.id).length;
+    const sp = S.support.filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
+    const auto = ts.filter(t => t.autoStarted).length;
+    const rate = done.length ? Number((done.reduce((a, t) => a + (t.rating || 0), 0) / done.length).toFixed(1)) : 0;
+    return {
+      id: L.id, act: 'ktopen',
+      sort: [L.kt, L.pilgrims, live, tk, sp, rate],
+      cells: [
+        '<span class="fl"><span class="av">' + icon('i-shield','s16') + '</span>' +
+          '<span class="nm"><b>' + E(L.kt) + '</b><span>' + E(L.name) + '</span></span></span>',
+        '<b class="num">' + AR(L.pilgrims) + '</b>',
+        live ? pill(AR(live) + ' جارية', 'live') : '<span class="faint">—</span>',
+        tk ? pill(AR(tk), 'wait') : '<span class="faint">—</span>',
+        sp ? pill(AR(sp), 'no') : '<span class="faint">—</span>',
+        auto ? pill(AR(auto), 'no') : '<span class="faint">—</span>',
+        '<span class="fl" style="gap:8px"><span class="meter gold" style="flex:1">' +
+          '<i data-w="' + (rate / 5 * 100) + '"></i></span>' +
+          '<b class="num" style="min-width:26px">' + (rate ? AR(rate) : '—') + '</b></span>'
+      ]
+    };
+  });
+  return dataTable({
+    key: 'kt', defaultCol: 0,
+    cols: [{ t:'الفريق', w:'1.6fr' }, { t:'حجاج', w:'.6fr' }, { t:'الآن', w:'.8fr' },
+           { t:'تذاكر', w:'.6fr' }, { t:'دعم', w:'.6fr' }, { t:'بدأها النظام', w:'.9fr' },
+           { t:'التقييم', w:'1.2fr' }],
+    rows
+  });
+}
+
+/* ============================================================
+   لوحة العمليات — الشاشة التي تُدار منها الغرفة
+   ترتيبها يتبع سؤال المشغّل: ماذا يحتاج قراري؟ ثم أين نحن؟
+   ثم كيف نسير؟ ثم من يحتاج انتباهي؟
    ============================================================ */
 
 /* عقد الخريطة: مواضع تقريبية للمشاعر ومكة وجدة */
 const MAP_NODES = [
-  { k:'jeddah',  x:14, y:70, l:'مطار جدة' },
-  { k:'makkah',  x:44, y:52, l:'مكة — الحرم' },
-  { k:'aziziah', x:53, y:63, l:'العزيزية — السكن' },
-  { k:'mina',    x:70, y:44, l:'منى' },
+  { k:'jeddah',  x:13, y:72, l:'مطار جدة' },
+  { k:'makkah',  x:43, y:50, l:'مكة — الحرم' },
+  { k:'aziziah', x:53, y:64, l:'العزيزية — السكن' },
+  { k:'mina',    x:70, y:42, l:'منى' },
   { k:'muzd',    x:80, y:52, l:'مزدلفة' },
-  { k:'arafah',  x:90, y:62, l:'عرفة' }
+  { k:'arafah',  x:91, y:64, l:'عرفة' }
 ];
 const KIND_NODE = { airport:'jeddah', checkout:'jeddah', checkin:'aziziah',
   umrah:'makkah', wada:'makkah', tour:'makkah', mina:'mina', jamarat:'mina', arafah:'arafah' };
+const LEG = [['jeddah','makkah'],['makkah','aziziah'],['aziziah','mina'],['mina','muzd'],['muzd','arafah']];
+
+function mapPath(a, b) {
+  const A = MAP_NODES.find(n => n.k === a), B = MAP_NODES.find(n => n.k === b);
+  return 'M' + A.x + ' ' + A.y + ' Q' + ((A.x + B.x) / 2) + ' ' + (Math.min(A.y, B.y) - 10) +
+    ' ' + B.x + ' ' + B.y;
+}
 
 function opsMap() {
   const live = runningTasks();
-  const busy = {};
-  live.forEach(t => { const k = KIND_NODE[t.kind] || 'makkah'; busy[k] = (busy[k] || 0) + 1; });
-  const late = {};
-  live.forEach(t => { if (now() > t.end) { const k = KIND_NODE[t.kind] || 'makkah'; late[k] = 1; } });
+  const busy = {}, late = {};
+  live.forEach(t => {
+    const k = KIND_NODE[t.kind] || 'makkah';
+    busy[k] = (busy[k] || 0) + 1;
+    if (now() > t.end) late[k] = 1;
+  });
+  /* المسارات القادمة خلال ٦ ساعات تُرسم أخفت — الغرفة ترى ما هو آتٍ */
+  const soon = {};
+  S.tasks.filter(t => t.start > now() && t.start < now() + 6 * HR).forEach(t => {
+    const k = KIND_NODE[t.kind] || 'makkah'; soon[k] = (soon[k] || 0) + 1;
+  });
+  const hot = LEG.filter(l => busy[l[1]] || busy[l[0]]);
+  const warm = LEG.filter(l => !hot.includes(l) && (soon[l[1]] || soon[l[0]]));
 
-  const path = (a, b) => {
-    const A = MAP_NODES.find(n => n.k === a), B = MAP_NODES.find(n => n.k === b);
-    return 'M' + A.x + ' ' + A.y + ' Q' + ((A.x + B.x) / 2) + ' ' + (Math.min(A.y, B.y) - 9) +
-      ' ' + B.x + ' ' + B.y;
-  };
   return '<div class="map"><span class="radar"></span>' +
     '<svg viewBox="0 0 100 100" preserveAspectRatio="none">' +
-      '<g stroke="currentColor" stroke-width=".5" fill="none" style="color:var(--line2)">' +
-        '<path d="' + path('jeddah','makkah') + '"/>' +
-        '<path d="' + path('makkah','aziziah') + '"/>' +
-        '<path d="' + path('aziziah','mina') + '"/>' +
-        '<path d="' + path('mina','muzd') + '"/>' +
-        '<path d="' + path('muzd','arafah') + '"/></g>' +
-      '<g stroke="currentColor" stroke-width=".8" fill="none" class="dash" opacity=".9" style="color:var(--live)">' +
-        '<path d="' + path('jeddah','makkah') + '"/>' +
-        '<path d="' + path('aziziah','mina') + '"/></g>' +
+      '<g stroke="currentColor" stroke-width=".45" fill="none" style="color:var(--line2)">' +
+        LEG.map(l => '<path d="' + mapPath(l[0], l[1]) + '"/>').join('') + '</g>' +
+      '<g stroke="currentColor" stroke-width=".8" fill="none" class="dash" style="color:var(--live)">' +
+        hot.map(l => '<path d="' + mapPath(l[0], l[1]) + '"/>').join('') + '</g>' +
+      '<g stroke="currentColor" stroke-width=".55" fill="none" class="dash slow" ' +
+        'style="color:var(--gold2);opacity:.5">' +
+        warm.map(l => '<path d="' + mapPath(l[0], l[1]) + '"/>').join('') + '</g>' +
+      hot.slice(0, 3).map((l, i) =>
+        '<circle class="convoy" r="1.2"><animateMotion dur="' + (7 + i * 2) + 's" ' +
+        'repeatCount="indefinite" path="' + mapPath(l[0], l[1]) + '"/></circle>').join('') +
+      warm.slice(0, 2).map((l, i) =>
+        '<circle class="convoy warm" r="1"><animateMotion dur="' + (13 + i * 3) + 's" ' +
+        'repeatCount="indefinite" path="' + mapPath(l[0], l[1]) + '"/></circle>').join('') +
     '</svg>' +
     MAP_NODES.map(n => {
-      const cls = late[n.k] ? 'bad' : busy[n.k] ? 'warn' : '';
+      const cls = late[n.k] ? 'bad' : busy[n.k] ? 'warn' : soon[n.k] ? 'soon' : '';
       return '<span class="node ' + cls + '" style="inset-inline-end:' + n.x + '%;top:' + n.y + '%">' +
         '<span class="pin"></span><span class="lbl">' + E(n.l) +
-        (busy[n.k] ? ' · ' + AR(busy[n.k]) + ' جارية' : '') + '</span></span>';
+        (busy[n.k] ? ' · ' + AR(busy[n.k]) : '') + '</span></span>';
     }).join('') +
   '</div>';
 }
 
-function ktCard(L) {
-  const team = teamOf(L.id);
-  const live = S.tasks.filter(t => t.leaderId === L.id && t.status !== 'done' &&
-    now() >= t.start && now() < t.end);
-  const next = S.tasks.filter(t => t.leaderId === L.id && t.start > now())
-    .sort((a, b) => a.start - b.start)[0];
-  const tk = openTickets().filter(k => k.leaderId === L.id).length;
-  const sp = openSupport().filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
-  const org = orgById(L.orgId) || {};
-  const st = sp ? ['يحتاج دعمًا','no'] : live.length ? ['في مهمة','live'] : ['مستقر','grey'];
-  return '<button class="card ' + (live.length ? 'live' : '') + '" data-a="go" data-n="teams" ' +
-    'data-id="' + L.id + '" style="width:100%;text-align:right">' +
-    '<div class="h" style="margin-bottom:10px">' +
-      '<span class="av">' + icon('i-shield','s18') + '</span>' +
-      '<span class="sp"><b>' + E(L.kt) + ' · ' + E(L.name) + '</b>' +
-      '<div class="tiny faint">' + E(org.ar || '') + ' · ' + E(org.country || '') + '</div></span>' +
-      pill(st[0], st[1]) + '</div>' +
-    '<div class="grid g3" style="gap:8px">' +
-      '<span><div class="tiny faint">حجاج</div><b class="num">' + AR(L.pilgrims) + '</b></span>' +
-      '<span><div class="tiny faint">محسنون</div><b class="num">' + AR(team.length) + '</b></span>' +
-      '<span><div class="tiny faint">تذاكر</div><b class="num" style="color:' +
-        (tk ? 'var(--amber)' : 'var(--dim)') + '">' + AR(tk) + '</b></span>' +
-    '</div>' +
-    (live.length
-      ? '<div class="tiny" style="margin-top:11px;color:var(--live)">' + icon('i-play','s14') +
-        ' ' + E(live[0].title) + ' — تنتهي ' + t12(live[0].end) + '</div>'
-      : next ? '<div class="tiny faint" style="margin-top:11px">' + icon('i-clock','s14') +
-        ' التالية: ' + E(next.title) + ' ' + untilTxt(next.start) + '</div>'
-      : '<div class="tiny faint" style="margin-top:11px">لا مهام قادمة</div>') +
-  '</button>';
+/* ---------- صفّ الأدوات العلوي ---------- */
+function opsBar() {
+  const rng = S.tab.rng || 'today';
+  return '<div class="opsbar">' +
+    '<div class="hello"><b>غرفة العمليات</b>' +
+      '<span class="tiny faint">' + dayName(now()) + ' · ' + hijri(now()) + ' — ' +
+      AR(leaders().length) + ' فرق · ' + AR(allPilgrims()) + ' حاجًّا تحت الإشراف</span></div>' +
+    '<span class="sp"></span>' +
+    segmented('rng', [['today','اليوم'],['week','الأسبوع'],['season','الموسم']], rng) +
+    '<button class="btn l sm" data-a="go" data-n="timeline">' + icon('i-hist','s16') + 'الخط الزمني</button>' +
+    '<button class="btn p sm" data-a="palette">' + icon('i-search','s16') + 'أمر سريع' +
+      '<span class="kbd2">Ctrl K</span></button>' +
+  '</div>';
+}
+
+/* نطاق المدة المختارة */
+function rangeTasks() {
+  const r = S.tab.rng || 'today';
+  if (r === 'season') return S.tasks.slice();
+  if (r === 'week') {
+    const a = dayStart(now()) - 3 * DAY, b = a + 7 * DAY;
+    return S.tasks.filter(t => t.start >= a && t.start < b);
+  }
+  return todayTasks();
 }
 
 function screenOps() {
+  const rng = S.tab.rng || 'today';
+  const scope = rangeTasks();
   const live = runningTasks();
-  const today = todayTasks();
-  const doneToday = today.filter(t => t.status === 'done').length;
-  const auto = S.tasks.filter(t => t.autoStarted && t.status !== 'done').length;
+  const done = scope.filter(t => t.status === 'done');
+  const auto = scope.filter(t => t.autoStarted).length;
+  const crit = openTickets().filter(k => k.pri === 'حرجة').length;
+  const queue = decisionItems();
+  const pend = queue.length;
+  const rngName = rng === 'today' ? 'اليوم' : rng === 'week' ? 'هذا الأسبوع' : 'الموسم';
 
-  return '<div class="grid g4">' +
-      kpi('حجاج تحت الإشراف', '', AR(leaders().length) + ' مجموعة KT', '', 'i-users', allPilgrims()) +
-      kpi('مهام جارية الآن', '', AR(today.length) + ' مهمة اليوم', 'up', 'i-play', live.length) +
-      kpi('طلبات تنتظر قرارك', '',
-        AR(openSupport().length) + ' دعم · ' + AR(escalatedReports().length) + ' تقرير',
-        openSupport().length ? 'warn' : '', 'i-send', openSupport().length + escalatedReports().length) +
-      kpi('تذاكر مفتوحة', '',
-        AR(openTickets().filter(k => k.pri === 'حرجة').length) + ' حرجة',
-        openTickets().filter(k => k.pri === 'حرجة').length ? 'bad' : '', 'i-ticket', openTickets().length) +
+  return opsBar() +
+
+    '<div class="grid g4">' +
+      stat({ label:'مهام ' + rngName, n:scope.length, delta:scope.length - 8, ic:'i-tasks',
+        sub:AR(done.length) + ' منجزة · ' + AR(live.length) + ' جارية',
+        series:[6,8,7,11,9,13,10,Math.max(1,scope.length)] }) +
+      stat({ label:'قرارات تنتظرك', n:pend, delta:pend ? pend - 1 : 0, ic:'i-send',
+        cls:pend ? 'warn' : '', sub:AR(openSupport().length) + ' دعم · ' +
+        AR(escalatedReports().length) + ' تقرير مصعَّد', series:[1,2,1,3,2,4,3,Math.max(1,pend)] }) +
+      stat({ label:'تذاكر مفتوحة', n:openTickets().length, delta:2, ic:'i-ticket',
+        cls:crit ? 'bad' : '', sub:AR(crit) + ' حرجة · من الحجاج',
+        series:[3,5,4,6,5,8,6,Math.max(1,openTickets().length)] }) +
+      stat({ label:'التزام البدء', n:scope.length ? Math.round((1 - auto / Math.max(1, scope.length)) * 100) : 100,
+        suffix:'٪', delta:auto ? -auto : 0, ic:'i-play', cls:auto ? 'warn' : 'up',
+        sub:auto ? AR(auto) + ' مهمة بدأها النظام' : 'كل المهام بدأها ليدرها',
+        series:[88,90,86,92,89,94,91,100] }) +
+    '</div>' +
+
+    decisionQueue() +
+
+    '<div class="grid g23">' +
+      '<div class="card hov">' +
+        head('حِمل اليوم بالساعات', 'كم مهمة تعمل في كل نافذتين — والعمود المضيء هو الآن',
+          pill(AR(live.length) + ' الآن', live.length ? 'live' : 'grey'), 'i-hist') +
+        chartBars({ data: loadByHour(), foot: 'الذروة تكشف الساعات التي تحتاج احتياطًا جاهزًا.' }) +
+      '</div>' +
+      '<div class="card hov">' +
+        head('توزيع الحالات', 'من ' + AR(S.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
+        '<div class="donutwrap">' + donut({ data: statusMix(), center:'مهمة' }) + '</div>' +
+      '</div>' +
     '</div>' +
 
     '<div class="grid g23">' +
-      '<div class="card gold">' +
-        head('خريطة العمليات', 'المشاعر والحرم والمطار — المواقع النشطة الآن',
-          pill(AR(live.length) + ' نشطة', 'live')) +
+      '<div class="card gold hov">' +
+        head('خريطة العمليات', 'المسارات الحيّة تتحرّك باتجاه التفويج',
+          '<span class="fl" style="gap:8px">' + pill(AR(live.length) + ' نشطة', 'live') +
+          '<button class="btn l sm" data-a="go" data-n="tasks">المهام</button></span>') +
         opsMap() +
-        '<div class="tiny faint" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap">' +
-          '<span>● أخضر: مستقر</span><span style="color:var(--amber)">● كهرماني: مهام جارية</span>' +
-          '<span style="color:var(--red)">● أحمر: تجاوز الوقت</span></div>' +
+        '<div class="maplegend">' +
+          '<span><i class="ok"></i>مستقر</span>' +
+          '<span><i class="wr"></i>مهام جارية</span>' +
+          '<span><i class="bd"></i>تجاوز الوقت</span>' +
+          '<span><i class="sn"></i>يتحرّك خلال ٦ ساعات</span>' +
+          '<span class="faint" style="margin-inline-start:auto">النقطة المتحرّكة رتل في طريقه</span>' +
+        '</div>' +
       '</div>' +
-      '<div class="card">' +
+      '<div class="card hov fillcol">' +
         head('تدفّق الحوادث', 'مباشر من التطبيق',
           '<button class="btn l sm" data-a="go" data-n="incidents">الكل</button>') +
-        '<div class="feed">' + S.feed.slice(0, 8).map(f =>
-          '<div class="evt ' + f.kind + '"><span class="dot"></span>' +
+        '<div class="feed">' + S.feed.slice(0, 9).map((f, i) =>
+          '<div class="evt ' + f.kind + '" style="animation-delay:' + (i * 40) + 'ms">' +
+          '<span class="dot"></span>' +
           '<span class="sp"><b>' + E(f.title) + '</b><p>' + E(f.body) + '</p></span>' +
           '<span class="t">' + ago(f.at) + '</span></div>').join('') + '</div>' +
       '</div>' +
     '</div>' +
 
-    '<div class="h" style="margin:6px 2px 0"><b>الفرق الميدانية</b>' +
-      '<span class="sp"></span>' +
-      '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') + 'كل الفرق</button></div>' +
-    '<div class="grid g3">' + leaders().map(ktCard).join('') + '</div>' +
+    '<div class="card hov">' +
+      head('الفرق الميدانية', 'انقر صفًّا لفتح تفصيله · انقر عنوان عمود لتفرزه',
+        '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') + 'كل الفرق</button>') +
+      ktTable() +
+    '</div>';
+}
 
-    (auto ? '<div class="card" style="border-color:rgba(229,72,77,.3)">' +
-      head('مهام بدأها النظام', 'لم يبدأها ليدرها في وقتها — تُحتسب في التقييم') +
-      '<div class="rows">' + S.tasks.filter(t => t.autoStarted && t.status !== 'done').slice(0, 5).map(t =>
-        '<div class="row"><span class="av">' + icon('i-warn','s18') + '</span>' +
-        '<span class="nm"><b>' + E(t.title) + '</b><span>' + E(t.kt) + ' · ' +
-          E((userById(t.leaderId) || {}).name) + '</span></span>' +
-        pill('بدأها النظام', 'no') + '<span class="tiny faint">' + t12(t.start) + '</span></div>').join('') +
-      '</div></div>' : '');
+/* ---------- درج الفريق ---------- */
+function ktDrawer(id) {
+  const L = userById(id); if (!L) return;
+  const org = orgById(L.orgId) || {}, team = teamOf(L.id);
+  const ts = S.tasks.filter(t => t.leaderId === L.id);
+  const done = ts.filter(t => t.status === 'done');
+  const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done');
+  const next = ts.filter(t => t.start > now()).sort((a, b) => a.start - b.start).slice(0, 4);
+  const tk = openTickets().filter(k => k.leaderId === L.id);
+  const rate = done.length ? (done.reduce((a, t) => a + (t.rating || 0), 0) / done.length).toFixed(1) : '—';
+
+  openDrawer(L.kt + ' · ' + L.name, org.ar + ' · ' + org.country, 'i-shield',
+    '<div class="grid g2" style="gap:12px">' +
+      ['حجاج,' + L.pilgrims, 'محسنون,' + team.length, 'مهام منجزة,' + done.length].map(x => {
+        const p = x.split(',');
+        return '<div class="card mini"><span class="tiny faint">' + p[0] + '</span>' +
+          '<b class="num" data-n="' + p[1] + '">٠</b></div>';
+      }).join('') +
+      '<div class="card mini"><span class="tiny faint">متوسط التقييم</span>' +
+        '<b style="color:var(--gold3)">' + AR(rate) + '</b></div>' +
+    '</div>' +
+
+    (live.length ? '<div class="card live">' + head('جارية الآن', live[0].place) +
+      '<b>' + E(live[0].title) + '</b>' +
+      '<div class="tiny faint" style="margin-top:5px">تنتهي ' + t12(live[0].end) + '</div>' +
+      '<div class="meter" style="margin-top:10px"><i data-w="' +
+        Math.min(100, Math.round((now() - live[0].start) / (live[0].end - live[0].start) * 100)) +
+        '"></i></div></div>' : '') +
+
+    '<div class="card">' + head('المهام القادمة', AR(next.length) + ' مهمة') +
+      '<div class="rows">' + (next.length ? next.map(t => {
+        const c = CAT[t.kind] || {};
+        return '<div class="row" data-a="tlopen" data-id="' + t.id + '">' +
+          '<span class="av" style="color:' + (c.c || 'var(--dim)') + '">' + icon(c.i || 'i-tasks','s16') + '</span>' +
+          '<span class="nm"><b>' + E(t.title) + '</b><span>' + hijri(t.start) + ' · ' + t12(t.start) + '</span></span>' +
+          pill(untilTxt(t.start), 'wait') + '</div>';
+      }).join('') : '<div class="empty" style="padding:20px"><b>لا مهام قادمة</b></div>') + '</div></div>' +
+
+    '<div class="card">' + head('الفريق', AR(team.length) + ' محسن') +
+      '<div class="rows">' + team.map(m =>
+        '<div class="row" style="padding:9px 4px">' + avatar(m) +
+        '<span class="nm"><b>' + E(m.name) + '</b><span>' + E(m.specialty) + '</span></span>' +
+        pill('نشط','live') + '</div>').join('') + '</div></div>' +
+
+    (tk.length ? '<div class="card">' + head('تذاكر مفتوحة', AR(tk.length)) +
+      tk.slice(0, 4).map(k => '<div class="evt ' + (k.pri === 'حرجة' ? 'bad' : 'warn') + '">' +
+        '<span class="dot"></span><span class="sp"><b>' + E(k.title) + '</b>' +
+        '<p>' + E(k.from) + ' · ' + E(k.cat) + '</p></span></div>').join('') + '</div>' : ''));
 }
 
 /* ============================================================
@@ -1617,11 +2088,31 @@ function fillMeters(root) {
 }
 
 /* ---------- طبقة ما بعد الرسم ---------- */
+/* الأعمدة تبدأ من الصفر ثم تنمو — الارتفاع يُكتب بعد الرسم لا معه */
+function growBars(root) {
+  requestAnimationFrame(() => {
+    (root || document).querySelectorAll('.bar[data-h]').forEach(b => {
+      b.style.height = b.dataset.h + '%';
+    });
+  });
+}
+
+/* عمق التمرير: الشريط العلوي يعرف أن تحته محتوى */
+function bindScrollDepth(wrap) {
+  const v = wrap.querySelector('.view'), top = wrap.querySelector('.top');
+  if (!v || !top) return;
+  const on = () => top.classList.toggle('deep', v.scrollTop > 6);
+  v.addEventListener('scroll', on, { passive: true });
+  on();
+}
+
 function afterRender() {
   const wrap = document.getElementById('stagewrap');
   wrap.querySelectorAll('[data-n]').forEach(countUp);
   bindPointerLight(wrap);
   fillMeters(wrap);
+  growBars(wrap);
+  bindScrollDepth(wrap);
   moveRailMark();
 }
 
@@ -1863,6 +2354,15 @@ document.addEventListener('click', ev => {
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
     case 'seg': S.tab[b.dataset.k] = v; break;
+    /* الفرز: النقرة الأولى تختار العمود، والثانية تعكس الاتجاه */
+    case 'sort': {
+      const k = b.dataset.k, c = Number(v);
+      S.sort = S.sort || {};
+      const cur = S.sort[k] || {};
+      S.sort[k] = { col: c, dir: cur.col === c ? -(cur.dir || 1) : 1 };
+      break;
+    }
+    case 'ktopen': ktDrawer(id); return;
 
     case 'spok': {
       const s = S.support.find(x => x.id === id);

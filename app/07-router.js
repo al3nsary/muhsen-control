@@ -87,6 +87,15 @@ document.addEventListener('click', ev => {
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
     case 'seg': S.tab[b.dataset.k] = v; break;
+    /* الفرز: النقرة الأولى تختار العمود، والثانية تعكس الاتجاه */
+    case 'sort': {
+      const k = b.dataset.k, c = Number(v);
+      S.sort = S.sort || {};
+      const cur = S.sort[k] || {};
+      S.sort[k] = { col: c, dir: cur.col === c ? -(cur.dir || 1) : 1 };
+      break;
+    }
+    case 'ktopen': ktDrawer(id); return;
 
     case 'spok': {
       const s = S.support.find(x => x.id === id);

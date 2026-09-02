@@ -3,7 +3,7 @@
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 1;
-const APP_VER = 'نسخة ٠٫٣';
+const APP_VER = 'نسخة ٠٫٤';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -43,7 +43,7 @@ function untilTxt(ts) {
 /* ---------- التهيئة ---------- */
 function seed() {
   const st = {
-    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, wide: false,
+    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null
   };

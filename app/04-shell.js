@@ -133,8 +133,8 @@ function kpi(lab, val, sub, cls, ic, num, suffix) {
       '<path d="M0 30 L28 24 L56 27 L84 16 L112 20 L140 10 L168 14 L200 6" ' +
       'fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/></svg></div>';
 }
-function head(t, sub, right) {
-  return '<div class="h">' + icon('i-hash','s16') +
+function head(t, sub, right, ic) {
+  return '<div class="h">' + (ic ? icon(ic, 's16') : '<i class="hm"></i>') +
     '<span class="sp"><b>' + E(t) + '</b>' +
     (sub ? '<div class="tiny faint">' + E(sub) + '</div>' : '') + '</span>' +
     (right || '') + '</div>';
