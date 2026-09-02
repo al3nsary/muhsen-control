@@ -14,15 +14,19 @@ const imgCSS = '<style>\n' +
   '.mnozoly{background-image:url(' + imgs.nozoly_dark + ')}\n' +
   '</style>\n';
 
-const JS = ['02-data.js', '03-core.js', '04-shell.js', '05-ops.js', '06-screens.js', '07-router.js'];
+const JS = ['02-data.js', '03-core.js', '04-shell.js', '05-ops.js', '06-screens.js',
+  '09-timeline.js', '08-fx.js', '07-router.js'];
 
 const shell =
-  '<div class="bg"><span class="grid"></span></div>\n' +
+  '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>\n' +
   '<div id="room">\n' +
   '  <div id="railwrap" style="display:contents"></div>\n' +
   '  <div id="sidewrap" style="display:contents"></div>\n' +
   '  <div id="stagewrap" class="stage"></div>\n' +
   '</div>\n' +
+  '<div id="wallbar"></div>\n' +
+  '<div id="overlay"></div>\n' +
+  '<div id="drawerwrap"></div>\n' +
   '<div id="toastwrap"></div>\n';
 
 const out =
@@ -44,7 +48,7 @@ fs.mkdirSync(deploy, { recursive: true });
 const page = '<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n' +
   '<meta charset="utf-8">\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-  '<meta name="theme-color" content="#070D0A">\n' +
+  '<meta name="theme-color" content="#060C09">\n' +
   '<meta name="description" content="مُحسن · الكنترول — غرفة عمليات موسم الحج">\n' +
   '</head>\n<body>\n' + out + '</body>\n</html>';
 fs.writeFileSync(path.join(deploy, 'index.html'), page);

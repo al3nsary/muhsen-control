@@ -12,6 +12,7 @@ const NAV = [
   { g:'العمليات', items:[
     { k:'ops',      i:'i-target',  l:'لوحة العمليات',   d:'الوضع الآن على المستوى الكلي' },
     { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'جدول الموسم لكل الفرق' },
+    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'كل مهام كل الفرق في شاشة واحدة' },
     { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
   ]},
   { g:'الطلبات الصاعدة', items:[
@@ -59,7 +60,8 @@ function rail() {
         (n ? '<span class="dot"></span>' : '') + '</button>';
     }).join('') +
     '<span class="sp"></span>' +
-    '<button data-a="wide" title="طيّ اللوح">' + icon('i-menu') + '</button>' +
+    '<button data-a="palette" title="لوحة الأوامر · Ctrl+K">' + icon('i-search') + '</button>' +
+    '<button data-a="wide" title="طيّ اللوح · B">' + icon('i-menu') + '</button>' +
     '<button class="' + (r === 'settings' ? 'on' : '') + '" data-a="go" data-n="settings" ' +
       'title="الإعدادات">' + icon('i-gear') + '</button>' +
   '</nav>';
@@ -97,15 +99,22 @@ function topbar() {
     '<span class="clockbox"><span>مهام جارية</span><b class="num">' + AR(live) + '</b></span>' +
     '<button class="iconbtn" data-a="go" data-n="incidents" aria-label="الحوادث">' + icon('i-bell','s18') +
       (navCount('incidents') ? '<span class="bdg">' + AR(navCount('incidents')) + '</span>' : '') + '</button>' +
-    '<button class="iconbtn" data-a="go" data-n="settings" aria-label="الإعدادات">' + icon('i-gear','s18') + '</button>' +
+    '<button class="iconbtn" data-a="palette" aria-label="لوحة الأوامر" title="Ctrl+K">' +
+      icon('i-search','s18') + '</button>' +
+    '<button class="themebtn" data-a="theme" aria-label="تبديل الوضع" title="T">' +
+      '<i>' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</i></button>' +
+    '<button class="iconbtn" data-a="wall" aria-label="جدار العرض" title="F">' +
+      icon('i-target','s18') + '</button>' +
   '</header>';
 }
 
 /* ---------- لبنات مشتركة ---------- */
-function kpi(lab, val, sub, cls, ic) {
+function kpi(lab, val, sub, cls, ic, num, suffix) {
   return '<div class="card kpi ' + (cls || '') + '">' +
     '<span class="lab">' + (ic ? icon(ic, 's14') : '') + E(lab) + '</span>' +
-    '<b class="num">' + val + '</b>' +
+    '<b class="num" data-n="' + (num == null ? '' : num) + '"' +
+      (suffix ? ' data-suffix="' + suffix + '"' : '') + '>' +
+      (num == null ? val : AR(0)) + '</b>' +
     (sub ? '<span class="sub">' + E(sub) + '</span>' : '') +
     '<svg class="spark" viewBox="0 0 200 38" preserveAspectRatio="none">' +
       '<path d="M0 30 L28 24 L56 27 L84 16 L112 20 L140 10 L168 14 L200 6" ' +

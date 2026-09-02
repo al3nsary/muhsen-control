@@ -5,14 +5,16 @@ const SCREENS = {
   ops: screenOps, tasks: screenTasks, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
-  guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings
+  guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
+  timeline: screenTimeline
 };
 
 function render() {
   const n = S.route.n;
   const fn = SCREENS[n] || screenOps;
+  applyTheme();
   const room = document.getElementById('room');
-  room.className = S.wide ? 'wide' : '';
+  room.className = (S.wall ? 'wall' : '') + (S.wide && !S.wall ? ' wide' : '');
 
   const key = n + ':' + (S.route.id || '');
   const same = S._key === key;
@@ -22,7 +24,8 @@ function render() {
 
   document.getElementById('railwrap').innerHTML = rail();
   document.getElementById('sidewrap').innerHTML = sidebar();
-  wrap.className = same ? 'nofx' : '';
+  /* لا يُمسح صنف .stage وإلا فقد المسرح تخطيطه ولم يعمل أي تمرير */
+  wrap.className = 'stage' + (same ? ' nofx' : '');
   wrap.innerHTML = topbar() + '<div class="view">' + fn() + '</div>';
 
   const v = wrap.querySelector('.view');
@@ -32,8 +35,14 @@ function render() {
   const tw = document.getElementById('toastwrap');
   tw.innerHTML = S.toast
     ? '<div class="toast ' + (S.toast.kind || 'g') + '">' +
-      icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span></div>'
+      icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span>' +
+      '<i class="bar"></i></div>'
     : '';
+  document.getElementById('wallbar').innerHTML = S.wall ? '<div class="wallbar"><i></i></div>' : '';
+  afterRender();
+  renderPalette();
+  renderDrawer();
+  syncWall();
   save();
   if (S.toast) {
     const t = S.toast;
@@ -57,6 +66,15 @@ document.addEventListener('click', ev => {
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
     case 'wide': S.wide = !S.wide; break;
+    case 'wall': S.wall = !S.wall; toast(S.wall ? 'جدار العرض — F للخروج' : 'عاد العرض العادي'); break;
+    case 'theme': toggleTheme(); break;
+    case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
+    case 'closepal': S.palette = false; renderPalette(); return;
+    case 'palrun': runPalette(Number(v)); return;
+    case 'closedrawer': S.drawer = null; renderDrawer(); return;
+    case 'shortcuts': showShortcuts(); return;
+    case 'timeline': S.route = { n: 'timeline' }; break;
+    case 'tlopen': taskDrawer(id); return;
     case 'seg': S.tab[b.dataset.k] = v; break;
 
     case 'spok': {
@@ -117,4 +135,8 @@ document.addEventListener('keydown', e => {
 
 /* ---------- إقلاع ---------- */
 load();
+if (!S.theme) {
+  S.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'day' : 'night';
+}
+applyTheme();
 render();

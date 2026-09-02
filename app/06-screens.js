@@ -6,9 +6,9 @@
 function screenSupport() {
   const list = S.support.slice().sort((a, b) => b.at - a.at);
   return '<div class="grid g3">' +
-      kpi('بانتظار قرارك', AR(openSupport().length), 'كل دقيقة تأخير تُحسب', 'warn', 'i-send') +
-      kpi('لُبّيت اليوم', AR(S.support.filter(s => s.state === 'done').length), 'أُسند محسنون من الاحتياط', 'up', 'i-checkc') +
-      kpi('الاحتياط المتاح', AR(reserveTeam().length), 'مشترك بين كل الفرق', '', 'i-shield') +
+      kpi('بانتظار قرارك', '', 'كل دقيقة تأخير تُحسب', 'warn', 'i-send', openSupport().length) +
+      kpi('لُبّيت اليوم', '', 'أُسند محسنون من الاحتياط', 'up', 'i-checkc', S.support.filter(s => s.state === 'done').length) +
+      kpi('الاحتياط المتاح', '', 'مشترك بين كل الفرق', '', 'i-shield', reserveTeam().length) +
     '</div>' +
     '<div class="card gold">' +
       head('طلبات الدعم', 'الليدر لا يرى الاحتياط ولا يختار منه — أنت من يُسند ويوضّح السبب') +
@@ -61,12 +61,13 @@ function screenTasks() {
     : f === 'next' ? all.filter(t => t.start > now())
     : f === 'done' ? all.filter(t => t.status === 'done') : all;
   return '<div class="grid g4">' +
-      kpi('مهام الموسم', AR(all.length), 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks') +
-      kpi('اليوم', AR(todayTasks().length), dayName(now()), '', 'i-cal') +
-      kpi('جارية', AR(runningTasks().length), 'الآن', 'up', 'i-play') +
-      kpi('منجزة', AR(all.filter(t => t.status === 'done').length), 'بمتوسط تقييم ' +
+      kpi('مهام الموسم', '', 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks', all.length) +
+      kpi('اليوم', '', dayName(now()), '', 'i-cal', todayTasks().length) +
+      kpi('جارية', '', 'الآن', 'up', 'i-play', runningTasks().length) +
+      kpi('منجزة', '', 'بمتوسط تقييم ' +
         AR((all.filter(t => t.rating).reduce((a, t) => a + t.rating, 0) /
-          Math.max(1, all.filter(t => t.rating).length)).toFixed(1)), 'up', 'i-checkc') +
+          Math.max(1, all.filter(t => t.rating).length)).toFixed(1)), 'up', 'i-checkc',
+        all.filter(t => t.status === 'done').length) +
     '</div>' +
     '<div class="card">' +
       head('جدول المهام', 'المصدر الذي يقرأ منه التطبيق',

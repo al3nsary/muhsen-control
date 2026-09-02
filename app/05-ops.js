@@ -26,15 +26,15 @@ function opsMap() {
     return 'M' + A.x + ' ' + A.y + ' Q' + ((A.x + B.x) / 2) + ' ' + (Math.min(A.y, B.y) - 9) +
       ' ' + B.x + ' ' + B.y;
   };
-  return '<div class="map">' +
+  return '<div class="map"><span class="radar"></span>' +
     '<svg viewBox="0 0 100 100" preserveAspectRatio="none">' +
-      '<g stroke="#1D3329" stroke-width=".5" fill="none">' +
+      '<g stroke="currentColor" stroke-width=".5" fill="none" style="color:var(--line2)">' +
         '<path d="' + path('jeddah','makkah') + '"/>' +
         '<path d="' + path('makkah','aziziah') + '"/>' +
         '<path d="' + path('aziziah','mina') + '"/>' +
         '<path d="' + path('mina','muzd') + '"/>' +
         '<path d="' + path('muzd','arafah') + '"/></g>' +
-      '<g stroke="#12B76A" stroke-width=".7" fill="none" class="dash" opacity=".85">' +
+      '<g stroke="currentColor" stroke-width=".8" fill="none" class="dash" opacity=".9" style="color:var(--live)">' +
         '<path d="' + path('jeddah','makkah') + '"/>' +
         '<path d="' + path('aziziah','mina') + '"/></g>' +
     '</svg>' +
@@ -86,14 +86,14 @@ function screenOps() {
   const auto = S.tasks.filter(t => t.autoStarted && t.status !== 'done').length;
 
   return '<div class="grid g4">' +
-      kpi('حجاج تحت الإشراف', AR(allPilgrims()), AR(leaders().length) + ' مجموعة KT', '', 'i-users') +
-      kpi('مهام جارية الآن', AR(live.length), AR(today.length) + ' مهمة اليوم', 'up', 'i-play') +
-      kpi('طلبات تنتظر قرارك', AR(openSupport().length + escalatedReports().length),
+      kpi('حجاج تحت الإشراف', '', AR(leaders().length) + ' مجموعة KT', '', 'i-users', allPilgrims()) +
+      kpi('مهام جارية الآن', '', AR(today.length) + ' مهمة اليوم', 'up', 'i-play', live.length) +
+      kpi('طلبات تنتظر قرارك', '',
         AR(openSupport().length) + ' دعم · ' + AR(escalatedReports().length) + ' تقرير',
-        openSupport().length ? 'warn' : '', 'i-send') +
-      kpi('تذاكر مفتوحة', AR(openTickets().length),
+        openSupport().length ? 'warn' : '', 'i-send', openSupport().length + escalatedReports().length) +
+      kpi('تذاكر مفتوحة', '',
         AR(openTickets().filter(k => k.pri === 'حرجة').length) + ' حرجة',
-        openTickets().filter(k => k.pri === 'حرجة').length ? 'bad' : '', 'i-ticket') +
+        openTickets().filter(k => k.pri === 'حرجة').length ? 'bad' : '', 'i-ticket', openTickets().length) +
     '</div>' +
 
     '<div class="grid g23">' +
