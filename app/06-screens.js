@@ -18,7 +18,7 @@ function screenSupport() {
         const st = s.state === 'pending' ? ['بانتظار قرارك','wait']
           : s.state === 'done' ? ['لُبّي','live'] : ['اعتُذر','no'];
         return '<div class="row" style="align-items:flex-start;padding:16px 4px">' +
-          '<span class="av">' + icon('i-send','s18') + '</span>' +
+          '<span class="ico">' + icon('i-send','s18') + '</span>' +
           '<span class="nm"><b>' + E(s.no) + ' · ' + E(t.title || '') + '</b>' +
           '<span>' + E(t.kt || '') + ' · ' + E(L.name || '') + ' — يطلب ' + AR(s.count) + ' محسن</span>' +
           '<div class="tiny muted" style="margin-top:7px">' + E(s.why) + '</div>' +
@@ -79,7 +79,7 @@ function screenTasks() {
         const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
         const running = now() >= t.start && now() < t.end && t.status !== 'done';
         return '<div class="row">' +
-          '<span class="av" style="color:' + (c.c || 'var(--dim)') + '">' + icon(c.i || 'i-tasks','s18') + '</span>' +
+          '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' + icon(c.i || 'i-tasks','s18') + '</span>' +
           '<span class="nm"><b>' + E(t.title) + '</b>' +
           '<span>' + E(t.kt) + ' · ' + E(L.name || '') + ' · ' + E(t.place) + '</span></span>' +
           '<span class="tiny faint num" style="min-width:120px">' + hijri(t.start) + '<br>' +
@@ -94,23 +94,38 @@ function screenTasks() {
 }
 
 /* ---------- الفرق ---------- */
+/* صفّ محسن — نفس بطاقة التطبيق: وجه · اسم ورمز وتخصّص · نجوم · حصيلة */
+function muhsenRow(m, doneN) {
+  const notes = muhsenNotes(m.id);
+  return '<div class="prow" style="flex-wrap:wrap">' +
+    '<span class="fl" style="flex:1;min-width:0">' + avatar(m) +
+      '<span class="nm"><b>' + E(m.name) + '</b>' +
+      '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
+    '<span class="end">' + stars(muhsenRating(m.id)) + '</span>' +
+    '<div class="pfoot" style="width:100%">' +
+      '<span class="ok">' + AR(doneN) + ' مهمة مُتقنة</span>' +
+      (notes ? '<span class="no">' + AR(notes) + ' ملاحظة</span>'
+             : '<span class="ok">بلا ملاحظات</span>') +
+    '</div></div>';
+}
+
 function screenTeams() {
   return '<div class="grid g2">' + leaders().map(L => {
     const team = teamOf(L.id), org = orgById(L.orgId) || {};
     const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const done = ts.filter(t => t.status === 'done').length;
     return '<div class="card">' +
-      head(L.kt + ' · ' + L.name, org.ar + ' · ' + org.country,
-        pill(AR(L.pilgrims) + ' حاج', 'gold')) +
-      '<div class="grid g3" style="gap:10px;margin-bottom:14px">' +
-        '<span><div class="tiny faint">محسنون</div><b class="num">' + AR(team.length) + '</b></span>' +
-        '<span><div class="tiny faint">مهام</div><b class="num">' + AR(ts.length) + '</b></span>' +
-        '<span><div class="tiny faint">منجزة</div><b class="num">' +
-          AR(ts.filter(t => t.status === 'done').length) + '</b></span>' +
+      '<div class="fl" style="margin-bottom:14px">' + avatar(L, 'lg') +
+        '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(L.kt) + ' · ' + E(L.name) + '</b>' +
+        '<span>' + E(org.ar) + ' · ' + E(org.country) + '</span></span>' +
+        pill(AR(L.pilgrims) + ' حاج', 'gold') + '</div>' +
+      '<div class="meta">' +
+        '<div><span class="k">محسنون</span><b class="num">' + AR(team.length) + '</b></div>' +
+        '<div><span class="k">مهام</span><b class="num">' + AR(ts.length) + '</b></div>' +
+        '<div><span class="k">منجزة</span><b class="num">' + AR(done) + '</b></div>' +
       '</div>' +
-      '<div class="rows">' + team.map(m =>
-        '<div class="row" style="padding:9px 4px">' + avatar(m) +
-        '<span class="nm"><b>' + E(m.name) + '</b><span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
-        pill('نشط', 'live') + '</div>').join('') + '</div>' +
+      '<div class="plist" style="margin-top:14px">' +
+        team.map(m => muhsenRow(m, done)).join('') + '</div>' +
     '</div>';
   }).join('') + '</div>';
 }
@@ -123,11 +138,12 @@ function screenReserve() {
         pill(AR(res.length) + ' متاح', 'live')) +
       '<div class="tiny muted" style="margin-bottom:14px">' +
         'يُسنَد من هنا استجابةً لطلبات الدعم، ويُوضَّح سبب القرار للّيدر الطالب.</div>' +
-      '<div class="rows">' + res.map(m =>
-        '<div class="row">' + avatar(m) +
-        '<span class="nm"><b>' + E(m.name) + '</b><span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
-        pill('متاح', 'live') +
-        '<button class="btn l sm" data-a="go" data-n="support">إسناد لطلب</button></div>').join('') +
+      '<div class="plist">' + res.map(m =>
+        '<div class="prow">' + avatar(m) +
+        '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
+        '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+        '<span class="fl" style="gap:9px">' + pill('متاح', 'live') +
+        '<button class="btn l sm" data-a="go" data-n="support">إسناد لطلب</button></span></div>').join('') +
       '</div></div>';
 }
 
@@ -145,7 +161,7 @@ function screenTickets() {
         x[1] + '</button>').join('') + '</span>') +
     (list.length ? '<div class="rows">' + list.map(k =>
       '<div class="row" style="align-items:flex-start;padding:14px 4px">' +
-      '<span class="av">' + icon('i-ticket','s18') + '</span>' +
+      '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
       '<span class="nm"><b>' + E(k.title) + '</b>' +
       '<span>' + E(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span>' +
       '<div class="tiny muted" style="margin-top:6px">' + E(k.body) + '</div></span>' +
@@ -163,7 +179,7 @@ function screenReports() {
     head('التقارير الصاعدة', 'ما صعّده الليدرز — ومنها تعديلات بيانات الغرف') +
     (list.length ? '<div class="rows">' + list.map(r =>
       '<div class="row" style="align-items:flex-start;padding:14px 4px">' +
-      '<span class="av">' + icon(r.room ? 'i-key' : 'i-flag','s18') + '</span>' +
+      '<span class="ico">' + icon(r.room ? 'i-key' : 'i-flag','s18') + '</span>' +
       '<span class="nm"><b>' + E(r.title) + '</b>' +
       '<span>' + E(r.no) + ' · ' + E(r.kt) + ' · ' + E((userById(r.from) || {}).name || '') + '</span>' +
       '<div class="tiny muted" style="margin-top:6px">' + E(r.body) + '</div>' +

@@ -134,7 +134,7 @@ function kpi(lab, val, sub, cls, ic, num, suffix) {
       'fill="none" stroke="currentColor" stroke-width="1.6" opacity=".55"/></svg></div>';
 }
 function head(t, sub, right, ic) {
-  return '<div class="h">' + (ic ? icon(ic, 's16') : '<i class="hm"></i>') +
+  return '<div class="h">' + (ic ? icon(ic, 's16') : '') +
     '<span class="sp"><b>' + E(t) + '</b>' +
     (sub ? '<div class="tiny faint">' + E(sub) + '</div>' : '') + '</span>' +
     (right || '') + '</div>';
@@ -143,4 +143,17 @@ function empty(t, s, ic) {
   return '<div class="empty">' + icon(ic || 'i-info', 's26') +
     '<b>' + E(t) + '</b><div class="tiny" style="margin-top:6px">' + E(s || '') + '</div></div>';
 }
-const avatar = u => '<span class="av">' + icon(u.role === 'leader' ? 'i-shield' : 'i-user', 's18') + '</span>';
+/* الوجه المرسوم — نفس أفاتار التطبيق بحلقته الذهبية */
+const avatar = (u, cls) => '<span class="av ' + (cls || '') + ' ' + (u.av || 'p1') + '">' +
+  '<svg viewBox="0 0 44 44"><use href="#av-' + (u.g || 'm') + '"/></svg></span>';
+
+/* النجوم — التقييم يُقرأ لا يُقاس */
+function stars(v, size) {
+  const full = Math.floor(v), half = v - full >= 0.5;
+  let out = '<span class="stars ' + (size || '') + '">';
+  for (let i = 1; i <= 5; i++) {
+    const on = i <= full, hf = !on && i === full + 1 && half;
+    out += icon('i-star', (size === 'lg' ? 's18 ' : 's14 ') + (on ? 'on' : hf ? 'half' : 'off'));
+  }
+  return out + '<b>' + AR(String(v).replace(/\.0$/, '')) + '</b></span>';
+}

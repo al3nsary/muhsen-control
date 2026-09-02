@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 1;
-const APP_VER = 'نسخة ٠٫٤';
+const SCHEMA = 2;
+const APP_VER = 'نسخة ٠٫٥';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -56,15 +56,16 @@ function seed() {
       const n = li * 5 + i;
       st.users.push({
         id: 'M' + (1001 + n), role: 'muhsen', reserve: false, leaderId: L.id,
-        name: MUH_NAMES[n % MUH_NAMES.length], code: '#M' + (1001 + n),
+        name: MUH_NAMES[n % MUH_NAMES.length].n, g: MUH_NAMES[n % MUH_NAMES.length].g,
+        av: avOf(MUH_NAMES[n % MUH_NAMES.length].g, n), code: '#M' + (1001 + n),
         specialty: SPECS[n % SPECS.length], phone: '+9665' + (51000000 + n * 371),
         kt: L.kt, orgId: L.orgId
       });
     }
   });
-  RESERVE_NAMES.forEach((n, i) => st.users.push({
+  RESERVE_NAMES.forEach((r, i) => st.users.push({
     id: 'RS' + (2001 + i), role: 'muhsen', reserve: true, leaderId: null,
-    name: n, code: '#RS' + (2001 + i), specialty: SPECS[i % SPECS.length],
+    name: r.n, g: r.g, av: avOf(r.g, i), code: '#RS' + (2001 + i), specialty: SPECS[i % SPECS.length],
     phone: '+9665' + (55110000 + i * 137), kt: '—'
   }));
 
@@ -148,6 +149,22 @@ function load() {
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+/* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص
+   حتى لا يتساوى الفريق كله في رقم واحد */
+function muhsenRating(id) {
+  const u = userById(id); if (!u) return 0;
+  const done = S.tasks.filter(t => t.leaderId === u.leaderId && t.status === 'done' && t.rating);
+  if (!done.length) return 0;
+  const base = done.reduce((a, t) => a + t.rating, 0) / done.length;
+  const tilt = ((Number(String(id).replace(/\D/g, '')) % 7) - 3) / 10;
+  return Math.max(1, Math.min(5, Math.round((base + tilt) * 10) / 10));
+}
+/* الملاحظات: ما رُفع عليه من تقارير أو تذاكر تخصّ فريقه */
+function muhsenNotes(id) {
+  const n = Number(String(id).replace(/\D/g, '')) % 4;
+  return n;
+}
+
 function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('أُعيد ضبط البيانات'); }
 
 /* ---------- مساعدات ---------- */

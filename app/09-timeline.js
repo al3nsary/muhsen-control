@@ -93,7 +93,7 @@ function taskDrawer(id) {
 
   openDrawer(t.title, t.kt + ' · ' + (L.name || ''), c.i || 'i-tasks',
     '<div class="card" style="--kc:' + (c.c || 'var(--g)') + '">' +
-      '<div class="h"><span class="av" style="color:' + (c.c || 'var(--dim)') + '">' +
+      '<div class="h"><span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
         icon(c.i || 'i-tasks','s18') + '</span>' +
         '<span class="sp"><b>' + E(t.desc || '') + '</b>' +
         '<div class="tiny faint">' + E(t.place) + ' · ' + E(t.city) + '</div></span>' +

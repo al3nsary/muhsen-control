@@ -195,16 +195,14 @@ function ktTable() {
       id: L.id, act: 'ktopen',
       sort: [L.kt, L.pilgrims, live, tk, sp, rate],
       cells: [
-        '<span class="fl"><span class="av">' + icon('i-shield','s16') + '</span>' +
+        '<span class="fl">' + avatar(L, 'sm') +
           '<span class="nm"><b>' + E(L.kt) + '</b><span>' + E(L.name) + '</span></span></span>',
         '<b class="num">' + AR(L.pilgrims) + '</b>',
         live ? pill(AR(live) + ' جارية', 'live') : '<span class="faint">—</span>',
         tk ? pill(AR(tk), 'wait') : '<span class="faint">—</span>',
         sp ? pill(AR(sp), 'no') : '<span class="faint">—</span>',
         auto ? pill(AR(auto), 'no') : '<span class="faint">—</span>',
-        '<span class="fl" style="gap:8px"><span class="meter gold" style="flex:1">' +
-          '<i data-w="' + (rate / 5 * 100) + '"></i></span>' +
-          '<b class="num" style="min-width:26px">' + (rate ? AR(rate) : '—') + '</b></span>'
+        rate ? stars(rate) : '<span class="faint">—</span>'
       ]
     };
   });

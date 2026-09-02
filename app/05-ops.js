@@ -198,16 +198,19 @@ function ktDrawer(id) {
       '<div class="rows">' + (next.length ? next.map(t => {
         const c = CAT[t.kind] || {};
         return '<div class="row" data-a="tlopen" data-id="' + t.id + '">' +
-          '<span class="av" style="color:' + (c.c || 'var(--dim)') + '">' + icon(c.i || 'i-tasks','s16') + '</span>' +
+          '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' + icon(c.i || 'i-tasks','s16') + '</span>' +
           '<span class="nm"><b>' + E(t.title) + '</b><span>' + hijri(t.start) + ' · ' + t12(t.start) + '</span></span>' +
           pill(untilTxt(t.start), 'wait') + '</div>';
       }).join('') : '<div class="empty" style="padding:20px"><b>لا مهام قادمة</b></div>') + '</div></div>' +
 
-    '<div class="card">' + head('الفريق', AR(team.length) + ' محسن') +
-      '<div class="rows">' + team.map(m =>
-        '<div class="row" style="padding:9px 4px">' + avatar(m) +
-        '<span class="nm"><b>' + E(m.name) + '</b><span>' + E(m.specialty) + '</span></span>' +
-        pill('نشط','live') + '</div>').join('') + '</div></div>' +
+    head('الفريق', AR(team.length) + ' محسن') +
+    '<div class="plist">' + team.map(m => {
+      const r = muhsenRating(m.id), nt = muhsenNotes(m.id);
+      return '<div class="prow">' + avatar(m) +
+        '<span class="nm"><b>' + E(m.name) + '</b>' +
+          '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+        '<span class="end">' + stars(r) + '</span></div>';
+    }).join('') + '</div>' +
 
     (tk.length ? '<div class="card">' + head('تذاكر مفتوحة', AR(tk.length)) +
       tk.slice(0, 4).map(k => '<div class="evt ' + (k.pri === 'حرجة' ? 'bad' : 'warn') + '">' +
