@@ -535,7 +535,8 @@ a{color:inherit; text-decoration:none}
   background:rgba(255,255,255,.16); color:inherit; margin-inline-start:2px}
 
 /* ══ مبدّل مدى بمؤشّر ينزلق ══ */
-.sw{position:relative; display:inline-flex; padding:4px; border-radius:13px; flex:none;
+.sw{position:relative; display:inline-flex; align-self:flex-start; padding:4px;
+  border-radius:13px; flex:none;
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .sw > button{position:relative; z-index:2; display:flex; align-items:center; gap:6px;
   height:32px; padding:0 15px; border-radius:10px; font-size:12px; font-weight:700;
@@ -602,6 +603,9 @@ a{color:inherit; text-decoration:none}
 .tbl .th button:hover{color:var(--ink)}
 .tbl .th button.on{color:var(--gold2)}
 .tbl .tb{display:flex; flex-direction:column}
+/* جدول طويل: تدخل الكتلة مرّة واحدة — لا أربعون حركة */
+.tbl .tb.bulk{animation:trin .5s var(--e3) both}
+.tbl .tb.bulk .tr{animation:none}
 .tbl .tr{display:grid; gap:10px; align-items:center; padding:11px 10px; border-radius:12px;
   border-bottom:1px solid var(--line); cursor:pointer; animation:trin .5s var(--e3) both;
   transition:background .2s var(--e), transform .22s var(--e), box-shadow .22s var(--e)}
@@ -716,6 +720,20 @@ a{color:inherit; text-decoration:none}
 .meta .k{display:block; font-size:10px; color:var(--dim2); margin-bottom:4px}
 .meta b{display:block; font-size:15px; font-weight:800; line-height:1.35}
 
+/* ══ ضلع النوع على حافّة البطاقة ══ */
+.prow{position:relative; overflow:hidden}
+.krail{position:absolute; inset-block:0; inset-inline-start:0; width:3px;
+  background:var(--line2); border-radius:0 3px 3px 0}
+.krail.r{background:var(--red)} .krail.a{background:var(--amber)}
+.prow.trow{cursor:pointer}
+.when{flex:none; text-align:center; min-width:132px; line-height:1.5}
+.when b{display:block; font-size:11.5px}
+.when span{display:block; font-size:11px; color:var(--dim2)}
+/* اقتباس ما كتبه الميدان — نصّه لا نصّنا */
+.quote{margin-top:10px; padding:10px 13px; border-radius:12px; font-size:12px;
+  line-height:1.8; color:var(--dim); background:var(--sheen2);
+  border-inline-start:2px solid var(--gold2)}
+
 /* ══ علامة القسم — خطّ ذهبي يتلاشى، هوية التطبيق ══ */
 .h .hm{display:none}
 .h b::after{content:""; display:block; width:34px; height:2px; border-radius:2px; margin-top:6px;
@@ -726,8 +744,113 @@ a{color:inherit; text-decoration:none}
 .card.hov:active, .row:active, .qrow:active, .tbl .tr:active, .pit:active, .nav:active{
   transform:scale(.985)}
 
+
+/* ═══════════════════════════════════════════════════
+   الشاشات الستّ — أدوات البحث والتحرير والسجل
+   ═══════════════════════════════════════════════════ */
+
+/* ══ صفّ أدوات فوق الجدول ══ */
+.tools{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:15px}
+
+/* ══ حقل بحث ══ */
+.find{display:flex; align-items:center; gap:10px; flex:1; min-width:230px; height:42px;
+  padding:0 14px; border-radius:13px; background:var(--sheen); color:var(--dim2);
+  box-shadow:inset 0 0 0 1px var(--line); transition:box-shadow .26s var(--e), background .26s var(--e)}
+.find:focus-within{background:var(--panel2); box-shadow:inset 0 0 0 1px var(--gold2)}
+.find input{flex:1; min-width:0; background:none; border:0; outline:0; color:var(--ink);
+  font:inherit; font-size:13px}
+.find input::placeholder{color:var(--dim2)}
+.find .x{display:grid; place-items:center; width:24px; height:24px; border-radius:8px;
+  color:var(--dim2); transition:color .2s var(--e), background .2s var(--e)}
+.find .x:hover{color:var(--red); background:var(--sheen2)}
+
+/* ══ حقول التحرير ══ */
+.compose{display:flex; flex-direction:column}
+.fl2{display:block; font-size:11px; font-weight:800; color:var(--dim2); margin:14px 2px 7px}
+.fl2:first-child{margin-top:0}
+.fld{width:100%; background:var(--sheen); border:0; outline:0; color:var(--ink); font:inherit;
+  font-size:13px; padding:12px 14px; border-radius:13px; resize:vertical;
+  box-shadow:inset 0 0 0 1px var(--line); transition:box-shadow .26s var(--e), background .26s var(--e)}
+.fld:focus{background:var(--panel2); box-shadow:inset 0 0 0 1px var(--gold2)}
+.fld::placeholder{color:var(--dim2)}
+.chips{display:flex; flex-wrap:wrap; gap:7px}
+.chip2{font-size:11.5px; font-weight:700; padding:7px 13px; border-radius:99px; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .22s var(--e)}
+.chip2:hover{color:var(--ink); background:var(--sheen2)}
+.chip2.on{color:var(--onGold); background:linear-gradient(150deg,var(--gold2),var(--gold));
+  box-shadow:0 6px 16px -8px var(--gold)}
+
+/* ══ ترتيب الفرق ══ */
+.board{display:flex; flex-direction:column; gap:8px}
+.brow{display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:14px;
+  cursor:pointer; background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  animation:trin .5s var(--e3) both;
+  transition:transform .22s var(--e), background .22s var(--e), box-shadow .22s var(--e)}
+.brow:hover{transform:translateX(-3px); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line2)}
+.brow:active{transform:scale(.985)}
+.rk{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
+  font-size:12px; font-weight:800; color:var(--dim2); background:var(--sheen2)}
+.rk.top{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold));
+  box-shadow:0 0 14px -3px var(--gold)}
+.bar2{flex:1; min-width:52px; height:6px; border-radius:99px; background:var(--sheen2); overflow:hidden}
+.bar2 i{display:block; height:100%; width:0; border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),var(--gold3)); transition:width .9s var(--e3)}
+
+/* ══ بطاقات الأدلة ══ */
+.gcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:13px}
+.gcard{position:relative; display:flex; flex-direction:column;
+  padding:15px 15px 0; border-radius:16px; overflow:hidden;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  animation:trin .55s var(--e3) both;
+  transition:transform .26s var(--e3), box-shadow .26s var(--e3)}
+.gcard:hover{transform:translateY(-3px); box-shadow:inset 0 0 0 1px var(--line2), var(--lift)}
+.gtop{position:absolute; inset-inline:0; top:0; height:3px; opacity:.9}
+.mrow{display:flex; flex-wrap:wrap; gap:6px}
+.mchip{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
+  padding:4px 9px; border-radius:8px; color:var(--dim); background:var(--sheen2)}
+.gcard .pfoot{margin-top:auto; padding-top:12px}
+.gcard .mrow{margin-bottom:2px}
+
+/* ══ خطوات الدليل ══ */
+.steps{display:flex; flex-direction:column; gap:7px}
+.step{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:12px;
+  background:var(--sheen); animation:trin .45s var(--e3) both}
+.sn{width:24px; height:24px; border-radius:8px; flex:none; display:grid; place-items:center;
+  font-size:11px; font-weight:800; color:var(--onGold);
+  background:linear-gradient(150deg,var(--g3),var(--g2))}
+.step .nm b{font-size:12.5px; font-weight:400; line-height:1.6}
+
+/* ══ بطاقة وردية ══ */
+.shift{display:flex; flex-direction:column; align-items:flex-start; padding:15px; border-radius:15px;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.shift .ico{margin-bottom:11px}
+.shift b{font-size:14px; display:block}
+.shift .meter{width:100%}
+.swapfaces{gap:6px; flex:none}
+.swapfaces .arrow{color:var(--gold2); display:grid; place-items:center}
+.prow.swap{align-items:flex-start}
+
+/* ══ السجل: خطّ زمني ══ */
+/* السكة عند بداية السطر — أي اليمين في العربية */
+.tline{position:relative; padding-inline-start:46px}
+.tline::before{content:""; position:absolute; inset-block:10px; inset-inline-start:22px; width:2px;
+  border-radius:2px; background:linear-gradient(180deg,var(--gold2),var(--line),transparent)}
+.tev{position:relative; display:flex; gap:13px; padding:11px 0;
+  animation:land .5s var(--e3) both}
+.tdot{position:absolute; inset-inline-start:-38px; top:11px; width:30px; height:30px; border-radius:50%;
+  display:grid; place-items:center; z-index:2; background:var(--panel);
+  box-shadow:0 0 0 3px var(--panel), inset 0 0 0 1px var(--line2)}
+.tdot.live{color:var(--pLiveT)} .tdot.no{color:var(--pNoT)} .tdot.wait{color:var(--pWaitT)}
+.tdot.gold{color:var(--pGoldT)} .tdot.blue{color:var(--pBlueT)} .tdot.grey{color:var(--dim2)}
+.tbody{flex:1; min-width:0; padding:2px 0}
+.tbody .tiny{display:block; margin-top:5px}
+
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms !important; animation-iteration-count:1 !important;
-    transition-duration:.001ms !important}
+  *,*::before,*::after{
+    animation-duration:.001ms !important; animation-iteration-count:1 !important;
+    animation-delay:0ms !important;      /* وإلا بقي العنصر عند بدايته: شفّافًا */
+    transition-duration:.001ms !important; transition-delay:0ms !important;
+    scroll-behavior:auto !important}
 }
 </style>

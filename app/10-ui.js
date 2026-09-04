@@ -95,9 +95,9 @@ function dataTable(o) {
         (i === col ? '<svg class="ic s14" viewBox="0 0 24 24"><path d="M12 ' +
           (dir > 0 ? '19V5M6 11l6-6 6 6' : '5v14M6 13l6 6 6-6') + '"/></svg>' : '') +
         '</button>').join('') + '</div>' +
-    '<div class="tb">' + (rows.length ? rows.map((r, i) =>
+    '<div class="tb' + (rows.length > 12 ? ' bulk' : '') + '">' + (rows.length ? rows.map((r, i) =>
       '<div class="tr" style="grid-template-columns:' + o.cols.map(c => c.w || '1fr').join(' ') + ';' +
-        'animation-delay:' + Math.min(i * 26, 300) + 'ms"' +
+        'animation-delay:' + (rows.length > 12 ? 0 : Math.min(i * 26, 300)) + 'ms"' +
         (r.act ? ' data-a="' + r.act + '" data-id="' + r.id + '"' : '') + '>' +
         r.cells.map(c => '<span>' + c + '</span>').join('') + '</div>').join('')
       : '<div class="empty" style="padding:34px">' + icon('i-search','s26') + '<b>لا صفوف</b></div>') +

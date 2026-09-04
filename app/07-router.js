@@ -96,6 +96,50 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'ktopen': ktDrawer(id); return;
+    case 'pilopen': pilgrimDrawer(id); return;
+    case 'gview': guideDrawer(id); return;
+    case 'qclear': S.q[b.dataset.k] = ''; break;
+    /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
+    case 'gpub': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      g.status = 'معتمد'; g.ver += 1; g.at = now();
+      logIt('اعتُمدت النسخة ' + AR(g.ver) + ' من دليل ' + (CAT[g.kind] || {}).ar, 'guide');
+      toast('نُشر الدليل — يقرؤه الميدان الآن');
+      break;
+    }
+    /* بثّ رسالة */
+    case 'castsend': {
+      const t = (S.q.ct || '').trim(), y = (S.q.cb || '').trim();
+      if (!t) { toast('اكتب عنوانًا يُقرأ في الإشعار', 'r'); return; }
+      const to = S.tab.aud || CAST_AUD[0];
+      const of = to.indexOf('الليدرز') >= 0 ? leaders().length
+        : to.indexOf('الاحتياطي') >= 0 ? reserveTeam().length
+        : to.indexOf('كل المحسنين') >= 0 ? S.users.filter(u => u.role === 'muhsen' && !u.reserve).length
+        : 5;
+      S.casts.unshift({ id: uid('C'), no: 'BR-' + AR(9100 + S.casts.length),
+        to, title: t, body: y || '—', kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
+      logIt('بُثّت رسالة «' + t + '» إلى ' + to, 'cast');
+      S.q.ct = ''; S.q.cb = '';
+      toast('بُثّت إلى ' + to);
+      break;
+    }
+    case 'castclear': S.q.ct = ''; S.q.cb = ''; break;
+    /* الشِفتات */
+    case 'swok': {
+      const w = S.swaps.find(x => x.id === id); if (!w) return;
+      w.state = 'done'; w.reason = 'اعتُمد — وأُبلغ الطرفان';
+      const a = userById(w.from) || {}, c = userById(w.to) || {};
+      logIt('اعتُمد تبديل وردية بين ' + (a.name || '') + ' و' + (c.name || ''), 'shift');
+      toast('اعتُمد التبديل');
+      break;
+    }
+    case 'swno': {
+      const w = S.swaps.find(x => x.id === id); if (!w) return;
+      w.state = 'no'; w.reason = 'الوردية لا تحتمل نقصًا في هذا اليوم';
+      logIt('رُفض طلب تبديل ' + w.no + ' — الوردية لا تحتمل نقصًا', 'shift');
+      toast('رُفض الطلب — وسُجّل السبب', 'r');
+      break;
+    }
 
     case 'spok': {
       const s = S.support.find(x => x.id === id);

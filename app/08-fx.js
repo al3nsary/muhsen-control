@@ -23,13 +23,16 @@ function countUp(el) {
   const target = Number(raw);
   if (!isFinite(target)) return;
   const dec = /\./.test(raw) ? 1 : 0;
-  const dur = 850, t0 = performance.now();
   const suffix = el.getAttribute('data-suffix') || '';
+  const write = v => { el.textContent = AR(dec ? v.toFixed(1) : Math.round(v)) + suffix; };
+  /* من طلب تقليل الحركة يرى الرقم النهائي فورًا */
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    write(target); return;
+  }
+  const dur = 850, t0 = performance.now();
   function step(t) {
-    const p = Math.min(1, (t - t0) / dur);
-    const e = 1 - Math.pow(1 - p, 3);
-    const v = target * e;
-    el.textContent = AR(dec ? v.toFixed(1) : Math.round(v)) + suffix;
+    const p = Math.max(0, Math.min(1, (t - t0) / dur));   /* لا تقدّم سالبًا */
+    write(target * (1 - Math.pow(1 - p, 3)));
     if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -74,7 +77,7 @@ function moveRailMark() {
 
 /* ---------- تعبئة الأشرطة بعد الرسم ---------- */
 function fillMeters(root) {
-  root.querySelectorAll('.meter i[data-w]').forEach(i => {
+  root.querySelectorAll('.meter i[data-w], .bar2 i[data-w]').forEach(i => {
     requestAnimationFrame(() => { i.style.width = i.getAttribute('data-w') + '%'; });
   });
 }
@@ -239,8 +242,23 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('input', e => {
-  if (e.target && e.target.id === 'pq') { S.pq = e.target.value; S.psel = 0; renderPalette(); }
+  const t = e.target; if (!t) return;
+  if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }
+  /* حقول الشاشات: تُحفظ فورًا، والرسم مؤجّل حتى لا يُفقد التركيز */
+  const k = t.getAttribute('data-q');
+  if (k) {
+    S.q = S.q || {}; S.q[k] = t.value; save();
+    clearTimeout(qTimer);
+    if (k === 'ct' || k === 'cb') return;   /* التحرير لا يُعيد الرسم */
+    qTimer = setTimeout(() => {
+      const pos = t.selectionStart;
+      render();
+      const again = document.getElementById(t.id);
+      if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
+    }, 220);
+  }
 });
+let qTimer = null;
 
 function showShortcuts() {
   openDrawer('اختصارات لوحة المفاتيح', 'أسرع طريق في غرفة العمليات', 'i-info',

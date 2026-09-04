@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 2;
-const APP_VER = 'نسخة ٠٫٥';
+const SCHEMA = 3;
+const APP_VER = 'نسخة ٠٫٦';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -43,7 +43,7 @@ function untilTxt(ts) {
 /* ---------- التهيئة ---------- */
 function seed() {
   const st = {
-    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, wide: false,
+    v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null
   };
@@ -71,14 +71,22 @@ function seed() {
 
   /* الحجاج */
   LEADERS.forEach((L, li) => {
+    const org = ORGS.find(o => o.id === L.orgId) || {};
+    const pool = PN_BY[org.country] || PN_MY;
     const arr = [];
     for (let i = 0; i < L.pilgrims; i++) {
+      const g = (i * 7 + li) % 5 < 2 ? 'f' : 'm';
       arr.push({
         id: 'P' + L.kt + '-' + (1 + i),
-        name: 'حاج ' + AR(i + 1) + ' · ' + L.kt,
+        name: pilgrimName(pool, g, i + li * 3),
+        no: 'HJ-' + AR(70000 + li * 1000 + i),
+        g: g,
+        country: org.country || '—', org: org.ar || '—',
+        age: 34 + ((i * 7 + li * 5) % 42),
         floor: 'الدور ' + ['الأول','الثاني','الثالث','الرابع','الخامس'][(i + li) % 5],
         room: 100 + ((i * 7 + li * 13) % 380),
-        flag: (i % 23 === 0) ? 'حالة صحية' : null
+        state: PSTATE[(i * 5 + li) % PSTATE.length],
+        flag: (i % 23 === 0) ? 'حالة صحية' : (i % 37 === 0) ? 'كرسي متحرّك' : null
       });
     }
     st.pilgrims[L.kt] = arr;
@@ -136,6 +144,30 @@ function seed() {
   });
 
   /* التدفّق */
+  /* أدلة التنفيذ — نسخة معتمدة لكل نشاط */
+  st.guides = GUIDE_SEED.map(g => ({
+    id: uid('D'), kind: g.k, ver: g.v, status: g.st, media: g.media,
+    steps: g.steps, by: g.by, at: Date.now() - g.ago * MIN
+  }));
+
+  /* البثّ — ما أُرسل */
+  st.casts = CAST_SEED.map((c, i) => ({
+    id: uid('C'), no: 'BR-' + AR(9100 + i), to: c.to, title: c.t, body: c.b,
+    kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
+  }));
+
+  /* الشِفتات — طلبات التبديل */
+  st.swaps = SHIFT_SEED.map((x, i) => ({
+    id: uid('W'), no: 'SW-' + AR(6300 + i), from: x.from, to: x.to,
+    day: x.day, slot: x.slot, why: x.why, state: x.st, reason: null,
+    at: Date.now() - x.ago * MIN
+  }));
+
+  /* السجل — ما وقع قبل هذه الجلسة */
+  st.log = LOG_SEED.map(l => ({
+    id: uid('G'), at: Date.now() - l.ago * MIN, text: l.t, kind: l.kind, by: 'الكنترول'
+  }));
+
   FEED_SEED.forEach(f => st.feed.push({
     id: uid('E'), kind: f[0], title: f[1], body: f[2], at: Date.now() - f[3] * MIN
   }));
@@ -147,6 +179,7 @@ function load() {
   try { S = JSON.parse(localStorage.getItem(KEY)); if (!S || S.v !== SCHEMA) S = seed(); }
   catch (e) { S = seed(); }
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
+  S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 /* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص
@@ -163,6 +196,17 @@ function muhsenRating(id) {
 function muhsenNotes(id) {
   const n = Number(String(id).replace(/\D/g, '')) % 4;
   return n;
+}
+
+/* ---- أدوات الشاشات الجديدة ---- */
+const allPilgrimRows = () => leaders().reduce((a, L) =>
+  a.concat((S.pilgrims[L.kt] || []).map(p => Object.assign({ kt: L.kt, leaderId: L.id }, p))), []);
+const guideOf = k => S.guides.find(g => g.kind === k);
+const openSwaps = () => S.swaps.filter(w => w.state === 'pending');
+/* تقييم الفريق: متوسط مهامه المنجزة */
+function ktRating(id) {
+  const d = S.tasks.filter(t => t.leaderId === id && t.status === 'done' && t.rating);
+  return d.length ? Math.round(d.reduce((a, t) => a + t.rating, 0) / d.length * 10) / 10 : 0;
 }
 
 function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('أُعيد ضبط البيانات'); }
