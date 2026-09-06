@@ -241,6 +241,15 @@ document.addEventListener('keydown', e => {
   else if (e.key === '?') { showShortcuts(); }
 });
 
+/* اختيار تخصّص المحسن داخل التشكيل */
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (!t || !t.classList || !t.classList.contains('spec')) return;
+  const id = t.getAttribute('data-id'), d = draft();
+  const m = d.members.find(x => x.id === id);
+  if (m) { m.spec = t.value; save(); }
+});
+
 document.addEventListener('input', e => {
   const t = e.target; if (!t) return;
   if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }

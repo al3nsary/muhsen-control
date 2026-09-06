@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 3;
-const APP_VER = 'نسخة ٠٫٦';
+const SCHEMA = 5;
+const APP_VER = 'نسخة ٠٫٧';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -144,6 +144,111 @@ function seed() {
   });
 
   /* التدفّق */
+
+  /* ---------- المشرفون: يُسكَّنون على الفنادق ---------- */
+  SUP_NAMES.forEach((s, i) => st.users.push({
+    id: 'SV' + (3001 + i), role: 'supervisor', name: s.n, g: s.g, av: avOf(s.g, i),
+    code: '#SV' + (3001 + i), specialty: 'إشراف سكن', phone: '+9665' + (57220000 + i * 211),
+    hotelId: HOTELS[i % HOTELS.length].id, kt: '—'
+  }));
+
+  /* ---------- التشكيل: لكل ليدر مجموعة بفريقه ---------- */
+  /* آخر جهة تُترك بلا تشكيل — فيرى المشغّل الآلية حيّة عند أول فتح */
+  st.groups = LEADERS.slice(0, LEADERS.length - 1).map((L, i) => {
+    const team = st.users.filter(u => u.role === 'muhsen' && !u.reserve && u.leaderId === L.id);
+    const h = HOTELS[i % HOTELS.length];
+    const sv = st.users.find(u => u.role === 'supervisor' && u.hotelId === h.id);
+    team.forEach((m, k) => { m.groupId = 'G' + (101 + i); m.spec = SPECS[(i + k) % SPECS.length]; });
+    /* عمر يُعرض في التشكيل */
+    team.forEach((m, k) => { m.age = 24 + ((i * 5 + k * 7) % 26); });
+    return {
+      id: 'G' + (101 + i), no: 'GR-' + AR(101 + i), leaderId: L.id, orgId: L.orgId,
+      hotelId: h.id, supervisorId: sv ? sv.id : null,
+      members: team.map((m, k) => ({ id: m.id, spec: SPECS[(i + k) % SPECS.length] })),
+      at: Date.now() - (40 - i * 6) * DAY
+    };
+  });
+
+  /* من لم يدخل مجموعة يعود حرًّا: لا ليدر ولا مجموعة */
+  st.users.forEach(u => {
+    if (u.role === 'muhsen' && !u.reserve && !u.groupId) { u.leaderId = null; u.kt = '—'; }
+  });
+
+  /* ---------- إثراء التجربة: تصل جاهزة من نظام المزارات ---------- */
+  st.enrich = [];
+  SITES.forEach((si, i) => {
+    for (let r = 0; r < (i % 3 === 0 ? 2 : 1); r++) {
+      const L = LEADERS[(i + r) % LEADERS.length];
+      const start = Date.now() + ((i * 9 + r * 31) - 30) * HR;
+      const assigned = (i + r) % 4 !== 0;
+      st.enrich.push({
+        id: uid('X'), ref: 'EX-' + AR(88100 + i * 7 + r), siteId: si.id,
+        start, end: start + si.dur * HR, seats: si.cap,
+        booked: Math.round(si.cap * (0.55 + ((i + r) % 5) / 12)),
+        kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null,
+        status: start < Date.now() ? 'done' : assigned ? 'assigned' : 'unassigned',
+        at: Date.now() - (i * 40 + 60) * MIN
+      });
+    }
+  });
+  st.enrichSync = Date.now() - 7 * MIN;
+
+  /* ---------- نُسك: حالات البطاقات ---------- */
+  st.nusuk = NUSUK_SEED.map((c, i) => {
+    const L = LEADERS[i % LEADERS.length];
+    const arr = st.pilgrims[L.kt];
+    const p = arr[c.pi % arr.length];
+    const team = st.users.filter(u => u.role === 'muhsen' && u.leaderId === L.id);
+    const done = c.st === 'delivered' || c.st === 'issued';
+    return {
+      id: uid('N'), no: 'NS-' + AR(4400 + i), svc: c.svc, pilgrimId: p.id,
+      pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
+      openedBy: c.by, state: c.st, step: NUSUK_SVC[c.svc].steps.length - (c.st === 'new' ? 4
+        : c.st === 'processing' ? 2 : c.st === 'issued' ? 1 : 0),
+      assignedTo: done ? (team[i % team.length] || {}).id || null : null,
+      at: Date.now() - c.ago * MIN,
+      note: c.svc === 'lost' ? 'فقد البطاقة في الحرم — أبلغ ليدره'
+        : c.svc === 'enable' ? 'البطاقة صدرت ولم تُفعَّل عند البوّابة'
+        : 'حاجّ مستجدّ في الكشف — بلا بطاقة'
+    };
+  });
+
+  /* ---------- الامتثال: قوالب وإدخالات ---------- */
+  st.forms = FORM_SEED.map((f, i) => ({
+    id: 'F' + (201 + i), no: 'FM-' + AR(201 + i), title: f.title, scope: f.scope,
+    icon: f.i, color: f.c, by: f.by, at: Date.now() - f.ago * MIN,
+    qs: f.qs.map((q, k) => Object.assign({ id: 'q' + (k + 1) }, q))
+  }));
+
+  st.subs = [];
+  st.forms.forEach((f, fi) => {
+    const targets = f.scope === 'فندق' ? HOTELS.map(h => h.ar)
+      : f.scope === 'نقل' ? ['شركة النقل الموحّدة','مسار للنقل البرّي']
+      : ['مطبخ الشرائع','مطبخ العزيزية'];
+    targets.forEach((tg, ti) => {
+      const visits = 1 + ((fi + ti) % 3);
+      for (let v = 1; v <= visits; v++) {
+        const L = LEADERS[(fi + ti + v) % LEADERS.length];
+        const by = st.users.filter(u => u.role === 'muhsen' && u.leaderId === L.id)[v % 5] || L;
+        /* الزيارة الأولى أضعف، ثم تتحسّن — هذا ما يجعل النموذج مفيدًا */
+        const lift = (v - 1) * 0.22;
+        const ans = f.qs.map((q, qi) => {
+          const seed = (fi * 7 + ti * 5 + v * 3 + qi) % 10;
+          if (q.t === 'yn') return { id:q.id, v: (seed / 10 + lift) > 0.42 };
+          if (q.t === 'rate') return { id:q.id, v: Math.max(1, Math.min(5, Math.round(2 + seed / 3 + lift * 3))) };
+          if (q.t === 'num') return { id:q.id, v: 6 + seed * 2 + Math.round(lift * 10) };
+          return { id:q.id, v: v === visits ? 'استُوفيت الملاحظات السابقة.' : 'يحتاج متابعة في الزيارة القادمة.' };
+        });
+        st.subs.push({
+          id: uid('B'), formId: f.id, target: tg, visit: v, of: visits,
+          kt: L.kt, leaderId: L.id, by: by.id,
+          at: Date.now() - ((visits - v) * 5 + fi * 2 + ti) * DAY - (fi + ti) * HR,
+          answers: ans, score: formScore(f, ans)
+        });
+      }
+    });
+  });
+
   /* أدلة التنفيذ — نسخة معتمدة لكل نشاط */
   st.guides = GUIDE_SEED.map(g => ({
     id: uid('D'), kind: g.k, ver: g.v, status: g.st, media: g.media,
@@ -180,6 +285,8 @@ function load() {
   catch (e) { S = seed(); }
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
+  S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
+  S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 /* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص
@@ -197,6 +304,40 @@ function muhsenNotes(id) {
   const n = Number(String(id).replace(/\D/g, '')) % 4;
   return n;
 }
+
+/* الفريق يُقرأ من التشكيل — هو المصدر، لا حقل في المستخدم */
+function teamOf(lid) {
+  const ids = [];
+  groupsOf(lid).forEach(g => g.members.forEach(m => { if (ids.indexOf(m.id) < 0) ids.push(m.id); }));
+  return ids.map(userById).filter(Boolean);
+}
+
+/* ---- أدوات الأنواع الأربعة والتشكيل ---- */
+const siteById = id => SITES.find(s => s.id === id) || {};
+const hotelById = id => HOTELS.find(h => h.id === id) || {};
+const groupById = id => S.groups.find(g => g.id === id);
+const formById = id => S.forms.find(f => f.id === id);
+const supervisors = () => S.users.filter(u => u.role === 'supervisor');
+const groupsOf = lid => S.groups.filter(g => g.leaderId === lid);
+/* المحسن الحرّ: غير مسكَّن في أي مجموعة — هؤلاء وحدهم يظهرون عند التشكيل */
+const freeMuhsens = () => S.users.filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
+const inGroup = id => S.groups.some(g => g.members.some(m => m.id === id));
+/* درجة النموذج: نعم=كامل · التقييم نسبة من خمس · العدد لا يُحتسب */
+function formScore(f, answers) {
+  let got = 0, max = 0;
+  f.qs.forEach(q => {
+    if (!q.w) return;
+    const a = answers.find(x => x.id === q.id); if (!a) return;
+    max += q.w;
+    if (q.t === 'yn') got += a.v ? q.w : 0;
+    else if (q.t === 'rate') got += q.w * (a.v / 5);
+    else max -= q.w;
+  });
+  return max ? Math.round(got / max * 100) : 0;
+}
+const subsOf = fid => S.subs.filter(b => b.formId === fid);
+const openNusuk = () => S.nusuk.filter(c => c.state !== 'delivered');
+const freeEnrich = () => S.enrich.filter(x => x.status === 'unassigned');
 
 /* ---- أدوات الشاشات الجديدة ---- */
 const allPilgrimRows = () => leaders().reduce((a, L) =>
@@ -216,7 +357,7 @@ const userById = id => S.users.find(u => u.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const orgById = id => S.orgs.find(o => o.id === id);
 const leaders = () => S.users.filter(u => u.role === 'leader');
-const teamOf = lid => S.users.filter(u => u.role === 'muhsen' && u.leaderId === lid && !u.reserve);
+const teamOfLegacy = lid => S.users.filter(u => u.role === 'muhsen' && u.leaderId === lid && !u.reserve);
 const reserveTeam = () => S.users.filter(u => u.reserve);
 const ktOf = lid => (userById(lid) || {}).kt;
 

@@ -2,7 +2,7 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, incidents: screenIncidents,
+  ops: screenOps, tasks: screenTasks, build: screenBuild, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -98,6 +98,148 @@ document.addEventListener('click', ev => {
     case 'ktopen': ktDrawer(id); return;
     case 'pilopen': pilgrimDrawer(id); return;
     case 'gview': guideDrawer(id); return;
+    case 'fdash': formDash(id); return;
+    case 'fsub': subDrawer(id); return;
+
+    /* ─── إثراء التجربة: تصل من نظام المزارات ─── */
+    case 'xsync':
+      S.enrichSync = now();
+      logIt('زُوملت مهام إثراء التجربة من نظام المزارات', 'info');
+      toast('لا جديد — الوارد محدَّث');
+      break;
+    case 'xassign': {
+      const x = S.enrich.find(e => e.id === id); if (!x) return;
+      /* تُسكَّن على المجموعة الأقلّ حِملًا في ذلك اليوم */
+      const load = {};
+      S.groups.forEach(g => { load[g.leaderId] = S.enrich.filter(e =>
+        e.leaderId === g.leaderId && dayStart(e.start) === dayStart(x.start)).length; });
+      const pick = S.groups.slice().sort((a, b) => (load[a.leaderId] || 0) - (load[b.leaderId] || 0))[0];
+      if (!pick) { toast('لا مجموعة مشكَّلة بعد', 'r'); return; }
+      const L = userById(pick.leaderId) || {};
+      x.leaderId = pick.leaderId; x.kt = L.kt; x.status = 'assigned';
+      logIt('سُكِّنت رحلة ' + x.ref + ' — ' + siteById(x.siteId).ar + ' على ' + L.kt, 'assign');
+      toast('سُكِّنت على ' + L.kt + ' — الأقلّ حِملًا ذلك اليوم');
+      break;
+    }
+
+    /* ─── نُسك ─── */
+    case 'nnew': {
+      const L = leaders()[S.nusuk.length % leaders().length];
+      const arr = S.pilgrims[L.kt] || [];
+      const p = arr[(S.nusuk.length * 37) % Math.max(1, arr.length)];
+      if (!p) return;
+      S.nusuk.unshift({ id: uid('N'), no: 'NS-' + AR(4400 + S.nusuk.length), svc: 'lost',
+        pilgrimId: p.id, pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
+        openedBy: 'الكنترول', state: 'new', step: 1, assignedTo: null, at: now(),
+        note: 'حالة فُتحت من غرفة العمليات — تحتاج تحديد الخدمة' });
+      logIt('فُتحت حالة نُسك جديدة للحاجّ ' + p.name + ' — ' + L.kt, 'info');
+      toast('فُتحت حالة — أسندها لمحسن أو ليدر');
+      break;
+    }
+    case 'nassign': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      /* الأولوية لمحسن من مجموعة الحاجّ، فإن لم يوجد فالاحتياط */
+      const team = teamOf(c.leaderId);
+      const who = team[c.no.length % Math.max(1, team.length)] || reserveTeam()[0] || userById(c.leaderId);
+      if (!who) { toast('لا محسن متاح', 'r'); return; }
+      c.assignedTo = who.id;
+      logIt('أُسندت ' + c.no + ' (' + NUSUK_SVC[c.svc].ar + ') إلى ' + who.name, 'assign');
+      toast('أُسندت إلى ' + who.name);
+      break;
+    }
+    case 'nstep': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      const V = NUSUK_SVC[c.svc];
+      c.step = Math.min(V.steps.length, c.step + 1);
+      c.state = c.step >= V.steps.length ? 'delivered'
+        : c.step >= V.steps.length - 1 ? 'issued'
+        : c.step >= 2 ? 'processing' : 'new';
+      logIt(c.no + ' — ' + V.steps[Math.min(c.step, V.steps.length) - 1], 'info');
+      toast(NUSUK_STATE[c.state].ar);
+      break;
+    }
+
+    /* ─── الامتثال ─── */
+    case 'fnew': toast('بناء القالب يأتي بعد أن نتفق على أنواع الأسئلة'); return;
+    case 'fassign': {
+      const f = formById(id); if (!f) return;
+      logIt('أُسند قالب «' + f.title + '» إلى كل المجموعات', 'info');
+      toast('أُسند إلى ' + AR(S.groups.length) + ' مجموعات');
+      break;
+    }
+
+    /* ─── التشكيل ─── */
+    case 'blead': {
+      const d = draft();
+      if (groupsOf(id).length >= 2 && d.editing == null) {
+        toast('هذا الليدر يقود مجموعتين — لا ثالثة', 'r'); return;
+      }
+      d.leaderId = id; break;
+    }
+    case 'bclrlead': draft().leaderId = null; break;
+    case 'bmem': {
+      const d = draft();
+      if (d.members.length >= 5) { toast('المجموعة ستّة: ليدر وخمسة', 'r'); return; }
+      if (d.members.some(m => m.id === id)) return;
+      const u = userById(id);
+      d.members.push({ id, spec: (u && u.specialty) || SPECS[0] });
+      break;
+    }
+    case 'bdel': draft().members = draft().members.filter(m => m.id !== id); break;
+    case 'bspec': return;   /* يُلتقط من حدث التغيير لا النقر */
+    case 'borg': draft().orgId = id; break;
+    case 'bhotel': {
+      const d = draft(); d.hotelId = id;
+      const sv = supervisors().find(u => u.hotelId === id);
+      d.supervisorId = sv ? sv.id : null;
+      break;
+    }
+    case 'bsup': {
+      const d = draft(); const u = userById(id); if (!u) return;
+      d.supervisorId = id; d.hotelId = u.hotelId;
+      break;
+    }
+    case 'bclear': S.draft = DRAFT0(); break;
+    case 'bedit': {
+      const g = groupById(id); if (!g) return;
+      S.draft = { leaderId: g.leaderId, members: g.members.map(m => ({ id:m.id, spec:m.spec })),
+        orgId: g.orgId, hotelId: g.hotelId, supervisorId: g.supervisorId, editing: g.id };
+      toast('افتح التعديل — احفظ لتثبيته');
+      break;
+    }
+    case 'bsave': {
+      const d = draft();
+      if (!d.leaderId || d.members.length !== 5 || !d.orgId) {
+        toast('المجموعة ستّة وجهة حجّ — أكملها', 'r'); return;
+      }
+      const org = orgById(d.orgId) || {};
+      let g = d.editing ? groupById(d.editing) : null;
+      if (g) {
+        /* من خرج من التعديل يعود حرًّا */
+        g.members.forEach(m => { const u = userById(m.id);
+          if (u && !d.members.some(x => x.id === m.id)) { u.groupId = null; u.leaderId = null; } });
+      } else {
+        g = { id: uid('G'), no: 'GR-' + AR(101 + S.groups.length), at: now() };
+        S.groups.push(g);
+      }
+      Object.assign(g, { leaderId: d.leaderId, orgId: d.orgId, hotelId: d.hotelId,
+        supervisorId: d.supervisorId, members: d.members.map(m => ({ id:m.id, spec:m.spec })) });
+      d.members.forEach(m => { const u = userById(m.id);
+        if (u) { u.groupId = g.id; u.leaderId = g.leaderId; u.kt = org.kt; u.specialty = m.spec; } });
+      const L = userById(g.leaderId) || {};
+      /* التسكين التلقائي: كل مهام الجهة تصير على هذه المجموعة */
+      let n = 0;
+      S.tasks.forEach(t => {
+        if (t.orgId === g.orgId && t.leaderId === g.leaderId) {
+          t.assigned = g.members.map(m => m.id); t.kt = org.kt; n++;
+        }
+      });
+      logIt((d.editing ? 'عُدِّلت ' : 'شُكِّلت ') + g.no + ' — ' + L.name + ' · ' + org.kt +
+        ' وسُكِّنت ' + AR(n) + ' مهمة', 'assign');
+      S.draft = DRAFT0();
+      toast(d.editing ? 'حُفظ التعديل' : 'شُكِّلت المجموعة وسُكِّنت ' + AR(n) + ' مهمة');
+      break;
+    }
     case 'qclear': S.q[b.dataset.k] = ''; break;
     /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
     case 'gpub': {

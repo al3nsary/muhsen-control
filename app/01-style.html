@@ -29,6 +29,15 @@
   --scrim:rgba(4,9,7,.72);
   --cardEdge:1px solid var(--line);
   --starOff:#24382E;
+  /* لوح التنقّل في الليل امتداد للسطح نفسه */
+  --navBg:linear-gradient(180deg,var(--deep),var(--void));
+  --navInk:#EDF5F0;   --navDim:#9FB6A9;  --navDim2:#6B857A; --navFaint:#405549;
+  --navLine:#1C3128;  --navSheen:rgba(255,255,255,.045); --navSheen2:rgba(255,255,255,.09);
+  --navOnBg:linear-gradient(90deg,color-mix(in srgb,var(--live) 18%,transparent),transparent);
+  --navOnRing:color-mix(in srgb,var(--live) 26%,transparent);
+  --navOnInk:#EDF5F0; --markBg:linear-gradient(150deg,var(--g3),var(--g2));
+  --wash:radial-gradient(48% 40% at 80% 6%, color-mix(in srgb,var(--live) 14%,transparent), transparent 62%),
+         radial-gradient(44% 36% at 10% 92%, color-mix(in srgb,var(--gold) 14%,transparent), transparent 60%);
   --pLiveB:rgba(20,194,115,.15);  --pLiveT:#4FE49F;
   --pWaitB:rgba(229,166,47,.16);  --pWaitT:#F2C069;
   --pNoB:rgba(236,79,84,.16);     --pNoT:#FF8E91;
@@ -44,22 +53,34 @@
 /* ───────── الوضع النهاري — قريب من التطبيق ───────── */
 :root[data-theme="day"]{
   --railInk:#5A6C63;
-  --void:#F4F7F3;   --deep:#FBFCFA;   --panel:#FFFFFF;  --panel2:#F7FAF7;
-  --raise:#EFF4EF;  --line:#E4EBE4;   --line2:#D3DFD5;  --hair:rgba(168,135,90,.32);
+  --void:#EDF4EF;   --deep:#F7FBF8;   --panel:#FFFFFF;  --panel2:#F2F9F4;
+  --raise:#E7F1EA;  --line:#DDE9E1;   --line2:#C6DACE;  --hair:rgba(20,89,63,.20);
 
   --g:#14593F;      --g2:#0C3A29;     --g3:#1D7452;     --live:#0B8A4B;
   --gold:#A8875A;   --gold2:#B4935F;  --gold3:#8A6C3C;
   --amber:#B8791A;  --red:#C0392B;    --blue:#1B6E9C;   --violet:#6B4E9E;
 
-  --ink:#101914;    --dim:#5A6C63;    --dim2:#8B978F;   --faint:#A9B6AE;
+  --ink:#0D1A13;    --dim:#4C635A;    --dim2:#7A8F84;   --faint:#9AB0A3;
   --onGold:#FFFFFF;
 
-  --sheen:rgba(20,89,63,.04);
-  --sheen2:rgba(20,89,63,.08);
+  --sheen:rgba(20,89,63,.045);
+  --sheen2:rgba(20,89,63,.09);
   /* ظلّ التطبيق حرفيًّا — ثلاث طبقات، والبطاقة بلا حدّ */
   --shadow:0 1px 2px rgba(11,53,39,.05), 0 4px 10px -4px rgba(11,53,39,.07), 0 18px 34px -22px rgba(11,53,39,.3);
   --cardEdge:1px solid transparent;
-  --starOff:#DDE2DC;
+  --starOff:#D7E0D9;
+  /* النهار: لوح التنقّل أخضر عميق — هوية مُحسن كما في ترويسة التطبيق */
+  --navBg:linear-gradient(168deg,#1A6B4C 0%,#12513A 52%,#0D3E2C 100%);
+  --navInk:#F4FAF6;   --navDim:rgba(244,250,246,.82); --navDim2:rgba(244,250,246,.62);
+  --navFaint:rgba(244,250,246,.44);
+  --navLine:rgba(255,255,255,.11); --navSheen:rgba(255,255,255,.08);
+  --navSheen2:rgba(255,255,255,.15);
+  --navOnBg:linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,.03));
+  --navOnRing:rgba(231,209,162,.55); --navOnInk:#FFFFFF;
+  --markBg:linear-gradient(150deg,#E7D1A2,#A8875A);
+  /* الأرضية خضراء لا ذهبية — الذهبي حدّ وفصل، لا غلالة */
+  --wash:radial-gradient(48% 40% at 80% 6%, color-mix(in srgb,var(--live) 15%,transparent), transparent 62%),
+         radial-gradient(44% 36% at 10% 92%, color-mix(in srgb,var(--g3) 13%,transparent), transparent 60%);
   /* تدرّجات الحبوب كما هي في التطبيق حرفًا بحرف */
   --pLiveB:#E4F2E9;  --pLiveT:#0B6540;
   --pWaitB:#FBF1DE;  --pWaitT:#7F5310;
@@ -71,9 +92,9 @@
   --glowLive:0 0 0 1px rgba(11,138,75,.22), 0 12px 30px -16px rgba(11,138,75,.4);
   --glowGold:0 0 12px 1px rgba(168,135,90,.32);
   --scrim:rgba(16,25,20,.42);
-  --mapBg:radial-gradient(120% 90% at 50% 18%, #EDF3EC, #F8FAF7);
-  --gridLine:rgba(20,89,63,.10);
-  --spark:rgba(20,89,63,.4);
+  --mapBg:radial-gradient(120% 90% at 50% 18%, #E4EFE8, #F5FAF7);
+  --gridLine:rgba(20,89,63,.085);
+  --spark:rgba(20,89,63,.42);
   color-scheme:light;
 }
 
@@ -111,9 +132,7 @@ a{color:inherit; text-decoration:none}
 /* ══ الخلفية الحيّة ══ */
 .bg{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
 .bg::before{content:""; position:absolute; inset:-25%;
-  background:
-    radial-gradient(48% 40% at 80% 6%, color-mix(in srgb, var(--live) 14%, transparent), transparent 62%),
-    radial-gradient(44% 36% at 10% 92%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 60%);
+  background:var(--wash);
   animation:drift 30s var(--e) infinite alternate}
 @keyframes drift{from{transform:translate3d(0,0,0) scale(1)} to{transform:translate3d(-4%,3%,0) scale(1.08)}}
 .bg .grid{position:absolute; inset:0;
@@ -132,24 +151,27 @@ a{color:inherit; text-decoration:none}
 /* ══ السكة ══ */
 .rail{position:relative; z-index:6; display:flex; flex-direction:column; align-items:center;
   padding:14px 0 12px; gap:5px; overflow:hidden;
-  background:linear-gradient(180deg,var(--deep),var(--void));
-  border-inline-start:1px solid var(--line)}
+  background:var(--navBg); border-inline-start:1px solid var(--navLine)}
+/* شعرة ذهبية تفصل اللوح عن المسرح — كما تحت ترويسة التطبيق */
+.side::after, .rail::after{content:""; position:absolute; inset-block:0; inset-inline-end:0; width:1px;
+  background:linear-gradient(180deg,transparent,var(--gold2),transparent); opacity:.55}
 .rail .mark{width:44px; height:44px; border-radius:14px; display:grid; place-items:center; margin-bottom:12px;
-  background:linear-gradient(150deg,var(--g3),var(--g2));
+  background:var(--markBg);
   box-shadow:0 0 0 1px var(--hair), 0 12px 26px -12px rgba(0,0,0,.9);
   transition:transform .5s var(--e2)}
 .rail .mark:hover{transform:rotate(-8deg) scale(1.06)}
 .rail .mark i{display:block; width:24px; height:24px; background-size:contain;
   background-repeat:no-repeat; background-position:center}
 .rail button{width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
-  color:var(--railInk,var(--dim2)); position:relative;
+  color:var(--navDim2); position:relative;
   transition:color .2s var(--e), background .2s var(--e), transform .2s var(--e2)}
-.rail button:hover{color:var(--ink); background:var(--sheen); transform:translateY(-1px)}
+.rail button:hover{color:var(--navInk); background:var(--navSheen); transform:translateY(-1px)}
 .rail button:active{transform:scale(.92)}
-.rail button.on{color:var(--gold3); background:color-mix(in srgb, var(--gold) 14%, transparent)}
+.rail button.on{color:var(--gold3); background:var(--navSheen2)}
+:root[data-theme="day"] .rail button.on{color:#F0DCB4}
 .rail .sp{flex:1}
 .rail .dot{position:absolute; top:9px; inset-inline-start:9px; width:7px; height:7px; border-radius:50%;
-  background:var(--red); box-shadow:0 0 0 2px var(--deep); animation:tick 2.4s var(--e) infinite}
+  background:var(--red); box-shadow:0 0 0 2px rgba(0,0,0,.35); animation:tick 2.4s var(--e) infinite}
 @keyframes tick{0%,88%,100%{transform:scale(1)} 92%{transform:scale(1.5)}}
 /* المؤشّر الذهبي: عنصر واحد ينتقل بين الأزرار */
 .railmark{position:absolute; inset-inline-end:0; width:3px; border-radius:3px;
@@ -158,27 +180,25 @@ a{color:inherit; text-decoration:none}
 
 /* ══ لوح التنقّل ══ */
 .side{position:relative; z-index:5; overflow:hidden auto; padding:16px 14px 22px;
-  background:linear-gradient(180deg,var(--deep),var(--void));
-  border-inline-start:1px solid var(--line);
+  background:var(--navBg); border-inline-start:1px solid var(--navLine);
   transition:opacity .28s var(--e), transform .28s var(--e)}
 #room.wide .side, #room.wall .side{opacity:0; transform:translateX(14px); pointer-events:none}
 .side::-webkit-scrollbar{width:0}
-.side h1{font-size:16.5px; margin:2px 4px 2px; letter-spacing:-.3px}
-.side .sub{font-size:11px; color:var(--dim2); margin:0 4px 18px}
-.side .grp{font-size:10.5px; color:var(--faint); letter-spacing:.5px; margin:18px 6px 8px;
+.side h1{font-size:16.5px; margin:2px 4px 2px; letter-spacing:-.3px; color:var(--navInk)}
+.side .sub{font-size:11px; color:var(--navDim2); margin:0 4px 18px}
+.side .grp{font-size:10.5px; color:var(--navFaint); letter-spacing:.5px; margin:18px 6px 8px;
   display:flex; align-items:center; gap:9px}
 .side .grp::after{content:""; flex:1; height:1px;
-  background:linear-gradient(90deg,var(--line2),transparent)}
+  background:linear-gradient(90deg,var(--navLine),transparent)}
 .nav{display:flex; align-items:center; gap:10px; width:100%; padding:10px 11px; border-radius:13px;
-  color:var(--dim); position:relative; overflow:hidden;
+  color:var(--navDim); position:relative; overflow:hidden;
   transition:color .18s var(--e), background .18s var(--e), transform .18s var(--e)}
 .nav::before{content:""; position:absolute; inset:0; border-radius:inherit; opacity:0;
-  background:linear-gradient(90deg, color-mix(in srgb, var(--live) 18%, transparent), transparent);
-  transition:opacity .24s var(--e)}
-.nav:hover{color:var(--ink); background:var(--sheen); transform:translateX(-2px)}
+  background:var(--navOnBg); transition:opacity .24s var(--e)}
+.nav:hover{color:var(--navInk); background:var(--navSheen); transform:translateX(-2px)}
 .nav:active{transform:translateX(-2px) scale(.985)}
 .rail button:active{transform:scale(.93)}
-.nav.on{color:var(--ink); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--live) 26%, transparent)}
+.nav.on{color:var(--navOnInk); box-shadow:inset 0 0 0 1px var(--navOnRing)}
 .nav.on::before{opacity:1}
 .nav > *{position:relative}
 .nav .ic{width:18px; height:18px; flex:none}
@@ -513,7 +533,7 @@ a{color:inherit; text-decoration:none}
 @keyframes toastin{from{opacity:0; transform:translateY(20px) scale(.95)} to{opacity:1; transform:none}}
 
 .brandfoot{display:flex; align-items:center; justify-content:center; gap:9px;
-  padding:16px 0 4px; color:var(--faint); font-size:10.5px}
+  padding:16px 0 4px; color:var(--navFaint); font-size:10.5px}
 
 /* ══ هيكل تحميل ══ */
 .skel{border-radius:10px; background:linear-gradient(90deg,var(--sheen),var(--sheen2),var(--sheen));
@@ -845,6 +865,134 @@ a{color:inherit; text-decoration:none}
 .tdot.gold{color:var(--pGoldT)} .tdot.blue{color:var(--pBlueT)} .tdot.grey{color:var(--dim2)}
 .tbody{flex:1; min-width:0; padding:2px 0}
 .tbody .tiny{display:block; margin-top:5px}
+
+
+/* ═══════════════════════════════════════════════════
+   أنواع المهام · التشكيل والتسكين
+   ═══════════════════════════════════════════════════ */
+
+/* ══ مبدّل الأنواع الأربعة ══ */
+.tswitch{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
+@media (max-width:1180px){ .tswitch{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.tcard{display:flex; align-items:center; gap:12px; padding:14px 15px; border-radius:var(--r);
+  text-align:right; position:relative; overflow:hidden;
+  background:linear-gradient(180deg,var(--panel),var(--deep)); border:var(--cardEdge);
+  box-shadow:var(--shadow); color:var(--dim);
+  transition:transform .3s var(--e3), box-shadow .3s var(--e3), color .2s var(--e)}
+.tcard:hover{transform:translateY(-3px); box-shadow:var(--lift); color:var(--ink)}
+.tcard:active{transform:scale(.985)}
+.tcard::before{content:""; position:absolute; inset-inline:0; top:0; height:3px; opacity:0;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  transition:opacity .3s var(--e)}
+.tcard.on{color:var(--ink); box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+.tcard.on::before{opacity:1}
+.tico{width:40px; height:40px; border-radius:13px; flex:none; display:grid; place-items:center;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.tcard.on .tico{background:var(--sheen2)}
+.tcard .nm b{font-size:13.5px} .tcard .nm span{font-size:10.5px; line-height:1.5}
+.tn{font-size:19px; font-weight:800; letter-spacing:-.6px; flex:none;
+  font-variant-numeric:tabular-nums; color:var(--dim2)}
+.tcard.on .tn{color:var(--gold2)}
+
+/* ══ مزامنة نظام خارجي ══ */
+.synced{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--live);
+  padding:4px 10px; border-radius:99px; background:var(--pLiveB)}
+.synced .ic{animation:spin 8s linear infinite}
+
+/* ══ خطوات الخدمة ══ */
+.steps2{display:flex; flex-wrap:wrap; gap:6px; margin-top:11px}
+.st2{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700;
+  padding:5px 10px; border-radius:9px; color:var(--dim2); background:var(--sheen)}
+.st2 i{width:7px; height:7px; border-radius:50%; background:var(--line2); flex:none}
+.st2.done{color:var(--pLiveT); background:var(--pLiveB)}
+.st2.done i{background:var(--live)}
+.st2.now{color:var(--pWaitT); background:var(--pWaitB)}
+.st2.now i{background:var(--amber); animation:tick 2s var(--e) infinite}
+
+/* ══ كتلة سؤال في لوحة القالب ══ */
+.qblock{padding:13px 0; border-bottom:1px solid var(--line)}
+.qblock:last-child{border-bottom:0}
+.qblock .bars{height:96px}
+
+/* ══ مسار الزيارات ══ */
+.visits{display:flex; flex-direction:column; gap:8px}
+.vis{display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:12px;
+  background:var(--sheen)}
+.vis.on{box-shadow:inset 0 0 0 1px var(--gold2)}
+.vis > b{width:24px; height:24px; border-radius:8px; flex:none; display:grid; place-items:center;
+  font-size:11px; color:var(--onGold); background:linear-gradient(150deg,var(--gold2),var(--gold))}
+.vis .meter{flex:1}
+
+/* ══════════ لوح التشكيل ══════════ */
+.board3{display:grid; grid-template-columns:1fr 1.25fr 1fr; gap:16px; align-items:start}
+@media (max-width:1420px){ .board3{grid-template-columns:1fr 1fr} .buildbox{grid-column:1/-1; order:-1} }
+@media (max-width:980px){ .board3{grid-template-columns:1fr} }
+.card.src{max-height:760px; overflow:auto; padding-top:18px}
+.card.src::-webkit-scrollbar{width:8px}
+.card.src::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.srcgrp{margin-bottom:18px}
+.slab{display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:800;
+  color:var(--faint); letter-spacing:.3px; margin:0 2px 9px}
+.slab .cnt{font-style:normal; margin-inline-start:auto; font-size:10px; padding:1px 7px;
+  border-radius:99px; background:var(--sheen2); color:var(--dim2)}
+
+.pcard{display:flex; align-items:center; gap:10px; width:100%; padding:9px 11px; margin-bottom:7px;
+  border-radius:13px; text-align:right; color:var(--dim); background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line);
+  transition:transform .2s var(--e), background .2s var(--e), box-shadow .2s var(--e)}
+.pcard:hover{transform:translateX(-3px); color:var(--ink); background:var(--sheen2);
+  box-shadow:inset 0 0 0 1px var(--gold2)}
+.pcard:active{transform:scale(.985)}
+.pcard.off{opacity:.42; cursor:not-allowed}
+.pcard.off:hover{transform:none; box-shadow:inset 0 0 0 1px var(--line)}
+.pcard .nm b{font-size:12.5px} .pcard .nm span{font-size:10.5px}
+
+/* ══ الصندوق ══ */
+.buildbox{position:sticky; top:0}
+.cnt2{font-size:12px; font-weight:800; padding:4px 12px; border-radius:99px;
+  color:var(--dim2); background:var(--sheen2); font-variant-numeric:tabular-nums}
+.cnt2.ok{color:var(--onGold); background:linear-gradient(150deg,var(--g3),var(--g2))}
+.slot{display:flex; align-items:center; gap:11px; min-height:56px; padding:9px 12px;
+  border-radius:14px; margin-bottom:8px;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:box-shadow .26s var(--e), background .26s var(--e)}
+.slot.lead{background:var(--pGoldB); box-shadow:inset 0 0 0 1px var(--gold2)}
+.slot.full{box-shadow:inset 0 0 0 1px var(--line2); background:var(--panel2)}
+.slot .sl{font-size:10.5px; font-weight:800; color:var(--dim2); min-width:56px; flex:none}
+.slot.lead .sl{color:var(--pGoldT)}
+.slot .ph{font-size:11.5px; color:var(--faint)}
+.slot .nm b{font-size:12.5px} .slot .nm span{font-size:10.5px}
+.slots{margin-bottom:14px}
+.xbtn{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
+  color:var(--dim2); transition:all .18s var(--e)}
+.xbtn:hover{color:var(--red); background:color-mix(in srgb,var(--red) 12%,transparent)}
+.spec{font:inherit; font-size:11px; font-weight:700; color:var(--dim); padding:5px 8px;
+  border-radius:9px; border:0; outline:0; flex:none; max-width:104px;
+  background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line)}
+.pickrow{margin-bottom:12px}
+.pickrow .sl{display:block; font-size:10.5px; font-weight:800; color:var(--dim2); margin:0 2px 8px}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.btn[disabled]:hover{transform:none; box-shadow:0 0 0 1px var(--hair)}
+
+/* ══ المجموعات القائمة ══ */
+.gitem{padding:13px; border-radius:15px; margin-bottom:10px;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:box-shadow .26s var(--e), transform .24s var(--e)}
+.gitem:hover{transform:translateX(-3px); box-shadow:inset 0 0 0 1px var(--line2)}
+.gitem.on{box-shadow:inset 0 0 0 1px var(--gold2)}
+.faces{display:flex; gap:-6px; margin:11px 0 0; padding:0 2px}
+.fw{margin-inline-start:-9px; border-radius:50%; transition:transform .22s var(--e2)}
+.fw:first-child{margin-inline-start:0}
+.fw:hover{transform:translateY(-3px) scale(1.08); z-index:2}
+.gitem .pfoot{margin-top:11px}
+
+/* ══ الفنادق ══ */
+.hotel{padding:15px; border-radius:16px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.hgroups{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px;
+  border-top:1px solid var(--line)}
+.hchip{display:inline-flex; align-items:center; gap:8px; padding:6px 11px 6px 8px;
+  border-radius:99px; background:var(--sheen2)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
