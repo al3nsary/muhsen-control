@@ -22,8 +22,8 @@ function typeSwitch() {
 
 function screenTasks() {
   const t = S.tab.tt || 'hajj';
-  return typeSwitch() +
-    (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabNusuk()
+  /* النوع يُختار من القائمة الجانبية — فلا يُكرَّر هنا */
+  return (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabNusuk()
       : t === 'comply' ? tabComply() : tabHajj());
 }
 
@@ -88,6 +88,11 @@ function tabEnrich() {
   else if (f === 'assigned') list = list.filter(x => x.status === 'assigned');
   else if (f === 'done') list = list.filter(x => x.status === 'done');
   if (q) list = list.filter(x => (siteById(x.siteId).ar + ' ' + x.ref).indexOf(q) >= 0);
+  const fc = fOf('enr','city'), fk = fOf('enr','kt'), ft = fOf('enr','type');
+  if (fc) list = list.filter(x => siteById(x.siteId).city === fc);
+  if (fk) list = list.filter(x => x.kt === fk);
+  if (ft) list = list.filter(x => { const o = x.kt ? S.orgs.find(z => z.kt === x.kt) : null;
+    return o && o.type === ft; });
   const byCity = {};
   S.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
   const seats = S.enrich.reduce((a, x) => a + x.seats, 0);
@@ -112,11 +117,16 @@ function tabEnrich() {
         '<span class="synced">' + icon('i-reset','s14') + 'آخر مزامنة ' + ago(S.enrichSync) + '</span>' +
         '<button class="btn l sm" data-a="xsync">' + icon('i-reset','s16') + 'مزامنة الآن</button></span>',
         'i-bus') +
-      '<div class="tools">' + search('enr', 'ابحث بمزار أو رقم رحلة…', S.enrich.length) +
-        segmented('ef', [['open','بلا تسكين'],['assigned','مسكَّنة'],['done','منتهية'],['all','الكل']], f) +
-      '</div>' +
+      '<div class="tools">' + segmented('ef',
+        [['open','بلا تسكين'],['assigned','مسكَّنة'],['done','منتهية'],['all','الكل']], f) + '</div>' +
+      filterBar('enr', [
+        { k:'city', label:'المدينة', opts:optCities() },
+        { k:'kt',   label:'الـKT',   opts:optKT() },
+        { k:'type', label:'النوع',   opts:optTypes() }
+      ], list.length, S.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
-        const si = siteById(x.siteId), L = x.leaderId ? userById(x.leaderId) : null;
+        const si = siteById(x.siteId);
+        const M = x.muhsenId ? userById(x.muhsenId) : null;
         const full = Math.round(x.booked / x.seats * 100);
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail" style="background:#1B6E9C"></span>' +
@@ -125,17 +135,16 @@ function tabEnrich() {
           '<span>' + E(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
           '<span class="when"><b>' + hijri(x.start) + '</b>' +
             '<span class="num">' + t12(x.start) + ' — ' + t12(x.end) + '</span></span>' +
-          '<span class="end">' + (L ? '<span class="fl" style="gap:8px">' + avatar(L, 'sm') +
-              pill(x.kt, 'blue') + '</span>' : pill('بلا تسكين', 'no')) + '</span>' +
+          '<span class="end">' + (M ? '<span class="fl" style="gap:8px">' + avatar(M, 'sm') +
+              '<span class="tiny"><b>' + E(M.name) + '</b><br><span class="faint">' +
+              E(x.kt || '') + '</span></span></span>' : pill('بلا تسكين', 'no')) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
             '<div class="fl" style="gap:11px">' +
               '<span class="meter" style="flex:1"><i data-w="' + full + '"></i></span>' +
               '<span class="tiny faint num">' + AR(x.booked) + '/' + AR(x.seats) + ' مقعدًا</span>' +
-              (x.status === 'unassigned'
-                ? '<button class="btn p sm" data-a="xassign" data-id="' + x.id + '">تسكين على مجموعة</button>'
-                : x.status === 'assigned'
-                ? '<button class="btn l sm" data-a="xassign" data-id="' + x.id + '">نقل لمجموعة أخرى</button>'
-                : pill('انتهت', 'grey')) +
+              (x.status === 'done' ? pill('انتهت', 'grey')
+                : '<button class="btn ' + (M ? 'l' : 'p') + ' sm" data-a="xassign" data-id="' +
+                  x.id + '">' + (M ? 'تغيير المحسن' : 'إسناد لمحسن') + '</button>') +
             '</div></div></div>';
       }).join('') + '</div>' : empty('لا رحلات في هذا التصنيف', '', 'i-bus')) +
     '</div>';
@@ -148,6 +157,10 @@ function tabNusuk() {
   let list = S.nusuk.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(c => f === 'open' ? c.state !== 'delivered' : c.state === f);
   if (q) list = list.filter(c => (c.pilgrim + ' ' + c.passport + ' ' + c.kt + ' ' + c.no).indexOf(q) >= 0);
+  const nk = fOf('nsk','kt'), ns = fOf('nsk','svc'), nb = fOf('nsk','by');
+  if (nk) list = list.filter(c => c.kt === nk);
+  if (ns) list = list.filter(c => c.svc === ns);
+  if (nb) list = list.filter(c => c.openedBy === nb);
   const svcN = k => S.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
 
   return '<div class="grid g4">' +
@@ -166,15 +179,20 @@ function tabNusuk() {
       head('خدمات بطاقة نُسك', 'ابحث عن الحاجّ ثم افتح له حالة — والكنترول من يُسندها',
         '<button class="btn p sm" data-a="nnew">' + icon('i-plus','s16') + 'فتح حالة جديدة</button>',
         'i-idcard') +
-      '<div class="tools">' + search('nsk', 'ابحث باسم الحاجّ أو رقم جوازه أو مجموعته…', S.nusuk.length) +
-        segmented('nf', [['open','مفتوحة'],['new','جديدة'],['processing','قيد الإصدار'],
-          ['issued','تنتظر التسليم'],['delivered','سُلّمت'],['all','الكل']], f) +
+      '<div class="tools">' + segmented('nf', [['open','مفتوحة'],['new','جديدة'],
+        ['processing','قيد الإصدار'],['issued','تنتظر التسليم'],['delivered','سُلّمت'],['all','الكل']], f) +
       '</div>' +
+      filterBar('nsk', [
+        { k:'kt',  label:'الـKT',   opts:optKT() },
+        { k:'svc', label:'الخدمة', opts:Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]) },
+        { k:'by',  label:'فتحها',  opts:[['محسن','محسن'],['ليدر','ليدر'],['مشرف','مشرف'],['الكنترول','الكنترول']] }
+      ], list.length, S.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
       (list.length ? '<div class="plist">' + list.map((c, i) => {
         const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
         const to = c.assignedTo ? userById(c.assignedTo) : null;
         const pct = Math.round(c.step / V.steps.length * 100);
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
+        return '<div class="prow trow" data-a="nopen" data-id="' + c.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
@@ -232,6 +250,7 @@ function tabComply() {
           '<div class="pfoot">' +
             '<span class="ok">آخر زيارة ' + (bs.length ? ago(Math.max.apply(null, bs.map(b => b.at))) : '—') + '</span>' +
             '<span class="fl" style="gap:7px">' +
+              '<button class="btn l sm" data-a="fedit" data-id="' + f.id + '">تعديل</button>' +
               '<button class="btn l sm" data-a="fassign" data-id="' + f.id + '">إسناد</button>' +
               '<button class="btn p sm" data-a="fdash" data-id="' + f.id + '">اللوحة</button></span>' +
           '</div></div>';

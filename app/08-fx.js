@@ -188,6 +188,13 @@ function syncWall() {
 /* ============================================================
    الدرج الجانبي — تفصيل بلا مغادرة الشاشة
    ============================================================ */
+/* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
+let lastDrawer = null;
+function repaintDrawer() {
+  if (lastDrawer) lastDrawer();
+}
+function rememberDrawer(fn) { lastDrawer = fn; }
+
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
   if (!S.drawer) { w.innerHTML = ''; return; }
@@ -244,7 +251,21 @@ document.addEventListener('keydown', e => {
 /* اختيار تخصّص المحسن داخل التشكيل */
 document.addEventListener('change', e => {
   const t = e.target;
-  if (!t || !t.classList || !t.classList.contains('spec')) return;
+  if (!t) return;
+  /* مرفق: نحفظ وصفه لا محتواه — الاسم والحجم والنوع */
+  const fk = t.getAttribute && t.getAttribute('data-file');
+  if (fk) {
+    const f = t.files && t.files[0];
+    S.files = S.files || {};
+    if (f) S.files[fk] = { name:f.name, size:f.size, type:f.type };
+    save();
+    if (S.drawer) { if (S.picker) paintPicker(); else repaintDrawer(); }
+    return;
+  }
+  /* قوائم الفلترة */
+  const fsel = t.getAttribute && t.getAttribute('data-f');
+  if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
+  if (!t.classList || !t.classList.contains('spec')) return;
   const id = t.getAttribute('data-id'), d = draft();
   const m = d.members.find(x => x.id === id);
   if (m) { m.spec = t.value; save(); }
@@ -255,6 +276,16 @@ document.addEventListener('input', e => {
   if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }
   /* حقول الشاشات: تُحفظ فورًا، والرسم مؤجّل حتى لا يُفقد التركيز */
   const k = t.getAttribute('data-q');
+  if (k === 'pick') {
+    S.picker.q = t.value;
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => {
+      const pos = t.selectionStart; paintPicker();
+      const again = document.getElementById('q-pick');
+      if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
+    }, 200);
+    return;
+  }
   if (k) {
     S.q = S.q || {}; S.q[k] = t.value; save();
     clearTimeout(qTimer);

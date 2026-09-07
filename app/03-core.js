@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 5;
-const APP_VER = 'نسخة ٠٫٧';
+const SCHEMA = 6;
+const APP_VER = 'نسخة ٠٫٨';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -45,28 +45,30 @@ function seed() {
   const st = {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
-    feed: [], pilgrims: {}, log: [], toast: null
+    feed: [], pilgrims: {}, log: [], toast: null,
+    assigns: [], flt: {}, auth: false
   };
   S = st;
 
   /* المستخدمون: ليدرز · محسنون · احتياط */
   LEADERS.forEach(L => st.users.push(Object.assign({ role: 'leader', code: '#' + L.id }, L)));
-  LEADERS.forEach((L, li) => {
-    for (let i = 0; i < 5; i++) {
-      const n = li * 5 + i;
-      st.users.push({
-        id: 'M' + (1001 + n), role: 'muhsen', reserve: false, leaderId: L.id,
-        name: MUH_NAMES[n % MUH_NAMES.length].n, g: MUH_NAMES[n % MUH_NAMES.length].g,
-        av: avOf(MUH_NAMES[n % MUH_NAMES.length].g, n), code: '#M' + (1001 + n),
-        specialty: SPECS[n % SPECS.length], phone: '+9665' + (51000000 + n * 371),
-        kt: L.kt, orgId: L.orgId
-      });
-    }
+  /* ١٦٠ محسنًا: خمسة لكل ليدر، والباقي أحرار للتشكيل */
+  MUH_NAMES.forEach((m, n) => {
+    const li = Math.floor(n / 5);
+    const L = LEADERS[li] || null;
+    st.users.push({
+      id: 'M' + (1001 + n), role: 'muhsen', reserve: false,
+      leaderId: L ? L.id : null,
+      name: m.n, g: m.g, av: avOf(m.g, n), code: '#M' + (1001 + n),
+      specialty: SPECS[n % SPECS.length], phone: '+9665' + (51000000 + n * 371),
+      age: 22 + (n * 7) % 34,
+      kt: L ? L.kt : '—', orgId: L ? L.orgId : null
+    });
   });
   RESERVE_NAMES.forEach((r, i) => st.users.push({
     id: 'RS' + (2001 + i), role: 'muhsen', reserve: true, leaderId: null,
     name: r.n, g: r.g, av: avOf(r.g, i), code: '#RS' + (2001 + i), specialty: SPECS[i % SPECS.length],
-    phone: '+9665' + (55110000 + i * 137), kt: '—'
+    phone: '+9665' + (55110000 + i * 137), kt: '—', age: 24 + (i * 5) % 30
   }));
 
   /* الحجاج */
@@ -149,7 +151,7 @@ function seed() {
   SUP_NAMES.forEach((s, i) => st.users.push({
     id: 'SV' + (3001 + i), role: 'supervisor', name: s.n, g: s.g, av: avOf(s.g, i),
     code: '#SV' + (3001 + i), specialty: 'إشراف سكن', phone: '+9665' + (57220000 + i * 211),
-    hotelId: HOTELS[i % HOTELS.length].id, kt: '—'
+    hotelId: HOTELS[i % HOTELS.length].id, kt: '—', age: 30 + (i * 3) % 26
   }));
 
   /* ---------- التشكيل: لكل ليدر مجموعة بفريقه ---------- */
@@ -185,7 +187,7 @@ function seed() {
         id: uid('X'), ref: 'EX-' + AR(88100 + i * 7 + r), siteId: si.id,
         start, end: start + si.dur * HR, seats: si.cap,
         booked: Math.round(si.cap * (0.55 + ((i + r) % 5) / 12)),
-        kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null,
+        kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null, muhsenId: null,
         status: start < Date.now() ? 'done' : assigned ? 'assigned' : 'unassigned',
         at: Date.now() - (i * 40 + 60) * MIN
       });
@@ -273,7 +275,15 @@ function seed() {
     id: uid('G'), at: Date.now() - l.ago * MIN, text: l.t, kind: l.kind, by: 'الكنترول'
   }));
 
-  FEED_SEED.forEach(f => st.feed.push({
+  /* الحوادث تُصنَّف: نوع وحالة وجهة وزمن استجابة */
+  const INC_ST = ['مفتوح', 'قيد المعالجة', 'مغلق'];
+  FEED_SEED.forEach((f, fi) => st.feed.push({
+    no: 'IN-' + AR(7300 + fi),
+    cat: INC_CATS[fi % INC_CATS.length].k,
+    kt: ORGS[fi % ORGS.length].kt,
+    hotel: HOTELS[fi % HOTELS.length].ar,
+    state: INC_ST[(fi * 2) % 3],
+    resp: 4 + (fi * 7) % 38,
     id: uid('E'), kind: f[0], title: f[1], body: f[2], at: Date.now() - f[3] * MIN
   }));
 
@@ -286,6 +296,7 @@ function load() {
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
   S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
+  S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }

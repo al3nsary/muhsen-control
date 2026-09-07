@@ -19,7 +19,12 @@ function screenPilgrims() {
   const all = allPilgrimRows();
   const kt = S.tab.pkt || 'all';
   const q = qOf('pil');
-  let list = kt === 'all' ? all : all.filter(p => p.kt === kt);
+  let list = all.slice();
+  const pk = fOf('pil','kt'), po = fOf('pil','org'), ps = fOf('pil','state'), pf = fOf('pil','flag');
+  if (pk) list = list.filter(p => p.kt === pk);
+  if (po) { const o = orgById(po) || {}; list = list.filter(p => p.kt === o.kt); }
+  if (ps) list = list.filter(p => p.state === ps);
+  if (pf) list = list.filter(p => pf === 'y' ? !!p.flag : !p.flag);
   if (q) list = list.filter(p => (p.name + ' ' + p.no + ' ' + p.room + ' ' + p.kt).indexOf(q) >= 0);
   const arrived = all.filter(p => p.state === 'وصل').length;
   const flagged = all.filter(p => p.flag).length;
@@ -39,9 +44,12 @@ function screenPilgrims() {
     '<div class="card">' +
       head('السجل الأصل', 'منه يقرأ التطبيق أسماء الحجاج وغرفهم — والتعديل هنا يصل الأجهزة',
         pill(AR(list.length) + ' معروض', 'gold')) +
-      '<div class="tools">' + search('pil', 'ابحث باسم أو رقم حاج أو رقم غرفة…', all.length) +
-        segmented('pkt', [['all', 'كل الفرق']].concat(leaders().map(L => [L.kt, L.kt])), kt) +
-      '</div>' +
+      filterBar('pil', [
+        { k:'kt',    label:'الـKT',   opts:optKT() },
+        { k:'org',   label:'الجهة',   opts:optOrgs() },
+        { k:'state', label:'الحالة',  opts:[['وصل','وصل'],['لم يصل','لم يصل'],['غادر','غادر']] },
+        { k:'flag',  label:'رعاية',   opts:[['y','يحتاج رعاية'],['n','بلا']] }
+      ], list.length, all.length, 'ابحث باسم أو رقم حاجّ أو رقم غرفة…') +
       (list.length ? dataTable({
         key: 'pil', defaultCol: 1,
         cols: [{ t:'الحاجّ', w:'1.7fr' }, { t:'الفريق', w:'.7fr' }, { t:'البعثة', w:'1.1fr' },

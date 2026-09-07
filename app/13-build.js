@@ -167,7 +167,9 @@ function screenBuild() {
             '<span class="ico">' + icon('i-key','s18') + '</span>' +
             '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
             '<span>' + E(h.city) + ' · ' + E(h.dist) + ' · ' + AR(h.rooms) + ' غرفة</span></span>' +
-            pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') + '</div>' +
+            pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') +
+            '<button class="btn l sm" data-a="supassign" data-id="' + h.id + '">' +
+              (sup.length ? 'تغيير المشرف' : 'تسكين مشرف') + '</button></div>' +
           (sup.length ? '<div class="plist">' + sup.map(u =>
             '<div class="prow" style="padding:9px 11px">' + avatar(u, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +

@@ -50,7 +50,13 @@ function screenSupport() {
 /* ---------- الحوادث ---------- */
 function screenIncidents() {
   const f = S.tab.inc || 'all';
-  const list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  const q = qOf('inc');
+  let list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  const ic = fOf('inc','cat'), ik = fOf('inc','kt'), ist = fOf('inc','state');
+  if (ic) list = list.filter(x => x.cat === ic);
+  if (ik) list = list.filter(x => x.kt === ik);
+  if (ist) list = list.filter(x => (x.state || 'مفتوح') === ist);
+  if (q) list = list.filter(x => (x.title + ' ' + x.body + ' ' + (x.no || '')).indexOf(q) >= 0);
   return '<div class="grid g3">' +
       stat({ label:'حرجة', n:S.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
         cls:'bad', sub:'تحتاج تدخّلًا الآن', series:[2,3,2,4,3,5,4,3] }) +
@@ -63,11 +69,28 @@ function screenIncidents() {
       head('تدفّق الحوادث', 'كل ما يجري في الميدان — مرتّبًا بوقته', '', 'i-flag') +
       '<div class="tools">' + segmented('inc',
         [['all','الكل'],['bad','حرجة'],['warn','تحتاج انتباهًا'],['ok','مكتملة']], f) + '</div>' +
-      (list.length ? '<div class="feed" style="max-height:none">' + list.map((x, i) =>
-        '<div class="evt ' + x.kind + '" style="animation-delay:' + Math.min(i * 40, 320) + 'ms">' +
-        '<span class="dot"></span>' +
-        '<span class="sp"><b>' + E(x.title) + '</b><p>' + E(x.body) + '</p></span>' +
-        '<span class="t">' + ago(x.at) + '</span></div>').join('') + '</div>'
+      filterBar('inc', [
+        { k:'cat',   label:'النوع',  opts:INC_CATS.map(c => [c.k, c.ar]) },
+        { k:'kt',    label:'الـKT',  opts:optKT() },
+        { k:'state', label:'الحالة', opts:[['مفتوح','مفتوح'],['قيد المعالجة','قيد المعالجة'],['مغلق','مغلق']] }
+      ], list.length, S.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
+      (list.length ? '<div class="plist">' + list.map((x, i) => {
+        const C = INC_CATS.find(c => c.k === x.cat) || INC_CATS[0];
+        const st = x.state || 'مفتوح';
+        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' +
+          Math.min(i * 40, 320) + 'ms">' +
+          '<span class="krail ' + (x.kind === 'bad' ? 'r' : x.kind === 'warn' ? 'a' : '') + '"></span>' +
+          '<span class="ico" style="color:' + C.c + '">' + icon(C.i, 's18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(x.title) + '</b>' +
+          '<span>' + E(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
+          (x.hotel ? ' · ' + E(x.hotel) : '') + '</span></span>' +
+          pill(x.kind === 'bad' ? 'حرجة' : x.kind === 'warn' ? 'تحتاج انتباهًا' : 'مكتملة',
+            x.kind === 'bad' ? 'no' : x.kind === 'warn' ? 'wait' : 'live') +
+          pill(st, st === 'مغلق' ? 'live' : st === 'قيد المعالجة' ? 'wait' : 'no') +
+          '<span class="tiny faint">' + ago(x.at) +
+          (x.resp ? '<br>استجابة ' + AR(x.resp) + ' د' : '') + '</span>' +
+          '<div class="quote" style="width:100%">' + E(x.body) + '</div></div>';
+      }).join('') + '</div>'
         : empty('لا حوادث في هذا التصنيف', 'وهذا خبر جيّد', 'i-checkc')) + '</div>';
 }
 
@@ -88,22 +111,48 @@ function muhsenRow(m, doneN) {
 }
 
 function screenTeams() {
-  return '<div class="grid g2">' + leaders().map(L => {
+  const q = qOf('tm');
+  const fo = fOf('tm','org'), fh = fOf('tm','hotel'), ft = fOf('tm','type');
+  let ls = leaders();
+  if (fo) ls = ls.filter(L => L.orgId === fo);
+  if (ft) ls = ls.filter(L => (orgById(L.orgId) || {}).type === ft);
+  if (fh) ls = ls.filter(L => groupsOf(L.id).some(g => g.hotelId === fh));
+  if (q) ls = ls.filter(L => (L.name + ' ' + L.kt).indexOf(q) >= 0 ||
+    teamOf(L.id).some(m => m.name.indexOf(q) >= 0));
+  const open = S.tab.tmopen || '';
+  return '<div class="card">' +
+      head('الفرق والمجموعات', 'انقر رأس البطاقة لتفتحها أو تطويها',
+        pill(AR(ls.length) + ' من ' + AR(leaders().length), 'gold'), 'i-flag') +
+      filterBar('tm', [
+        { k:'org',   label:'الجهة',  opts:optOrgs() },
+        { k:'type',  label:'النوع',  opts:optTypes() },
+        { k:'hotel', label:'السكن',  opts:optHotels() }
+      ], ls.length, leaders().length, 'ابحث بليدر أو KT أو اسم محسن…') +
+    '</div>' +
+    '<div class="grid g2">' + ls.map(L => {
     const team = teamOf(L.id), org = orgById(L.orgId) || {};
     const ts = S.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done').length;
-    return '<div class="card">' +
-      '<div class="fl" style="margin-bottom:14px">' + avatar(L, 'lg') +
+    const g0 = groupsOf(L.id)[0];
+    const isOpen = open === L.id;
+    return '<div class="card teamcard' + (isOpen ? ' open' : '') + '">' +
+      '<button class="fl teamhead" data-a="seg" data-k="tmopen" data-v="' +
+        (isOpen ? '' : L.id) + '">' + avatar(L, 'lg') +
         '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(L.kt) + ' · ' + E(L.name) + '</b>' +
-        '<span>' + E(org.ar) + ' · ' + E(org.country) + '</span></span>' +
-        pill(AR(L.pilgrims) + ' حاج', 'gold') + '</div>' +
+        '<span>' + E(org.ar) + ' · ' + E(org.type) + ' · ' + E(org.country) +
+        (g0 ? ' · ' + E(hotelById(g0.hotelId).ar || '') : '') + '</span></span>' +
+        pill(E(org.type), org.type === 'بعثة' ? 'blue' : 'gold') +
+        pill(AR(L.pilgrims) + ' حاج', 'grey') +
+        '<span class="chev">' + icon('i-fwd','s16') + '</span></button>' +
       '<div class="meta">' +
         '<div><span class="k">محسنون</span><b class="num">' + AR(team.length) + '</b></div>' +
         '<div><span class="k">مهام</span><b class="num">' + AR(ts.length) + '</b></div>' +
         '<div><span class="k">منجزة</span><b class="num">' + AR(done) + '</b></div>' +
       '</div>' +
-      '<div class="plist" style="margin-top:14px">' +
-        team.map(m => muhsenRow(m, done)).join('') + '</div>' +
+      (isOpen ? '<div class="plist" style="margin-top:14px">' +
+        (team.length ? team.map(m => muhsenRow(m, done)).join('')
+          : '<div class="tiny faint" style="padding:14px 4px">لا محسنين — لم تُشكَّل مجموعته بعد.</div>') +
+        '</div>' : '') +
     '</div>';
   }).join('') + '</div>';
 }
@@ -128,9 +177,16 @@ function screenReserve() {
 /* ---------- التذاكر ---------- */
 function screenTickets() {
   const f = S.tab.kf || 'open';
-  const list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
+  let list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
     : f === 'crit' ? k.pri === 'حرجة' : f === 'closed' ? k.status === 'مغلقة' : true)
     .sort((a, b) => b.at - a.at);
+  const q = qOf('tkt');
+  const tk = fOf('tkt','kt'), tc = fOf('tkt','cat'), tp = fOf('tkt','pri'), ta = fOf('tkt','asg');
+  if (tk) list = list.filter(k => k.kt === tk);
+  if (tc) list = list.filter(k => k.cat === tc);
+  if (tp) list = list.filter(k => k.pri === tp);
+  if (ta) list = list.filter(k => ta === 'y' ? !!k.assignedTo : !k.assignedTo);
+  if (q) list = list.filter(k => (k.title + ' ' + k.no + ' ' + k.from + ' ' + k.body).indexOf(q) >= 0);
   const crit = S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
   return '<div class="grid g3">' +
       stat({ label:'مفتوحة', n:openTickets().length, ic:'i-ticket',
@@ -145,17 +201,31 @@ function screenTickets() {
       head('تذاكر الحجاج', 'يرفعها الحجاج وحدهم — تصل الليدر ونراها هنا', '', 'i-ticket') +
       '<div class="tools">' + segmented('kf',
         [['open','مفتوحة'],['crit','حرجة'],['closed','مغلقة'],['all','الكل']], f) + '</div>' +
+      filterBar('tkt', [
+        { k:'kt',  label:'الـKT',     opts:optKT() },
+        { k:'cat', label:'التصنيف',   opts:[...new Set(S.tickets.map(k => k.cat))].map(c => [c, c]) },
+        { k:'pri', label:'الأولوية',  opts:[['حرجة','حرجة'],['عاجلة','عاجلة'],['عادية','عادية']] },
+        { k:'asg', label:'الإسناد',   opts:[['y','مُسنَدة'],['n','بلا إسناد']] }
+      ], list.length, S.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
       (list.length ? '<div class="plist">' + list.map((k, i) => {
         const pr = k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey';
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
+        const to = k.assignedTo ? userById(k.assignedTo) : null;
+        return '<div class="prow trow" data-a="tkopen2" data-id="' + k.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
           '<span class="krail ' + (k.pri === 'حرجة' ? 'r' : k.pri === 'عاجلة' ? 'a' : '') + '"></span>' +
           '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
           '<span>' + E(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') + pill(k.pri, pr) +
             pill(k.status, k.status === 'مغلقة' ? 'live' : 'wait') + '</span>' +
+          (to ? '<span class="fl" style="gap:7px">' + avatar(to, 'sm') +
+            '<span class="tiny faint">' + E(to.name) + '</span></span>' : '') +
           '<span class="tiny faint">' + ago(k.at) + '</span>' +
-          '<div class="quote" style="width:100%">' + E(k.body) + '</div></div>';
+          '<div class="quote" style="width:100%">' + E(k.body) + '</div>' +
+          ((k.thread || []).length ? '<div class="tiny" style="width:100%;margin-top:8px;' +
+            'color:var(--gold3)">' + icon('i-send','s14') + ' ' + AR(k.thread.length) +
+            ' ردًّا — آخره: ' + E(k.thread[k.thread.length-1].text.slice(0,60)) + '</div>' : '') +
+        '</div>';
       }).join('') + '</div>' : empty('لا تذاكر في هذا التصنيف', '', 'i-ticket')) + '</div>';
 }
 
@@ -179,7 +249,8 @@ function screenReports() {
         [['all','الكل'],['esc','مصعَّدة'],['room','تعديل غرف']], f) + '</div>' +
       (list.length ? '<div class="plist">' + list.map((r, i) => {
         const L = userById(r.from) || {};
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
+        return '<div class="prow trow" data-a="rpopen" data-id="' + r.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
           '<span class="krail ' + (r.escalated ? 'a' : '') + '"></span>' +
           avatar(L, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(r.title) + '</b>' +
@@ -191,9 +262,7 @@ function screenReports() {
             '<div class="quote">' + E(r.body) + '</div>' +
             (r.room ? '<div class="fl" style="gap:11px;margin-top:11px;flex-wrap:wrap">' +
               '<span class="mchip">' + icon('i-key','s14') + E(r.room.floor) +
-                ' · غرفة ' + E(r.room.no) + '</span>' +
-              '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">' +
-                'تحديث قاعدة البيانات</button></div>' : '') +
+                ' · غرفة ' + E(r.room.no) + '</span></div>' : '') +
           '</div></div>';
       }).join('') + '</div>' : empty('لا تقارير في هذا التصنيف', '', 'i-flag')) + '</div>';
 }

@@ -122,12 +122,7 @@ a{color:inherit; text-decoration:none}
 ::selection{background:color-mix(in srgb, var(--live) 30%, transparent)}
 
 /* ══ الشبكة — grid-template-rows:100% و min-height:0 وإلا لا يعمل أي تمرير ══ */
-#room{display:grid; grid-template-columns:var(--rail) var(--side) 1fr;
-  grid-template-rows:100%; height:100%; overflow:hidden}
-#room > *{min-height:0; min-width:0}
-#room.wide{grid-template-columns:var(--rail) 0 1fr}
-/* جدار العرض يُخفي لوح التنقّل فقط — السكة تبقى، ولا نظام بلا مخرج */
-#room.wall{grid-template-columns:var(--rail) 0 1fr}
+
 
 /* ══ الخلفية الحيّة ══ */
 .bg{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
@@ -148,65 +143,96 @@ a{color:inherit; text-decoration:none}
   animation:sweep 14s linear infinite}
 @keyframes sweep{from{transform:translateX(-60%)} to{transform:translateX(60%)}}
 
-/* ══ السكة ══ */
-.rail{position:relative; z-index:6; display:flex; flex-direction:column; align-items:center;
-  padding:14px 0 12px; gap:5px; overflow:hidden;
-  background:var(--navBg); border-inline-start:1px solid var(--navLine)}
-/* شعرة ذهبية تفصل اللوح عن المسرح — كما تحت ترويسة التطبيق */
-.side::after, .rail::after{content:""; position:absolute; inset-block:0; inset-inline-end:0; width:1px;
-  background:linear-gradient(180deg,transparent,var(--gold2),transparent); opacity:.55}
-.rail .mark{width:44px; height:44px; border-radius:14px; display:grid; place-items:center; margin-bottom:12px;
-  background:var(--markBg);
-  box-shadow:0 0 0 1px var(--hair), 0 12px 26px -12px rgba(0,0,0,.9);
-  transition:transform .5s var(--e2)}
-.rail .mark:hover{transform:rotate(-8deg) scale(1.06)}
-.rail .mark i{display:block; width:24px; height:24px; background-size:contain;
-  background-repeat:no-repeat; background-position:center}
-.rail button{width:46px; height:46px; border-radius:14px; display:grid; place-items:center;
-  color:var(--navDim2); position:relative;
-  transition:color .2s var(--e), background .2s var(--e), transform .2s var(--e2)}
-.rail button:hover{color:var(--navInk); background:var(--navSheen); transform:translateY(-1px)}
-.rail button:active{transform:scale(.92)}
-.rail button.on{color:var(--gold3); background:var(--navSheen2)}
-:root[data-theme="day"] .rail button.on{color:#F0DCB4}
-.rail .sp{flex:1}
-.rail .dot{position:absolute; top:9px; inset-inline-start:9px; width:7px; height:7px; border-radius:50%;
-  background:var(--red); box-shadow:0 0 0 2px rgba(0,0,0,.35); animation:tick 2.4s var(--e) infinite}
-@keyframes tick{0%,88%,100%{transform:scale(1)} 92%{transform:scale(1.5)}}
-/* المؤشّر الذهبي: عنصر واحد ينتقل بين الأزرار */
-.railmark{position:absolute; inset-inline-end:0; width:3px; border-radius:3px;
-  background:var(--gold2); box-shadow:var(--glowGold);
-  transition:top .42s var(--e2), height .42s var(--e2), opacity .2s var(--e)}
 
-/* ══ لوح التنقّل ══ */
-.side{position:relative; z-index:5; overflow:hidden auto; padding:16px 14px 22px;
+/* ═══════════════════════════════════════════════════
+   القائمة الواحدة — حالتان لا لوحان
+   ═══════════════════════════════════════════════════ */
+#room{display:grid; grid-template-columns:var(--sidew) 1fr;
+  grid-template-rows:100%; height:100%; overflow:hidden}
+#room > *{min-height:0; min-width:0}
+:root{--sidew:276px; --sidemini:74px}
+#room.wide{--sidew:var(--sidemini)}
+#room.wall{--sidew:var(--sidemini)}
+
+.side{position:relative; z-index:6; display:flex; flex-direction:column; overflow:hidden;
   background:var(--navBg); border-inline-start:1px solid var(--navLine);
-  transition:opacity .28s var(--e), transform .28s var(--e)}
-#room.wide .side, #room.wall .side{opacity:0; transform:translateX(14px); pointer-events:none}
-.side::-webkit-scrollbar{width:0}
-.side h1{font-size:16.5px; margin:2px 4px 2px; letter-spacing:-.3px; color:var(--navInk)}
-.side .sub{font-size:11px; color:var(--navDim2); margin:0 4px 18px}
-.side .grp{font-size:10.5px; color:var(--navFaint); letter-spacing:.5px; margin:18px 6px 8px;
-  display:flex; align-items:center; gap:9px}
-.side .grp::after{content:""; flex:1; height:1px;
-  background:linear-gradient(90deg,var(--navLine),transparent)}
-.nav{display:flex; align-items:center; gap:10px; width:100%; padding:10px 11px; border-radius:13px;
-  color:var(--navDim); position:relative; overflow:hidden;
+  transition:none}
+.side::after{content:""; position:absolute; inset-block:0; inset-inline-end:0; width:1px;
+  background:linear-gradient(180deg,transparent,var(--gold2),transparent); opacity:.55}
+
+.sidehead{display:flex; align-items:center; gap:11px; padding:15px 14px 13px; flex:none;
+  border-bottom:1px solid var(--navLine)}
+.side .mark{width:42px; height:42px; border-radius:13px; flex:none; display:grid; place-items:center;
+  background:var(--markBg); box-shadow:0 0 0 1px var(--hair), 0 10px 22px -12px rgba(0,0,0,.9);
+  transition:transform .5s var(--e2)}
+.side .mark:hover{transform:rotate(-8deg) scale(1.06)}
+.side .mark i{display:block; width:23px; height:23px; background-size:contain;
+  background-repeat:no-repeat; background-position:center}
+.brandtxt{flex:1; min-width:0; overflow:hidden}
+.brandtxt b{display:block; font-size:14px; letter-spacing:-.3px; color:var(--navInk); white-space:nowrap}
+.brandtxt span{display:block; font-size:10.5px; color:var(--navDim2); white-space:nowrap}
+.fold{width:30px; height:30px; border-radius:10px; flex:none; display:grid; place-items:center;
+  color:var(--navDim2); transition:all .2s var(--e)}
+.fold:hover{color:var(--navInk); background:var(--navSheen)}
+
+.sidescroll{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:10px 12px 18px}
+.sidescroll::-webkit-scrollbar{width:0}
+
+.grp{font-size:10.5px; color:var(--navFaint); letter-spacing:.5px; margin:16px 6px 8px;
+  display:flex; align-items:center; gap:9px; white-space:nowrap}
+.grp::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--navLine),transparent)}
+
+.nav{display:flex; align-items:center; gap:11px; width:100%; padding:10px 11px; border-radius:13px;
+  color:var(--navDim); position:relative; overflow:hidden; white-space:nowrap;
   transition:color .18s var(--e), background .18s var(--e), transform .18s var(--e)}
 .nav::before{content:""; position:absolute; inset:0; border-radius:inherit; opacity:0;
   background:var(--navOnBg); transition:opacity .24s var(--e)}
 .nav:hover{color:var(--navInk); background:var(--navSheen); transform:translateX(-2px)}
 .nav:active{transform:translateX(-2px) scale(.985)}
-.rail button:active{transform:scale(.93)}
 .nav.on{color:var(--navOnInk); box-shadow:inset 0 0 0 1px var(--navOnRing)}
 .nav.on::before{opacity:1}
 .nav > *{position:relative}
 .nav .ic{width:18px; height:18px; flex:none}
-.nav b{font-size:13px; font-weight:700; flex:1}
-.nav .n{font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:99px;
-  background:color-mix(in srgb, var(--red) 20%, transparent); color:var(--red);
-  font-variant-numeric:tabular-nums}
-.nav .n.q{background:color-mix(in srgb, var(--amber) 20%, transparent); color:var(--amber)}
+.nav b{font-size:13px; font-weight:700; flex:1; text-align:right; overflow:hidden;
+  text-overflow:ellipsis}
+.nav .n{font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:99px; flex:none;
+  background:var(--pNoB); color:var(--pNoT); font-variant-numeric:tabular-nums}
+.nav .n.q{background:var(--pWaitB); color:var(--pWaitT)}
+
+/* ══ التابات الفرعية ══ */
+.kids{display:flex; flex-direction:column; gap:2px; margin:4px 0 8px;
+  padding-inline-start:13px; position:relative;
+  animation:kidsin .34s var(--e3) both}
+@keyframes kidsin{from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:none}}
+.kids::before{content:""; position:absolute; inset-block:4px; inset-inline-start:20px; width:2px;
+  border-radius:2px; background:linear-gradient(180deg,var(--gold2),transparent)}
+.kid{display:flex; align-items:center; gap:9px; width:100%; padding:8px 10px; border-radius:11px;
+  color:var(--navDim2); white-space:nowrap;
+  transition:color .18s var(--e), background .18s var(--e), transform .18s var(--e)}
+.kid:hover{color:var(--navInk); background:var(--navSheen); transform:translateX(-2px)}
+.kid.on{color:var(--navOnInk); background:var(--navSheen2)}
+.kid b{font-size:12px; font-weight:700; flex:1; text-align:right}
+.kid .ic{flex:none; opacity:.85}
+.kid .n{font-size:9.5px; font-weight:800; padding:1px 6px; border-radius:99px; flex:none;
+  background:var(--pNoB); color:var(--pNoT)}
+.kid .n.q{background:var(--pWaitB); color:var(--pWaitT)}
+
+.brandfoot{display:flex; align-items:center; justify-content:center; gap:9px;
+  padding:18px 0 4px; color:var(--navFaint); font-size:10.5px; white-space:nowrap}
+
+/* ══ الحالة المطويّة: أيقونات فقط، والاسم يظهر عند المرور ══ */
+.side.mini .brandtxt, .side.mini .grp span, .side.mini .nav b, .side.mini .nav .n,
+.side.mini .kids, .side.mini .brandfoot span{display:none}
+.side.mini .sidehead{flex-direction:column; gap:9px; padding:14px 8px 12px}
+.side.mini .sidescroll{padding:10px 9px 18px}
+.side.mini .grp{margin:14px 4px 7px}
+.side.mini .grp::after{flex:1}
+.side.mini .nav{justify-content:center; padding:11px 0; gap:0}
+.side.mini .nav .ic{width:20px; height:20px}
+/* نقطة تنبيه بدل العدد */
+.side.mini .nav.hasn::after{content:""; position:absolute; top:7px; inset-inline-start:14px;
+  width:7px; height:7px; border-radius:50%; background:var(--red);
+  box-shadow:0 0 0 2px rgba(0,0,0,.35); animation:tick 2.4s var(--e) infinite}
 
 /* ══ الشريط العلوي ══ */
 .stage{position:relative; z-index:4; display:flex; flex-direction:column; overflow:hidden}
@@ -994,6 +1020,119 @@ a{color:inherit; text-decoration:none}
 .hchip{display:inline-flex; align-items:center; gap:8px; padding:6px 11px 6px 8px;
   border-radius:99px; background:var(--sheen2)}
 
+
+/* ═══════════════════════════════════════════════════
+   الفلاتر · المسار · المرفقات · شاشة الدخول
+   ═══════════════════════════════════════════════════ */
+
+/* ══ صفّ الفلاتر ══ */
+.fbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:15px}
+.fbar .find{flex:1 1 240px; min-width:200px}
+.fsp{flex:1}
+.fcount{font-size:11.5px; color:var(--dim2); white-space:nowrap}
+.fcount b{color:var(--ink); font-variant-numeric:tabular-nums}
+.fsel{position:relative; display:inline-flex; align-items:center; gap:7px; height:42px;
+  padding:0 12px 0 34px; border-radius:13px; cursor:pointer; flex:none;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:box-shadow .24s var(--e), background .24s var(--e)}
+.fsel:hover{background:var(--sheen2)}
+.fsel.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.fsel > span{font-size:10.5px; font-weight:800; color:var(--dim2); white-space:nowrap}
+.fsel.on > span{color:var(--pGoldT)}
+.fsel select{appearance:none; -webkit-appearance:none; border:0; outline:0; background:none;
+  font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
+  max-width:150px; text-overflow:ellipsis; padding:0}
+.fsel .ic{position:absolute; inset-inline-start:12px; color:var(--dim2);
+  transform:rotate(90deg); pointer-events:none}
+
+/* ══ مسار الخطوات في الدرج ══ */
+.wf{display:flex; flex-direction:column; gap:0}
+.wfs{display:flex; align-items:center; gap:12px; padding:10px 0; position:relative}
+.wfs::before{content:""; position:absolute; inset-inline-start:14px; top:32px; bottom:-4px; width:2px;
+  background:var(--line)}
+.wfs:last-child::before{display:none}
+.wfn{width:30px; height:30px; border-radius:50%; flex:none; display:grid; place-items:center;
+  font-size:11.5px; font-weight:800; z-index:2;
+  color:var(--dim2); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.wfs.done .wfn{color:#fff; background:linear-gradient(150deg,var(--g3),var(--g2)); box-shadow:none}
+.wfs.done::before{background:var(--g3)}
+.wfs.now .wfn{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold));
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent);
+  animation:tick 2.2s var(--e) infinite}
+.wfs .nm b{font-size:12.5px}
+.wfs.done .nm b{color:var(--dim)}
+.wfs.now .nm b{color:var(--ink)}
+
+/* ══ المرفقات ══ */
+.fpick{display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:12px;
+  font-size:12px; font-weight:700; color:var(--dim); cursor:pointer;
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .2s var(--e)}
+.fpick:hover{color:var(--ink); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--gold2)}
+.fchip{display:inline-flex; align-items:center; gap:8px; margin-inline-start:9px;
+  padding:7px 12px; border-radius:11px; font-size:11.5px;
+  background:var(--pGoldB); color:var(--pGoldT)}
+.fchip b{font-weight:700; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fchip span{opacity:.75; font-variant-numeric:tabular-nums}
+
+/* ══ إضافة سؤال ══ */
+.qadd{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
+.prow .sn{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
+  font-size:11px; font-weight:800; color:var(--onGold);
+  background:linear-gradient(150deg,var(--g3),var(--g2))}
+.prow.pick{cursor:pointer; text-align:right}
+.prow.pick:hover{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+.prow.pick[disabled]{opacity:.45; cursor:not-allowed}
+
+/* ══ قائمة بيانات في البروفايل ══ */
+.kvlist{display:flex; flex-direction:column}
+.kv2{display:flex; align-items:center; gap:11px; padding:10px 2px; border-bottom:1px solid var(--line)}
+.kv2:last-child{border-bottom:0}
+.kv2 .ico.sm{width:28px; height:28px; border-radius:9px}
+.kv2 .k{font-size:11.5px; color:var(--dim2); min-width:66px}
+.kv2 b{font-size:12.5px; flex:1; text-align:left}
+
+/* ══ شاشة الدخول ══ */
+#gate{position:fixed; inset:0; z-index:80; display:grid; place-items:center; padding:24px;
+  background:var(--void); overflow:auto}
+#gate .gwrap{width:min(420px,100%); position:relative; z-index:2;
+  animation:rise .7s var(--e3) both}
+#gate .gbrand{display:flex; flex-direction:column; align-items:center; gap:14px; margin-bottom:26px}
+#gate .gmark{width:76px; height:76px; border-radius:24px; display:grid; place-items:center;
+  background:var(--markBg); box-shadow:0 0 0 1px var(--hair), 0 24px 50px -20px rgba(0,0,0,.7);
+  animation:gmark 1.1s var(--e2) both}
+@keyframes gmark{from{opacity:0; transform:translateY(-14px) rotate(-12deg) scale(.8)}
+  to{opacity:1; transform:none}}
+#gate .gmark i{display:block; width:40px; height:40px; background-size:contain;
+  background-repeat:no-repeat; background-position:center}
+#gate h1{font-size:24px; margin:0; letter-spacing:-.8px; text-align:center}
+#gate .gsub{font-size:12.5px; color:var(--dim2); text-align:center}
+#gate .gcard{padding:26px 24px; border-radius:var(--r2);
+  background:linear-gradient(180deg,var(--panel),var(--deep));
+  border:var(--cardEdge); box-shadow:var(--shadow)}
+#gate .gcard::before{content:""; display:block; height:2px; margin:-26px -24px 22px;
+  border-radius:2px 2px 0 0;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+#gate .roles{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:16px}
+#gate .role{display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:13px;
+  border-radius:14px; text-align:right; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .24s var(--e)}
+#gate .role:hover{color:var(--ink); background:var(--sheen2)}
+#gate .role.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+#gate .role b{font-size:13px} #gate .role span{font-size:10.5px}
+#gate .gfoot{display:flex; align-items:center; justify-content:center; gap:9px; margin-top:20px;
+  font-size:10.5px; color:var(--faint)}
+#gate .gtheme{position:fixed; top:20px; inset-inline-start:20px; z-index:3}
+@media (max-width:520px){ #gate .roles{grid-template-columns:1fr} }
+
+/* ══ بطاقة فريق تُطوى وتُفتح ══ */
+.teamhead{width:100%; text-align:right; gap:12px}
+.teamhead .chev{color:var(--dim2); transition:transform .3s var(--e2)}
+.teamcard.open .teamhead .chev{transform:rotate(90deg); color:var(--gold2)}
+.teamcard{transition:box-shadow .3s var(--e3)}
+.teamcard.open{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -1080,6 +1219,7 @@ a{color:inherit; text-decoration:none}
   <symbol id="i-kaaba" viewBox="0 0 24 24"><path d="M12 3.2l7.4 3.6v10.4L12 20.8 4.6 17.2V6.8z"/><path d="M4.6 6.8L12 10.4l7.4-3.6M12 10.4v10.4"/></symbol>
   <symbol id="i-tent" viewBox="0 0 24 24"><path d="M2 19.4h20"/><path d="M12 5.2L4.6 19.4M12 5.2l7.4 14.2" stroke-linecap="round"/><path d="M12 5.2v14.2"/><path d="M9.4 19.4l2.6-5.6 2.6 5.6"/><path d="M12 5.2l1.6-1.8"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.4 12H2M22 12h-2.4M6.3 6.3L4.6 4.6M19.4 19.4l-1.7-1.7M17.7 6.3l1.7-1.7M4.6 19.4l1.7-1.7"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 4H6.5A2.5 2.5 0 004 6.5v11A2.5 2.5 0 006.5 20h8"/><path d="M17 8.5L20.5 12 17 15.5M20 12H10"/></symbol>
   <symbol id="i-idcard" viewBox="0 0 24 24"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><circle cx="8.4" cy="10.6" r="2.1"/><path d="M5 16.4c.5-1.8 1.9-2.6 3.4-2.6s2.9.8 3.4 2.6"/><path d="M14.6 10h4.2M14.6 13.4h4.2"/></symbol>
   <symbol id="i-food" viewBox="0 0 24 24"><path d="M6 3v8a2.4 2.4 0 004.8 0V3M8.4 11v10"/><path d="M17.4 3c-1.7 0-2.8 2-2.8 5s1.1 4 2.8 4 2.8-1 2.8-4-1.1-5-2.8-5zM17.4 12v9"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.4A8.6 8.6 0 019.6 3.5a8.6 8.6 0 1010.9 10.9z"/></symbol>
@@ -1110,7 +1250,6 @@ a{color:inherit; text-decoration:none}
 </style>
 <div class="bg"><span class="grid"></span><span class="sweep"></span></div>
 <div id="room">
-  <div id="railwrap" style="display:contents"></div>
   <div id="sidewrap" style="display:contents"></div>
   <div id="stagewrap" class="stage"></div>
 </div>
@@ -1118,6 +1257,7 @@ a{color:inherit; text-decoration:none}
 <div id="overlay"></div>
 <div id="drawerwrap"></div>
 <div id="toastwrap"></div>
+<div id="gatewrap"></div>
 <script>window.IMG={"logo_white":"data:image/png;base64,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"};</script>
 <script>
 /* ============================================================
@@ -1126,14 +1266,67 @@ a{color:inherit; text-decoration:none}
    والحجاج والأدلة، وإليه تصعد الطلبات والتقارير من التطبيق.
    ============================================================ */
 
-/* ---------- الجهات ---------- */
-const ORGS = [
-  { id:'o1', name:'TABUNG HAJI',         ar:'بعثة تابونغ حاجي',      type:'بعثة', country:'ماليزيا',   kt:'KT085' },
-  { id:'o2', name:'Rayhar Travels',      ar:'شركة ريهار للسفر',      type:'شركة', country:'ماليزيا',   kt:'KT062' },
-  { id:'o3', name:'AMPHURI',             ar:'بعثة أمفوري',           type:'بعثة', country:'إندونيسيا', kt:'KT031' },
-  { id:'o4', name:'Sahid Gema Wisata',   ar:'شركة ساهد جيما ويساتا', type:'شركة', country:'إندونيسيا', kt:'KT044' },
-  { id:'o5', name:'Darussalam Services', ar:'بعثة دار السلام',       type:'بعثة', country:'بروناي',    kt:'KT019' }
+
+/* ============================================================
+   الأعداد الحقيقية — تُبنى من مخزون أسماء لا من قائمة يدوية
+   ============================================================ */
+
+/* ---------- الجهات: ١٢ بعثة وشركة ---------- */
+const ORG_SEED = [
+  ['TABUNG HAJI',        'بعثة تابونغ حاجي',        'بعثة', 'ماليزيا',   'KT085', 141],
+  ['Rayhar Travels',     'شركة ريهار للسفر',        'شركة', 'ماليزيا',   'KT062', 188],
+  ['AMPHURI',            'بعثة أمفوري',             'بعثة', 'إندونيسيا', 'KT031', 96 ],
+  ['Sahid Gema Wisata',  'شركة ساهد جيما ويساتا',   'شركة', 'إندونيسيا', 'KT044', 132],
+  ['Darussalam Services','بعثة دار السلام',         'بعثة', 'بروناي',    'KT019', 87 ],
+  ['Patuna Travel',      'شركة باتونا للسفر',       'شركة', 'إندونيسيا', 'KT107', 164],
+  ['Maktour',            'شركة مكتور',              'شركة', 'إندونيسيا', 'KT118', 152],
+  ['Andalusia Travel',   'بعثة الأندلس',            'بعثة', 'ماليزيا',   'KT126', 118],
+  ['Al-Rajhi Hajj',      'بعثة الراجحي للحج',       'بعثة', 'ماليزيا',   'KT133', 173],
+  ['Tiara Travel',       'شركة تيارا',              'شركة', 'بروناي',    'KT141', 104],
+  ['Nusantara Hajj',     'بعثة نوسانتارا',          'بعثة', 'إندونيسيا', 'KT158', 196],
+  ['Seri Pacific Tours', 'شركة سيري باسيفيك',       'شركة', 'ماليزيا',   'KT164', 129]
 ];
+const ORGS = ORG_SEED.map((o, i) => ({
+  id:'o' + (i + 1), name:o[0], ar:o[1], type:o[2], country:o[3], kt:o[4], pilgrims:o[5]
+}));
+
+/* ---------- الفنادق: ١٢ ---------- */
+const HOTEL_SEED = [
+  ['فندق منازل المقام',   'مكة المكرمة', 180, '٤٠٠ م من الحرم'],
+  ['برج الصفوة',           'مكة المكرمة', 240, '٢٥٠ م من الحرم'],
+  ['دار الإيمان جراند',    'مكة المكرمة', 160, '٦٠٠ م من الحرم'],
+  ['أبراج الجوهرة',        'مكة المكرمة', 200, '٩٠٠ م من الحرم'],
+  ['فندق العزيزية بلازا',  'مكة المكرمة', 210, 'العزيزية — ٤ كم'],
+  ['دار التوحيد إنتركونتيننتال', 'مكة المكرمة', 190, '٣٠٠ م من الحرم'],
+  ['فندق أنجم مكة',        'مكة المكرمة', 260, '١٫٢ كم من الحرم'],
+  ['برج الشهداء',          'مكة المكرمة', 150, '٧٥٠ م من الحرم'],
+  ['فندق النسيم الملكي',   'مكة المكرمة', 170, 'الششة — ٥ كم'],
+  ['أبراج مكة الذهبية',    'مكة المكرمة', 230, '٥٠٠ م من الحرم'],
+  ['فندق الكوثر السلام',   'مكة المكرمة', 145, 'أجياد — ٤٥٠ م'],
+  ['دار الغفران بلازا',    'مكة المكرمة', 205, '١ كم من الحرم']
+];
+const HOTELS = HOTEL_SEED.map((h, i) => ({
+  id:'h' + (i + 1), ar:h[0], city:h[1], rooms:h[2], dist:h[3]
+}));
+
+/* ---------- مخزون الأسماء السعودية ---------- */
+const SA_M = ['محمد','أحمد','عبدالله','خالد','سعود','فهد','ياسر','بندر','تركي','مشعل',
+  'ناصر','سلطان','عمر','فيصل','راكان','وليد','ماجد','عبدالعزيز','بدر','سعد',
+  'نايف','ريان','زياد','طلال','مازن','هشام','أنس','رائد','لؤي','عادل'];
+const SA_F = ['نورة','هند','سميرة','لمياء','ريم','منى','أسماء','دانة','جواهر','شهد',
+  'عبير','هيفاء','أمل','لطيفة','بشاير','رزان','غادة','وجدان','سارة','مها',
+  'رغد','جود','ليان','أروى','نوف','عهود','ريما','هيا','شذى','منال'];
+const SA_L = ['القحطاني','الغامدي','الزهراني','العتيبي','الحارثي','الدوسري','السبيعي','المطيري',
+  'الشهري','الشمري','العنزي','الحربي','البقمي','الرشيدي','المالكي','الثقفي','الأحمدي','السلمي',
+  'الخالدي','الصاعدي','الجهني','الفيفي','العسيري','النفيعي','السهلي','الشريف','بن مانع','بن حسين',
+  'بن ظافر','بن نافل'];
+/* اسم مركّب لا يتكرّر في مئة صفّ */
+function saName(g, i) {
+  /* الاسم الأول والعائلة يدوران بدورتين مختلفتين — ٩٠٠ تركيبة لا ٣٠ */
+  const f = (g === 'f' ? SA_F : SA_M)[i % 30];
+  return f + ' ' + SA_L[(Math.floor(i / 30) + i * 7) % 30];
+}
+const SPECS = ['استقبال','نقل','إرشاد','إعاشة','رعاية صحية','مشاعر','تسكين','جمرات','تفويج'];
 
 /* ---------- كتالوج الأنشطة — المصدر الذي يقرأ منه التطبيق ---------- */
 const CAT = {
@@ -1157,38 +1350,32 @@ const CAT = {
               place:'فندق منازل المقام', city:'مكة المكرمة', dur:5, i:'i-plane', c:'#5A6C63' }
 };
 
-/* ---------- الليدرز ---------- */
-const LEADERS = [
-  { id:'L1', name:'محمد القحطاني',      g:'m', av:'p1', orgId:'o1', kt:'KT085', pilgrims:141, phone:'+966551002031' },
-  { id:'L2', name:'سعود بن حسين',        g:'m', av:'p2', orgId:'o2', kt:'KT062', pilgrims:118, phone:'+966551002032' },
-  { id:'L3', name:'عبدالرحمن الشريف',    g:'m', av:'p3', orgId:'o3', kt:'KT031', pilgrims:96,  phone:'+966551002033' },
-  { id:'L4', name:'فهد الدوسري',         g:'m', av:'p4', orgId:'o4', kt:'KT044', pilgrims:132, phone:'+966551002034' },
-  { id:'L5', name:'ياسر بن مانع',        g:'m', av:'p1', orgId:'o5', kt:'KT019', pilgrims:87,  phone:'+966551002035' }
-];
+/* ---------- الليدرز: اثنان لكل جهة — ٢٤ ---------- */
+const LEADERS = [];
+ORGS.forEach((o, i) => {
+  for (let k = 0; k < 2; k++) {
+    const n = i * 2 + k;
+    LEADERS.push({ id:'L' + (n + 1), name:saName('m', n * 3 + 1), g:'m', av:'p' + (1 + n % 4),
+      orgId:o.id, kt:o.kt,
+      pilgrims:Math.round(o.pilgrims / 2) + (k ? 0 : o.pilgrims % 2),
+      phone:'+96655' + (1002031 + n), age:31 + (n * 5) % 24 });
+  }
+});
 
-/* لكل اسم جنسه — الوجه المرسوم يتبعه */
-const MUH_NAMES = [
-  { n:'أحمد عبدالله', g:'m' },      { n:'محمد السبيعي', g:'m' },   { n:'خالد الزهراني', g:'m' },
-  { n:'هند العتيبي', g:'f' },       { n:'سميرة القرني', g:'f' },   { n:'سلطان الحارثي', g:'m' },
-  { n:'نورة الغامدي', g:'f' },      { n:'عبدالعزيز بن سعد', g:'m' },{ n:'لمياء الشهري', g:'f' },
-  { n:'تركي المطيري', g:'m' },      { n:'ريم الدوسري', g:'f' },    { n:'بندر العنزي', g:'m' },
-  { n:'منى الحربي', g:'f' },        { n:'فيصل بن ظافر', g:'m' },   { n:'أسماء البقمي', g:'f' },
-  { n:'مشعل الرشيدي', g:'m' },      { n:'دانة السلمي', g:'f' },    { n:'عمر الشمري', g:'m' },
-  { n:'جواهر الخالدي', g:'f' },     { n:'راكان بن نافل', g:'m' },  { n:'شهد الأحمدي', g:'f' },
-  { n:'ناصر بن جبير', g:'m' },      { n:'عبير الثقفي', g:'f' },    { n:'وليد المالكي', g:'m' },
-  { n:'هيفاء الصاعدي', g:'f' }
-];
-/* أربعة وجوه للرجال وثلاثة للنساء — كما في التطبيق */
+/* ---------- المحسنون: ١٦٠ ---------- */
+const MUH_NAMES = [];
+for (let i = 0; i < 160; i++) {
+  const g = (i * 7) % 5 < 2 ? 'f' : 'm';
+  MUH_NAMES.push({ n:saName(g, i + 17), g });
+}
 const avOf = (g, i) => g === 'f' ? 'p' + (5 + i % 3) : 'p' + (1 + i % 4);
-const SPECS = ['استقبال','نقل','إرشاد','إعاشة','رعاية صحية','مشاعر','تسكين'];
 
-/* ---------- الفريق الاحتياطي — يديره الكنترول وحده ---------- */
-const RESERVE_NAMES = [
-  { n:'فيصل بن رده', g:'m' },   { n:'ماجد الشمراني', g:'m' },
-  { n:'نوف العتيبي', g:'f' },   { n:'سلطان بن دايل', g:'m' },
-  { n:'ريما الزهراني', g:'f' }, { n:'بدر القرني', g:'m' },
-  { n:'عهود المزروع', g:'f' },  { n:'تركي بن هويمل', g:'m' }
-];
+/* ---------- الاحتياط: ٣٠ ---------- */
+const RESERVE_NAMES = [];
+for (let i = 0; i < 30; i++) {
+  const g = (i * 5) % 4 < 1 ? 'f' : 'm';
+  RESERVE_NAMES.push({ n:saName(g, i + 211), g });
+}
 
 /* ---------- خطة الموسم ---------- */
 const PLAN = [
@@ -1241,6 +1428,16 @@ const FEED_SEED = [
   ['ok',   'أُغلقت مهمة',       'KT019 · طواف الوداع — بتقييم ٤٫٢', 47],
   ['bad',  'بدأها النظام',      'KT044 · جولة المزارات — لم يبدأها الليدر', 63],
   ['ok',   'تقرير معتمد',       'KT085 · تعديل بيانات غرفة — حُدِّث السجل', 88]
+];
+
+/* ---------- تصنيف الحوادث ---------- */
+const INC_CATS = [
+  { k:'med',   ar:'طبّي',    i:'i-flag',   c:'#C0392B' },
+  { k:'sec',   ar:'أمني',    i:'i-shield', c:'#8A5A1E' },
+  { k:'trans', ar:'نقل',     i:'i-bus',    c:'#1B6E9C' },
+  { k:'house', ar:'سكن',     i:'i-key',    c:'#0B7A4B' },
+  { k:'food',  ar:'إعاشة',   i:'i-food',   c:'#B8791A' },
+  { k:'crowd', ar:'تفويج',   i:'i-users',  c:'#6B4E9E' }
 ];
 
 /* ---------- الحجاج: أسماء واقعية من دول البعثات ---------- */
@@ -1392,16 +1589,11 @@ const NUSUK_STATE = {
 };
 
 /* ---------- الفنادق والمشرفون ---------- */
-const HOTELS = [
-  { id:'h1', ar:'فندق منازل المقام',  city:'مكة المكرمة', rooms:180, dist:'٤٠٠ م من الحرم' },
-  { id:'h2', ar:'برج الصفوة',          city:'مكة المكرمة', rooms:240, dist:'٢٥٠ م من الحرم' },
-  { id:'h3', ar:'دار الإيمان جراند',   city:'مكة المكرمة', rooms:160, dist:'٦٠٠ م من الحرم' },
-  { id:'h4', ar:'أبراج الجوهرة',       city:'مكة المكرمة', rooms:200, dist:'٩٠٠ م من الحرم' }
-];
-const SUP_NAMES = [
-  { n:'ماجد بن سليمان', g:'m' }, { n:'هيا الفيصل',      g:'f' },
-  { n:'عبدالله بن راشد', g:'m' }, { n:'سارة القحطاني',   g:'f' }
-];
+const SUP_NAMES = [];
+for (let i = 0; i < 14; i++) {
+  const g = i % 3 === 1 ? 'f' : 'm';
+  SUP_NAMES.push({ n:saName(g, i + 301), g });
+}
 
 /* ---------- قوالب الامتثال ---------- */
 const QT = { yn:'نعم / لا', rate:'تقييم ١–٥', num:'عدد', text:'نصّ' };
@@ -1437,8 +1629,8 @@ const FORM_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 5;
-const APP_VER = 'نسخة ٠٫٧';
+const SCHEMA = 6;
+const APP_VER = 'نسخة ٠٫٨';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1480,28 +1672,30 @@ function seed() {
   const st = {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
-    feed: [], pilgrims: {}, log: [], toast: null
+    feed: [], pilgrims: {}, log: [], toast: null,
+    assigns: [], flt: {}, auth: false
   };
   S = st;
 
   /* المستخدمون: ليدرز · محسنون · احتياط */
   LEADERS.forEach(L => st.users.push(Object.assign({ role: 'leader', code: '#' + L.id }, L)));
-  LEADERS.forEach((L, li) => {
-    for (let i = 0; i < 5; i++) {
-      const n = li * 5 + i;
-      st.users.push({
-        id: 'M' + (1001 + n), role: 'muhsen', reserve: false, leaderId: L.id,
-        name: MUH_NAMES[n % MUH_NAMES.length].n, g: MUH_NAMES[n % MUH_NAMES.length].g,
-        av: avOf(MUH_NAMES[n % MUH_NAMES.length].g, n), code: '#M' + (1001 + n),
-        specialty: SPECS[n % SPECS.length], phone: '+9665' + (51000000 + n * 371),
-        kt: L.kt, orgId: L.orgId
-      });
-    }
+  /* ١٦٠ محسنًا: خمسة لكل ليدر، والباقي أحرار للتشكيل */
+  MUH_NAMES.forEach((m, n) => {
+    const li = Math.floor(n / 5);
+    const L = LEADERS[li] || null;
+    st.users.push({
+      id: 'M' + (1001 + n), role: 'muhsen', reserve: false,
+      leaderId: L ? L.id : null,
+      name: m.n, g: m.g, av: avOf(m.g, n), code: '#M' + (1001 + n),
+      specialty: SPECS[n % SPECS.length], phone: '+9665' + (51000000 + n * 371),
+      age: 22 + (n * 7) % 34,
+      kt: L ? L.kt : '—', orgId: L ? L.orgId : null
+    });
   });
   RESERVE_NAMES.forEach((r, i) => st.users.push({
     id: 'RS' + (2001 + i), role: 'muhsen', reserve: true, leaderId: null,
     name: r.n, g: r.g, av: avOf(r.g, i), code: '#RS' + (2001 + i), specialty: SPECS[i % SPECS.length],
-    phone: '+9665' + (55110000 + i * 137), kt: '—'
+    phone: '+9665' + (55110000 + i * 137), kt: '—', age: 24 + (i * 5) % 30
   }));
 
   /* الحجاج */
@@ -1584,7 +1778,7 @@ function seed() {
   SUP_NAMES.forEach((s, i) => st.users.push({
     id: 'SV' + (3001 + i), role: 'supervisor', name: s.n, g: s.g, av: avOf(s.g, i),
     code: '#SV' + (3001 + i), specialty: 'إشراف سكن', phone: '+9665' + (57220000 + i * 211),
-    hotelId: HOTELS[i % HOTELS.length].id, kt: '—'
+    hotelId: HOTELS[i % HOTELS.length].id, kt: '—', age: 30 + (i * 3) % 26
   }));
 
   /* ---------- التشكيل: لكل ليدر مجموعة بفريقه ---------- */
@@ -1620,7 +1814,7 @@ function seed() {
         id: uid('X'), ref: 'EX-' + AR(88100 + i * 7 + r), siteId: si.id,
         start, end: start + si.dur * HR, seats: si.cap,
         booked: Math.round(si.cap * (0.55 + ((i + r) % 5) / 12)),
-        kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null,
+        kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null, muhsenId: null,
         status: start < Date.now() ? 'done' : assigned ? 'assigned' : 'unassigned',
         at: Date.now() - (i * 40 + 60) * MIN
       });
@@ -1708,7 +1902,15 @@ function seed() {
     id: uid('G'), at: Date.now() - l.ago * MIN, text: l.t, kind: l.kind, by: 'الكنترول'
   }));
 
-  FEED_SEED.forEach(f => st.feed.push({
+  /* الحوادث تُصنَّف: نوع وحالة وجهة وزمن استجابة */
+  const INC_ST = ['مفتوح', 'قيد المعالجة', 'مغلق'];
+  FEED_SEED.forEach((f, fi) => st.feed.push({
+    no: 'IN-' + AR(7300 + fi),
+    cat: INC_CATS[fi % INC_CATS.length].k,
+    kt: ORGS[fi % ORGS.length].kt,
+    hotel: HOTELS[fi % HOTELS.length].ar,
+    state: INC_ST[(fi * 2) % 3],
+    resp: 4 + (fi * 7) % 38,
     id: uid('E'), kind: f[0], title: f[1], body: f[2], at: Date.now() - f[3] * MIN
   }));
 
@@ -1721,6 +1923,7 @@ function load() {
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
   S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
+  S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -1825,29 +2028,36 @@ const icon = (n, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#' + n 
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 
-/* خريطة الأقسام — كل قسم له شاشة وأيقونة ومجموعة */
+/* خريطة الأقسام — قائمة واحدة تتوسّع وتنطوي، لا سكة ولوح منفصلين */
 const NAV = [
   { g:'العمليات', items:[
     { k:'ops',      i:'i-target',  l:'لوحة العمليات',   d:'الوضع الآن على المستوى الكلي' },
-    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع: حجّ · إثراء · نُسك · امتثال' },
-    { k:'build',    i:'i-users',   l:'التشكيل والتسكين', d:'بناء المجموعات وربطها بجهات الحجّ' },
-    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'كل مهام كل الفرق في شاشة واحدة' },
+    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع من العمل الميداني',
+      kids:[
+        { t:'hajj',   i:'i-kaaba',  l:'مهام الحجّ' },
+        { t:'enrich', i:'i-bus',    l:'إثراء التجربة' },
+        { t:'nusuk',  i:'i-idcard', l:'نُسك' },
+        { t:'comply', i:'i-clip',   l:'الامتثال' }
+      ] },
+    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'مسار اليوم لكل مجموعة' },
     { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
+  ]},
+  { g:'التشكيل', items:[
+    { k:'build',    i:'i-users',   l:'التشكيل والتسكين', d:'بناء المجموعات وربطها بالجهات' },
+    { k:'staff',    i:'i-idcard',  l:'الموظفون',        d:'مشرفون وليدرز ومحسنون — وبروفايل لكلٍّ' },
+    { k:'teams',    i:'i-flag',    l:'الفرق والمجموعات', d:'كل KT وفريقه' },
+    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي', d:'يديره الكنترول وحده' }
   ]},
   { g:'الطلبات الصاعدة', items:[
     { k:'support',  i:'i-send',    l:'طلبات الدعم',     d:'من الليدرز — تُسند من الاحتياط' },
     { k:'reports',  i:'i-flag',    l:'التقارير',        d:'المصعَّدة من الميدان' },
-    { k:'tickets',  i:'i-ticket',  l:'تذاكر الحجاج',    d:'ترد من التطبيق وتُوجَّه' },
+    { k:'tickets',  i:'i-ticket',  l:'التذاكر',         d:'ترد من التطبيق وتُوجَّه' },
     { k:'shifts',   i:'i-swap',    l:'تبديل الشِفتات',  d:'ما رفعه الليدرز' }
   ]},
-  { g:'السجلات', items:[
-    { k:'teams',    i:'i-users',   l:'الفرق والليدرز',  d:'كل KT وفريقه' },
-    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي',d:'يديره الكنترول وحده' },
+  { g:'السجلات والنشر', items:[
     { k:'pilgrims', i:'i-user',    l:'قاعدة الحجاج',    d:'الغرف والأدوار والحالات' },
-    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' }
-  ]},
-  { g:'النشر', items:[
-    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُنشر إلى التطبيق' },
+    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
+    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
     { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
     { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
     { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
@@ -1862,56 +2072,64 @@ function navCount(k) {
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
   if (k === 'incidents') return S.feed.filter(f => f.kind === 'bad').length;
-  if (k === 'shifts')    return 2;
+  if (k === 'shifts')    return openSwaps().length;
+  if (k === 'nusuk')     return openNusuk().length;
+  if (k === 'enrich')    return freeEnrich().length;
   return 0;
 }
-const navUrgent = k => ['support', 'incidents'].indexOf(k) >= 0;
+const navUrgent = k => ['support', 'incidents', 'nusuk'].indexOf(k) >= 0;
 
-/* ---------- السكة ---------- */
-function rail() {
-  const r = S.route.n;
-  return '<nav class="rail" aria-label="الأقسام">' +
-    '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
-    navItems().slice(0, 7).map(x => {
-      const n = navCount(x.k);
-      return '<button class="' + (x.k === r ? 'on' : '') + '" data-a="go" data-n="' + x.k + '" ' +
-        'title="' + E(x.l) + '" aria-label="' + E(x.l) + '">' + icon(x.i) +
-        (n ? '<span class="dot"></span>' : '') + '</button>';
-    }).join('') +
-    '<span class="sp"></span>' +
-    '<button data-a="theme" title="تبديل الوضع · T">' +
-      icon(S.theme === 'day' ? 'i-sun' : 'i-hour') + '</button>' +
-    '<button data-a="palette" title="لوحة الأوامر · Ctrl+K">' + icon('i-search') + '</button>' +
-    '<button data-a="wide" title="طيّ اللوح · B">' + icon('i-menu') + '</button>' +
-    '<button class="' + (r === 'settings' ? 'on' : '') + '" data-a="go" data-n="settings" ' +
-      'title="الإعدادات">' + icon('i-gear') + '</button>' +
-  '</nav>';
-}
-
-/* ---------- لوح التنقّل ---------- */
+/* ---------- القائمة الواحدة ----------
+   حالتان لا لوحان: موسَّعة بأسمائها، ومطويّة بأيقوناتها.
+   التوسيع والطيّ من الزرّ نفسه في رأس القائمة. */
 function sidebar() {
-  const r = S.route.n;
-  return '<aside class="side">' +
-    '<h1>مُحسن · الكنترول</h1>' +
-    '<div class="sub">غرفة العمليات — موسم حج ١٤٤٨ هـ</div>' +
-    NAV.map(g => '<div class="grp">' + E(g.g) + '</div>' +
+  const r = S.route.n, sub = S.tab.tt || 'hajj';
+  const narrow = !!S.wide;
+  return '<nav class="side' + (narrow ? ' mini' : '') + '" aria-label="الأقسام">' +
+    '<div class="sidehead">' +
+      '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
+      '<span class="brandtxt"><b>مُحسن · الكنترول</b>' +
+        '<span>غرفة العمليات — موسم حج ١٤٤٨ هـ</span></span>' +
+      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع القائمة' : 'طيّ القائمة') + ' · B" ' +
+        'aria-label="طيّ القائمة">' + icon(narrow ? 'i-fwd' : 'i-back', 's18') + '</button>' +
+    '</div>' +
+
+    '<div class="sidescroll">' +
+    NAV.map(g => '<div class="grp"><span>' + E(g.g) + '</span></div>' +
       g.items.map(x => {
-        const n = navCount(x.k);
-        return '<button class="nav ' + (x.k === r ? 'on' : '') + '" data-a="go" data-n="' + x.k + '">' +
-          icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
-          (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
-        '</button>';
+        const n = navCount(x.k), on = x.k === r;
+        const kids = x.kids && on
+          ? '<div class="kids">' + x.kids.map(c => {
+              const cn = navCount(c.t);
+              return '<button class="kid' + (c.t === sub ? ' on' : '') + '" ' +
+                'data-a="seg" data-k="tt" data-v="' + c.t + '">' +
+                icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
+                (cn ? '<span class="n' + (navUrgent(c.t) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
+              '</button>';
+            }).join('') + '</div>'
+          : '';
+        return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
+            '" data-a="go" data-n="' + x.k + '" ' +
+            'title="' + E(x.l) + '">' +
+            icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+            (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+          '</button>' + kids;
       }).join('')).join('') +
-    '<div class="grp">العرض</div>' +
-    '<button class="nav" data-a="theme">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
+
+    '<div class="grp"><span>العرض</span></div>' +
+    '<button class="nav" data-a="theme" title="تبديل الوضع · T">' +
+      icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
       '<b>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</b>' +
       '<span class="n q">T</span></button>' +
-    '<button class="nav" data-a="wall">' + icon('i-fullscreen','s18') +
+    '<button class="nav" data-a="wall" title="جدار العرض · F">' + icon('i-fullscreen','s18') +
       '<b>جدار العرض</b><span class="n q">F</span></button>' +
-    '<button class="nav" data-a="shortcuts">' + icon('i-info','s18') +
+    '<button class="nav" data-a="shortcuts" title="الاختصارات · ؟">' + icon('i-info','s18') +
       '<b>الاختصارات</b><span class="n q">؟</span></button>' +
-    '<div class="brandfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي</div>' +
-  '</aside>';
+    '<button class="nav" data-a="logout" title="تسجيل الخروج">' + icon('i-logout','s18') +
+      '<b>تسجيل الخروج</b></button>' +
+    '<div class="brandfoot">' + icon('i-shield','s14') + '<span>نظام مُحسن · نُزلي</span></div>' +
+    '</div>' +
+  '</nav>';
 }
 
 /* ---------- الشريط العلوي ---------- */
@@ -1919,7 +2137,6 @@ function topbar() {
   const x = navOf(S.route.n);
   const live = runningTasks().length;
   return '<header class="top">' +
-    '<button class="burger" data-a="wide" aria-label="طيّ اللوح">' + icon('i-menu','s18') + '</button>' +
     '<span><h2>' + E(x.l) + '</h2><span class="crumb">' + E(x.d) + '</span></span>' +
     '<span class="sp"></span>' +
     '<span class="clockbox"><span class="pulse"></span>' +
@@ -2466,7 +2683,13 @@ function screenSupport() {
 /* ---------- الحوادث ---------- */
 function screenIncidents() {
   const f = S.tab.inc || 'all';
-  const list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  const q = qOf('inc');
+  let list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  const ic = fOf('inc','cat'), ik = fOf('inc','kt'), ist = fOf('inc','state');
+  if (ic) list = list.filter(x => x.cat === ic);
+  if (ik) list = list.filter(x => x.kt === ik);
+  if (ist) list = list.filter(x => (x.state || 'مفتوح') === ist);
+  if (q) list = list.filter(x => (x.title + ' ' + x.body + ' ' + (x.no || '')).indexOf(q) >= 0);
   return '<div class="grid g3">' +
       stat({ label:'حرجة', n:S.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
         cls:'bad', sub:'تحتاج تدخّلًا الآن', series:[2,3,2,4,3,5,4,3] }) +
@@ -2479,11 +2702,28 @@ function screenIncidents() {
       head('تدفّق الحوادث', 'كل ما يجري في الميدان — مرتّبًا بوقته', '', 'i-flag') +
       '<div class="tools">' + segmented('inc',
         [['all','الكل'],['bad','حرجة'],['warn','تحتاج انتباهًا'],['ok','مكتملة']], f) + '</div>' +
-      (list.length ? '<div class="feed" style="max-height:none">' + list.map((x, i) =>
-        '<div class="evt ' + x.kind + '" style="animation-delay:' + Math.min(i * 40, 320) + 'ms">' +
-        '<span class="dot"></span>' +
-        '<span class="sp"><b>' + E(x.title) + '</b><p>' + E(x.body) + '</p></span>' +
-        '<span class="t">' + ago(x.at) + '</span></div>').join('') + '</div>'
+      filterBar('inc', [
+        { k:'cat',   label:'النوع',  opts:INC_CATS.map(c => [c.k, c.ar]) },
+        { k:'kt',    label:'الـKT',  opts:optKT() },
+        { k:'state', label:'الحالة', opts:[['مفتوح','مفتوح'],['قيد المعالجة','قيد المعالجة'],['مغلق','مغلق']] }
+      ], list.length, S.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
+      (list.length ? '<div class="plist">' + list.map((x, i) => {
+        const C = INC_CATS.find(c => c.k === x.cat) || INC_CATS[0];
+        const st = x.state || 'مفتوح';
+        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' +
+          Math.min(i * 40, 320) + 'ms">' +
+          '<span class="krail ' + (x.kind === 'bad' ? 'r' : x.kind === 'warn' ? 'a' : '') + '"></span>' +
+          '<span class="ico" style="color:' + C.c + '">' + icon(C.i, 's18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(x.title) + '</b>' +
+          '<span>' + E(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
+          (x.hotel ? ' · ' + E(x.hotel) : '') + '</span></span>' +
+          pill(x.kind === 'bad' ? 'حرجة' : x.kind === 'warn' ? 'تحتاج انتباهًا' : 'مكتملة',
+            x.kind === 'bad' ? 'no' : x.kind === 'warn' ? 'wait' : 'live') +
+          pill(st, st === 'مغلق' ? 'live' : st === 'قيد المعالجة' ? 'wait' : 'no') +
+          '<span class="tiny faint">' + ago(x.at) +
+          (x.resp ? '<br>استجابة ' + AR(x.resp) + ' د' : '') + '</span>' +
+          '<div class="quote" style="width:100%">' + E(x.body) + '</div></div>';
+      }).join('') + '</div>'
         : empty('لا حوادث في هذا التصنيف', 'وهذا خبر جيّد', 'i-checkc')) + '</div>';
 }
 
@@ -2504,22 +2744,48 @@ function muhsenRow(m, doneN) {
 }
 
 function screenTeams() {
-  return '<div class="grid g2">' + leaders().map(L => {
+  const q = qOf('tm');
+  const fo = fOf('tm','org'), fh = fOf('tm','hotel'), ft = fOf('tm','type');
+  let ls = leaders();
+  if (fo) ls = ls.filter(L => L.orgId === fo);
+  if (ft) ls = ls.filter(L => (orgById(L.orgId) || {}).type === ft);
+  if (fh) ls = ls.filter(L => groupsOf(L.id).some(g => g.hotelId === fh));
+  if (q) ls = ls.filter(L => (L.name + ' ' + L.kt).indexOf(q) >= 0 ||
+    teamOf(L.id).some(m => m.name.indexOf(q) >= 0));
+  const open = S.tab.tmopen || '';
+  return '<div class="card">' +
+      head('الفرق والمجموعات', 'انقر رأس البطاقة لتفتحها أو تطويها',
+        pill(AR(ls.length) + ' من ' + AR(leaders().length), 'gold'), 'i-flag') +
+      filterBar('tm', [
+        { k:'org',   label:'الجهة',  opts:optOrgs() },
+        { k:'type',  label:'النوع',  opts:optTypes() },
+        { k:'hotel', label:'السكن',  opts:optHotels() }
+      ], ls.length, leaders().length, 'ابحث بليدر أو KT أو اسم محسن…') +
+    '</div>' +
+    '<div class="grid g2">' + ls.map(L => {
     const team = teamOf(L.id), org = orgById(L.orgId) || {};
     const ts = S.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done').length;
-    return '<div class="card">' +
-      '<div class="fl" style="margin-bottom:14px">' + avatar(L, 'lg') +
+    const g0 = groupsOf(L.id)[0];
+    const isOpen = open === L.id;
+    return '<div class="card teamcard' + (isOpen ? ' open' : '') + '">' +
+      '<button class="fl teamhead" data-a="seg" data-k="tmopen" data-v="' +
+        (isOpen ? '' : L.id) + '">' + avatar(L, 'lg') +
         '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(L.kt) + ' · ' + E(L.name) + '</b>' +
-        '<span>' + E(org.ar) + ' · ' + E(org.country) + '</span></span>' +
-        pill(AR(L.pilgrims) + ' حاج', 'gold') + '</div>' +
+        '<span>' + E(org.ar) + ' · ' + E(org.type) + ' · ' + E(org.country) +
+        (g0 ? ' · ' + E(hotelById(g0.hotelId).ar || '') : '') + '</span></span>' +
+        pill(E(org.type), org.type === 'بعثة' ? 'blue' : 'gold') +
+        pill(AR(L.pilgrims) + ' حاج', 'grey') +
+        '<span class="chev">' + icon('i-fwd','s16') + '</span></button>' +
       '<div class="meta">' +
         '<div><span class="k">محسنون</span><b class="num">' + AR(team.length) + '</b></div>' +
         '<div><span class="k">مهام</span><b class="num">' + AR(ts.length) + '</b></div>' +
         '<div><span class="k">منجزة</span><b class="num">' + AR(done) + '</b></div>' +
       '</div>' +
-      '<div class="plist" style="margin-top:14px">' +
-        team.map(m => muhsenRow(m, done)).join('') + '</div>' +
+      (isOpen ? '<div class="plist" style="margin-top:14px">' +
+        (team.length ? team.map(m => muhsenRow(m, done)).join('')
+          : '<div class="tiny faint" style="padding:14px 4px">لا محسنين — لم تُشكَّل مجموعته بعد.</div>') +
+        '</div>' : '') +
     '</div>';
   }).join('') + '</div>';
 }
@@ -2544,9 +2810,16 @@ function screenReserve() {
 /* ---------- التذاكر ---------- */
 function screenTickets() {
   const f = S.tab.kf || 'open';
-  const list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
+  let list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
     : f === 'crit' ? k.pri === 'حرجة' : f === 'closed' ? k.status === 'مغلقة' : true)
     .sort((a, b) => b.at - a.at);
+  const q = qOf('tkt');
+  const tk = fOf('tkt','kt'), tc = fOf('tkt','cat'), tp = fOf('tkt','pri'), ta = fOf('tkt','asg');
+  if (tk) list = list.filter(k => k.kt === tk);
+  if (tc) list = list.filter(k => k.cat === tc);
+  if (tp) list = list.filter(k => k.pri === tp);
+  if (ta) list = list.filter(k => ta === 'y' ? !!k.assignedTo : !k.assignedTo);
+  if (q) list = list.filter(k => (k.title + ' ' + k.no + ' ' + k.from + ' ' + k.body).indexOf(q) >= 0);
   const crit = S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
   return '<div class="grid g3">' +
       stat({ label:'مفتوحة', n:openTickets().length, ic:'i-ticket',
@@ -2561,17 +2834,31 @@ function screenTickets() {
       head('تذاكر الحجاج', 'يرفعها الحجاج وحدهم — تصل الليدر ونراها هنا', '', 'i-ticket') +
       '<div class="tools">' + segmented('kf',
         [['open','مفتوحة'],['crit','حرجة'],['closed','مغلقة'],['all','الكل']], f) + '</div>' +
+      filterBar('tkt', [
+        { k:'kt',  label:'الـKT',     opts:optKT() },
+        { k:'cat', label:'التصنيف',   opts:[...new Set(S.tickets.map(k => k.cat))].map(c => [c, c]) },
+        { k:'pri', label:'الأولوية',  opts:[['حرجة','حرجة'],['عاجلة','عاجلة'],['عادية','عادية']] },
+        { k:'asg', label:'الإسناد',   opts:[['y','مُسنَدة'],['n','بلا إسناد']] }
+      ], list.length, S.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
       (list.length ? '<div class="plist">' + list.map((k, i) => {
         const pr = k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey';
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
+        const to = k.assignedTo ? userById(k.assignedTo) : null;
+        return '<div class="prow trow" data-a="tkopen2" data-id="' + k.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
           '<span class="krail ' + (k.pri === 'حرجة' ? 'r' : k.pri === 'عاجلة' ? 'a' : '') + '"></span>' +
           '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
           '<span>' + E(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') + pill(k.pri, pr) +
             pill(k.status, k.status === 'مغلقة' ? 'live' : 'wait') + '</span>' +
+          (to ? '<span class="fl" style="gap:7px">' + avatar(to, 'sm') +
+            '<span class="tiny faint">' + E(to.name) + '</span></span>' : '') +
           '<span class="tiny faint">' + ago(k.at) + '</span>' +
-          '<div class="quote" style="width:100%">' + E(k.body) + '</div></div>';
+          '<div class="quote" style="width:100%">' + E(k.body) + '</div>' +
+          ((k.thread || []).length ? '<div class="tiny" style="width:100%;margin-top:8px;' +
+            'color:var(--gold3)">' + icon('i-send','s14') + ' ' + AR(k.thread.length) +
+            ' ردًّا — آخره: ' + E(k.thread[k.thread.length-1].text.slice(0,60)) + '</div>' : '') +
+        '</div>';
       }).join('') + '</div>' : empty('لا تذاكر في هذا التصنيف', '', 'i-ticket')) + '</div>';
 }
 
@@ -2595,7 +2882,8 @@ function screenReports() {
         [['all','الكل'],['esc','مصعَّدة'],['room','تعديل غرف']], f) + '</div>' +
       (list.length ? '<div class="plist">' + list.map((r, i) => {
         const L = userById(r.from) || {};
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
+        return '<div class="prow trow" data-a="rpopen" data-id="' + r.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 50) + 'ms">' +
           '<span class="krail ' + (r.escalated ? 'a' : '') + '"></span>' +
           avatar(L, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(r.title) + '</b>' +
@@ -2607,9 +2895,7 @@ function screenReports() {
             '<div class="quote">' + E(r.body) + '</div>' +
             (r.room ? '<div class="fl" style="gap:11px;margin-top:11px;flex-wrap:wrap">' +
               '<span class="mchip">' + icon('i-key','s14') + E(r.room.floor) +
-                ' · غرفة ' + E(r.room.no) + '</span>' +
-              '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">' +
-                'تحديث قاعدة البيانات</button></div>' : '') +
+                ' · غرفة ' + E(r.room.no) + '</span></div>' : '') +
           '</div></div>';
       }).join('') + '</div>' : empty('لا تقارير في هذا التصنيف', '', 'i-flag')) + '</div>';
 }
@@ -2662,7 +2948,12 @@ function screenPilgrims() {
   const all = allPilgrimRows();
   const kt = S.tab.pkt || 'all';
   const q = qOf('pil');
-  let list = kt === 'all' ? all : all.filter(p => p.kt === kt);
+  let list = all.slice();
+  const pk = fOf('pil','kt'), po = fOf('pil','org'), ps = fOf('pil','state'), pf = fOf('pil','flag');
+  if (pk) list = list.filter(p => p.kt === pk);
+  if (po) { const o = orgById(po) || {}; list = list.filter(p => p.kt === o.kt); }
+  if (ps) list = list.filter(p => p.state === ps);
+  if (pf) list = list.filter(p => pf === 'y' ? !!p.flag : !p.flag);
   if (q) list = list.filter(p => (p.name + ' ' + p.no + ' ' + p.room + ' ' + p.kt).indexOf(q) >= 0);
   const arrived = all.filter(p => p.state === 'وصل').length;
   const flagged = all.filter(p => p.flag).length;
@@ -2682,9 +2973,12 @@ function screenPilgrims() {
     '<div class="card">' +
       head('السجل الأصل', 'منه يقرأ التطبيق أسماء الحجاج وغرفهم — والتعديل هنا يصل الأجهزة',
         pill(AR(list.length) + ' معروض', 'gold')) +
-      '<div class="tools">' + search('pil', 'ابحث باسم أو رقم حاج أو رقم غرفة…', all.length) +
-        segmented('pkt', [['all', 'كل الفرق']].concat(leaders().map(L => [L.kt, L.kt])), kt) +
-      '</div>' +
+      filterBar('pil', [
+        { k:'kt',    label:'الـKT',   opts:optKT() },
+        { k:'org',   label:'الجهة',   opts:optOrgs() },
+        { k:'state', label:'الحالة',  opts:[['وصل','وصل'],['لم يصل','لم يصل'],['غادر','غادر']] },
+        { k:'flag',  label:'رعاية',   opts:[['y','يحتاج رعاية'],['n','بلا']] }
+      ], list.length, all.length, 'ابحث باسم أو رقم حاجّ أو رقم غرفة…') +
       (list.length ? dataTable({
         key: 'pil', defaultCol: 1,
         cols: [{ t:'الحاجّ', w:'1.7fr' }, { t:'الفريق', w:'.7fr' }, { t:'البعثة', w:'1.1fr' },
@@ -3056,6 +3350,697 @@ function screenAudit() {
 }
 
 /* ============================================================
+   مكوّن الفلاتر الموحّد · الموظفون وبروفايلاتهم · منتقي المحسن
+   ============================================================ */
+
+/* ---------- فلاتر: صفّ واحد يخدم كل الشاشات ---------- */
+const fOf = (key, k) => ((S.flt && S.flt[key]) || {})[k] || '';
+function fltSet(key, k, v) {
+  S.flt = S.flt || {}; S.flt[key] = S.flt[key] || {};
+  if (v) S.flt[key][k] = v; else delete S.flt[key][k];
+}
+const fltCount = key => Object.keys((S.flt && S.flt[key]) || {}).length;
+
+/* defs: [{ k, label, opts:[[value,label],…] }] */
+function filterBar(key, defs, n, total, ph) {
+  const active = fltCount(key) + (qOf(key) ? 1 : 0);
+  return '<div class="fbar">' +
+    (ph === false ? '' : search(key, ph || 'ابحث…', total)) +
+    defs.map(d => '<label class="fsel' + (fOf(key, d.k) ? ' on' : '') + '">' +
+      '<span>' + E(d.label) + '</span>' +
+      '<select data-f="' + key + '" data-fk="' + d.k + '">' +
+        '<option value="">الكل</option>' +
+        d.opts.map(o => '<option value="' + E(o[0]) + '"' +
+          (fOf(key, d.k) === String(o[0]) ? ' selected' : '') + '>' + E(o[1]) + '</option>').join('') +
+      '</select>' + icon('i-fwd', 's14') + '</label>').join('') +
+    '<span class="fsp"></span>' +
+    (n != null ? '<span class="fcount"><b class="num">' + AR(n) + '</b> من ' + AR(total) + '</span>' : '') +
+    (active ? '<button class="btn l sm" data-a="fclear" data-k="' + key + '">' +
+      icon('i-x','s14') + 'مسح الفلاتر' + '</button>' : '') +
+  '</div>';
+}
+
+/* خيارات شائعة */
+const optOrgs   = () => S.orgs.map(o => [o.id, o.kt + ' · ' + o.ar]);
+const optKT     = () => S.orgs.map(o => [o.kt, o.kt + ' · ' + (o.type || '')]);
+const optHotels = () => HOTELS.map(h => [h.id, h.ar]);
+const optSpecs  = () => SPECS.map(s => [s, s]);
+const optCities = () => [...new Set(SITES.map(s => s.city))].map(c => [c, c]);
+const optLeaders= () => leaders().map(l => [l.id, l.kt + ' · ' + l.name]);
+const optTypes  = () => [['بعثة','بعثات'], ['شركة','شركات']];
+
+/* ---------- أدوات الموظف ---------- */
+const ROLE_AR = { supervisor:'مشرف', leader:'ليدر', muhsen:'محسن' };
+function staffGroup(u) {
+  if (u.role === 'leader') return groupsOf(u.id)[0] || null;
+  return u.groupId ? groupById(u.groupId) : null;
+}
+function staffHotel(u) {
+  if (u.role === 'supervisor') return hotelById(u.hotelId);
+  const g = staffGroup(u);
+  return g ? hotelById(g.hotelId) : {};
+}
+function staffOrg(u) {
+  const g = staffGroup(u);
+  return g ? orgById(g.orgId) : (u.orgId ? orgById(u.orgId) : null);
+}
+/* كل ما أُسند إليه من الأنواع الأربعة */
+function staffTasks(id) {
+  const u = userById(id); if (!u) return [];
+  const out = [];
+  S.tasks.forEach(t => {
+    if (t.leaderId === id || (t.assigned || []).indexOf(id) >= 0)
+      out.push({ type:'hajj', at:t.start, title:t.title, sub:t.kt + ' · ' + t.place,
+        state:t.status === 'done' ? 'منجزة' : now() >= t.start ? 'جارية' : 'قادمة', id:t.id });
+  });
+  S.enrich.forEach(x => { if (x.muhsenId === id) {
+    const si = siteById(x.siteId);
+    out.push({ type:'enrich', at:x.start, title:si.ar, sub:x.ref + ' · ' + si.city,
+      state:x.status === 'done' ? 'منتهية' : 'مسكَّنة', id:x.id });
+  }});
+  S.nusuk.forEach(c => { if (c.assignedTo === id) {
+    out.push({ type:'nusuk', at:c.at, title:NUSUK_SVC[c.svc].ar + ' — ' + c.pilgrim,
+      sub:c.no + ' · ' + c.kt, state:NUSUK_STATE[c.state].ar, id:c.id });
+  }});
+  S.subs.forEach(b => { if (b.by === id) {
+    const f = formById(b.formId) || {};
+    out.push({ type:'comply', at:b.at, title:f.title + ' — ' + b.target,
+      sub:'الزيارة ' + AR(b.visit) + ' · ' + AR(b.score) + '٪', state:'مُعبَّأ', id:b.id });
+  }});
+  S.assigns.forEach(a => { if (a.to === id) {
+    out.push({ type:a.type, at:a.at, title:a.title, sub:a.sub, state:a.state, id:a.id });
+  }});
+  return out.sort((a, b) => b.at - a.at);
+}
+
+/* ---------- شاشة الموظفين ---------- */
+function screenStaff() {
+  const role = S.tab.sr || 'all';
+  const q = qOf('stf');
+  let all = S.users.filter(u => u.role === 'supervisor' || u.role === 'leader' || u.role === 'muhsen');
+  const total = all.length;
+  let list = all.slice();
+  if (role !== 'all') list = list.filter(u => role === 'reserve' ? u.reserve
+    : u.role === role && !u.reserve);
+  const fo = fOf('stf','org'), fh = fOf('stf','hotel'), fs = fOf('stf','spec'), fst = fOf('stf','state');
+  if (fo) list = list.filter(u => { const o = staffOrg(u); return o && o.id === fo; });
+  if (fh) list = list.filter(u => (staffHotel(u) || {}).id === fh);
+  if (fs) list = list.filter(u => u.specialty === fs);
+  if (fst) list = list.filter(u => fst === 'in' ? !!staffGroup(u) : !staffGroup(u));
+  if (q) list = list.filter(u => (u.name + ' ' + u.code + ' ' + (u.specialty || '')).indexOf(q) >= 0);
+
+  const n = r => all.filter(u => r === 'reserve' ? u.reserve : u.role === r && !u.reserve).length;
+
+  return '<div class="grid g4">' +
+      stat({ label:'إجمالي الموظفين', n:total, ic:'i-idcard',
+        sub:AR(n('supervisor')) + ' مشرفًا · ' + AR(n('leader')) + ' ليدرًا · ' +
+          AR(n('muhsen')) + ' محسنًا', series:[40,80,120,160,190,210,225,total] }) +
+      stat({ label:'مسكَّنون', n:all.filter(u => staffGroup(u)).length, ic:'i-checkc', cls:'up',
+        sub:'في مجموعات قائمة', series:[20,60,100,140,170,190,200,all.filter(u => staffGroup(u)).length] }) +
+      stat({ label:'بلا مجموعة', n:all.filter(u => u.role === 'muhsen' && !u.reserve && !staffGroup(u)).length,
+        ic:'i-user', cls:'warn', sub:'متاحون للتشكيل',
+        series:[100,80,60,40,25,15,10,Math.max(0, freeMuhsens().length)] }) +
+      stat({ label:'الاحتياط', n:n('reserve'), ic:'i-shield',
+        sub:'مشترك بين كل الفرق', series:[8,12,16,20,24,28,30,n('reserve')] }) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('سجلّ الموظفين', 'انقر أي صفّ لتفتح بروفايله كاملًا',
+        pill(AR(list.length) + ' معروض', 'gold'), 'i-idcard') +
+      '<div class="tools">' + segmented('sr',
+        [['all','الكل'],['supervisor','مشرفون'],['leader','ليدرز'],
+         ['muhsen','محسنون'],['reserve','احتياط']], role) + '</div>' +
+      filterBar('stf', [
+        { k:'org',   label:'الجهة',   opts:optOrgs() },
+        { k:'hotel', label:'السكن',   opts:optHotels() },
+        { k:'spec',  label:'التخصّص', opts:optSpecs() },
+        { k:'state', label:'التسكين', opts:[['in','مسكَّن'],['out','بلا مجموعة']] }
+      ], list.length, total, 'ابحث باسم أو رمز أو تخصّص…') +
+      (list.length ? dataTable({
+        key:'stf', defaultCol:0,
+        cols:[{ t:'الموظف', w:'1.8fr' }, { t:'الصفة', w:'.7fr' }, { t:'المجموعة', w:'1fr' },
+              { t:'الجهة', w:'1.1fr' }, { t:'السكن', w:'1fr' }, { t:'المهام', w:'.6fr' },
+              { t:'التقييم', w:'1fr' }],
+        rows:list.slice(0, 60).map(u => {
+          const g = staffGroup(u), o = staffOrg(u), h = staffHotel(u);
+          const tn = staffTasks(u.id).length;
+          const rt = u.role === 'leader' ? ktRating(u.id) : muhsenRating(u.id);
+          return { id:u.id, act:'staffopen',
+            sort:[u.name, ROLE_AR[u.role] || '', g ? g.no : 'ـ', o ? o.kt : 'ـ',
+                  h && h.ar ? h.ar : 'ـ', tn, rt],
+            cells:[
+              '<span class="fl">' + avatar(u, 'sm') +
+                '<span class="nm"><b>' + E(u.name) + '</b><span>' + E(u.code) +
+                (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span></span>',
+              u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '—',
+                u.role === 'supervisor' ? 'blue' : u.role === 'leader' ? 'live' : 'grey'),
+              g ? '<b>' + E(g.no) + '</b>' : '<span class="faint">—</span>',
+              o ? '<span class="tiny"><b>' + E(o.kt) + '</b><br>' +
+                '<span class="faint">' + E(o.type) + '</span></span>' : '<span class="faint">—</span>',
+              h && h.ar ? '<span class="tiny">' + E(h.ar) + '</span>' : '<span class="faint">—</span>',
+              '<b class="num">' + AR(tn) + '</b>',
+              rt ? stars(rt) : '<span class="faint">—</span>'
+            ] };
+        })
+      }) + (list.length > 60 ? '<div class="tiny faint" style="margin-top:12px">' +
+        'يُعرض أول ٦٠ من ' + AR(list.length) + ' — ضيّق الفلاتر لترى الباقي.</div>' : '')
+        : empty('لا موظف يطابق', 'جرّب فلترًا آخر', 'i-search')) +
+    '</div>';
+}
+
+/* ---------- بروفايل الموظف ---------- */
+const TTYPE_PILL = { hajj:'live', enrich:'blue', nusuk:'gold', comply:'wait' };
+function staffDrawer(id) {
+  const u = userById(id); if (!u) return;
+  const g = staffGroup(u), o = staffOrg(u), h = staffHotel(u);
+  const ts = staffTasks(id);
+  const L = u.role === 'muhsen' && g ? userById(g.leaderId) : null;
+  const sv = g && g.supervisorId ? userById(g.supervisorId) : null;
+  const rt = u.role === 'leader' ? ktRating(u.id) : muhsenRating(u.id);
+  const byType = k => ts.filter(t => t.type === k).length;
+
+  openDrawer(u.name, (ROLE_AR[u.role] || '') + ' · ' + u.code, 'i-idcard',
+    '<div class="fl" style="gap:14px">' + avatar(u, 'lg') +
+      '<span class="nm" style="flex:1"><b style="font-size:16px">' + E(u.name) + '</b>' +
+      '<span>' + E(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
+      (u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '', 'live')) + '</div>' +
+
+    '<div class="meta">' +
+      '<div><span class="k">العمر</span><b class="num">' + AR(u.age || 29) + '</b></div>' +
+      '<div><span class="k">المهام</span><b class="num">' + AR(ts.length) + '</b></div>' +
+      '<div><span class="k">التقييم</span><b class="num">' + (rt ? AR(rt) : '—') + '</b></div>' +
+    '</div>' +
+
+    '<div class="card">' + head('البيانات', 'ما يعرفه النظام عنه') +
+      '<div class="kvlist">' +
+        kvRow('i-phone', 'الجوال', u.phone || '—') +
+        kvRow('i-users', 'المجموعة', g ? g.no : 'بلا مجموعة') +
+        kvRow('i-flag', 'الجهة', o ? o.kt + ' · ' + o.ar + ' (' + o.type + ')' : '—') +
+        kvRow('i-key', 'السكن', h && h.ar ? h.ar + ' · ' + h.city : '—') +
+        (L ? kvRow('i-star', 'ليدره', L.name) : '') +
+        (sv ? kvRow('i-shield', 'مشرفه', sv.name) : '') +
+        (u.role === 'leader' ? kvRow('i-user', 'حجاجه', AR(u.pilgrims || 0) + ' حاجًّا') : '') +
+      '</div></div>' +
+
+    '<div class="card">' + head('حصيلة مهامه', 'موزّعة على الأنواع الأربعة') +
+      '<div class="grid g4" style="gap:9px">' +
+        Object.keys(TASKTYPE).map(k =>
+          '<div class="card mini"><span class="tiny faint">' + E(TASKTYPE[k].ar) + '</span>' +
+          '<b class="num" style="color:' + TASKTYPE[k].c + '">' + AR(byType(k)) + '</b></div>').join('') +
+      '</div></div>' +
+
+    '<div class="card">' + head('مهامه', AR(ts.length) + ' مهمة — الأحدث أولًا') +
+      (ts.length ? '<div class="plist">' + ts.slice(0, 20).map(t =>
+        '<div class="prow">' +
+        '<span class="krail" style="background:' + TASKTYPE[t.type].c + '"></span>' +
+        '<span class="ico" style="color:' + TASKTYPE[t.type].c + '">' +
+          icon(TASKTYPE[t.type].i, 's16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
+        '<span>' + E(t.sub) + ' · ' + hijri(t.at) + '</span></span>' +
+        pill(TASKTYPE[t.type].ar, TTYPE_PILL[t.type]) +
+        pill(t.state, t.state === 'منجزة' || t.state === 'سُلّمت' ? 'live'
+          : t.state === 'جارية' ? 'live' : 'grey') + '</div>').join('') + '</div>'
+        : empty('لا مهام مُسنَدة', 'أسنِد له من شاشة المهام', 'i-tasks')) +
+    '</div>');
+}
+function kvRow(ic, k, v) {
+  return '<div class="kv2"><span class="ico sm">' + icon(ic, 's14') + '</span>' +
+    '<span class="k">' + E(k) + '</span><b>' + E(v) + '</b></div>';
+}
+
+/* ============================================================
+   منتقي المحسن — الإسناد لشخص بعينه لا لمجموعة
+   ============================================================ */
+function openPicker(kind, id, opts) {
+  S.picker = { kind, id, q:'', title:opts.title, note:opts.note, cands:opts.cands.map(u => u.id) };
+  paintPicker();
+}
+function paintPicker() {
+  const p = S.picker; if (!p) return;
+  S.drawer = { title:p.title, sub:'اختر من يُنفّذها — الرقم بجانب الاسم حِمله الحالي',
+    icon:'i-users', body:pickerBody() };
+  renderDrawer();
+}
+
+/* ما يقع عند الاختيار — لكل نوع أثره */
+function applyPick(kind, id, u) {
+  if (kind === 'enrich') {
+    const x = S.enrich.find(e => e.id === id); if (!x) return;
+    const g = staffGroup(u), L = g ? userById(g.leaderId) : null;
+    x.muhsenId = u.id; x.leaderId = g ? g.leaderId : x.leaderId;
+    x.kt = g ? (orgById(g.orgId) || {}).kt : x.kt; x.status = 'assigned';
+    logIt('سُكِّنت رحلة ' + x.ref + ' — ' + siteById(x.siteId).ar + ' على ' + u.name +
+      (L ? ' · ' + L.kt : ''), 'assign');
+    toast('أُسندت إلى ' + u.name);
+  } else if (kind === 'nusuk') {
+    const c = S.nusuk.find(x => x.id === id); if (!c) return;
+    c.assignedTo = u.id;
+    c.trail = c.trail || [];
+    c.trail.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name, file:null });
+    logIt('أُسندت ' + c.no + ' (' + NUSUK_SVC[c.svc].ar + ') إلى ' + u.name, 'assign');
+    toast('أُسندت إلى ' + u.name);
+  } else if (kind === 'comply') {
+    const a = S.pendForm; if (!a) return;
+    const f = formById(a.formId) || {};
+    S.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
+      title:f.title + ' — ' + a.target, sub:'نموذج امتثال · ' + a.target, state:'بانتظار التعبئة',
+      formId:a.formId, target:a.target });
+    logIt('أُسند نموذج «' + f.title + '» على ' + a.target + ' إلى ' + u.name, 'assign');
+    toast('أُسند إلى ' + u.name);
+    S.pendForm = null;
+  } else if (kind === 'ticket') {
+    const k = S.tickets.find(x => x.id === id); if (!k) return;
+    k.assignedTo = u.id; k.status = 'قيد المعالجة';
+    k.thread = k.thread || [];
+    k.thread.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name });
+    logIt('أُسندت تذكرة ' + k.no + ' إلى ' + u.name, 'ticket');
+    toast('أُسندت إلى ' + u.name);
+  } else if (kind === 'report') {
+    const r = S.reports.find(x => x.id === id); if (!r) return;
+    r.assignedTo = u.id; r.status = 'قيد المعالجة';
+    r.thread = r.thread || [];
+    r.thread.push({ at:now(), by:'الكنترول', text:'أُسند إلى ' + u.name });
+    logIt('أُسند تقرير ' + r.no + ' إلى ' + u.name, 'assign');
+    toast('أُسند إلى ' + u.name);
+  } else if (kind === 'sup') {
+    /* تسكين مشرف على فندق */
+    const h = hotelById(id);
+    u.hotelId = id;
+    S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
+    logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar, 'assign');
+    toast(u.name + ' → ' + h.ar);
+  }
+}
+
+/* مرشّحو كل نوع */
+function candFor(kind, ref) {
+  const all = S.users.filter(u => u.role === 'muhsen');
+  if (kind === 'enrich') {
+    const x = ref;
+    const g = x.leaderId ? groupsOf(x.leaderId)[0] : null;
+    const inGrp = g ? g.members.map(m => userById(m.id)).filter(Boolean) : [];
+    return inGrp.length ? inGrp : all.filter(u => staffGroup(u));
+  }
+  if (kind === 'nusuk') {
+    const c = ref, team = teamOf(c.leaderId);
+    const L = userById(c.leaderId);
+    return team.concat(L ? [L] : []).concat(reserveTeam());
+  }
+  if (kind === 'comply') {
+    /* المحسن يُختار حسب الفندق الذي تسكن فيه مجموعته */
+    const hid = ref;
+    const gs = S.groups.filter(g => g.hotelId === hid);
+    const ids = [];
+    gs.forEach(g => { ids.push(g.leaderId); g.members.forEach(m => ids.push(m.id)); });
+    const sup = supervisors().filter(u => u.hotelId === hid);
+    return [...new Set(ids)].map(userById).filter(Boolean).concat(sup);
+  }
+  if (kind === 'ticket' || kind === 'report') {
+    const t = ref, team = teamOf(t.leaderId), L = userById(t.leaderId);
+    return team.concat(L ? [L] : []).concat(reserveTeam());
+  }
+  return all;
+}
+function pickerBody() {
+  const p = S.picker; if (!p) return '';
+  const q = (p.q || '').trim();
+  let list = p.cands.map(userById).filter(Boolean);
+  if (q) list = list.filter(u => (u.name + ' ' + u.code + ' ' + (u.specialty || '')).indexOf(q) >= 0);
+  return '<div class="find" style="margin-bottom:14px">' + icon('i-search','s18') +
+      '<input id="q-pick" data-q="pick" value="' + E(p.q || '') + '" ' +
+      'placeholder="ابحث باسم أو تخصّص…" autocomplete="off">' +
+      '<span class="tiny faint">' + AR(list.length) + '</span></div>' +
+    (p.note ? '<div class="quote">' + E(p.note) + '</div>' : '') +
+    (list.length ? '<div class="plist" style="margin-top:12px">' + list.map(u => {
+      const g = staffGroup(u), h = staffHotel(u);
+      const load = staffTasks(u.id).length;
+      return '<button class="prow pick" data-a="pickdo" data-id="' + u.id + '">' +
+        avatar(u, 'sm') +
+        '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
+        '<span>' + E(u.code) + ' · ' + E(u.specialty || '') +
+          (g ? ' · ' + g.no : '') + (h && h.ar ? ' · ' + h.ar : '') + '</span></span>' +
+        (u.reserve ? pill('احتياط','gold') : '') +
+        pill(AR(load) + ' مهمة', load > 14 ? 'no' : load > 8 ? 'wait' : 'live') +
+      '</button>';
+    }).join('') + '</div>'
+      : empty('لا مرشّح مطابق', 'وسّع البحث', 'i-search'));
+}
+
+/* ============================================================
+   الإجراءات الحقيقية
+   نُسك: فتح حالة · مسار خطوات · مرفقات وملاحظات · إنهاء
+   الامتثال: بناء قالب · إسناد حسب الفندق
+   التذاكر والتقارير: ردّ · إسناد · تصنيف · إغلاق
+   ============================================================ */
+
+/* ---------- المرفقات: يُلتقط الملف الحقيقي ويُحفظ وصفه ---------- */
+function fileChip(f) {
+  if (!f) return '';
+  const kb = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' م.ب'
+    : Math.max(1, Math.round(f.size / 1024)) + ' ك.ب';
+  return '<span class="fchip">' + icon(/image/.test(f.type || '') ? 'i-photo' : 'i-doc', 's14') +
+    '<b>' + E(f.name) + '</b><span>' + E(kb) + '</span></span>';
+}
+function filePick(key) {
+  const f = (S.files || {})[key];
+  return '<label class="fpick">' + icon('i-clip','s16') +
+    '<span>' + (f ? 'تغيير المرفق' : 'إرفاق ملف') + '</span>' +
+    '<input type="file" data-file="' + key + '" hidden></label>' +
+    (f ? fileChip(f) : '');
+}
+
+/* ══════════════ نُسك: فتح حالة حقيقية ══════════════ */
+function nusukNew() {
+  S.nform = S.nform || { svc:'lost', pid:'', note:'' };
+  const d = S.nform;
+  const q = qOf('npil');
+  let pool = allPilgrimRows();
+  if (q) pool = pool.filter(p => (p.name + ' ' + p.no + ' ' + p.kt + ' ' + p.room).indexOf(q) >= 0);
+  const chosen = d.pid ? allPilgrimRows().find(p => p.id === d.pid) : null;
+
+  S.drawer = { title:'فتح حالة نُسك', sub:'ابحث عن الحاجّ، اختر الخدمة، وارفع مرفقًا إن وُجد',
+    icon:'i-idcard', body:
+    '<div class="card">' + head('١ · الخدمة', 'لكلٍّ مهلتها وخطواتها') +
+      '<div class="chips">' + Object.keys(NUSUK_SVC).map(k =>
+        '<button class="chip2' + (d.svc === k ? ' on' : '') + '" data-a="nfsvc" data-v="' + k + '">' +
+        E(NUSUK_SVC[k].ar) + ' · ' + AR(NUSUK_SVC[k].sla) + ' س</button>').join('') + '</div>' +
+      '<div class="steps2" style="margin-top:12px">' + NUSUK_SVC[d.svc].steps.map((s, i) =>
+        '<span class="st2">' + '<i></i>' + AR(i + 1) + ' · ' + E(s) + '</span>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('٢ · الحاجّ', chosen ? 'اختير' : 'ابحث بالاسم أو رقم الجواز') +
+      '<div class="find">' + icon('i-search','s18') +
+        '<input id="q-npil" data-q="npil" value="' + E(q) + '" ' +
+        'placeholder="اسم الحاجّ أو رقم جوازه أو مجموعته…" autocomplete="off">' +
+        '<span class="tiny faint">' + AR(pool.length) + '</span></div>' +
+      (chosen ? '<div class="prow" style="margin-top:12px">' +
+          avatar({ g:chosen.g, av:chosen.g === 'f' ? 'p5' : 'p2' }, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(chosen.name) + '</b>' +
+          '<span>' + E(chosen.no) + ' · ' + E(chosen.kt) + ' · غرفة ' + AR(chosen.room) + '</span></span>' +
+          '<button class="xbtn" data-a="nfclr">' + icon('i-x','s14') + '</button></div>'
+        : (q ? '<div class="plist" style="margin-top:12px">' + pool.slice(0, 8).map(p =>
+            '<button class="prow pick" data-a="nfpil" data-id="' + p.id + '">' +
+            avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'sm') +
+            '<span class="nm" style="flex:1"><b>' + E(p.name) + '</b>' +
+            '<span>' + E(p.no) + ' · ' + E(p.kt) + '</span></span></button>').join('') + '</div>'
+          : '<div class="tiny faint" style="margin-top:12px">اكتب حرفين على الأقلّ.</div>')) +
+    '</div>' +
+
+    '<div class="card">' + head('٣ · البلاغ', 'ما الذي حدث؟ ومرفق إن وُجد') +
+      '<textarea class="fld" id="q-nnote" data-q="nnote" rows="3" ' +
+        'placeholder="مثال: فقد البطاقة في الحرم بعد صلاة العصر">' + E(qOf('nnote')) + '</textarea>' +
+      '<div style="margin-top:11px">' + filePick('nusukNew') + '</div>' +
+    '</div>' +
+
+    '<button class="btn p" style="width:100%"' + (chosen ? '' : ' disabled') +
+      ' data-a="nfsave">' + icon('i-checkc','s16') + 'فتح الحالة</button>'
+  };
+  renderDrawer();
+}
+
+/* ---------- مسار الحالة ---------- */
+function nusukDrawer(id) {
+  const c = S.nusuk.find(x => x.id === id); if (!c) return;
+  const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
+  const to = c.assignedTo ? userById(c.assignedTo) : null;
+  const done = c.state === 'delivered';
+
+  S.drawer = { title:V.ar + ' — ' + c.pilgrim, sub:c.no + ' · جواز ' + c.passport + ' · ' + c.kt,
+    icon:V.i, body:
+    '<div class="fl" style="gap:11px">' + pill(ST.ar, ST.c) +
+      pill('مهلة ' + AR(V.sla) + ' ساعة', 'grey') +
+      '<span class="sp"></span><span class="tiny faint">فُتحت ' + ago(c.at) + ' · ' + E(c.openedBy) + '</span></div>' +
+
+    '<div class="card">' + head('المسار', 'الخطوة ' + AR(Math.min(c.step + 1, V.steps.length)) +
+        ' من ' + AR(V.steps.length)) +
+      '<div class="wf">' + V.steps.map((s, i) =>
+        '<div class="wfs' + (i < c.step ? ' done' : i === c.step ? ' now' : '') + '">' +
+          '<span class="wfn">' + (i < c.step ? icon('i-checkc','s14') : AR(i + 1)) + '</span>' +
+          '<span class="nm"><b>' + E(s) + '</b></span></div>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('المُسنَد إليه', to ? 'ينفّذها في الميدان' : 'لم تُسنَد بعد') +
+      (to ? '<div class="prow">' + avatar(to, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
+          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') +
+          (to.reserve ? ' · احتياط' : '') + '</span></span>' +
+          '<button class="btn l sm" data-a="nassign" data-id="' + c.id + '">تغيير</button></div>'
+        : '<button class="btn p" style="width:100%" data-a="nassign" data-id="' + c.id + '">' +
+          icon('i-users','s16') + 'إسناد لمحسن أو ليدر</button>') +
+    '</div>' +
+
+    (done ? '' :
+    '<div class="card gold">' + head('تقديم الخطوة', 'اكتب ما تمّ، وأرفق إن لزم') +
+      '<textarea class="fld" id="q-nstepnote" data-q="nstepnote" rows="2" ' +
+        'placeholder="ماذا تمّ في هذه الخطوة؟">' + E(qOf('nstepnote')) + '</textarea>' +
+      '<div style="margin-top:11px">' + filePick('nusukStep') + '</div>' +
+      '<div class="fl" style="gap:10px;margin-top:13px">' +
+        '<button class="btn p" style="flex:1" data-a="nstep" data-id="' + c.id + '">' +
+          icon('i-fwd','s16') + 'الخطوة التالية</button>' +
+        '<button class="btn l" data-a="nclose" data-id="' + c.id + '">' +
+          icon('i-checkc','s16') + 'إنهاء الحالة</button>' +
+      '</div></div>') +
+
+    '<div class="card">' + head('السجلّ', AR((c.trail || []).length) + ' قيدًا') +
+      ((c.trail || []).length ? '<div class="tline">' + c.trail.slice().reverse().map(t =>
+        '<div class="tev"><span class="tdot live">' + icon('i-checkc','s14') + '</span>' +
+        '<div class="tbody"><b style="font-size:12.5px">' + E(t.text) + '</b>' +
+        (t.file ? '<div style="margin-top:7px">' + fileChip(t.file) + '</div>' : '') +
+        '<span class="tiny faint">' + E(t.by) + ' · ' + hijri(t.at) + ' · ' + t12(t.at) + '</span>' +
+        '</div></div>').join('') + '</div>'
+        : empty('لا قيود بعد', 'كل خطوة تُكتب هنا', 'i-hist')) +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+/* ══════════════ الامتثال: باني القالب ══════════════ */
+function formBuilder(id) {
+  S.fb = S.fb || (id ? Object.assign({ editing:id }, JSON.parse(JSON.stringify(formById(id))))
+    : { title:'', scope:'فندق', icon:'i-clip', color:'#0B7A4B', qs:[], editing:null });
+  const b = S.fb;
+  S.drawer = { title:b.editing ? 'تعديل قالب' : 'قالب امتثال جديد',
+    sub:'يُبنى مرّة، ويُسنَد مرارًا، ولكل إجابة وزنها', icon:'i-clip', body:
+    '<div class="card">' + head('هوية القالب', 'اسمه ونطاقه') +
+      '<label class="fl2">العنوان</label>' +
+      '<input class="fld" id="q-fbt" data-q="fbt" value="' + E(b.title) + '" ' +
+        'placeholder="مثال: التزام الفندق بالعقد">' +
+      '<label class="fl2">النطاق</label>' +
+      '<div class="chips">' + ['فندق','نقل','إعاشة','تفويج'].map(s =>
+        '<button class="chip2' + (b.scope === s ? ' on' : '') + '" data-a="fbscope" data-v="' + s + '">' +
+        E(s) + '</button>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('الأسئلة', AR(b.qs.length) + ' سؤالًا — الوزن صفر يعني لا يُحتسب') +
+      (b.qs.length ? '<div class="plist">' + b.qs.map((q, i) =>
+        '<div class="prow" style="flex-wrap:wrap">' +
+          '<span class="sn">' + AR(i + 1) + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(q.q) + '</b>' +
+          '<span>' + E(QT[q.t]) + ' · وزن ' + AR(q.w) + '</span></span>' +
+          '<button class="xbtn" data-a="fbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا سؤال بعد.</div>') +
+
+      '<div class="qadd">' +
+        '<input class="fld" id="q-fbq" data-q="fbq" value="' + E(qOf('fbq')) + '" ' +
+          'placeholder="نصّ السؤال…">' +
+        '<div class="fl" style="gap:9px;margin-top:10px;flex-wrap:wrap">' +
+          '<label class="fsel"><span>الإجابة</span>' +
+            '<select data-f="fb" data-fk="qt">' + Object.keys(QT).map(k =>
+              '<option value="' + k + '"' + (fOf('fb','qt') === k ? ' selected' : '') + '>' +
+              E(QT[k]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          '<label class="fsel"><span>الوزن</span>' +
+            '<select data-f="fb" data-fk="qw">' + [0,1,2,3].map(w =>
+              '<option value="' + w + '"' + (String(fOf('fb','qw')) === String(w) ? ' selected' : '') +
+              '>' + AR(w) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          '<button class="btn l sm" data-a="fbadd">' + icon('i-plus','s14') + 'أضف سؤالًا</button>' +
+        '</div></div>' +
+    '</div>' +
+
+    '<button class="btn p" style="width:100%"' + (b.title && b.qs.length ? '' : ' disabled') +
+      ' data-a="fbsave">' + icon('i-checkc','s16') +
+      (b.editing ? 'حفظ التعديل' : 'حفظ القالب') + '</button>'
+  };
+  renderDrawer();
+}
+
+/* إسناد نموذج: يُختار الفندق أوّلًا، ثم المحسن من ساكنيه */
+function formAssign(id) {
+  const f = formById(id); if (!f) return;
+  S.pendForm = { formId:id, target:null };
+  S.drawer = { title:'إسناد «' + f.title + '»', sub:'اختر الجهة، ثم من ينفّذها من ساكنيها',
+    icon:f.icon, body:
+    '<div class="card">' + head('الجهة', 'المحسن يُختار من مجموعة تسكن فيها') +
+      '<div class="plist">' + HOTELS.map(h => {
+        const gs = S.groups.filter(g => g.hotelId === h.id);
+        const n = gs.reduce((a, g) => a + g.members.length + 1, 0);
+        return '<button class="prow pick" data-a="fatarget" data-id="' + h.id + '"' +
+          (n ? '' : ' disabled') + '>' +
+          '<span class="ico">' + icon('i-key','s16') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
+          '<span>' + E(h.city) + ' · ' + AR(h.rooms) + ' غرفة</span></span>' +
+          pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') +
+          pill(AR(n) + ' موظفًا', n ? 'gold' : 'grey') + '</button>';
+      }).join('') + '</div></div>'
+  };
+  renderDrawer();
+}
+
+/* ══════════════ التذاكر والتقارير: إجراء حقيقي ══════════════ */
+function ticketDrawer(id) {
+  const k = S.tickets.find(x => x.id === id); if (!k) return;
+  const to = k.assignedTo ? userById(k.assignedTo) : null;
+  const closed = k.status === 'مغلقة';
+  S.drawer = { title:k.title, sub:k.no + ' · ' + k.from + ' · ' + k.kt, icon:'i-ticket', body:
+    '<div class="fl" style="gap:9px;flex-wrap:wrap">' +
+      pill(k.cat, 'grey') +
+      pill(k.pri, k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey') +
+      pill(k.status, closed ? 'live' : 'wait') +
+      '<span class="sp"></span><span class="tiny faint">' + ago(k.at) + '</span></div>' +
+    '<div class="quote">' + E(k.body) + '</div>' +
+
+    '<div class="card">' + head('التصنيف والأولوية', 'يُغيَّران من هنا') +
+      '<label class="fl2">التصنيف</label>' +
+      '<div class="chips">' + [...new Set(S.tickets.map(x => x.cat))].map(c =>
+        '<button class="chip2' + (k.cat === c ? ' on' : '') + '" data-a="tkcat" data-id="' + k.id +
+        '" data-v="' + E(c) + '">' + E(c) + '</button>').join('') + '</div>' +
+      '<label class="fl2">الأولوية</label>' +
+      '<div class="chips">' + ['حرجة','عاجلة','عادية'].map(p =>
+        '<button class="chip2' + (k.pri === p ? ' on' : '') + '" data-a="tkpri" data-id="' + k.id +
+        '" data-v="' + E(p) + '">' + E(p) + '</button>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم تُسنَد بعد') +
+      (to ? '<div class="prow">' + avatar(to, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
+          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') + '</span></span>' +
+          '<button class="btn l sm" data-a="tkassign" data-id="' + k.id + '">تغيير</button></div>'
+        : '<button class="btn p" style="width:100%" data-a="tkassign" data-id="' + k.id + '">' +
+          icon('i-users','s16') + 'إسناد لمحسن أو ليدر</button>') +
+    '</div>' +
+
+    '<div class="card gold">' + head('الردّ', 'يصل صاحب التذكرة في التطبيق') +
+      '<textarea class="fld" id="q-tkreply" data-q="tkreply" rows="3" ' +
+        'placeholder="اكتب ردًّا واضحًا يُغني عن سؤال آخر…">' + E(qOf('tkreply')) + '</textarea>' +
+      '<div style="margin-top:11px">' + filePick('tkReply') + '</div>' +
+      '<div class="fl" style="gap:10px;margin-top:13px">' +
+        '<button class="btn p" style="flex:1" data-a="tkreply" data-id="' + k.id + '">' +
+          icon('i-send','s16') + 'إرسال الردّ</button>' +
+        (closed ? '<button class="btn l" data-a="tkopen" data-id="' + k.id + '">إعادة فتح</button>'
+          : '<button class="btn l" data-a="tkclose" data-id="' + k.id + '">' +
+            icon('i-checkc','s16') + 'إغلاق</button>') +
+      '</div></div>' +
+
+    '<div class="card">' + head('المحادثة', AR((k.thread || []).length) + ' رسالة') +
+      ((k.thread || []).length ? '<div class="tline">' + k.thread.slice().reverse().map(t =>
+        '<div class="tev"><span class="tdot gold">' + icon('i-send','s14') + '</span>' +
+        '<div class="tbody"><b style="font-size:12.5px">' + E(t.text) + '</b>' +
+        (t.file ? '<div style="margin-top:7px">' + fileChip(t.file) + '</div>' : '') +
+        '<span class="tiny faint">' + E(t.by) + ' · ' + t12(t.at) + ' · ' + ago(t.at) + '</span>' +
+        '</div></div>').join('') + '</div>'
+        : empty('لا ردّ بعد', 'أوّل ردّ يبدأ المحادثة', 'i-send')) +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+function reportDrawer(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const L = userById(r.from) || {}, to = r.assignedTo ? userById(r.assignedTo) : null;
+  S.drawer = { title:r.title, sub:r.no + ' · ' + r.kt + ' · ' + (L.name || ''), icon:'i-flag', body:
+    '<div class="fl" style="gap:9px;flex-wrap:wrap">' + pill(r.cat, 'gold') +
+      pill(r.status, r.escalated ? 'no' : 'wait') +
+      '<span class="sp"></span><span class="tiny faint">' + ago(r.at) + '</span></div>' +
+    '<div class="quote">' + E(r.body) + '</div>' +
+
+    (r.room ? '<div class="card gold">' + head('تعديل بيانات غرفة', 'يمسّ قاعدة البيانات مباشرة') +
+      '<div class="fl" style="gap:11px;flex-wrap:wrap">' +
+        '<span class="mchip">' + icon('i-key','s14') + E(r.room.floor) + ' · غرفة ' + E(r.room.no) + '</span>' +
+        '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">تحديث قاعدة البيانات</button>' +
+      '</div></div>' : '') +
+
+    '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم يُسنَد بعد') +
+      (to ? '<div class="prow">' + avatar(to, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
+          '<span>' + E(to.code) + '</span></span>' +
+          '<button class="btn l sm" data-a="rpassign" data-id="' + r.id + '">تغيير</button></div>'
+        : '<button class="btn p" style="width:100%" data-a="rpassign" data-id="' + r.id + '">' +
+          icon('i-users','s16') + 'إسناد لمن يعالجه</button>') +
+    '</div>' +
+
+    '<div class="card gold">' + head('الردّ على الليدر', 'يصله في التطبيق') +
+      '<textarea class="fld" id="q-rpreply" data-q="rpreply" rows="3" ' +
+        'placeholder="ما القرار؟ ولماذا؟">' + E(qOf('rpreply')) + '</textarea>' +
+      '<div style="margin-top:11px">' + filePick('rpReply') + '</div>' +
+      '<div class="fl" style="gap:10px;margin-top:13px">' +
+        '<button class="btn p" style="flex:1" data-a="rpreply" data-id="' + r.id + '">' +
+          icon('i-send','s16') + 'إرسال</button>' +
+        '<button class="btn l" data-a="rpclose" data-id="' + r.id + '">' +
+          icon('i-checkc','s16') + 'إغلاق التقرير</button>' +
+      '</div></div>' +
+
+    '<div class="card">' + head('السجلّ', AR((r.thread || []).length) + ' قيدًا') +
+      ((r.thread || []).length ? '<div class="tline">' + r.thread.slice().reverse().map(t =>
+        '<div class="tev"><span class="tdot gold">' + icon('i-flag','s14') + '</span>' +
+        '<div class="tbody"><b style="font-size:12.5px">' + E(t.text) + '</b>' +
+        (t.file ? '<div style="margin-top:7px">' + fileChip(t.file) + '</div>' : '') +
+        '<span class="tiny faint">' + E(t.by) + ' · ' + ago(t.at) + '</span></div></div>').join('') + '</div>'
+        : empty('لا قيود', '', 'i-hist')) +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+/* ============================================================
+   بوّابة الدخول — أوّل ما يُرى، فليكن على مستوى ما بعده
+   ============================================================ */
+const GATE_ROLES = [
+  { k:'ctl',  i:'i-target', l:'غرفة العمليات', d:'صلاحية كاملة' },
+  { k:'sup',  i:'i-shield', l:'مشرف سكن',      d:'فنادقه ومجموعاتها' },
+  { k:'ops',  i:'i-users',  l:'منسّق تشكيل',   d:'المجموعات والتسكين' },
+  { k:'view', i:'i-eye',    l:'قراءة فقط',     d:'بلا إجراءات' }
+];
+
+function renderGate() {
+  const w = document.getElementById('gatewrap');
+  if (!w) return;
+  if (S.auth) { w.innerHTML = ''; return; }
+  const role = S.gateRole || 'ctl';
+  w.innerHTML =
+    '<div id="gate">' +
+      '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>' +
+      '<button class="themebtn gtheme" data-a="theme">' +
+        '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
+        '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
+      '<div class="gwrap">' +
+        '<div class="gbrand">' +
+          '<span class="gmark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
+          '<span><h1>مُحسن · الكنترول</h1>' +
+          '<div class="gsub">غرفة عمليات موسم الحجّ ١٤٤٨ هـ</div></span>' +
+        '</div>' +
+        '<div class="gcard">' +
+          '<label class="fl2" style="margin-top:0">ادخل بصفتك</label>' +
+          '<div class="roles">' + GATE_ROLES.map(r =>
+            '<button class="role' + (r.k === role ? ' on' : '') + '" data-a="grole" data-v="' + r.k + '">' +
+            icon(r.i, 's18') + '<b>' + E(r.l) + '</b><span>' + E(r.d) + '</span></button>').join('') +
+          '</div>' +
+          '<label class="fl2">اسم المستخدم</label>' +
+          '<input class="fld" id="q-gu" data-q="gu" value="' + E(qOf('gu') || 'control') + '" ' +
+            'placeholder="اسم المستخدم" autocomplete="username">' +
+          '<label class="fl2">كلمة المرور</label>' +
+          '<input class="fld" type="password" id="q-gp" data-q="gp" value="' + E(qOf('gp') || '••••••••') + '" ' +
+            'placeholder="كلمة المرور" autocomplete="current-password">' +
+          '<button class="btn p" style="width:100%;margin-top:18px" data-a="gin">' +
+            icon('i-logout','s16') + 'دخول غرفة العمليات</button>' +
+          '<div class="tiny faint" style="margin-top:12px;text-align:center">' +
+            'نسخة معاينة — الدخول لا يتحقّق من كلمة مرور حقيقية.</div>' +
+        '</div>' +
+        '<div class="gfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي · ' + APP_VER + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+/* ============================================================
    المهام بأنواعها الأربعة
    حجّ · إثراء التجربة · نُسك · امتثال
    ============================================================ */
@@ -3079,8 +4064,8 @@ function typeSwitch() {
 
 function screenTasks() {
   const t = S.tab.tt || 'hajj';
-  return typeSwitch() +
-    (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabNusuk()
+  /* النوع يُختار من القائمة الجانبية — فلا يُكرَّر هنا */
+  return (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabNusuk()
       : t === 'comply' ? tabComply() : tabHajj());
 }
 
@@ -3145,6 +4130,11 @@ function tabEnrich() {
   else if (f === 'assigned') list = list.filter(x => x.status === 'assigned');
   else if (f === 'done') list = list.filter(x => x.status === 'done');
   if (q) list = list.filter(x => (siteById(x.siteId).ar + ' ' + x.ref).indexOf(q) >= 0);
+  const fc = fOf('enr','city'), fk = fOf('enr','kt'), ft = fOf('enr','type');
+  if (fc) list = list.filter(x => siteById(x.siteId).city === fc);
+  if (fk) list = list.filter(x => x.kt === fk);
+  if (ft) list = list.filter(x => { const o = x.kt ? S.orgs.find(z => z.kt === x.kt) : null;
+    return o && o.type === ft; });
   const byCity = {};
   S.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
   const seats = S.enrich.reduce((a, x) => a + x.seats, 0);
@@ -3169,11 +4159,16 @@ function tabEnrich() {
         '<span class="synced">' + icon('i-reset','s14') + 'آخر مزامنة ' + ago(S.enrichSync) + '</span>' +
         '<button class="btn l sm" data-a="xsync">' + icon('i-reset','s16') + 'مزامنة الآن</button></span>',
         'i-bus') +
-      '<div class="tools">' + search('enr', 'ابحث بمزار أو رقم رحلة…', S.enrich.length) +
-        segmented('ef', [['open','بلا تسكين'],['assigned','مسكَّنة'],['done','منتهية'],['all','الكل']], f) +
-      '</div>' +
+      '<div class="tools">' + segmented('ef',
+        [['open','بلا تسكين'],['assigned','مسكَّنة'],['done','منتهية'],['all','الكل']], f) + '</div>' +
+      filterBar('enr', [
+        { k:'city', label:'المدينة', opts:optCities() },
+        { k:'kt',   label:'الـKT',   opts:optKT() },
+        { k:'type', label:'النوع',   opts:optTypes() }
+      ], list.length, S.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
-        const si = siteById(x.siteId), L = x.leaderId ? userById(x.leaderId) : null;
+        const si = siteById(x.siteId);
+        const M = x.muhsenId ? userById(x.muhsenId) : null;
         const full = Math.round(x.booked / x.seats * 100);
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail" style="background:#1B6E9C"></span>' +
@@ -3182,17 +4177,16 @@ function tabEnrich() {
           '<span>' + E(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
           '<span class="when"><b>' + hijri(x.start) + '</b>' +
             '<span class="num">' + t12(x.start) + ' — ' + t12(x.end) + '</span></span>' +
-          '<span class="end">' + (L ? '<span class="fl" style="gap:8px">' + avatar(L, 'sm') +
-              pill(x.kt, 'blue') + '</span>' : pill('بلا تسكين', 'no')) + '</span>' +
+          '<span class="end">' + (M ? '<span class="fl" style="gap:8px">' + avatar(M, 'sm') +
+              '<span class="tiny"><b>' + E(M.name) + '</b><br><span class="faint">' +
+              E(x.kt || '') + '</span></span></span>' : pill('بلا تسكين', 'no')) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
             '<div class="fl" style="gap:11px">' +
               '<span class="meter" style="flex:1"><i data-w="' + full + '"></i></span>' +
               '<span class="tiny faint num">' + AR(x.booked) + '/' + AR(x.seats) + ' مقعدًا</span>' +
-              (x.status === 'unassigned'
-                ? '<button class="btn p sm" data-a="xassign" data-id="' + x.id + '">تسكين على مجموعة</button>'
-                : x.status === 'assigned'
-                ? '<button class="btn l sm" data-a="xassign" data-id="' + x.id + '">نقل لمجموعة أخرى</button>'
-                : pill('انتهت', 'grey')) +
+              (x.status === 'done' ? pill('انتهت', 'grey')
+                : '<button class="btn ' + (M ? 'l' : 'p') + ' sm" data-a="xassign" data-id="' +
+                  x.id + '">' + (M ? 'تغيير المحسن' : 'إسناد لمحسن') + '</button>') +
             '</div></div></div>';
       }).join('') + '</div>' : empty('لا رحلات في هذا التصنيف', '', 'i-bus')) +
     '</div>';
@@ -3205,6 +4199,10 @@ function tabNusuk() {
   let list = S.nusuk.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(c => f === 'open' ? c.state !== 'delivered' : c.state === f);
   if (q) list = list.filter(c => (c.pilgrim + ' ' + c.passport + ' ' + c.kt + ' ' + c.no).indexOf(q) >= 0);
+  const nk = fOf('nsk','kt'), ns = fOf('nsk','svc'), nb = fOf('nsk','by');
+  if (nk) list = list.filter(c => c.kt === nk);
+  if (ns) list = list.filter(c => c.svc === ns);
+  if (nb) list = list.filter(c => c.openedBy === nb);
   const svcN = k => S.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
 
   return '<div class="grid g4">' +
@@ -3223,15 +4221,20 @@ function tabNusuk() {
       head('خدمات بطاقة نُسك', 'ابحث عن الحاجّ ثم افتح له حالة — والكنترول من يُسندها',
         '<button class="btn p sm" data-a="nnew">' + icon('i-plus','s16') + 'فتح حالة جديدة</button>',
         'i-idcard') +
-      '<div class="tools">' + search('nsk', 'ابحث باسم الحاجّ أو رقم جوازه أو مجموعته…', S.nusuk.length) +
-        segmented('nf', [['open','مفتوحة'],['new','جديدة'],['processing','قيد الإصدار'],
-          ['issued','تنتظر التسليم'],['delivered','سُلّمت'],['all','الكل']], f) +
+      '<div class="tools">' + segmented('nf', [['open','مفتوحة'],['new','جديدة'],
+        ['processing','قيد الإصدار'],['issued','تنتظر التسليم'],['delivered','سُلّمت'],['all','الكل']], f) +
       '</div>' +
+      filterBar('nsk', [
+        { k:'kt',  label:'الـKT',   opts:optKT() },
+        { k:'svc', label:'الخدمة', opts:Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]) },
+        { k:'by',  label:'فتحها',  opts:[['محسن','محسن'],['ليدر','ليدر'],['مشرف','مشرف'],['الكنترول','الكنترول']] }
+      ], list.length, S.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
       (list.length ? '<div class="plist">' + list.map((c, i) => {
         const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
         const to = c.assignedTo ? userById(c.assignedTo) : null;
         const pct = Math.round(c.step / V.steps.length * 100);
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
+        return '<div class="prow trow" data-a="nopen" data-id="' + c.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
@@ -3289,6 +4292,7 @@ function tabComply() {
           '<div class="pfoot">' +
             '<span class="ok">آخر زيارة ' + (bs.length ? ago(Math.max.apply(null, bs.map(b => b.at))) : '—') + '</span>' +
             '<span class="fl" style="gap:7px">' +
+              '<button class="btn l sm" data-a="fedit" data-id="' + f.id + '">تعديل</button>' +
               '<button class="btn l sm" data-a="fassign" data-id="' + f.id + '">إسناد</button>' +
               '<button class="btn p sm" data-a="fdash" data-id="' + f.id + '">اللوحة</button></span>' +
           '</div></div>';
@@ -3577,7 +4581,9 @@ function screenBuild() {
             '<span class="ico">' + icon('i-key','s18') + '</span>' +
             '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
             '<span>' + E(h.city) + ' · ' + E(h.dist) + ' · ' + AR(h.rooms) + ' غرفة</span></span>' +
-            pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') + '</div>' +
+            pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') +
+            '<button class="btn l sm" data-a="supassign" data-id="' + h.id + '">' +
+              (sup.length ? 'تغيير المشرف' : 'تسكين مشرف') + '</button></div>' +
           (sup.length ? '<div class="plist">' + sup.map(u =>
             '<div class="prow" style="padding:9px 11px">' + avatar(u, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
@@ -3919,6 +4925,13 @@ function syncWall() {
 /* ============================================================
    الدرج الجانبي — تفصيل بلا مغادرة الشاشة
    ============================================================ */
+/* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
+let lastDrawer = null;
+function repaintDrawer() {
+  if (lastDrawer) lastDrawer();
+}
+function rememberDrawer(fn) { lastDrawer = fn; }
+
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
   if (!S.drawer) { w.innerHTML = ''; return; }
@@ -3975,7 +4988,21 @@ document.addEventListener('keydown', e => {
 /* اختيار تخصّص المحسن داخل التشكيل */
 document.addEventListener('change', e => {
   const t = e.target;
-  if (!t || !t.classList || !t.classList.contains('spec')) return;
+  if (!t) return;
+  /* مرفق: نحفظ وصفه لا محتواه — الاسم والحجم والنوع */
+  const fk = t.getAttribute && t.getAttribute('data-file');
+  if (fk) {
+    const f = t.files && t.files[0];
+    S.files = S.files || {};
+    if (f) S.files[fk] = { name:f.name, size:f.size, type:f.type };
+    save();
+    if (S.drawer) { if (S.picker) paintPicker(); else repaintDrawer(); }
+    return;
+  }
+  /* قوائم الفلترة */
+  const fsel = t.getAttribute && t.getAttribute('data-f');
+  if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
+  if (!t.classList || !t.classList.contains('spec')) return;
   const id = t.getAttribute('data-id'), d = draft();
   const m = d.members.find(x => x.id === id);
   if (m) { m.spec = t.value; save(); }
@@ -3986,6 +5013,16 @@ document.addEventListener('input', e => {
   if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }
   /* حقول الشاشات: تُحفظ فورًا، والرسم مؤجّل حتى لا يُفقد التركيز */
   const k = t.getAttribute('data-q');
+  if (k === 'pick') {
+    S.picker.q = t.value;
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => {
+      const pos = t.selectionStart; paintPicker();
+      const again = document.getElementById('q-pick');
+      if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
+    }, 200);
+    return;
+  }
   if (k) {
     S.q = S.q || {}; S.q[k] = t.value; save();
     clearTimeout(qTimer);
@@ -4019,7 +5056,7 @@ function showShortcuts() {
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, build: screenBuild, incidents: screenIncidents,
+  ops: screenOps, tasks: screenTasks, build: screenBuild, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -4038,8 +5075,6 @@ function render() {
   const wrap = document.getElementById('stagewrap');
   const prev = wrap.querySelector('.view');
   const keep = same && prev ? prev.scrollTop : 0;
-
-  document.getElementById('railwrap').innerHTML = rail();
   document.getElementById('sidewrap').innerHTML = sidebar();
   /* لا يُمسح صنف .stage وإلا فقد المسرح تخطيطه ولم يعمل أي تمرير */
   wrap.className = 'stage' + (same ? ' nofx' : '');
@@ -4068,6 +5103,7 @@ function render() {
   renderPalette();
   renderDrawer();
   syncWall();
+  renderGate();
   save();
   if (S.toast) {
     const t = S.toast;
@@ -4099,7 +5135,7 @@ document.addEventListener('click', ev => {
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
     case 'palrun': runPalette(Number(v)); return;
-    case 'closedrawer': S.drawer = null; renderDrawer(); return;
+    case 'closedrawer': S.drawer = null; S.picker = null; renderDrawer(); return;
     case 'shortcuts': showShortcuts(); return;
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
@@ -4124,66 +5160,6 @@ document.addEventListener('click', ev => {
       logIt('زُوملت مهام إثراء التجربة من نظام المزارات', 'info');
       toast('لا جديد — الوارد محدَّث');
       break;
-    case 'xassign': {
-      const x = S.enrich.find(e => e.id === id); if (!x) return;
-      /* تُسكَّن على المجموعة الأقلّ حِملًا في ذلك اليوم */
-      const load = {};
-      S.groups.forEach(g => { load[g.leaderId] = S.enrich.filter(e =>
-        e.leaderId === g.leaderId && dayStart(e.start) === dayStart(x.start)).length; });
-      const pick = S.groups.slice().sort((a, b) => (load[a.leaderId] || 0) - (load[b.leaderId] || 0))[0];
-      if (!pick) { toast('لا مجموعة مشكَّلة بعد', 'r'); return; }
-      const L = userById(pick.leaderId) || {};
-      x.leaderId = pick.leaderId; x.kt = L.kt; x.status = 'assigned';
-      logIt('سُكِّنت رحلة ' + x.ref + ' — ' + siteById(x.siteId).ar + ' على ' + L.kt, 'assign');
-      toast('سُكِّنت على ' + L.kt + ' — الأقلّ حِملًا ذلك اليوم');
-      break;
-    }
-
-    /* ─── نُسك ─── */
-    case 'nnew': {
-      const L = leaders()[S.nusuk.length % leaders().length];
-      const arr = S.pilgrims[L.kt] || [];
-      const p = arr[(S.nusuk.length * 37) % Math.max(1, arr.length)];
-      if (!p) return;
-      S.nusuk.unshift({ id: uid('N'), no: 'NS-' + AR(4400 + S.nusuk.length), svc: 'lost',
-        pilgrimId: p.id, pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
-        openedBy: 'الكنترول', state: 'new', step: 1, assignedTo: null, at: now(),
-        note: 'حالة فُتحت من غرفة العمليات — تحتاج تحديد الخدمة' });
-      logIt('فُتحت حالة نُسك جديدة للحاجّ ' + p.name + ' — ' + L.kt, 'info');
-      toast('فُتحت حالة — أسندها لمحسن أو ليدر');
-      break;
-    }
-    case 'nassign': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      /* الأولوية لمحسن من مجموعة الحاجّ، فإن لم يوجد فالاحتياط */
-      const team = teamOf(c.leaderId);
-      const who = team[c.no.length % Math.max(1, team.length)] || reserveTeam()[0] || userById(c.leaderId);
-      if (!who) { toast('لا محسن متاح', 'r'); return; }
-      c.assignedTo = who.id;
-      logIt('أُسندت ' + c.no + ' (' + NUSUK_SVC[c.svc].ar + ') إلى ' + who.name, 'assign');
-      toast('أُسندت إلى ' + who.name);
-      break;
-    }
-    case 'nstep': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      const V = NUSUK_SVC[c.svc];
-      c.step = Math.min(V.steps.length, c.step + 1);
-      c.state = c.step >= V.steps.length ? 'delivered'
-        : c.step >= V.steps.length - 1 ? 'issued'
-        : c.step >= 2 ? 'processing' : 'new';
-      logIt(c.no + ' — ' + V.steps[Math.min(c.step, V.steps.length) - 1], 'info');
-      toast(NUSUK_STATE[c.state].ar);
-      break;
-    }
-
-    /* ─── الامتثال ─── */
-    case 'fnew': toast('بناء القالب يأتي بعد أن نتفق على أنواع الأسئلة'); return;
-    case 'fassign': {
-      const f = formById(id); if (!f) return;
-      logIt('أُسند قالب «' + f.title + '» إلى كل المجموعات', 'info');
-      toast('أُسند إلى ' + AR(S.groups.length) + ' مجموعات');
-      break;
-    }
 
     /* ─── التشكيل ─── */
     case 'blead': {
@@ -4258,6 +5234,185 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'qclear': S.q[b.dataset.k] = ''; break;
+    case 'fclear': { const k = b.dataset.k; S.flt[k] = {}; S.q[k] = ''; break; }
+
+    /* ─── نُسك: فتح حالة ─── */
+    case 'nfsvc':  S.nform = S.nform || {}; S.nform.svc = v; nusukNew(); return;
+    case 'nfpil':  S.nform = S.nform || {}; S.nform.pid = id; nusukNew(); return;
+    case 'nfclr':  S.nform.pid = ''; S.q.npil = ''; nusukNew(); return;
+    case 'nfsave': {
+      const d = S.nform || {}; if (!d.pid) return;
+      const p = allPilgrimRows().find(x => x.id === d.pid); if (!p) return;
+      const L = leaders().find(l => l.kt === p.kt) || {};
+      const f = (S.files || {}).nusukNew || null;
+      const c = { id:uid('N'), no:'NS-' + AR(4400 + S.nusuk.length), svc:d.svc || 'lost',
+        pilgrimId:p.id, pilgrim:p.name, passport:p.no, kt:p.kt, leaderId:L.id || null,
+        openedBy:'الكنترول', state:'new', step:1, assignedTo:null, at:now(),
+        note:(S.q.nnote || '').trim() || 'حالة فُتحت من غرفة العمليات',
+        trail:[{ at:now(), by:'الكنترول', text:'فُتحت الحالة', file:f }] };
+      S.nusuk.unshift(c);
+      logIt('فُتحت حالة ' + NUSUK_SVC[c.svc].ar + ' للحاجّ ' + p.name + ' — ' + p.kt, 'info');
+      S.nform = null; S.q.nnote = ''; S.q.npil = '';
+      if (S.files) delete S.files.nusukNew;
+      S.drawer = null; save(); render(); nusukDrawer(c.id);
+      toast('فُتحت ' + c.no + ' — أسندها الآن');
+      return;
+    }
+    case 'nopen': nusukDrawer(id); return;
+    case 'nnew':  S.nform = { svc:'lost', pid:'', note:'' }; nusukNew(); return;
+    case 'nassign': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      openPicker('nusuk', c.id, { title:'إسناد ' + c.no,
+        note:'المرشّحون: فريق ' + c.kt + ' وليدره والاحتياط.',
+        cands:candFor('nusuk', c) });
+      return;
+    }
+    case 'nstep': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      const V = NUSUK_SVC[c.svc];
+      if (c.step >= V.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
+      const note = (S.q.nstepnote || '').trim();
+      const f = (S.files || {}).nusukStep || null;
+      c.trail = c.trail || [];
+      c.trail.push({ at:now(), by:'الكنترول',
+        text:V.steps[c.step] + (note ? ' — ' + note : ''), file:f });
+      c.step += 1;
+      c.state = c.step >= V.steps.length ? 'issued'
+        : c.step >= 2 ? 'processing' : 'new';
+      S.q.nstepnote = ''; if (S.files) delete S.files.nusukStep;
+      logIt(c.no + ' — ' + V.steps[c.step - 1], 'info');
+      save(); nusukDrawer(c.id); toast(NUSUK_STATE[c.state].ar);
+      return;
+    }
+    case 'nclose': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      c.state = 'delivered'; c.step = NUSUK_SVC[c.svc].steps.length;
+      c.trail = c.trail || [];
+      c.trail.push({ at:now(), by:'الكنترول', text:'أُنهيت الحالة وسُلّمت', file:null });
+      logIt('أُنهيت ' + c.no + ' — ' + NUSUK_SVC[c.svc].ar, 'info');
+      save(); nusukDrawer(c.id); toast('أُنهيت الحالة');
+      return;
+    }
+
+    /* ─── إثراء: إسناد لمحسن ─── */
+    case 'xassign': {
+      const x = S.enrich.find(e => e.id === id); if (!x) return;
+      openPicker('enrich', x.id, { title:'إسناد ' + siteById(x.siteId).ar,
+        note:'المحسن يرافق الرحلة — والرقم بجانبه حِمله الحالي.',
+        cands:candFor('enrich', x) });
+      return;
+    }
+
+    /* ─── الامتثال ─── */
+    case 'fnew':  S.fb = null; formBuilder(null); return;
+    case 'fedit': S.fb = null; formBuilder(id); return;
+    case 'fbscope': S.fb.scope = v; formBuilder(); return;
+    case 'fbadd': {
+      const q = (S.q.fbq || '').trim(); if (!q) { toast('اكتب نصّ السؤال', 'r'); return; }
+      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q,
+        t:fOf('fb','qt') || 'yn', w:Number(fOf('fb','qw') || 2) });
+      S.q.fbq = ''; formBuilder(); return;
+    }
+    case 'fbdel': S.fb.qs.splice(Number(v), 1); formBuilder(); return;
+    case 'fbsave': {
+      const b2 = S.fb; if (!b2.title || !b2.qs.length) return;
+      if (b2.editing) {
+        const f = formById(b2.editing);
+        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs });
+        logIt('عُدِّل قالب «' + f.title + '»', 'guide');
+      } else {
+        S.forms.push({ id:uid('F'), no:'FM-' + AR(201 + S.forms.length), title:b2.title,
+          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(), qs:b2.qs });
+        logIt('أُنشئ قالب «' + b2.title + '» بـ' + AR(b2.qs.length) + ' أسئلة', 'guide');
+      }
+      S.fb = null; S.drawer = null; toast('حُفظ القالب');
+      break;
+    }
+    case 'fassign': formAssign(id); return;
+    case 'fatarget': {
+      const h = hotelById(id);
+      S.pendForm.target = h.ar;
+      openPicker('comply', id, { title:'من ينفّذه في ' + h.ar,
+        note:'المرشّحون من مجموعات تسكن هذا الفندق ومشرفيه.',
+        cands:candFor('comply', id) });
+      return;
+    }
+
+    /* ─── التذاكر ─── */
+    case 'tkopen2': ticketDrawer(id); return;
+    case 'tkassign': {
+      const k = S.tickets.find(x => x.id === id); if (!k) return;
+      openPicker('ticket', k.id, { title:'إسناد ' + k.no, cands:candFor('ticket', k) });
+      return;
+    }
+    case 'tkcat': { const k = S.tickets.find(x => x.id === id); if (k) k.cat = v;
+      save(); ticketDrawer(id); return; }
+    case 'tkpri': { const k = S.tickets.find(x => x.id === id); if (k) k.pri = v;
+      logIt('غُيّرت أولوية ' + k.no + ' إلى ' + v, 'ticket'); save(); ticketDrawer(id); return; }
+    case 'tkreply': {
+      const k = S.tickets.find(x => x.id === id); if (!k) return;
+      const t = (S.q.tkreply || '').trim();
+      if (!t) { toast('اكتب ردًّا', 'r'); return; }
+      k.thread = k.thread || [];
+      k.thread.push({ at:now(), by:'الكنترول', text:t, file:(S.files || {}).tkReply || null });
+      if (k.status === 'مفتوحة') k.status = 'قيد المعالجة';
+      S.q.tkreply = ''; if (S.files) delete S.files.tkReply;
+      logIt('رُدّ على تذكرة ' + k.no, 'ticket');
+      save(); ticketDrawer(id); toast('أُرسل الردّ');
+      return;
+    }
+    case 'tkclose': { const k = S.tickets.find(x => x.id === id); if (!k) return;
+      k.status = 'مغلقة'; k.thread = k.thread || [];
+      k.thread.push({ at:now(), by:'الكنترول', text:'أُغلقت التذكرة' });
+      logIt('أُغلقت تذكرة ' + k.no, 'ticket'); save(); ticketDrawer(id);
+      toast('أُغلقت'); return; }
+    case 'tkopen': { const k = S.tickets.find(x => x.id === id); if (!k) return;
+      k.status = 'قيد المعالجة'; save(); ticketDrawer(id); toast('أُعيد فتحها'); return; }
+
+    /* ─── التقارير ─── */
+    case 'rpopen': reportDrawer(id); return;
+    case 'rpassign': {
+      const r = S.reports.find(x => x.id === id); if (!r) return;
+      openPicker('report', r.id, { title:'إسناد ' + r.no, cands:candFor('report', r) });
+      return;
+    }
+    case 'rpreply': {
+      const r = S.reports.find(x => x.id === id); if (!r) return;
+      const t = (S.q.rpreply || '').trim();
+      if (!t) { toast('اكتب ردًّا', 'r'); return; }
+      r.thread = r.thread || [];
+      r.thread.push({ at:now(), by:'الكنترول', text:t, file:(S.files || {}).rpReply || null });
+      r.status = 'قيد المعالجة'; S.q.rpreply = '';
+      if (S.files) delete S.files.rpReply;
+      logIt('رُدّ على تقرير ' + r.no, 'info');
+      save(); reportDrawer(id); toast('أُرسل الردّ'); return;
+    }
+    case 'rpclose': { const r = S.reports.find(x => x.id === id); if (!r) return;
+      r.status = 'مغلق'; r.escalated = false;
+      logIt('أُغلق تقرير ' + r.no, 'info'); save(); reportDrawer(id);
+      toast('أُغلق التقرير'); return; }
+
+    /* ─── تسكين المشرف على فندق ─── */
+    case 'supassign': {
+      openPicker('sup', id, { title:'من يُشرف على ' + hotelById(id).ar,
+        note:'المشرف يتبع الفندق — وتحته كل مجموعة تسكنه.',
+        cands:supervisors() });
+      return;
+    }
+    case 'staffopen': staffDrawer(id); return;
+    case 'logout': S.auth = false; S.drawer = null; save(); render();
+      toast('خرجتَ من الغرفة'); return;
+    case 'grole': S.gateRole = v; save(); renderGate(); return;
+    case 'gin': S.auth = true; save(); render();
+      toast('أهلًا — ' + (GATE_ROLES.find(x => x.k === (S.gateRole || 'ctl')) || {}).l); return;
+    /* المنتقي: من يُسنَد إليه */
+    case 'pickdo': {
+      const p = S.picker; if (!p) return;
+      const u = userById(id); if (!u) return;
+      applyPick(p.kind, p.id, u);
+      S.picker = null; S.drawer = null;
+      break;
+    }
     /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
     case 'gpub': {
       const g = S.guides.find(x => x.id === id); if (!g) return;

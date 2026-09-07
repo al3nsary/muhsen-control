@@ -2,7 +2,7 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, build: screenBuild, incidents: screenIncidents,
+  ops: screenOps, tasks: screenTasks, build: screenBuild, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -21,8 +21,6 @@ function render() {
   const wrap = document.getElementById('stagewrap');
   const prev = wrap.querySelector('.view');
   const keep = same && prev ? prev.scrollTop : 0;
-
-  document.getElementById('railwrap').innerHTML = rail();
   document.getElementById('sidewrap').innerHTML = sidebar();
   /* لا يُمسح صنف .stage وإلا فقد المسرح تخطيطه ولم يعمل أي تمرير */
   wrap.className = 'stage' + (same ? ' nofx' : '');
@@ -51,6 +49,7 @@ function render() {
   renderPalette();
   renderDrawer();
   syncWall();
+  renderGate();
   save();
   if (S.toast) {
     const t = S.toast;
@@ -82,7 +81,7 @@ document.addEventListener('click', ev => {
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
     case 'palrun': runPalette(Number(v)); return;
-    case 'closedrawer': S.drawer = null; renderDrawer(); return;
+    case 'closedrawer': S.drawer = null; S.picker = null; renderDrawer(); return;
     case 'shortcuts': showShortcuts(); return;
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
@@ -107,66 +106,6 @@ document.addEventListener('click', ev => {
       logIt('زُوملت مهام إثراء التجربة من نظام المزارات', 'info');
       toast('لا جديد — الوارد محدَّث');
       break;
-    case 'xassign': {
-      const x = S.enrich.find(e => e.id === id); if (!x) return;
-      /* تُسكَّن على المجموعة الأقلّ حِملًا في ذلك اليوم */
-      const load = {};
-      S.groups.forEach(g => { load[g.leaderId] = S.enrich.filter(e =>
-        e.leaderId === g.leaderId && dayStart(e.start) === dayStart(x.start)).length; });
-      const pick = S.groups.slice().sort((a, b) => (load[a.leaderId] || 0) - (load[b.leaderId] || 0))[0];
-      if (!pick) { toast('لا مجموعة مشكَّلة بعد', 'r'); return; }
-      const L = userById(pick.leaderId) || {};
-      x.leaderId = pick.leaderId; x.kt = L.kt; x.status = 'assigned';
-      logIt('سُكِّنت رحلة ' + x.ref + ' — ' + siteById(x.siteId).ar + ' على ' + L.kt, 'assign');
-      toast('سُكِّنت على ' + L.kt + ' — الأقلّ حِملًا ذلك اليوم');
-      break;
-    }
-
-    /* ─── نُسك ─── */
-    case 'nnew': {
-      const L = leaders()[S.nusuk.length % leaders().length];
-      const arr = S.pilgrims[L.kt] || [];
-      const p = arr[(S.nusuk.length * 37) % Math.max(1, arr.length)];
-      if (!p) return;
-      S.nusuk.unshift({ id: uid('N'), no: 'NS-' + AR(4400 + S.nusuk.length), svc: 'lost',
-        pilgrimId: p.id, pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
-        openedBy: 'الكنترول', state: 'new', step: 1, assignedTo: null, at: now(),
-        note: 'حالة فُتحت من غرفة العمليات — تحتاج تحديد الخدمة' });
-      logIt('فُتحت حالة نُسك جديدة للحاجّ ' + p.name + ' — ' + L.kt, 'info');
-      toast('فُتحت حالة — أسندها لمحسن أو ليدر');
-      break;
-    }
-    case 'nassign': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      /* الأولوية لمحسن من مجموعة الحاجّ، فإن لم يوجد فالاحتياط */
-      const team = teamOf(c.leaderId);
-      const who = team[c.no.length % Math.max(1, team.length)] || reserveTeam()[0] || userById(c.leaderId);
-      if (!who) { toast('لا محسن متاح', 'r'); return; }
-      c.assignedTo = who.id;
-      logIt('أُسندت ' + c.no + ' (' + NUSUK_SVC[c.svc].ar + ') إلى ' + who.name, 'assign');
-      toast('أُسندت إلى ' + who.name);
-      break;
-    }
-    case 'nstep': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      const V = NUSUK_SVC[c.svc];
-      c.step = Math.min(V.steps.length, c.step + 1);
-      c.state = c.step >= V.steps.length ? 'delivered'
-        : c.step >= V.steps.length - 1 ? 'issued'
-        : c.step >= 2 ? 'processing' : 'new';
-      logIt(c.no + ' — ' + V.steps[Math.min(c.step, V.steps.length) - 1], 'info');
-      toast(NUSUK_STATE[c.state].ar);
-      break;
-    }
-
-    /* ─── الامتثال ─── */
-    case 'fnew': toast('بناء القالب يأتي بعد أن نتفق على أنواع الأسئلة'); return;
-    case 'fassign': {
-      const f = formById(id); if (!f) return;
-      logIt('أُسند قالب «' + f.title + '» إلى كل المجموعات', 'info');
-      toast('أُسند إلى ' + AR(S.groups.length) + ' مجموعات');
-      break;
-    }
 
     /* ─── التشكيل ─── */
     case 'blead': {
@@ -241,6 +180,185 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'qclear': S.q[b.dataset.k] = ''; break;
+    case 'fclear': { const k = b.dataset.k; S.flt[k] = {}; S.q[k] = ''; break; }
+
+    /* ─── نُسك: فتح حالة ─── */
+    case 'nfsvc':  S.nform = S.nform || {}; S.nform.svc = v; nusukNew(); return;
+    case 'nfpil':  S.nform = S.nform || {}; S.nform.pid = id; nusukNew(); return;
+    case 'nfclr':  S.nform.pid = ''; S.q.npil = ''; nusukNew(); return;
+    case 'nfsave': {
+      const d = S.nform || {}; if (!d.pid) return;
+      const p = allPilgrimRows().find(x => x.id === d.pid); if (!p) return;
+      const L = leaders().find(l => l.kt === p.kt) || {};
+      const f = (S.files || {}).nusukNew || null;
+      const c = { id:uid('N'), no:'NS-' + AR(4400 + S.nusuk.length), svc:d.svc || 'lost',
+        pilgrimId:p.id, pilgrim:p.name, passport:p.no, kt:p.kt, leaderId:L.id || null,
+        openedBy:'الكنترول', state:'new', step:1, assignedTo:null, at:now(),
+        note:(S.q.nnote || '').trim() || 'حالة فُتحت من غرفة العمليات',
+        trail:[{ at:now(), by:'الكنترول', text:'فُتحت الحالة', file:f }] };
+      S.nusuk.unshift(c);
+      logIt('فُتحت حالة ' + NUSUK_SVC[c.svc].ar + ' للحاجّ ' + p.name + ' — ' + p.kt, 'info');
+      S.nform = null; S.q.nnote = ''; S.q.npil = '';
+      if (S.files) delete S.files.nusukNew;
+      S.drawer = null; save(); render(); nusukDrawer(c.id);
+      toast('فُتحت ' + c.no + ' — أسندها الآن');
+      return;
+    }
+    case 'nopen': nusukDrawer(id); return;
+    case 'nnew':  S.nform = { svc:'lost', pid:'', note:'' }; nusukNew(); return;
+    case 'nassign': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      openPicker('nusuk', c.id, { title:'إسناد ' + c.no,
+        note:'المرشّحون: فريق ' + c.kt + ' وليدره والاحتياط.',
+        cands:candFor('nusuk', c) });
+      return;
+    }
+    case 'nstep': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      const V = NUSUK_SVC[c.svc];
+      if (c.step >= V.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
+      const note = (S.q.nstepnote || '').trim();
+      const f = (S.files || {}).nusukStep || null;
+      c.trail = c.trail || [];
+      c.trail.push({ at:now(), by:'الكنترول',
+        text:V.steps[c.step] + (note ? ' — ' + note : ''), file:f });
+      c.step += 1;
+      c.state = c.step >= V.steps.length ? 'issued'
+        : c.step >= 2 ? 'processing' : 'new';
+      S.q.nstepnote = ''; if (S.files) delete S.files.nusukStep;
+      logIt(c.no + ' — ' + V.steps[c.step - 1], 'info');
+      save(); nusukDrawer(c.id); toast(NUSUK_STATE[c.state].ar);
+      return;
+    }
+    case 'nclose': {
+      const c = S.nusuk.find(x => x.id === id); if (!c) return;
+      c.state = 'delivered'; c.step = NUSUK_SVC[c.svc].steps.length;
+      c.trail = c.trail || [];
+      c.trail.push({ at:now(), by:'الكنترول', text:'أُنهيت الحالة وسُلّمت', file:null });
+      logIt('أُنهيت ' + c.no + ' — ' + NUSUK_SVC[c.svc].ar, 'info');
+      save(); nusukDrawer(c.id); toast('أُنهيت الحالة');
+      return;
+    }
+
+    /* ─── إثراء: إسناد لمحسن ─── */
+    case 'xassign': {
+      const x = S.enrich.find(e => e.id === id); if (!x) return;
+      openPicker('enrich', x.id, { title:'إسناد ' + siteById(x.siteId).ar,
+        note:'المحسن يرافق الرحلة — والرقم بجانبه حِمله الحالي.',
+        cands:candFor('enrich', x) });
+      return;
+    }
+
+    /* ─── الامتثال ─── */
+    case 'fnew':  S.fb = null; formBuilder(null); return;
+    case 'fedit': S.fb = null; formBuilder(id); return;
+    case 'fbscope': S.fb.scope = v; formBuilder(); return;
+    case 'fbadd': {
+      const q = (S.q.fbq || '').trim(); if (!q) { toast('اكتب نصّ السؤال', 'r'); return; }
+      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q,
+        t:fOf('fb','qt') || 'yn', w:Number(fOf('fb','qw') || 2) });
+      S.q.fbq = ''; formBuilder(); return;
+    }
+    case 'fbdel': S.fb.qs.splice(Number(v), 1); formBuilder(); return;
+    case 'fbsave': {
+      const b2 = S.fb; if (!b2.title || !b2.qs.length) return;
+      if (b2.editing) {
+        const f = formById(b2.editing);
+        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs });
+        logIt('عُدِّل قالب «' + f.title + '»', 'guide');
+      } else {
+        S.forms.push({ id:uid('F'), no:'FM-' + AR(201 + S.forms.length), title:b2.title,
+          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(), qs:b2.qs });
+        logIt('أُنشئ قالب «' + b2.title + '» بـ' + AR(b2.qs.length) + ' أسئلة', 'guide');
+      }
+      S.fb = null; S.drawer = null; toast('حُفظ القالب');
+      break;
+    }
+    case 'fassign': formAssign(id); return;
+    case 'fatarget': {
+      const h = hotelById(id);
+      S.pendForm.target = h.ar;
+      openPicker('comply', id, { title:'من ينفّذه في ' + h.ar,
+        note:'المرشّحون من مجموعات تسكن هذا الفندق ومشرفيه.',
+        cands:candFor('comply', id) });
+      return;
+    }
+
+    /* ─── التذاكر ─── */
+    case 'tkopen2': ticketDrawer(id); return;
+    case 'tkassign': {
+      const k = S.tickets.find(x => x.id === id); if (!k) return;
+      openPicker('ticket', k.id, { title:'إسناد ' + k.no, cands:candFor('ticket', k) });
+      return;
+    }
+    case 'tkcat': { const k = S.tickets.find(x => x.id === id); if (k) k.cat = v;
+      save(); ticketDrawer(id); return; }
+    case 'tkpri': { const k = S.tickets.find(x => x.id === id); if (k) k.pri = v;
+      logIt('غُيّرت أولوية ' + k.no + ' إلى ' + v, 'ticket'); save(); ticketDrawer(id); return; }
+    case 'tkreply': {
+      const k = S.tickets.find(x => x.id === id); if (!k) return;
+      const t = (S.q.tkreply || '').trim();
+      if (!t) { toast('اكتب ردًّا', 'r'); return; }
+      k.thread = k.thread || [];
+      k.thread.push({ at:now(), by:'الكنترول', text:t, file:(S.files || {}).tkReply || null });
+      if (k.status === 'مفتوحة') k.status = 'قيد المعالجة';
+      S.q.tkreply = ''; if (S.files) delete S.files.tkReply;
+      logIt('رُدّ على تذكرة ' + k.no, 'ticket');
+      save(); ticketDrawer(id); toast('أُرسل الردّ');
+      return;
+    }
+    case 'tkclose': { const k = S.tickets.find(x => x.id === id); if (!k) return;
+      k.status = 'مغلقة'; k.thread = k.thread || [];
+      k.thread.push({ at:now(), by:'الكنترول', text:'أُغلقت التذكرة' });
+      logIt('أُغلقت تذكرة ' + k.no, 'ticket'); save(); ticketDrawer(id);
+      toast('أُغلقت'); return; }
+    case 'tkopen': { const k = S.tickets.find(x => x.id === id); if (!k) return;
+      k.status = 'قيد المعالجة'; save(); ticketDrawer(id); toast('أُعيد فتحها'); return; }
+
+    /* ─── التقارير ─── */
+    case 'rpopen': reportDrawer(id); return;
+    case 'rpassign': {
+      const r = S.reports.find(x => x.id === id); if (!r) return;
+      openPicker('report', r.id, { title:'إسناد ' + r.no, cands:candFor('report', r) });
+      return;
+    }
+    case 'rpreply': {
+      const r = S.reports.find(x => x.id === id); if (!r) return;
+      const t = (S.q.rpreply || '').trim();
+      if (!t) { toast('اكتب ردًّا', 'r'); return; }
+      r.thread = r.thread || [];
+      r.thread.push({ at:now(), by:'الكنترول', text:t, file:(S.files || {}).rpReply || null });
+      r.status = 'قيد المعالجة'; S.q.rpreply = '';
+      if (S.files) delete S.files.rpReply;
+      logIt('رُدّ على تقرير ' + r.no, 'info');
+      save(); reportDrawer(id); toast('أُرسل الردّ'); return;
+    }
+    case 'rpclose': { const r = S.reports.find(x => x.id === id); if (!r) return;
+      r.status = 'مغلق'; r.escalated = false;
+      logIt('أُغلق تقرير ' + r.no, 'info'); save(); reportDrawer(id);
+      toast('أُغلق التقرير'); return; }
+
+    /* ─── تسكين المشرف على فندق ─── */
+    case 'supassign': {
+      openPicker('sup', id, { title:'من يُشرف على ' + hotelById(id).ar,
+        note:'المشرف يتبع الفندق — وتحته كل مجموعة تسكنه.',
+        cands:supervisors() });
+      return;
+    }
+    case 'staffopen': staffDrawer(id); return;
+    case 'logout': S.auth = false; S.drawer = null; save(); render();
+      toast('خرجتَ من الغرفة'); return;
+    case 'grole': S.gateRole = v; save(); renderGate(); return;
+    case 'gin': S.auth = true; save(); render();
+      toast('أهلًا — ' + (GATE_ROLES.find(x => x.k === (S.gateRole || 'ctl')) || {}).l); return;
+    /* المنتقي: من يُسنَد إليه */
+    case 'pickdo': {
+      const p = S.picker; if (!p) return;
+      const u = userById(id); if (!u) return;
+      applyPick(p.kind, p.id, u);
+      S.picker = null; S.drawer = null;
+      break;
+    }
     /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
     case 'gpub': {
       const g = S.guides.find(x => x.id === id); if (!g) return;

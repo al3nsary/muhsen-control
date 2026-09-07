@@ -7,29 +7,36 @@ const icon = (n, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#' + n 
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 
-/* خريطة الأقسام — كل قسم له شاشة وأيقونة ومجموعة */
+/* خريطة الأقسام — قائمة واحدة تتوسّع وتنطوي، لا سكة ولوح منفصلين */
 const NAV = [
   { g:'العمليات', items:[
     { k:'ops',      i:'i-target',  l:'لوحة العمليات',   d:'الوضع الآن على المستوى الكلي' },
-    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع: حجّ · إثراء · نُسك · امتثال' },
-    { k:'build',    i:'i-users',   l:'التشكيل والتسكين', d:'بناء المجموعات وربطها بجهات الحجّ' },
-    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'كل مهام كل الفرق في شاشة واحدة' },
+    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع من العمل الميداني',
+      kids:[
+        { t:'hajj',   i:'i-kaaba',  l:'مهام الحجّ' },
+        { t:'enrich', i:'i-bus',    l:'إثراء التجربة' },
+        { t:'nusuk',  i:'i-idcard', l:'نُسك' },
+        { t:'comply', i:'i-clip',   l:'الامتثال' }
+      ] },
+    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'مسار اليوم لكل مجموعة' },
     { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
+  ]},
+  { g:'التشكيل', items:[
+    { k:'build',    i:'i-users',   l:'التشكيل والتسكين', d:'بناء المجموعات وربطها بالجهات' },
+    { k:'staff',    i:'i-idcard',  l:'الموظفون',        d:'مشرفون وليدرز ومحسنون — وبروفايل لكلٍّ' },
+    { k:'teams',    i:'i-flag',    l:'الفرق والمجموعات', d:'كل KT وفريقه' },
+    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي', d:'يديره الكنترول وحده' }
   ]},
   { g:'الطلبات الصاعدة', items:[
     { k:'support',  i:'i-send',    l:'طلبات الدعم',     d:'من الليدرز — تُسند من الاحتياط' },
     { k:'reports',  i:'i-flag',    l:'التقارير',        d:'المصعَّدة من الميدان' },
-    { k:'tickets',  i:'i-ticket',  l:'تذاكر الحجاج',    d:'ترد من التطبيق وتُوجَّه' },
+    { k:'tickets',  i:'i-ticket',  l:'التذاكر',         d:'ترد من التطبيق وتُوجَّه' },
     { k:'shifts',   i:'i-swap',    l:'تبديل الشِفتات',  d:'ما رفعه الليدرز' }
   ]},
-  { g:'السجلات', items:[
-    { k:'teams',    i:'i-users',   l:'الفرق والليدرز',  d:'كل KT وفريقه' },
-    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي',d:'يديره الكنترول وحده' },
+  { g:'السجلات والنشر', items:[
     { k:'pilgrims', i:'i-user',    l:'قاعدة الحجاج',    d:'الغرف والأدوار والحالات' },
-    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' }
-  ]},
-  { g:'النشر', items:[
-    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُنشر إلى التطبيق' },
+    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
+    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
     { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
     { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
     { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
@@ -44,56 +51,64 @@ function navCount(k) {
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
   if (k === 'incidents') return S.feed.filter(f => f.kind === 'bad').length;
-  if (k === 'shifts')    return 2;
+  if (k === 'shifts')    return openSwaps().length;
+  if (k === 'nusuk')     return openNusuk().length;
+  if (k === 'enrich')    return freeEnrich().length;
   return 0;
 }
-const navUrgent = k => ['support', 'incidents'].indexOf(k) >= 0;
+const navUrgent = k => ['support', 'incidents', 'nusuk'].indexOf(k) >= 0;
 
-/* ---------- السكة ---------- */
-function rail() {
-  const r = S.route.n;
-  return '<nav class="rail" aria-label="الأقسام">' +
-    '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
-    navItems().slice(0, 7).map(x => {
-      const n = navCount(x.k);
-      return '<button class="' + (x.k === r ? 'on' : '') + '" data-a="go" data-n="' + x.k + '" ' +
-        'title="' + E(x.l) + '" aria-label="' + E(x.l) + '">' + icon(x.i) +
-        (n ? '<span class="dot"></span>' : '') + '</button>';
-    }).join('') +
-    '<span class="sp"></span>' +
-    '<button data-a="theme" title="تبديل الوضع · T">' +
-      icon(S.theme === 'day' ? 'i-sun' : 'i-hour') + '</button>' +
-    '<button data-a="palette" title="لوحة الأوامر · Ctrl+K">' + icon('i-search') + '</button>' +
-    '<button data-a="wide" title="طيّ اللوح · B">' + icon('i-menu') + '</button>' +
-    '<button class="' + (r === 'settings' ? 'on' : '') + '" data-a="go" data-n="settings" ' +
-      'title="الإعدادات">' + icon('i-gear') + '</button>' +
-  '</nav>';
-}
-
-/* ---------- لوح التنقّل ---------- */
+/* ---------- القائمة الواحدة ----------
+   حالتان لا لوحان: موسَّعة بأسمائها، ومطويّة بأيقوناتها.
+   التوسيع والطيّ من الزرّ نفسه في رأس القائمة. */
 function sidebar() {
-  const r = S.route.n;
-  return '<aside class="side">' +
-    '<h1>مُحسن · الكنترول</h1>' +
-    '<div class="sub">غرفة العمليات — موسم حج ١٤٤٨ هـ</div>' +
-    NAV.map(g => '<div class="grp">' + E(g.g) + '</div>' +
+  const r = S.route.n, sub = S.tab.tt || 'hajj';
+  const narrow = !!S.wide;
+  return '<nav class="side' + (narrow ? ' mini' : '') + '" aria-label="الأقسام">' +
+    '<div class="sidehead">' +
+      '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
+      '<span class="brandtxt"><b>مُحسن · الكنترول</b>' +
+        '<span>غرفة العمليات — موسم حج ١٤٤٨ هـ</span></span>' +
+      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع القائمة' : 'طيّ القائمة') + ' · B" ' +
+        'aria-label="طيّ القائمة">' + icon(narrow ? 'i-fwd' : 'i-back', 's18') + '</button>' +
+    '</div>' +
+
+    '<div class="sidescroll">' +
+    NAV.map(g => '<div class="grp"><span>' + E(g.g) + '</span></div>' +
       g.items.map(x => {
-        const n = navCount(x.k);
-        return '<button class="nav ' + (x.k === r ? 'on' : '') + '" data-a="go" data-n="' + x.k + '">' +
-          icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
-          (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
-        '</button>';
+        const n = navCount(x.k), on = x.k === r;
+        const kids = x.kids && on
+          ? '<div class="kids">' + x.kids.map(c => {
+              const cn = navCount(c.t);
+              return '<button class="kid' + (c.t === sub ? ' on' : '') + '" ' +
+                'data-a="seg" data-k="tt" data-v="' + c.t + '">' +
+                icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
+                (cn ? '<span class="n' + (navUrgent(c.t) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
+              '</button>';
+            }).join('') + '</div>'
+          : '';
+        return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
+            '" data-a="go" data-n="' + x.k + '" ' +
+            'title="' + E(x.l) + '">' +
+            icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+            (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+          '</button>' + kids;
       }).join('')).join('') +
-    '<div class="grp">العرض</div>' +
-    '<button class="nav" data-a="theme">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
+
+    '<div class="grp"><span>العرض</span></div>' +
+    '<button class="nav" data-a="theme" title="تبديل الوضع · T">' +
+      icon(S.theme === 'day' ? 'i-sun' : 'i-hour','s18') +
       '<b>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</b>' +
       '<span class="n q">T</span></button>' +
-    '<button class="nav" data-a="wall">' + icon('i-fullscreen','s18') +
+    '<button class="nav" data-a="wall" title="جدار العرض · F">' + icon('i-fullscreen','s18') +
       '<b>جدار العرض</b><span class="n q">F</span></button>' +
-    '<button class="nav" data-a="shortcuts">' + icon('i-info','s18') +
+    '<button class="nav" data-a="shortcuts" title="الاختصارات · ؟">' + icon('i-info','s18') +
       '<b>الاختصارات</b><span class="n q">؟</span></button>' +
-    '<div class="brandfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي</div>' +
-  '</aside>';
+    '<button class="nav" data-a="logout" title="تسجيل الخروج">' + icon('i-logout','s18') +
+      '<b>تسجيل الخروج</b></button>' +
+    '<div class="brandfoot">' + icon('i-shield','s14') + '<span>نظام مُحسن · نُزلي</span></div>' +
+    '</div>' +
+  '</nav>';
 }
 
 /* ---------- الشريط العلوي ---------- */
@@ -101,7 +116,6 @@ function topbar() {
   const x = navOf(S.route.n);
   const live = runningTasks().length;
   return '<header class="top">' +
-    '<button class="burger" data-a="wide" aria-label="طيّ اللوح">' + icon('i-menu','s18') + '</button>' +
     '<span><h2>' + E(x.l) + '</h2><span class="crumb">' + E(x.d) + '</span></span>' +
     '<span class="sp"></span>' +
     '<span class="clockbox"><span class="pulse"></span>' +
