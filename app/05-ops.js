@@ -33,7 +33,7 @@ function opsMap() {
   });
   /* المسارات القادمة خلال ٦ ساعات تُرسم أخفت — الغرفة ترى ما هو آتٍ */
   const soon = {};
-  S.tasks.filter(t => t.start > now() && t.start < now() + 6 * HR).forEach(t => {
+  V.tasks.filter(t => t.start > now() && t.start < now() + 6 * HR).forEach(t => {
     const k = KIND_NODE[t.kind] || 'makkah'; soon[k] = (soon[k] || 0) + 1;
   });
   const hot = LEG.filter(l => busy[l[1]] || busy[l[0]]);
@@ -82,10 +82,10 @@ function opsBar() {
 /* نطاق المدة المختارة */
 function rangeTasks() {
   const r = S.tab.rng || 'today';
-  if (r === 'season') return S.tasks.slice();
+  if (r === 'season') return V.tasks.slice();
   if (r === 'week') {
     const a = dayStart(now()) - 3 * DAY, b = a + 7 * DAY;
-    return S.tasks.filter(t => t.start >= a && t.start < b);
+    return V.tasks.filter(t => t.start >= a && t.start < b);
   }
   return todayTasks();
 }
@@ -128,7 +128,7 @@ function screenOps() {
         chartBars({ data: loadByHour(), foot: 'الذروة تكشف الساعات التي تحتاج احتياطًا جاهزًا.' }) +
       '</div>' +
       '<div class="card hov">' +
-        head('توزيع الحالات', 'من ' + AR(S.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
+        head('توزيع الحالات', 'من ' + AR(V.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
         '<div class="donutwrap">' + donut({ data: statusMix(), center:'مهمة' }) + '</div>' +
       '</div>' +
     '</div>' +
@@ -150,7 +150,7 @@ function screenOps() {
       '<div class="card hov fillcol">' +
         head('تدفّق الحوادث', 'مباشر من التطبيق',
           '<button class="btn l sm" data-a="go" data-n="incidents">الكل</button>') +
-        '<div class="feed">' + S.feed.slice(0, 9).map((f, i) =>
+        '<div class="feed">' + V.feed.slice(0, 9).map((f, i) =>
           '<div class="evt ' + f.kind + '" style="animation-delay:' + (i * 40) + 'ms">' +
           '<span class="dot"></span>' +
           '<span class="sp"><b>' + E(f.title) + '</b><p>' + E(f.body) + '</p></span>' +
@@ -169,7 +169,7 @@ function screenOps() {
 function ktDrawer(id) {
   const L = userById(id); if (!L) return;
   const org = orgById(L.orgId) || {}, team = teamOf(L.id);
-  const ts = S.tasks.filter(t => t.leaderId === L.id);
+  const ts = V.tasks.filter(t => t.leaderId === L.id);
   const done = ts.filter(t => t.status === 'done');
   const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done');
   const next = ts.filter(t => t.start > now()).sort((a, b) => a.start - b.start).slice(0, 4);

@@ -1165,6 +1165,29 @@ select{color-scheme:inherit}
 
 bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
+/* ══ شبكة منح الشاشات ══ */
+.permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(176px,1fr)); gap:8px}
+.pchk{display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:12px;
+  text-align:right; color:var(--dim); background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
+.pchk:hover{color:var(--ink); background:var(--sheen2)}
+.pchk b{font-size:12px; flex:1; font-weight:700}
+.pchk .box{width:20px; height:20px; border-radius:7px; flex:none; display:grid;
+  place-items:center; box-shadow:inset 0 0 0 1.5px var(--line2); color:var(--onGold)}
+.pchk.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.pchk.on .box{background:linear-gradient(150deg,var(--g3),var(--g2)); box-shadow:none}
+.prow.pick.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+/* البوّابة الأوسع: اثنتا عشرة صفة */
+#gate .gwrap.wide{width:min(560px,100%)}
+#gate .roles{grid-template-columns:1fr 1fr; gap:8px}
+#gate .role{gap:6px}
+.whobox{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
+.fsel.wide{width:100%; justify-content:space-between}
+.fsel.wide select{max-width:none; flex:1; text-align:left}
+.gnote{display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:11px 13px;
+  border-radius:12px; font-size:11.5px; line-height:1.8; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;

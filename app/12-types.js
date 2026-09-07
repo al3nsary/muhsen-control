@@ -6,10 +6,10 @@
 function typeSwitch() {
   const cur = S.tab.tt || 'hajj';
   const n = {
-    hajj: S.tasks.length,
-    enrich: S.enrich.length,
+    hajj: V.tasks.length,
+    enrich: V.enrich.length,
     nusuk: openNusuk().length,
-    comply: S.forms.length
+    comply: V.forms.length
   };
   return '<div class="tswitch">' + Object.keys(TASKTYPE).map(k => {
     const T = TASKTYPE[k];
@@ -50,7 +50,7 @@ function taskRow(t) {
 
 function tabHajj() {
   const f = S.tab.tf || 'today';
-  const all = S.tasks.slice().sort((a, b) => a.start - b.start);
+  const all = V.tasks.slice().sort((a, b) => a.start - b.start);
   const list = f === 'today' ? all.filter(t => dayStart(t.start) === dayStart(now()))
     : f === 'live' ? all.filter(t => now() >= t.start && now() < t.end && t.status !== 'done')
     : f === 'next' ? all.filter(t => t.start > now())
@@ -83,7 +83,7 @@ function tabHajj() {
 function tabEnrich() {
   const f = S.tab.ef || 'open';
   const q = qOf('enr');
-  let list = S.enrich.slice().sort((a, b) => a.start - b.start);
+  let list = V.enrich.slice().sort((a, b) => a.start - b.start);
   if (f === 'open') list = list.filter(x => x.status === 'unassigned');
   else if (f === 'assigned') list = list.filter(x => x.status === 'assigned');
   else if (f === 'done') list = list.filter(x => x.status === 'done');
@@ -91,16 +91,16 @@ function tabEnrich() {
   const fc = fOf('enr','city'), fk = fOf('enr','kt'), ft = fOf('enr','type');
   if (fc) list = list.filter(x => siteById(x.siteId).city === fc);
   if (fk) list = list.filter(x => x.kt === fk);
-  if (ft) list = list.filter(x => { const o = x.kt ? S.orgs.find(z => z.kt === x.kt) : null;
+  if (ft) list = list.filter(x => { const o = x.kt ? V.orgs.find(z => z.kt === x.kt) : null;
     return o && o.type === ft; });
   const byCity = {};
-  S.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
-  const seats = S.enrich.reduce((a, x) => a + x.seats, 0);
-  const booked = S.enrich.reduce((a, x) => a + x.booked, 0);
+  V.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
+  const seats = V.enrich.reduce((a, x) => a + x.seats, 0);
+  const booked = V.enrich.reduce((a, x) => a + x.booked, 0);
 
   return '<div class="grid g4">' +
-      stat({ label:'رحلات واردة', n:S.enrich.length, ic:'i-bus',
-        sub:'من نظام المزارات', series:[4,7,9,11,13,14,15,S.enrich.length] }) +
+      stat({ label:'رحلات واردة', n:V.enrich.length, ic:'i-bus',
+        sub:'من نظام المزارات', series:[4,7,9,11,13,14,15,V.enrich.length] }) +
       stat({ label:'بلا تسكين', n:freeEnrich().length, ic:'i-flag',
         cls:freeEnrich().length ? 'warn' : 'up', sub:'تنتظر مجموعة',
         series:[1,2,2,3,3,4,3,Math.max(1, freeEnrich().length)] }) +
@@ -123,7 +123,7 @@ function tabEnrich() {
         { k:'city', label:'المدينة', opts:optCities() },
         { k:'kt',   label:'الـKT',   opts:optKT() },
         { k:'type', label:'النوع',   opts:optTypes() }
-      ], list.length, S.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
+      ], list.length, V.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
         const si = siteById(x.siteId);
         const M = x.muhsenId ? userById(x.muhsenId) : null;
@@ -154,14 +154,14 @@ function tabEnrich() {
 function tabNusuk() {
   const f = S.tab.nf || 'open';
   const q = qOf('nsk');
-  let list = S.nusuk.slice().sort((a, b) => b.at - a.at);
+  let list = V.nusuk.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(c => f === 'open' ? c.state !== 'delivered' : c.state === f);
   if (q) list = list.filter(c => (c.pilgrim + ' ' + c.passport + ' ' + c.kt + ' ' + c.no).indexOf(q) >= 0);
   const nk = fOf('nsk','kt'), ns = fOf('nsk','svc'), nb = fOf('nsk','by');
   if (nk) list = list.filter(c => c.kt === nk);
   if (ns) list = list.filter(c => c.svc === ns);
   if (nb) list = list.filter(c => c.openedBy === nb);
-  const svcN = k => S.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
+  const svcN = k => V.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
 
   return '<div class="grid g4">' +
       stat({ label:'حالات مفتوحة', n:openNusuk().length, ic:'i-idcard',
@@ -186,22 +186,22 @@ function tabNusuk() {
         { k:'kt',  label:'الـKT',   opts:optKT() },
         { k:'svc', label:'الخدمة', opts:Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]) },
         { k:'by',  label:'فتحها',  opts:[['محسن','محسن'],['ليدر','ليدر'],['مشرف','مشرف'],['الكنترول','الكنترول']] }
-      ], list.length, S.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
+      ], list.length, V.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
       (list.length ? '<div class="plist">' + list.map((c, i) => {
-        const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
+        const SV = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
         const to = c.assignedTo ? userById(c.assignedTo) : null;
-        const pct = Math.round(c.step / V.steps.length * 100);
+        const pct = Math.round(c.step / SV.steps.length * 100);
         return '<div class="prow trow" data-a="nopen" data-id="' + c.id + '" ' +
           'style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
-          '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
+          '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(SV.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
           '<span>' + LTR(c.no) + ' · جواز ' + LTR(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
-          '<span class="fl" style="gap:7px">' + pill(V.ar, V.c) + pill(ST.ar, ST.c) + '</span>' +
+          '<span class="fl" style="gap:7px">' + pill(SV.ar, SV.c) + pill(ST.ar, ST.c) + '</span>' +
           '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
             '<div class="quote">' + E(c.note) + ' — فتحها ' + E(c.openedBy) + '</div>' +
-            '<div class="steps2">' + V.steps.map((s, k) =>
+            '<div class="steps2">' + SV.steps.map((s, k) =>
               '<span class="st2' + (k < c.step ? ' done' : k === c.step ? ' now' : '') + '">' +
               '<i></i>' + E(s) + '</span>').join('') + '</div>' +
             '<div class="fl" style="gap:11px;margin-top:11px;flex-wrap:wrap">' +
@@ -220,18 +220,18 @@ function tabNusuk() {
 /* ══════════════ ٤) الامتثال ══════════════ */
 function tabComply() {
   return '<div class="grid g3">' +
-      stat({ label:'قوالب منشورة', n:S.forms.length, ic:'i-clip',
-        sub:'تُبنى مرّة وتُسنَد مرارًا', series:[1,1,2,2,3,3,3,S.forms.length] }) +
-      stat({ label:'إدخالات', n:S.subs.length, ic:'i-checkc', cls:'up',
-        sub:'زيارات مسجّلة بإجاباتها', series:[3,6,9,12,14,16,18,S.subs.length] }) +
-      stat({ label:'دون الحدّ', n:S.subs.filter(b => b.score < 70).length, ic:'i-flag',
-        cls:'warn', sub:'تستدعي زيارة أخرى', series:[4,4,5,4,3,3,2,S.subs.filter(b => b.score < 70).length] }) +
+      stat({ label:'قوالب منشورة', n:V.forms.length, ic:'i-clip',
+        sub:'تُبنى مرّة وتُسنَد مرارًا', series:[1,1,2,2,3,3,3,V.forms.length] }) +
+      stat({ label:'إدخالات', n:V.subs.length, ic:'i-checkc', cls:'up',
+        sub:'زيارات مسجّلة بإجاباتها', series:[3,6,9,12,14,16,18,V.subs.length] }) +
+      stat({ label:'دون الحدّ', n:V.subs.filter(b => b.score < 70).length, ic:'i-flag',
+        cls:'warn', sub:'تستدعي زيارة أخرى', series:[4,4,5,4,3,3,2,V.subs.filter(b => b.score < 70).length] }) +
     '</div>' +
 
     '<div class="card gold">' +
       head('قوالب الامتثال', 'القالب يُبنى مرّة، ويُسنَد لكل مجموعة، ويُعبَّأ كلّما لزم',
         '<button class="btn p sm" data-a="fnew">' + icon('i-plus','s16') + 'قالب جديد</button>', 'i-clip') +
-      '<div class="gcards">' + S.forms.map((f, i) => {
+      '<div class="gcards">' + V.forms.map((f, i) => {
         const bs = subsOf(f.id);
         const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b.score, 0) / bs.length) : 0;
         const targets = [...new Set(bs.map(b => b.target))];
@@ -259,7 +259,7 @@ function tabComply() {
 
     '<div class="card">' +
       head('آخر الإدخالات', 'كل إدخال زيارة لها رقمها — والتحسّن يُقرأ بين الزيارتين', '', 'i-hist') +
-      '<div class="plist">' + S.subs.slice().sort((a, b) => b.at - a.at).slice(0, 8).map((b, i) => {
+      '<div class="plist">' + V.subs.slice().sort((a, b) => b.at - a.at).slice(0, 8).map((b, i) => {
         const f = formById(b.formId) || {}, by = userById(b.by) || {};
         return '<div class="prow" data-a="fsub" data-id="' + b.id + '" ' +
           'style="animation-delay:' + (i * 45) + 'ms">' +
@@ -351,7 +351,7 @@ function formDash(id) {
 
 /* ---------- إدخال واحد ---------- */
 function subDrawer(id) {
-  const b = S.subs.find(x => x.id === id); if (!b) return;
+  const b = V.subs.find(x => x.id === id); if (!b) return;
   const f = formById(b.formId) || {}, by = userById(b.by) || {};
   const mine = subsOf(b.formId).filter(x => x.target === b.target).sort((a, c) => a.at - c.at);
   openDrawer(b.target, f.title + ' · الزيارة ' + AR(b.visit) + ' من ' + AR(b.of), f.icon,

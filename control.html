@@ -1165,6 +1165,29 @@ select{color-scheme:inherit}
 
 bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
+/* ══ شبكة منح الشاشات ══ */
+.permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(176px,1fr)); gap:8px}
+.pchk{display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:12px;
+  text-align:right; color:var(--dim); background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
+.pchk:hover{color:var(--ink); background:var(--sheen2)}
+.pchk b{font-size:12px; flex:1; font-weight:700}
+.pchk .box{width:20px; height:20px; border-radius:7px; flex:none; display:grid;
+  place-items:center; box-shadow:inset 0 0 0 1.5px var(--line2); color:var(--onGold)}
+.pchk.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.pchk.on .box{background:linear-gradient(150deg,var(--g3),var(--g2)); box-shadow:none}
+.prow.pick.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+/* البوّابة الأوسع: اثنتا عشرة صفة */
+#gate .gwrap.wide{width:min(560px,100%)}
+#gate .roles{grid-template-columns:1fr 1fr; gap:8px}
+#gate .role{gap:6px}
+.whobox{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
+.fsel.wide{width:100%; justify-content:space-between}
+.fsel.wide select{max-width:none; flex:1; text-align:left}
+.gnote{display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:11px 13px;
+  border-radius:12px; font-size:11.5px; line-height:1.8; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -1670,13 +1693,14 @@ const FORM_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 8;
-const APP_VER = 'نسخة ٠٫٨٫١';
+const SCHEMA = 9;
+const APP_VER = 'نسخة ٠٫٩';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
 const MIN = 60000, HR = 3600000, DAY = 86400000;
 const now = () => Date.now() + (S && S.clockOffset ? S.clockOffset : 0) * MIN;
+const VV = () => (typeof V !== 'undefined' && V) || S;
 const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 const two = n => (n < 10 ? '0' : '') + n;
 const dayStart = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
@@ -1714,7 +1738,9 @@ function seed() {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null,
-    assigns: [], flt: {}, auth: false
+    assigns: [], flt: {}, auth: false,
+    /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
+    grants: {}, actor: { perm: 'admin' }
   };
   S = st;
 
@@ -1969,6 +1995,7 @@ function load() {
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
   S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
   S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
+  S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -2000,10 +2027,10 @@ const siteById = id => SITES.find(s => s.id === id) || {};
 const hotelById = id => HOTELS.find(h => h.id === id) || {};
 const groupById = id => S.groups.find(g => g.id === id);
 const formById = id => S.forms.find(f => f.id === id);
-const supervisors = () => S.users.filter(u => u.role === 'supervisor');
-const groupsOf = lid => S.groups.filter(g => g.leaderId === lid);
+const supervisors = () => VV().users.filter(u => u.role === 'supervisor');
+const groupsOf = lid => VV().groups.filter(g => g.leaderId === lid);
 /* المحسن الحرّ: غير مسكَّن في أي مجموعة — هؤلاء وحدهم يظهرون عند التشكيل */
-const freeMuhsens = () => S.users.filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
+const freeMuhsens = () => VV().users.filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
 const inGroup = id => S.groups.some(g => g.members.some(m => m.id === id));
 /* درجة النموذج: نعم=كامل · التقييم نسبة من خمس · العدد لا يُحتسب */
 function formScore(f, answers) {
@@ -2018,13 +2045,13 @@ function formScore(f, answers) {
   });
   return max ? Math.round(got / max * 100) : 0;
 }
-const subsOf = fid => S.subs.filter(b => b.formId === fid);
-const openNusuk = () => S.nusuk.filter(c => c.state !== 'delivered');
-const freeEnrich = () => S.enrich.filter(x => x.status === 'unassigned');
+const subsOf = fid => VV().subs.filter(b => b.formId === fid);
+const openNusuk = () => VV().nusuk.filter(c => c.state !== 'delivered');
+const freeEnrich = () => VV().enrich.filter(x => x.status === 'unassigned');
 
 /* ---- أدوات الشاشات الجديدة ---- */
 const allPilgrimRows = () => leaders().reduce((a, L) =>
-  a.concat((S.pilgrims[L.kt] || []).map(p => Object.assign({ kt: L.kt, leaderId: L.id }, p))), []);
+  a.concat((VV().pilgrims[L.kt] || []).map(p => Object.assign({ kt: L.kt, leaderId: L.id }, p))), []);
 const guideOf = k => S.guides.find(g => g.kind === k);
 const openSwaps = () => S.swaps.filter(w => w.state === 'pending');
 /* تقييم الفريق: متوسط مهامه المنجزة */
@@ -2039,17 +2066,17 @@ function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('�
 const userById = id => S.users.find(u => u.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const orgById = id => S.orgs.find(o => o.id === id);
-const leaders = () => S.users.filter(u => u.role === 'leader');
+const leaders = () => VV().users.filter(u => u.role === 'leader');
 const teamOfLegacy = lid => S.users.filter(u => u.role === 'muhsen' && u.leaderId === lid && !u.reserve);
-const reserveTeam = () => S.users.filter(u => u.reserve);
+const reserveTeam = () => VV().users.filter(u => u.reserve);
 const ktOf = lid => (userById(lid) || {}).kt;
 
-const runningTasks = () => S.tasks.filter(t => t.status === 'running' ||
+const runningTasks = () => VV().tasks.filter(t => t.status === 'running' ||
   (t.status !== 'done' && now() >= t.start && now() < t.end));
-const todayTasks = () => S.tasks.filter(t => dayStart(t.start) === dayStart(now()));
-const openTickets = () => S.tickets.filter(k => k.status !== 'مغلقة');
-const escalatedReports = () => S.reports.filter(r => r.escalated && r.status !== 'مغلق');
-const openSupport = () => S.support.filter(s => s.state === 'pending');
+const todayTasks = () => VV().tasks.filter(t => dayStart(t.start) === dayStart(now()));
+const openTickets = () => VV().tickets.filter(k => k.status !== 'مغلقة');
+const escalatedReports = () => VV().reports.filter(r => r.escalated && r.status !== 'مغلق');
+const openSupport = () => VV().support.filter(s => s.state === 'pending');
 const allPilgrims = () => Object.keys(S.pilgrims).reduce((a, k) => a + S.pilgrims[k].length, 0);
 const allMuhsens = () => S.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
 
@@ -2107,6 +2134,7 @@ const NAV = [
     { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
     { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
     { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
+    { k:'perms',    i:'i-shield',  l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
     { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
   ]}
 ];
@@ -2142,8 +2170,11 @@ function sidebar() {
     '</div>' +
 
     '<div class="sidescroll">' +
-    NAV.map(g => '<div class="grp"><span>' + E(g.g) + '</span></div>' +
-      g.items.map(x => {
+    NAV.map(g => {
+      const its = g.items.filter(x => maySee(x.k));
+      if (!its.length) return '';
+      return '<div class="grp"><span>' + E(g.g) + '</span></div>' +
+      its.map(x => {
         const n = navCount(x.k), on = x.k === r;
         const kids = x.kids && on
           ? '<div class="kids">' + x.kids.map(c => {
@@ -2156,12 +2187,13 @@ function sidebar() {
             }).join('') + '</div>'
           : '';
         return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
-            '" data-a="go" data-n="' + x.k + '" ' +
-            'title="' + E(x.l) + '">' +
+            '" data-a="go" data-n="' + x.k + '"' +
+            (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
             icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
             (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
           '</button>' + kids;
-      }).join('')).join('') +
+      }).join('');
+    }).join('') +
 
     '<div class="grp"><span>العرض</span></div>' +
     '<button class="nav" data-a="theme" title="تبديل الوضع · T">' +
@@ -2360,7 +2392,7 @@ function decisionItems() {
             '<button class="btn p sm" data-a="spok" data-id="' + s.id + '">إسناد من الاحتياط</button>'
     });
   });
-  S.reports.filter(r => r.room && r.status !== 'مغلق').forEach(r => items.push({
+  V.reports.filter(r => r.room && r.status !== 'مغلق').forEach(r => items.push({
     kind: 'warn', ic: 'i-key', t: 'تعديل بيانات غرفة — ' + r.kt,
     s: r.room.floor + ' · غرفة ' + r.room.no + ' — ' + r.title, at: r.at,
     acts: '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">تحديث قاعدة البيانات</button>'
@@ -2370,7 +2402,7 @@ function decisionItems() {
     s: r.title + ' — ' + r.body.slice(0, 70), at: r.at,
     acts: '<button class="btn l sm" data-a="go" data-n="reports">فتح التقرير</button>'
   }));
-  S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
+  V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
     kind: 'bad', ic: 'i-ticket', t: 'تذكرة حرجة — ' + k.kt,
     s: k.title + ' · ' + k.from, at: k.at,
     acts: '<button class="btn l sm" data-a="go" data-n="tickets">متابعة</button>'
@@ -2404,7 +2436,7 @@ function loadByHour() {
   const d0 = dayStart(now()), out = [];
   for (let h = 0; h < 24; h += 2) {
     const a = d0 + h * HR, b = a + 2 * HR;
-    const n = S.tasks.filter(t => t.start < b && t.end > a).length;
+    const n = V.tasks.filter(t => t.start < b && t.end > a).length;
     out.push({ l: AR(h), v: n, hot: now() >= a && now() < b });
   }
   return out;
@@ -2413,9 +2445,9 @@ function loadByHour() {
 /* ---------- توزيع حالات المهام ---------- */
 function statusMix() {
   const run = runningTasks().length;
-  const done = S.tasks.filter(t => t.status === 'done').length;
-  const next = S.tasks.filter(t => t.start > now()).length;
-  const auto = S.tasks.filter(t => t.autoStarted).length;
+  const done = V.tasks.filter(t => t.status === 'done').length;
+  const next = V.tasks.filter(t => t.start > now()).length;
+  const auto = V.tasks.filter(t => t.autoStarted).length;
   return [
     { l:'جارية',  v:run,  c:'var(--live)' },
     { l:'قادمة',  v:next, c:'var(--blue)' },
@@ -2427,11 +2459,11 @@ function statusMix() {
 /* ---------- مقارنة الفرق ---------- */
 function ktTable() {
   const rows = leaders().map(L => {
-    const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const ts = V.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done');
     const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done').length;
     const tk = openTickets().filter(k => k.leaderId === L.id).length;
-    const sp = S.support.filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
+    const sp = V.support.filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
     const auto = ts.filter(t => t.autoStarted).length;
     const rate = done.length ? Number((done.reduce((a, t) => a + (t.rating || 0), 0) / done.length).toFixed(1)) : 0;
     return {
@@ -2493,7 +2525,7 @@ function opsMap() {
   });
   /* المسارات القادمة خلال ٦ ساعات تُرسم أخفت — الغرفة ترى ما هو آتٍ */
   const soon = {};
-  S.tasks.filter(t => t.start > now() && t.start < now() + 6 * HR).forEach(t => {
+  V.tasks.filter(t => t.start > now() && t.start < now() + 6 * HR).forEach(t => {
     const k = KIND_NODE[t.kind] || 'makkah'; soon[k] = (soon[k] || 0) + 1;
   });
   const hot = LEG.filter(l => busy[l[1]] || busy[l[0]]);
@@ -2542,10 +2574,10 @@ function opsBar() {
 /* نطاق المدة المختارة */
 function rangeTasks() {
   const r = S.tab.rng || 'today';
-  if (r === 'season') return S.tasks.slice();
+  if (r === 'season') return V.tasks.slice();
   if (r === 'week') {
     const a = dayStart(now()) - 3 * DAY, b = a + 7 * DAY;
-    return S.tasks.filter(t => t.start >= a && t.start < b);
+    return V.tasks.filter(t => t.start >= a && t.start < b);
   }
   return todayTasks();
 }
@@ -2588,7 +2620,7 @@ function screenOps() {
         chartBars({ data: loadByHour(), foot: 'الذروة تكشف الساعات التي تحتاج احتياطًا جاهزًا.' }) +
       '</div>' +
       '<div class="card hov">' +
-        head('توزيع الحالات', 'من ' + AR(S.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
+        head('توزيع الحالات', 'من ' + AR(V.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
         '<div class="donutwrap">' + donut({ data: statusMix(), center:'مهمة' }) + '</div>' +
       '</div>' +
     '</div>' +
@@ -2610,7 +2642,7 @@ function screenOps() {
       '<div class="card hov fillcol">' +
         head('تدفّق الحوادث', 'مباشر من التطبيق',
           '<button class="btn l sm" data-a="go" data-n="incidents">الكل</button>') +
-        '<div class="feed">' + S.feed.slice(0, 9).map((f, i) =>
+        '<div class="feed">' + V.feed.slice(0, 9).map((f, i) =>
           '<div class="evt ' + f.kind + '" style="animation-delay:' + (i * 40) + 'ms">' +
           '<span class="dot"></span>' +
           '<span class="sp"><b>' + E(f.title) + '</b><p>' + E(f.body) + '</p></span>' +
@@ -2629,7 +2661,7 @@ function screenOps() {
 function ktDrawer(id) {
   const L = userById(id); if (!L) return;
   const org = orgById(L.orgId) || {}, team = teamOf(L.id);
-  const ts = S.tasks.filter(t => t.leaderId === L.id);
+  const ts = V.tasks.filter(t => t.leaderId === L.id);
   const done = ts.filter(t => t.status === 'done');
   const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done');
   const next = ts.filter(t => t.start > now()).sort((a, b) => a.start - b.start).slice(0, 4);
@@ -2686,7 +2718,7 @@ function ktDrawer(id) {
 /* ---------- طلبات الدعم: القرار الذي ينتظره الميدان ---------- */
 function screenSupport() {
   const f = S.tab.sf || 'open';
-  const all = S.support.slice().sort((a, b) => b.at - a.at);
+  const all = V.support.slice().sort((a, b) => b.at - a.at);
   const list = all.filter(s => f === 'open' ? s.state === 'pending'
     : f === 'done' ? s.state === 'done' : f === 'no' ? s.state === 'no' : true);
   return '<div class="grid g3">' +
@@ -2731,18 +2763,18 @@ function screenSupport() {
 function screenIncidents() {
   const f = S.tab.inc || 'all';
   const q = qOf('inc');
-  let list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  let list = V.feed.filter(x => f === 'all' ? true : x.kind === f);
   const ic = fOf('inc','cat'), ik = fOf('inc','kt'), ist = fOf('inc','state');
   if (ic) list = list.filter(x => x.cat === ic);
   if (ik) list = list.filter(x => x.kt === ik);
   if (ist) list = list.filter(x => (x.state || 'مفتوح') === ist);
   if (q) list = list.filter(x => (x.title + ' ' + x.body + ' ' + (x.no || '')).indexOf(q) >= 0);
   return '<div class="grid g3">' +
-      stat({ label:'حرجة', n:S.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
+      stat({ label:'حرجة', n:V.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
         cls:'bad', sub:'تحتاج تدخّلًا الآن', series:[2,3,2,4,3,5,4,3] }) +
-      stat({ label:'تحتاج انتباهًا', n:S.feed.filter(x => x.kind === 'warn').length, ic:'i-info',
+      stat({ label:'تحتاج انتباهًا', n:V.feed.filter(x => x.kind === 'warn').length, ic:'i-info',
         cls:'warn', sub:'تُراقَب ولا تُهمَل', series:[4,5,4,6,5,7,6,5] }) +
-      stat({ label:'مكتملة', n:S.feed.filter(x => x.kind === 'ok').length, ic:'i-checkc',
+      stat({ label:'مكتملة', n:V.feed.filter(x => x.kind === 'ok').length, ic:'i-checkc',
         cls:'up', sub:'أُغلقت في الميدان', series:[6,7,8,9,10,11,12,13] }) +
     '</div>' +
     '<div class="card">' +
@@ -2753,7 +2785,7 @@ function screenIncidents() {
         { k:'cat',   label:'النوع',  opts:INC_CATS.map(c => [c.k, c.ar]) },
         { k:'kt',    label:'الـKT',  opts:optKT() },
         { k:'state', label:'الحالة', opts:[['مفتوح','مفتوح'],['قيد المعالجة','قيد المعالجة'],['مغلق','مغلق']] }
-      ], list.length, S.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
+      ], list.length, V.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
         const C = INC_CATS.find(c => c.k === x.cat) || INC_CATS[0];
         const st = x.state || 'مفتوح';
@@ -2811,7 +2843,7 @@ function screenTeams() {
     '</div>' +
     '<div class="grid g2">' + ls.map(L => {
     const team = teamOf(L.id), org = orgById(L.orgId) || {};
-    const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const ts = V.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done').length;
     const g0 = groupsOf(L.id)[0];
     const isOpen = open === L.id;
@@ -2857,7 +2889,7 @@ function screenReserve() {
 /* ---------- التذاكر ---------- */
 function screenTickets() {
   const f = S.tab.kf || 'open';
-  let list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
+  let list = V.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
     : f === 'crit' ? k.pri === 'حرجة' : f === 'closed' ? k.status === 'مغلقة' : true)
     .sort((a, b) => b.at - a.at);
   const q = qOf('tkt');
@@ -2867,14 +2899,14 @@ function screenTickets() {
   if (tp) list = list.filter(k => k.pri === tp);
   if (ta) list = list.filter(k => ta === 'y' ? !!k.assignedTo : !k.assignedTo);
   if (q) list = list.filter(k => (k.title + ' ' + k.no + ' ' + k.from + ' ' + k.body).indexOf(q) >= 0);
-  const crit = S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
+  const crit = V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
   return '<div class="grid g3">' +
       stat({ label:'مفتوحة', n:openTickets().length, ic:'i-ticket',
         cls:crit ? 'bad' : '', sub:AR(crit) + ' حرجة منها',
         series:[3,5,4,6,5,8,6,Math.max(1, openTickets().length)] }) +
-      stat({ label:'قيد المعالجة', n:S.tickets.filter(k => k.status === 'قيد المعالجة').length,
+      stat({ label:'قيد المعالجة', n:V.tickets.filter(k => k.status === 'قيد المعالجة').length,
         ic:'i-hour', cls:'warn', sub:'لدى الليدر أو الكنترول', series:[1,2,2,3,2,3,2,2] }) +
-      stat({ label:'مغلقة', n:S.tickets.filter(k => k.status === 'مغلقة').length, ic:'i-checkc',
+      stat({ label:'مغلقة', n:V.tickets.filter(k => k.status === 'مغلقة').length, ic:'i-checkc',
         cls:'up', sub:'حُلّت وأُبلغ صاحبها', series:[0,0,1,1,1,1,1,1] }) +
     '</div>' +
     '<div class="card">' +
@@ -2883,10 +2915,10 @@ function screenTickets() {
         [['open','مفتوحة'],['crit','حرجة'],['closed','مغلقة'],['all','الكل']], f) + '</div>' +
       filterBar('tkt', [
         { k:'kt',  label:'الـKT',     opts:optKT() },
-        { k:'cat', label:'التصنيف',   opts:[...new Set(S.tickets.map(k => k.cat))].map(c => [c, c]) },
+        { k:'cat', label:'التصنيف',   opts:[...new Set(V.tickets.map(k => k.cat))].map(c => [c, c]) },
         { k:'pri', label:'الأولوية',  opts:[['حرجة','حرجة'],['عاجلة','عاجلة'],['عادية','عادية']] },
         { k:'asg', label:'الإسناد',   opts:[['y','مُسنَدة'],['n','بلا إسناد']] }
-      ], list.length, S.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
+      ], list.length, V.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
       (list.length ? '<div class="plist">' + list.map((k, i) => {
         const pr = k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey';
         const to = k.assignedTo ? userById(k.assignedTo) : null;
@@ -2912,7 +2944,7 @@ function screenTickets() {
 /* ---------- التقارير ---------- */
 function screenReports() {
   const f = S.tab.rf || 'all';
-  const all = S.reports.slice().sort((a, b) => b.at - a.at);
+  const all = V.reports.slice().sort((a, b) => b.at - a.at);
   const list = f === 'room' ? all.filter(r => r.room)
     : f === 'esc' ? all.filter(r => r.escalated) : all;
   return '<div class="grid g3">' +
@@ -3053,7 +3085,7 @@ function screenPilgrims() {
 function pilgrimDrawer(id) {
   const p = allPilgrimRows().find(x => x.id === id); if (!p) return;
   const L = userById(p.leaderId) || {};
-  const tk = S.tickets.filter(k => k.pilgrimId === p.id);
+  const tk = V.tickets.filter(k => k.pilgrimId === p.id);
   openDrawer(p.name, p.no + ' · ' + p.org, 'i-user',
     '<div class="fl" style="gap:14px">' + avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'lg') +
       '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(p.name) + '</b>' +
@@ -3082,13 +3114,13 @@ function pilgrimDrawer(id) {
 
 /* ══════════════ ٢) الجودة والتقييم ══════════════ */
 function screenQuality() {
-  const done = S.tasks.filter(t => t.status === 'done' && t.rating);
+  const done = V.tasks.filter(t => t.status === 'done' && t.rating);
   const avg = done.length ? done.reduce((a, t) => a + t.rating, 0) / done.length : 0;
   const board = leaders().map(L => {
-    const d = S.tasks.filter(t => t.leaderId === L.id && t.status === 'done' && t.rating);
+    const d = V.tasks.filter(t => t.leaderId === L.id && t.status === 'done' && t.rating);
     return { L, n:d.length, r:ktRating(L.id),
       low:d.filter(t => t.rating < 3.5).length,
-      auto:S.tasks.filter(t => t.leaderId === L.id && t.autoStarted).length };
+      auto:V.tasks.filter(t => t.leaderId === L.id && t.autoStarted).length };
   }).sort((a, b) => b.r - a.r);
   /* توزيع الدرجات على خمس درجات */
   const STARN = { 1:'نجمة', 2:'نجمتان', 3:'٣ نجوم', 4:'٤ نجوم', 5:'٥ نجوم' };
@@ -3107,7 +3139,7 @@ function screenQuality() {
         ic:'i-shield', cls:'up',
         sub:board[0] ? board[0].L.kt + ' · ' + board[0].L.name : '—',
         series:[3.9,4,4.1,4.2,4.3,4.2,4.4,board[0] ? board[0].r : 0] }) +
-      stat({ label:'بدأها النظام', n:S.tasks.filter(t => t.autoStarted).length, ic:'i-play',
+      stat({ label:'بدأها النظام', n:V.tasks.filter(t => t.autoStarted).length, ic:'i-play',
         cls:'bad', sub:'تُخصم من التزام الفريق', series:[1,2,2,3,4,5,6,7] }) +
     '</div>' +
 
@@ -3150,7 +3182,7 @@ function screenQuality() {
 const MEDIA_IC = { 'نص':'i-list', 'صور':'i-photo', 'فيديو':'i-play', 'PDF':'i-doc' };
 
 function screenGuides() {
-  const gs = S.guides.slice().sort((a, b) => b.at - a.at);
+  const gs = V.guides.slice().sort((a, b) => b.at - a.at);
   const ok = gs.filter(g => g.status === 'معتمد').length;
   return '<div class="grid g3">' +
       stat({ label:'أدلة معتمدة', n:ok, ic:'i-checkc', cls:'up',
@@ -3188,7 +3220,7 @@ function screenGuides() {
 }
 
 function guideDrawer(id) {
-  const g = S.guides.find(x => x.id === id); if (!g) return;
+  const g = V.guides.find(x => x.id === id); if (!g) return;
   const c = CAT[g.kind] || {}, by = userById(g.by) || {};
   const steps = [];
   for (let i = 1; i <= g.steps; i++) steps.push(i);
@@ -3246,7 +3278,7 @@ function GUIDE_STEP(kind, i) {
 
 /* ══════════════ ٤) البثّ والإشعارات ══════════════ */
 function screenBroadcast() {
-  const cs = S.casts.slice().sort((a, b) => b.at - a.at);
+  const cs = V.casts.slice().sort((a, b) => b.at - a.at);
   const aud = S.tab.aud || CAST_AUD[0];
   const kind = S.tab.ck || 'عادي';
   const reach = cs.reduce((a, c) => a + c.seen, 0), of = cs.reduce((a, c) => a + c.of, 0);
@@ -3305,13 +3337,13 @@ function screenBroadcast() {
 /* ══════════════ ٥) تبديل الشِفتات ══════════════ */
 function screenShifts() {
   const f = S.tab.sw || 'open';
-  const list = S.swaps.filter(w => f === 'open' ? w.state === 'pending'
+  const list = V.swaps.filter(w => f === 'open' ? w.state === 'pending'
     : f === 'done' ? w.state === 'done' : f === 'no' ? w.state === 'no' : true)
     .sort((a, b) => b.at - a.at);
   return '<div class="grid g3">' +
       stat({ label:'بانتظار قرارك', n:openSwaps().length, ic:'i-swap',
         cls:openSwaps().length ? 'warn' : '', sub:'رفعها الليدرز', series:[1,2,1,3,2,4,3,openSwaps().length] }) +
-      stat({ label:'اعتُمدت', n:S.swaps.filter(w => w.state === 'done').length, ic:'i-checkc',
+      stat({ label:'اعتُمدت', n:V.swaps.filter(w => w.state === 'done').length, ic:'i-checkc',
         cls:'up', sub:'وأُبلغ الطرفان', series:[2,3,3,4,5,5,6,6] }) +
       stat({ label:'ورديات اليوم', n:SHIFTS.length * leaders().length, ic:'i-hour',
         sub:AR(SHIFTS.length) + ' ورديات × ' + AR(leaders().length) + ' فرق', series:[9,12,12,15,15,15,15,15] }) +
@@ -3320,7 +3352,7 @@ function screenShifts() {
     '<div class="card">' +
       head('جدول الورديات', 'ثلاث ورديات تغطّي اليوم كاملًا', '', 'i-hour') +
       '<div class="grid g3">' + SHIFTS.map((sh, i) => {
-        const on = S.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
+        const on = V.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
         /* التوزيع لا يقسم بالتساوي: المسائية أثقل والليلية أخفّ */
         const share = [0.38, 0.40, 0.22][i];
         const nOn = Math.round(on * share);
@@ -3369,17 +3401,17 @@ function screenShifts() {
 function screenAudit() {
   const f = S.tab.lg || 'all';
   const q = qOf('log');
-  let list = S.log.slice().sort((a, b) => b.at - a.at);
+  let list = V.log.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(l => l.kind === f);
   if (q) list = list.filter(l => l.text.indexOf(q) >= 0);
   const kinds = [['all', 'الكل']].concat(
-    Object.keys(LOG_KIND).filter(k => S.log.some(l => l.kind === k))
+    Object.keys(LOG_KIND).filter(k => V.log.some(l => l.kind === k))
       .map(k => [k, LOG_KIND[k].ar]));
 
   return '<div class="card">' +
     head('سجل النظام', 'كل قرار بصاحبه ووقته — لا شيء يُمحى ولا يُعدَّل',
-      pill(AR(S.log.length) + ' قيد', 'gold'), 'i-hist') +
-    '<div class="tools">' + search('log', 'ابحث في السجل…', S.log.length) +
+      pill(AR(V.log.length) + ' قيد', 'gold'), 'i-hist') +
+    '<div class="tools">' + search('log', 'ابحث في السجل…', V.log.length) +
       segmented('lg', kinds, f) + '</div>' +
     (list.length ? '<div class="tline">' + list.map((l, i) => {
       const k = LOG_KIND[l.kind] || LOG_KIND.info;
@@ -3427,8 +3459,8 @@ function filterBar(key, defs, n, total, ph) {
 }
 
 /* خيارات شائعة */
-const optOrgs   = () => S.orgs.map(o => [o.id, o.kt + ' · ' + o.ar]);
-const optKT     = () => S.orgs.map(o => [o.kt, o.kt + ' · ' + (o.type || '')]);
+const optOrgs   = () => V.orgs.map(o => [o.id, o.kt + ' · ' + o.ar]);
+const optKT     = () => V.orgs.map(o => [o.kt, o.kt + ' · ' + (o.type || '')]);
 const optHotels = () => HOTELS.map(h => [h.id, h.ar]);
 const optSpecs  = () => SPECS.map(s => [s, s]);
 const optCities = () => [...new Set(SITES.map(s => s.city))].map(c => [c, c]);
@@ -3454,26 +3486,26 @@ function staffOrg(u) {
 function staffTasks(id) {
   const u = userById(id); if (!u) return [];
   const out = [];
-  S.tasks.forEach(t => {
+  V.tasks.forEach(t => {
     if (t.leaderId === id || (t.assigned || []).indexOf(id) >= 0)
       out.push({ type:'hajj', at:t.start, title:t.title, sub:t.kt + ' · ' + t.place,
         state:t.status === 'done' ? 'منجزة' : now() >= t.start ? 'جارية' : 'قادمة', id:t.id });
   });
-  S.enrich.forEach(x => { if (x.muhsenId === id) {
+  V.enrich.forEach(x => { if (x.muhsenId === id) {
     const si = siteById(x.siteId);
     out.push({ type:'enrich', at:x.start, title:si.ar, sub:x.ref + ' · ' + si.city,
       state:x.status === 'done' ? 'منتهية' : 'مسكَّنة', id:x.id });
   }});
-  S.nusuk.forEach(c => { if (c.assignedTo === id) {
+  V.nusuk.forEach(c => { if (c.assignedTo === id) {
     out.push({ type:'nusuk', at:c.at, title:NUSUK_SVC[c.svc].ar + ' — ' + c.pilgrim,
       sub:c.no + ' · ' + c.kt, state:NUSUK_STATE[c.state].ar, id:c.id });
   }});
-  S.subs.forEach(b => { if (b.by === id) {
+  V.subs.forEach(b => { if (b.by === id) {
     const f = formById(b.formId) || {};
     out.push({ type:'comply', at:b.at, title:f.title + ' — ' + b.target,
       sub:'الزيارة ' + AR(b.visit) + ' · ' + AR(b.score) + '٪', state:'مُعبَّأ', id:b.id });
   }});
-  S.assigns.forEach(a => { if (a.to === id) {
+  V.assigns.forEach(a => { if (a.to === id) {
     out.push({ type:a.type, at:a.at, title:a.title, sub:a.sub, state:a.state, id:a.id });
   }});
   return out.sort((a, b) => b.at - a.at);
@@ -3483,7 +3515,7 @@ function staffTasks(id) {
 function screenStaff() {
   const role = S.tab.sr || 'all';
   const q = qOf('stf');
-  let all = S.users.filter(u => u.role === 'supervisor' || u.role === 'leader' || u.role === 'muhsen');
+  let all = V.users.filter(u => u.role === 'supervisor' || u.role === 'leader' || u.role === 'muhsen');
   const total = all.length;
   let list = all.slice();
   if (role !== 'all') list = list.filter(u => role === 'reserve' ? u.reserve
@@ -3631,7 +3663,7 @@ function paintPicker() {
 /* ما يقع عند الاختيار — لكل نوع أثره */
 function applyPick(kind, id, u) {
   if (kind === 'enrich') {
-    const x = S.enrich.find(e => e.id === id); if (!x) return;
+    const x = V.enrich.find(e => e.id === id); if (!x) return;
     const g = staffGroup(u), L = g ? userById(g.leaderId) : null;
     x.muhsenId = u.id; x.leaderId = g ? g.leaderId : x.leaderId;
     x.kt = g ? (orgById(g.orgId) || {}).kt : x.kt; x.status = 'assigned';
@@ -3639,7 +3671,7 @@ function applyPick(kind, id, u) {
       (L ? ' · ' + L.kt : ''), 'assign');
     toast('أُسندت إلى ' + u.name);
   } else if (kind === 'nusuk') {
-    const c = S.nusuk.find(x => x.id === id); if (!c) return;
+    const c = V.nusuk.find(x => x.id === id); if (!c) return;
     c.assignedTo = u.id;
     c.trail = c.trail || [];
     c.trail.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name, file:null });
@@ -3648,21 +3680,21 @@ function applyPick(kind, id, u) {
   } else if (kind === 'comply') {
     const a = S.pendForm; if (!a) return;
     const f = formById(a.formId) || {};
-    S.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
+    V.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
       title:f.title + ' — ' + a.target, sub:'نموذج امتثال · ' + a.target, state:'بانتظار التعبئة',
       formId:a.formId, target:a.target });
     logIt('أُسند نموذج «' + f.title + '» على ' + a.target + ' إلى ' + u.name, 'assign');
     toast('أُسند إلى ' + u.name);
     S.pendForm = null;
   } else if (kind === 'ticket') {
-    const k = S.tickets.find(x => x.id === id); if (!k) return;
+    const k = V.tickets.find(x => x.id === id); if (!k) return;
     k.assignedTo = u.id; k.status = 'قيد المعالجة';
     k.thread = k.thread || [];
     k.thread.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name });
     logIt('أُسندت تذكرة ' + k.no + ' إلى ' + u.name, 'ticket');
     toast('أُسندت إلى ' + u.name);
   } else if (kind === 'report') {
-    const r = S.reports.find(x => x.id === id); if (!r) return;
+    const r = V.reports.find(x => x.id === id); if (!r) return;
     r.assignedTo = u.id; r.status = 'قيد المعالجة';
     r.thread = r.thread || [];
     r.thread.push({ at:now(), by:'الكنترول', text:'أُسند إلى ' + u.name });
@@ -3672,7 +3704,7 @@ function applyPick(kind, id, u) {
     /* تسكين مشرف على فندق */
     const h = hotelById(id);
     u.hotelId = id;
-    S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
+    V.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
     logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar, 'assign');
     toast(u.name + ' → ' + h.ar);
   }
@@ -3680,7 +3712,7 @@ function applyPick(kind, id, u) {
 
 /* مرشّحو كل نوع */
 function candFor(kind, ref) {
-  const all = S.users.filter(u => u.role === 'muhsen');
+  const all = V.users.filter(u => u.role === 'muhsen');
   if (kind === 'enrich') {
     const x = ref;
     const g = x.leaderId ? groupsOf(x.leaderId)[0] : null;
@@ -3695,7 +3727,7 @@ function candFor(kind, ref) {
   if (kind === 'comply') {
     /* المحسن يُختار حسب الفندق الذي تسكن فيه مجموعته */
     const hid = ref;
-    const gs = S.groups.filter(g => g.hotelId === hid);
+    const gs = V.groups.filter(g => g.hotelId === hid);
     const ids = [];
     gs.forEach(g => { ids.push(g.leaderId); g.members.forEach(m => ids.push(m.id)); });
     const sup = supervisors().filter(u => u.hotelId === hid);
@@ -3730,6 +3762,227 @@ function pickerBody() {
       '</button>';
     }).join('') + '</div>'
       : empty('لا مرشّح مطابق', 'وسّع البحث', 'i-search'));
+}
+
+/* ============================================================
+   الصلاحيات وأمن مستوى الصفّ (RLS)
+   ─────────────────────────────────────────────────────────────
+   قاعدتان تحكمان كل شيء:
+     ١) لا يرى أحدٌ شاشةً لم تُسنَد لصفته — والافتراض: لا شيء.
+     ٢) لا يُعدّل إلا من مُنح التعديل — والافتراض: الإدارة العليا وحدها.
+   والنطاق يُطبَّق على الصفوف نفسها لا على الشاشات فقط:
+   الشركة ترى محسنيها وحجاجها ومهامها، والمحسن يرى نفسه.
+   ============================================================ */
+
+const PERMS = [
+  { k:'admin',   ar:'إدارة عليا',      i:'i-shield', scope:'all',   edit:true,
+    d:'ترى كل شيء وتعدّل كل شيء — وهي وحدها كذلك' },
+  { k:'mission', ar:'بعثة',            i:'i-flag',   scope:'org',   edit:false,
+    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+  { k:'company', ar:'شركة',            i:'i-flag',   scope:'org',   edit:false,
+    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+  { k:'sup',     ar:'مشرف',            i:'i-key',    scope:'hotel', edit:false,
+    d:'يرى كل من تحته في الفندق' },
+  { k:'leader',  ar:'ليدر',            i:'i-star',   scope:'team',  edit:false,
+    d:'يرى فريقه ومهامه' },
+  { k:'muh_mk',  ar:'محسن مكة',        i:'i-user',   scope:'self',  edit:false,
+    d:'يرى بياناته ومهامه وحدها' },
+  { k:'muh_md',  ar:'محسن المدينة',    i:'i-user',   scope:'self',  edit:false,
+    d:'يرى بياناته ومهامه وحدها' },
+  { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'none',  edit:false,
+    d:'نطاقه يُحدَّد لاحقًا' },
+  { k:'food',    ar:'إعاشة',           i:'i-food',   scope:'none',  edit:false,
+    d:'نطاقه يُحدَّد لاحقًا' },
+  { k:'trans',   ar:'نقل',             i:'i-bus',    scope:'none',  edit:false,
+    d:'نطاقه يُحدَّد لاحقًا' },
+  { k:'centers', ar:'مراكز',           i:'i-target', scope:'none',  edit:false,
+    d:'نطاقه يُحدَّد لاحقًا' },
+  { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'none',  edit:false,
+    d:'نطاقه يُحدَّد لاحقًا' }
+];
+const permOf = k => PERMS.find(p => p.k === k) || PERMS[0];
+const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'فندقه ومن فيه',
+  team:'فريقه ومهامه', self:'بياناته وحدها', none:'لم يُحدَّد بعد' };
+
+/* الصفة الفاعلة الآن، ومن تُمثِّله */
+const curPerm = () => permOf(S.actor && S.actor.perm);
+const canEdit = () => !!curPerm().edit;
+/* الشاشات المسموحة لهذه الصفة — والافتراض لا شيء */
+function allowed() {
+  const p = curPerm();
+  if (p.scope === 'all') return navItems().map(x => x.k);
+  return (S.grants && S.grants[p.k]) || [];
+}
+const maySee = k => allowed().indexOf(k) >= 0;
+
+/* ============================================================
+   بناء الرؤية V — نسخة مُصفّاة من S يقرأ منها كل عرض
+   الإدارة العليا تقرأ S نفسه: صفر كلفة وصفر اختلاف.
+   ============================================================ */
+let V = null;
+
+function buildView() {
+  const p = curPerm(), a = S.actor || {};
+  if (p.scope === 'all') { V = S; return; }
+
+  /* من يدخل في النطاق: مجموعات وأشخاص وجهات */
+  let groups = [], userIds = [], kts = [], orgIds = [];
+
+  if (p.scope === 'org' && a.orgId) {
+    const o = orgById(a.orgId) || {};
+    orgIds = [a.orgId]; kts = [o.kt];
+    groups = S.groups.filter(g => g.orgId === a.orgId);
+  } else if (p.scope === 'hotel' && a.hotelId) {
+    groups = S.groups.filter(g => g.hotelId === a.hotelId);
+    orgIds = [...new Set(groups.map(g => g.orgId))];
+    kts = orgIds.map(id => (orgById(id) || {}).kt).filter(Boolean);
+  } else if (p.scope === 'team' && a.leaderId) {
+    groups = S.groups.filter(g => g.leaderId === a.leaderId);
+    orgIds = [...new Set(groups.map(g => g.orgId))];
+    kts = orgIds.map(id => (orgById(id) || {}).kt).filter(Boolean);
+  } else if (p.scope === 'self' && a.userId) {
+    const u = userById(a.userId);
+    const g = u && u.groupId ? groupById(u.groupId) : null;
+    groups = g ? [g] : [];
+    kts = u ? [u.kt] : [];
+  }
+
+  groups.forEach(g => { userIds.push(g.leaderId); g.members.forEach(m => userIds.push(m.id)); });
+  if (p.scope === 'hotel' && a.hotelId)
+    supervisors().filter(u => u.hotelId === a.hotelId).forEach(u => userIds.push(u.id));
+  if (p.scope === 'team' && a.leaderId) userIds.push(a.leaderId);
+  if (p.scope === 'self') userIds = a.userId ? [a.userId] : [];
+  userIds = [...new Set(userIds.filter(Boolean))];
+
+  const leaderIds = groups.map(g => g.leaderId);
+  const has = (arr, v) => arr.indexOf(v) >= 0;
+  const mine = u => has(userIds, u.id);
+  /* المحسن يرى مهامه هو، ومن فوقه يرى مهام فريقه كلّها */
+  const taskMine = t => p.scope === 'self'
+    ? (t.assigned || []).indexOf(a.userId) >= 0 || t.leaderId === a.userId
+    : has(leaderIds, t.leaderId);
+
+  const pil = {};
+  kts.forEach(k => { if (S.pilgrims[k]) pil[k] = S.pilgrims[k]; });
+
+  V = Object.create(S);          /* ما لا يُصفّى يُقرأ من الأصل */
+  V.users    = S.users.filter(mine);
+  V.groups   = groups;
+  V.orgs     = orgIds.length ? S.orgs.filter(o => has(orgIds, o.id)) : [];
+  V.tasks    = S.tasks.filter(taskMine);
+  V.pilgrims = p.scope === 'self' ? {} : pil;
+  V.tickets  = S.tickets.filter(k => has(kts, k.kt));
+  V.reports  = S.reports.filter(r => has(kts, r.kt));
+  V.support  = S.support.filter(s => has(leaderIds, (taskById(s.taskId) || {}).leaderId));
+  V.nusuk    = S.nusuk.filter(c => p.scope === 'self'
+    ? c.assignedTo === a.userId : has(kts, c.kt));
+  V.enrich   = S.enrich.filter(x => p.scope === 'self'
+    ? x.muhsenId === a.userId : has(kts, x.kt));
+  V.subs     = S.subs.filter(b => has(userIds, b.by));
+  V.assigns  = S.assigns.filter(x => has(userIds, x.to));
+  V.swaps    = S.swaps.filter(w => has(userIds, w.from) || has(userIds, w.to));
+  V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));
+  V.log      = p.scope === 'self' ? [] : S.log;
+  V.forms    = S.forms;
+  V.guides   = S.guides;
+  V.casts    = S.casts;
+}
+
+/* ============================================================
+   شاشة إدارة الصلاحيات
+   ============================================================ */
+function screenPerms() {
+  const sel = S.tab.pk || 'mission';
+  const p = permOf(sel);
+  const items = navItems().filter(x => x.k !== 'perms');
+  const gr = (S.grants && S.grants[sel]) || [];
+
+  return '<div class="grid g4">' +
+      stat({ label:'الصفات', n:PERMS.length, ic:'i-shield',
+        sub:'واحدة تُعدّل، والبقية تطّلع', series:[4,6,8,9,10,11,12,PERMS.length] }) +
+      stat({ label:'صفات مُسنَد لها', n:PERMS.filter(x => x.scope === 'all' ||
+        ((S.grants || {})[x.k] || []).length).length, ic:'i-checkc', cls:'up',
+        sub:'ترى شيئًا عند الدخول', series:[1,2,3,4,5,6,7,8] }) +
+      stat({ label:'صفات بلا شيء', n:PERMS.filter(x => x.scope !== 'all' &&
+        !((S.grants || {})[x.k] || []).length).length, ic:'i-x', cls:'warn',
+        sub:'تدخل فلا ترى شاشة', series:[11,10,9,8,7,6,5,4] }) +
+      stat({ label:'الشاشات', n:items.length, ic:'i-list',
+        sub:'كل واحدة تُمنح أو تُمنع', series:[8,10,12,14,15,16,17,items.length] }) +
+    '</div>' +
+
+    '<div class="grid g23">' +
+      '<div class="card">' +
+        head('الصفات', 'اختر صفةً لتضبط ما تراه', '', 'i-shield') +
+        '<div class="plist">' + PERMS.map(x => {
+          const n = x.scope === 'all' ? items.length : ((S.grants || {})[x.k] || []).length;
+          return '<button class="prow pick' + (x.k === sel ? ' on' : '') + '" ' +
+            'data-a="seg" data-k="pk" data-v="' + x.k + '">' +
+            '<span class="ico" style="color:' + (x.edit ? 'var(--gold2)' : 'var(--dim)') + '">' +
+              icon(x.i, 's18') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(x.ar) + '</b>' +
+            '<span>' + E(SCOPE_AR[x.scope]) + '</span></span>' +
+            (x.edit ? pill('تعديل', 'gold') : pill('اطّلاع', 'grey')) +
+            pill(AR(n) + ' شاشة', n ? 'live' : 'no') + '</button>';
+        }).join('') + '</div>' +
+      '</div>' +
+
+      '<div class="card gold">' +
+        head(p.ar, p.d, p.edit ? pill('كل الشاشات — لا تُقيَّد', 'gold')
+          : pill(AR(gr.length) + ' من ' + AR(items.length), gr.length ? 'live' : 'no'), p.i) +
+        '<div class="meta">' +
+          '<div><span class="k">النطاق</span><b>' + E(SCOPE_AR[p.scope]) + '</b></div>' +
+          '<div><span class="k">التعديل</span><b>' + (p.edit ? 'نعم' : 'لا') + '</b></div>' +
+          '<div><span class="k">الشاشات</span><b class="num">' +
+            AR(p.edit ? items.length : gr.length) + '</b></div>' +
+        '</div>' +
+        (p.edit
+          ? '<div class="quote" style="margin-top:14px">الإدارة العليا لا تُقيَّد — ' +
+            'ترى كل شاشة وتملك كل إجراء. وهي الوحيدة كذلك.</div>'
+          : '<div class="fl" style="gap:9px;margin:14px 0 12px;flex-wrap:wrap">' +
+              '<button class="btn l sm" data-a="pgall" data-v="' + sel + '">منح الكل</button>' +
+              '<button class="btn l sm" data-a="pgnone" data-v="' + sel + '">منع الكل</button>' +
+            '</div>' +
+            '<div class="permgrid">' + items.map(x => {
+              const on = gr.indexOf(x.k) >= 0;
+              return '<button class="pchk' + (on ? ' on' : '') + '" data-a="pgtog" ' +
+                'data-k="' + sel + '" data-v="' + x.k + '">' +
+                '<span class="box">' + (on ? icon('i-checkc','s14') : '') + '</span>' +
+                icon(x.i, 's16') + '<b>' + E(x.l) + '</b></button>';
+            }).join('') + '</div>') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      head('ما يراه صاحب كل صفة', 'النطاق يُطبَّق على الصفوف لا على الشاشات وحدها', '', 'i-eye') +
+      '<div class="tbl"><div class="th" style="grid-template-columns:1fr 1.2fr .8fr 1.6fr">' +
+        ['الصفة','النطاق','التعديل','ما يظهر له'].map(t =>
+          '<button>' + E(t) + '</button>').join('') + '</div>' +
+      '<div class="tb">' + PERMS.map(x =>
+        '<div class="tr" style="grid-template-columns:1fr 1.2fr .8fr 1.6fr">' +
+          '<span class="fl"><span class="ico sm" style="color:var(--gold2)">' +
+            icon(x.i,'s14') + '</span><b>' + E(x.ar) + '</b></span>' +
+          '<span>' + E(SCOPE_AR[x.scope]) + '</span>' +
+          '<span>' + (x.edit ? pill('كامل','gold') : pill('اطّلاع','grey')) + '</span>' +
+          '<span class="tiny">' + E(x.d) + '</span>' +
+        '</div>').join('') + '</div></div>' +
+    '</div>';
+}
+
+/* ============================================================
+   شاشة «لا صلاحية» — تُعرض بدل الفراغ
+   ============================================================ */
+function screenDenied() {
+  const p = curPerm();
+  return '<div class="card gold">' +
+    head('لا صلاحية بعد', 'صفتك: ' + p.ar, pill(SCOPE_AR[p.scope], 'grey'), 'i-shield') +
+    '<div class="empty" style="padding:44px 20px">' + icon('i-shield','s26') +
+      '<b>لم تُسنَد لهذه الصفة أي شاشة</b>' +
+      '<div class="tiny" style="margin-top:8px;line-height:2">' +
+      'هذا هو السلوك المقصود: لا يرى أحدٌ شيئًا حتى يُمنَح.<br>' +
+      'تُمنح الشاشات من «إدارة الصلاحيات» بصفة الإدارة العليا.</div>' +
+      '<button class="btn l" style="margin-top:18px" data-a="logout">' +
+        icon('i-logout','s16') + 'الخروج وتبديل الصفة</button>' +
+    '</div></div>';
 }
 
 /* ============================================================
@@ -3808,20 +4061,20 @@ function nusukNew() {
 
 /* ---------- مسار الحالة ---------- */
 function nusukDrawer(id) {
-  const c = S.nusuk.find(x => x.id === id); if (!c) return;
-  const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
+  const c = V.nusuk.find(x => x.id === id); if (!c) return;
+  const SV = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
   const to = c.assignedTo ? userById(c.assignedTo) : null;
   const done = c.state === 'delivered';
 
-  S.drawer = { title:V.ar + ' — ' + c.pilgrim, sub:c.no + ' · جواز ' + c.passport + ' · ' + c.kt,
-    icon:V.i, body:
+  S.drawer = { title:SV.ar + ' — ' + c.pilgrim, sub:c.no + ' · جواز ' + c.passport + ' · ' + c.kt,
+    icon:SV.i, body:
     '<div class="fl" style="gap:11px">' + pill(ST.ar, ST.c) +
-      pill('مهلة ' + AR(V.sla) + ' ساعة', 'grey') +
+      pill('مهلة ' + AR(SV.sla) + ' ساعة', 'grey') +
       '<span class="sp"></span><span class="tiny faint">فُتحت ' + ago(c.at) + ' · ' + E(c.openedBy) + '</span></div>' +
 
-    '<div class="card">' + head('المسار', 'الخطوة ' + AR(Math.min(c.step + 1, V.steps.length)) +
-        ' من ' + AR(V.steps.length)) +
-      '<div class="wf">' + V.steps.map((s, i) =>
+    '<div class="card">' + head('المسار', 'الخطوة ' + AR(Math.min(c.step + 1, SV.steps.length)) +
+        ' من ' + AR(SV.steps.length)) +
+      '<div class="wf">' + SV.steps.map((s, i) =>
         '<div class="wfs' + (i < c.step ? ' done' : i === c.step ? ' now' : '') + '">' +
           '<span class="wfn">' + (i < c.step ? icon('i-checkc','s14') : AR(i + 1)) + '</span>' +
           '<span class="nm"><b>' + E(s) + '</b></span></div>').join('') + '</div>' +
@@ -3975,7 +4228,7 @@ function formAssign(id) {
     icon:f.icon, body:
     '<div class="card">' + head('الجهة', 'المحسن يُختار من مجموعة تسكن فيها') +
       '<div class="plist">' + HOTELS.map(h => {
-        const gs = S.groups.filter(g => g.hotelId === h.id);
+        const gs = V.groups.filter(g => g.hotelId === h.id);
         const n = gs.reduce((a, g) => a + g.members.length + 1, 0);
         return '<button class="prow pick" data-a="fatarget" data-id="' + h.id + '"' +
           (n ? '' : ' disabled') + '>' +
@@ -3991,7 +4244,7 @@ function formAssign(id) {
 
 /* ══════════════ التذاكر والتقارير: إجراء حقيقي ══════════════ */
 function ticketDrawer(id) {
-  const k = S.tickets.find(x => x.id === id); if (!k) return;
+  const k = V.tickets.find(x => x.id === id); if (!k) return;
   const to = k.assignedTo ? userById(k.assignedTo) : null;
   const closed = k.status === 'مغلقة';
   S.drawer = { title:k.title, sub:k.no + ' · ' + k.from + ' · ' + k.kt, icon:'i-ticket', body:
@@ -4004,7 +4257,7 @@ function ticketDrawer(id) {
 
     '<div class="card">' + head('التصنيف والأولوية', 'يُغيَّران من هنا') +
       '<label class="fl2">التصنيف</label>' +
-      '<div class="chips">' + [...new Set(S.tickets.map(x => x.cat))].map(c =>
+      '<div class="chips">' + [...new Set(V.tickets.map(x => x.cat))].map(c =>
         '<button class="chip2' + (k.cat === c ? ' on' : '') + '" data-a="tkcat" data-id="' + k.id +
         '" data-v="' + E(c) + '">' + E(c) + '</button>').join('') + '</div>' +
       '<label class="fl2">الأولوية</label>' +
@@ -4048,7 +4301,7 @@ function ticketDrawer(id) {
 }
 
 function reportDrawer(id) {
-  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const r = V.reports.find(x => x.id === id); if (!r) return;
   const L = userById(r.from) || {}, to = r.assignedTo ? userById(r.assignedTo) : null;
   S.drawer = { title:r.title, sub:r.no + ' · ' + r.kt + ' · ' + (L.name || ''), icon:'i-flag', body:
     '<div class="fl" style="gap:9px;flex-wrap:wrap">' + pill(r.cat, 'gold') +
@@ -4094,28 +4347,43 @@ function reportDrawer(id) {
   renderDrawer();
 }
 
-/* ============================================================
-   بوّابة الدخول — أوّل ما يُرى، فليكن على مستوى ما بعده
-   ============================================================ */
-const GATE_ROLES = [
-  { k:'ctl',  i:'i-target', l:'غرفة العمليات', d:'صلاحية كاملة' },
-  { k:'sup',  i:'i-shield', l:'مشرف سكن',      d:'فنادقه ومجموعاتها' },
-  { k:'ops',  i:'i-users',  l:'منسّق تشكيل',   d:'المجموعات والتسكين' },
-  { k:'view', i:'i-eye',    l:'قراءة فقط',     d:'بلا إجراءات' }
-];
 
+/* ============================================================
+   البوّابة — يُدخَل بصفة، ويُمثَّل بها شخصٌ بعينه
+   ============================================================ */
 function renderGate() {
   const w = document.getElementById('gatewrap');
   if (!w) return;
   if (S.auth) { w.innerHTML = ''; return; }
-  const role = S.gateRole || 'ctl';
+  const a = S.gate = S.gate || { perm:'admin', orgId:null, hotelId:null, leaderId:null, userId:null };
+  const p = permOf(a.perm);
+  const gr = p.scope === 'all' ? navItems().length : ((S.grants || {})[p.k] || []).length;
+
+  /* من تُمثِّل؟ يُسأل عنه حسب النطاق */
+  let who = '', ready = true;
+  if (p.scope === 'org') {
+    ready = !!a.orgId;
+    who = pickRow('الجهة', S.orgs.filter(o => p.k === 'mission' ? o.type === 'بعثة' : o.type === 'شركة')
+      .map(o => [o.id, o.kt + ' · ' + o.ar]), a.orgId, 'gorg');
+  } else if (p.scope === 'hotel') {
+    ready = !!a.hotelId;
+    who = pickRow('الفندق', HOTELS.map(h => [h.id, h.ar]), a.hotelId, 'ghotel');
+  } else if (p.scope === 'team') {
+    ready = !!a.leaderId;
+    who = pickRow('الليدر', leaders().map(l => [l.id, l.kt + ' · ' + l.name]), a.leaderId, 'glead');
+  } else if (p.scope === 'self') {
+    ready = !!a.userId;
+    who = pickRow('المحسن', S.users.filter(u => u.role === 'muhsen' && !u.reserve)
+      .slice(0, 60).map(u => [u.id, u.name + ' · ' + u.code]), a.userId, 'guser');
+  }
+
   w.innerHTML =
     '<div id="gate">' +
       '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>' +
       '<button class="themebtn gtheme" data-a="theme">' +
         '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
         '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
-      '<div class="gwrap">' +
+      '<div class="gwrap wide">' +
         '<div class="gbrand">' +
           '<span class="gmark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
           '<span><h1>مُحسن · الكنترول</h1>' +
@@ -4123,24 +4391,43 @@ function renderGate() {
         '</div>' +
         '<div class="gcard">' +
           '<label class="fl2" style="margin-top:0">ادخل بصفتك</label>' +
-          '<div class="roles">' + GATE_ROLES.map(r =>
-            '<button class="role' + (r.k === role ? ' on' : '') + '" data-a="grole" data-v="' + r.k + '">' +
-            icon(r.i, 's18') + '<b>' + E(r.l) + '</b><span>' + E(r.d) + '</span></button>').join('') +
-          '</div>' +
-          '<label class="fl2">اسم المستخدم</label>' +
-          '<input class="fld" id="q-gu" data-q="gu" value="' + E(qOf('gu') || 'control') + '" ' +
-            'placeholder="اسم المستخدم" autocomplete="username">' +
-          '<label class="fl2">كلمة المرور</label>' +
-          '<input class="fld" type="password" id="q-gp" data-q="gp" value="' + E(qOf('gp') || '••••••••') + '" ' +
-            'placeholder="كلمة المرور" autocomplete="current-password">' +
-          '<button class="btn p" style="width:100%;margin-top:18px" data-a="gin">' +
-            icon('i-logout','s16') + 'دخول غرفة العمليات</button>' +
-          '<div class="tiny faint" style="margin-top:12px;text-align:center">' +
-            'نسخة معاينة — الدخول لا يتحقّق من كلمة مرور حقيقية.</div>' +
+          '<div class="roles">' + PERMS.map(x => {
+            const n = x.scope === 'all' ? navItems().length : ((S.grants || {})[x.k] || []).length;
+            return '<button class="role' + (x.k === a.perm ? ' on' : '') + '" ' +
+              'data-a="grole" data-v="' + x.k + '">' +
+              '<span class="fl" style="gap:8px;width:100%">' + icon(x.i, 's18') +
+                '<b style="flex:1">' + E(x.ar) + '</b>' +
+                (x.edit ? pill('تعديل','gold') : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
+              '</span>' +
+              '<span>' + E(SCOPE_AR[x.scope]) + '</span></button>';
+          }).join('') + '</div>' +
+
+          (who ? '<div class="whobox">' + who + '</div>' : '') +
+
+          '<div class="gnote">' + icon(gr ? 'i-checkc' : 'i-warn','s16') +
+            '<span>' + (p.scope === 'all'
+              ? 'الإدارة العليا ترى كل شيء وتعدّل كل شيء.'
+              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. اطّلاع بلا تعديل.'
+                   : 'لم تُسنَد لهذه الصفة أي شاشة — ستدخل ولا ترى شيئًا. هذا هو السلوك المقصود.') +
+            '</span></div>' +
+
+          '<button class="btn p" style="width:100%;margin-top:16px"' +
+            (ready ? '' : ' disabled') + ' data-a="gin">' +
+            icon('i-logout','s16') + 'دخول' + (ready ? '' : ' — اختر من تُمثِّل') + '</button>' +
         '</div>' +
         '<div class="gfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي · ' + APP_VER + '</div>' +
       '</div>' +
     '</div>';
+}
+
+function pickRow(label, opts, cur, act) {
+  return '<label class="fl2">' + E(label) + '</label>' +
+    '<label class="fsel wide' + (cur ? ' on' : '') + '"><span>' + E(label) + '</span>' +
+      '<select data-g="' + act + '">' +
+        '<option value="">— اختر —</option>' +
+        opts.map(o => '<option value="' + E(o[0]) + '"' +
+          (cur === o[0] ? ' selected' : '') + '>' + E(o[1]) + '</option>').join('') +
+      '</select>' + icon('i-fwd','s14') + '</label>';
 }
 
 /* ============================================================
@@ -4151,10 +4438,10 @@ function renderGate() {
 function typeSwitch() {
   const cur = S.tab.tt || 'hajj';
   const n = {
-    hajj: S.tasks.length,
-    enrich: S.enrich.length,
+    hajj: V.tasks.length,
+    enrich: V.enrich.length,
     nusuk: openNusuk().length,
-    comply: S.forms.length
+    comply: V.forms.length
   };
   return '<div class="tswitch">' + Object.keys(TASKTYPE).map(k => {
     const T = TASKTYPE[k];
@@ -4195,7 +4482,7 @@ function taskRow(t) {
 
 function tabHajj() {
   const f = S.tab.tf || 'today';
-  const all = S.tasks.slice().sort((a, b) => a.start - b.start);
+  const all = V.tasks.slice().sort((a, b) => a.start - b.start);
   const list = f === 'today' ? all.filter(t => dayStart(t.start) === dayStart(now()))
     : f === 'live' ? all.filter(t => now() >= t.start && now() < t.end && t.status !== 'done')
     : f === 'next' ? all.filter(t => t.start > now())
@@ -4228,7 +4515,7 @@ function tabHajj() {
 function tabEnrich() {
   const f = S.tab.ef || 'open';
   const q = qOf('enr');
-  let list = S.enrich.slice().sort((a, b) => a.start - b.start);
+  let list = V.enrich.slice().sort((a, b) => a.start - b.start);
   if (f === 'open') list = list.filter(x => x.status === 'unassigned');
   else if (f === 'assigned') list = list.filter(x => x.status === 'assigned');
   else if (f === 'done') list = list.filter(x => x.status === 'done');
@@ -4236,16 +4523,16 @@ function tabEnrich() {
   const fc = fOf('enr','city'), fk = fOf('enr','kt'), ft = fOf('enr','type');
   if (fc) list = list.filter(x => siteById(x.siteId).city === fc);
   if (fk) list = list.filter(x => x.kt === fk);
-  if (ft) list = list.filter(x => { const o = x.kt ? S.orgs.find(z => z.kt === x.kt) : null;
+  if (ft) list = list.filter(x => { const o = x.kt ? V.orgs.find(z => z.kt === x.kt) : null;
     return o && o.type === ft; });
   const byCity = {};
-  S.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
-  const seats = S.enrich.reduce((a, x) => a + x.seats, 0);
-  const booked = S.enrich.reduce((a, x) => a + x.booked, 0);
+  V.enrich.forEach(x => { const c = siteById(x.siteId).city; byCity[c] = (byCity[c] || 0) + 1; });
+  const seats = V.enrich.reduce((a, x) => a + x.seats, 0);
+  const booked = V.enrich.reduce((a, x) => a + x.booked, 0);
 
   return '<div class="grid g4">' +
-      stat({ label:'رحلات واردة', n:S.enrich.length, ic:'i-bus',
-        sub:'من نظام المزارات', series:[4,7,9,11,13,14,15,S.enrich.length] }) +
+      stat({ label:'رحلات واردة', n:V.enrich.length, ic:'i-bus',
+        sub:'من نظام المزارات', series:[4,7,9,11,13,14,15,V.enrich.length] }) +
       stat({ label:'بلا تسكين', n:freeEnrich().length, ic:'i-flag',
         cls:freeEnrich().length ? 'warn' : 'up', sub:'تنتظر مجموعة',
         series:[1,2,2,3,3,4,3,Math.max(1, freeEnrich().length)] }) +
@@ -4268,7 +4555,7 @@ function tabEnrich() {
         { k:'city', label:'المدينة', opts:optCities() },
         { k:'kt',   label:'الـKT',   opts:optKT() },
         { k:'type', label:'النوع',   opts:optTypes() }
-      ], list.length, S.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
+      ], list.length, V.enrich.length, 'ابحث بمزار أو رقم رحلة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
         const si = siteById(x.siteId);
         const M = x.muhsenId ? userById(x.muhsenId) : null;
@@ -4299,14 +4586,14 @@ function tabEnrich() {
 function tabNusuk() {
   const f = S.tab.nf || 'open';
   const q = qOf('nsk');
-  let list = S.nusuk.slice().sort((a, b) => b.at - a.at);
+  let list = V.nusuk.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(c => f === 'open' ? c.state !== 'delivered' : c.state === f);
   if (q) list = list.filter(c => (c.pilgrim + ' ' + c.passport + ' ' + c.kt + ' ' + c.no).indexOf(q) >= 0);
   const nk = fOf('nsk','kt'), ns = fOf('nsk','svc'), nb = fOf('nsk','by');
   if (nk) list = list.filter(c => c.kt === nk);
   if (ns) list = list.filter(c => c.svc === ns);
   if (nb) list = list.filter(c => c.openedBy === nb);
-  const svcN = k => S.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
+  const svcN = k => V.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
 
   return '<div class="grid g4">' +
       stat({ label:'حالات مفتوحة', n:openNusuk().length, ic:'i-idcard',
@@ -4331,22 +4618,22 @@ function tabNusuk() {
         { k:'kt',  label:'الـKT',   opts:optKT() },
         { k:'svc', label:'الخدمة', opts:Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]) },
         { k:'by',  label:'فتحها',  opts:[['محسن','محسن'],['ليدر','ليدر'],['مشرف','مشرف'],['الكنترول','الكنترول']] }
-      ], list.length, S.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
+      ], list.length, V.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
       (list.length ? '<div class="plist">' + list.map((c, i) => {
-        const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
+        const SV = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
         const to = c.assignedTo ? userById(c.assignedTo) : null;
-        const pct = Math.round(c.step / V.steps.length * 100);
+        const pct = Math.round(c.step / SV.steps.length * 100);
         return '<div class="prow trow" data-a="nopen" data-id="' + c.id + '" ' +
           'style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
-          '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
+          '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(SV.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
           '<span>' + LTR(c.no) + ' · جواز ' + LTR(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
-          '<span class="fl" style="gap:7px">' + pill(V.ar, V.c) + pill(ST.ar, ST.c) + '</span>' +
+          '<span class="fl" style="gap:7px">' + pill(SV.ar, SV.c) + pill(ST.ar, ST.c) + '</span>' +
           '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
             '<div class="quote">' + E(c.note) + ' — فتحها ' + E(c.openedBy) + '</div>' +
-            '<div class="steps2">' + V.steps.map((s, k) =>
+            '<div class="steps2">' + SV.steps.map((s, k) =>
               '<span class="st2' + (k < c.step ? ' done' : k === c.step ? ' now' : '') + '">' +
               '<i></i>' + E(s) + '</span>').join('') + '</div>' +
             '<div class="fl" style="gap:11px;margin-top:11px;flex-wrap:wrap">' +
@@ -4365,18 +4652,18 @@ function tabNusuk() {
 /* ══════════════ ٤) الامتثال ══════════════ */
 function tabComply() {
   return '<div class="grid g3">' +
-      stat({ label:'قوالب منشورة', n:S.forms.length, ic:'i-clip',
-        sub:'تُبنى مرّة وتُسنَد مرارًا', series:[1,1,2,2,3,3,3,S.forms.length] }) +
-      stat({ label:'إدخالات', n:S.subs.length, ic:'i-checkc', cls:'up',
-        sub:'زيارات مسجّلة بإجاباتها', series:[3,6,9,12,14,16,18,S.subs.length] }) +
-      stat({ label:'دون الحدّ', n:S.subs.filter(b => b.score < 70).length, ic:'i-flag',
-        cls:'warn', sub:'تستدعي زيارة أخرى', series:[4,4,5,4,3,3,2,S.subs.filter(b => b.score < 70).length] }) +
+      stat({ label:'قوالب منشورة', n:V.forms.length, ic:'i-clip',
+        sub:'تُبنى مرّة وتُسنَد مرارًا', series:[1,1,2,2,3,3,3,V.forms.length] }) +
+      stat({ label:'إدخالات', n:V.subs.length, ic:'i-checkc', cls:'up',
+        sub:'زيارات مسجّلة بإجاباتها', series:[3,6,9,12,14,16,18,V.subs.length] }) +
+      stat({ label:'دون الحدّ', n:V.subs.filter(b => b.score < 70).length, ic:'i-flag',
+        cls:'warn', sub:'تستدعي زيارة أخرى', series:[4,4,5,4,3,3,2,V.subs.filter(b => b.score < 70).length] }) +
     '</div>' +
 
     '<div class="card gold">' +
       head('قوالب الامتثال', 'القالب يُبنى مرّة، ويُسنَد لكل مجموعة، ويُعبَّأ كلّما لزم',
         '<button class="btn p sm" data-a="fnew">' + icon('i-plus','s16') + 'قالب جديد</button>', 'i-clip') +
-      '<div class="gcards">' + S.forms.map((f, i) => {
+      '<div class="gcards">' + V.forms.map((f, i) => {
         const bs = subsOf(f.id);
         const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b.score, 0) / bs.length) : 0;
         const targets = [...new Set(bs.map(b => b.target))];
@@ -4404,7 +4691,7 @@ function tabComply() {
 
     '<div class="card">' +
       head('آخر الإدخالات', 'كل إدخال زيارة لها رقمها — والتحسّن يُقرأ بين الزيارتين', '', 'i-hist') +
-      '<div class="plist">' + S.subs.slice().sort((a, b) => b.at - a.at).slice(0, 8).map((b, i) => {
+      '<div class="plist">' + V.subs.slice().sort((a, b) => b.at - a.at).slice(0, 8).map((b, i) => {
         const f = formById(b.formId) || {}, by = userById(b.by) || {};
         return '<div class="prow" data-a="fsub" data-id="' + b.id + '" ' +
           'style="animation-delay:' + (i * 45) + 'ms">' +
@@ -4496,7 +4783,7 @@ function formDash(id) {
 
 /* ---------- إدخال واحد ---------- */
 function subDrawer(id) {
-  const b = S.subs.find(x => x.id === id); if (!b) return;
+  const b = V.subs.find(x => x.id === id); if (!b) return;
   const f = formById(b.formId) || {}, by = userById(b.by) || {};
   const mine = subsOf(b.formId).filter(x => x.target === b.target).sort((a, c) => a.at - c.at);
   openDrawer(b.target, f.title + ' · الزيارة ' + AR(b.visit) + ' من ' + AR(b.of), f.icon,
@@ -4564,15 +4851,15 @@ function screenBuild() {
   const ready = d.leaderId && d.members.length === 5 && d.orgId;
 
   return '<div class="grid g4">' +
-      stat({ label:'مجموعات مشكَّلة', n:S.groups.length, ic:'i-users', cls:'up',
-        sub:'تُسكَّن مهامها تلقائيًّا', series:[1,2,2,3,4,4,5,S.groups.length] }) +
+      stat({ label:'مجموعات مشكَّلة', n:V.groups.length, ic:'i-users', cls:'up',
+        sub:'تُسكَّن مهامها تلقائيًّا', series:[1,2,2,3,4,4,5,V.groups.length] }) +
       stat({ label:'محسنون بلا مجموعة', n:free.length, ic:'i-user',
         cls:free.length ? 'warn' : 'up', sub:'هؤلاء وحدهم متاحون للتشكيل',
         series:[25,20,15,10,7,4,2,Math.max(0, freeMuhsens().length)] }) +
       stat({ label:'مشرفون', n:supervisors().length, ic:'i-shield',
         sub:'على ' + AR(HOTELS.length) + ' فنادق', series:[1,2,2,3,3,4,4,supervisors().length] }) +
-      stat({ label:'جهات الحجّ', n:S.orgs.length, ic:'i-flag',
-        sub:'بعثات وشركات', series:[1,2,3,3,4,4,5,S.orgs.length] }) +
+      stat({ label:'جهات الحجّ', n:V.orgs.length, ic:'i-flag',
+        sub:'بعثات وشركات', series:[1,2,3,3,4,4,5,V.orgs.length] }) +
     '</div>' +
 
     '<div class="board3">' +
@@ -4635,7 +4922,7 @@ function screenBuild() {
         }).join('') + '</div>' +
 
         '<div class="pickrow"><span class="sl">جهة الحجّ</span>' +
-          '<div class="chips">' + S.orgs.map(o =>
+          '<div class="chips">' + V.orgs.map(o =>
             '<button class="chip2' + (d.orgId === o.id ? ' on' : '') + '" data-a="borg" data-id="' + o.id + '">' +
             E(o.kt) + ' · ' + E(o.ar) + '</button>').join('') + '</div></div>' +
 
@@ -4661,11 +4948,11 @@ function screenBuild() {
 
       /* ═════ المجموعات القائمة ═════ */
       '<div class="card src">' +
-        head('المجموعات القائمة', AR(S.groups.length) + ' مجموعة', '', 'i-checkc') +
-        (S.groups.length ? S.groups.map(g => {
+        head('المجموعات القائمة', AR(V.groups.length) + ' مجموعة', '', 'i-checkc') +
+        (V.groups.length ? V.groups.map(g => {
           const gl = userById(g.leaderId) || {}, go = orgById(g.orgId) || {};
           const gh = hotelById(g.hotelId), gs = g.supervisorId ? userById(g.supervisorId) : null;
-          const tn = S.tasks.filter(t => t.leaderId === g.leaderId).length;
+          const tn = V.tasks.filter(t => t.leaderId === g.leaderId).length;
           return '<div class="gitem' + (d.editing === g.id ? ' on' : '') + '">' +
             '<div class="fl" style="gap:10px">' + avatar(gl, 'sm') +
               '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(gl.name || '') + '</b>' +
@@ -4691,7 +4978,7 @@ function screenBuild() {
         '', 'i-shield') +
       '<div class="grid g2">' + HOTELS.map(h => {
         const sup = supervisors().filter(u => u.hotelId === h.id);
-        const gs = S.groups.filter(g => g.hotelId === h.id);
+        const gs = V.groups.filter(g => g.hotelId === h.id);
         return '<div class="hotel">' +
           '<div class="fl" style="gap:11px;margin-bottom:11px">' +
             '<span class="ico">' + icon('i-key','s18') + '</span>' +
@@ -4723,7 +5010,7 @@ function screenBuild() {
    ============================================================ */
 
 function tlWindow() {
-  const all = S.tasks;
+  const all = V.tasks;
   if (!all.length) return { a: now() - DAY, b: now() + DAY };
   const a = Math.min.apply(null, all.map(t => t.start)) - 4 * HR;
   const b = Math.max.apply(null, all.map(t => t.end)) + 4 * HR;
@@ -4742,12 +5029,12 @@ function screenTimeline() {
   const rows = leaders().filter(L => zoom === 'all' || zoom === L.id);
 
   return '<div class="grid g4">' +
-      kpi('مهام الموسم', '', 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks', S.tasks.length) +
+      kpi('مهام الموسم', '', 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks', V.tasks.length) +
       kpi('أيام التشغيل', '', 'من أول مهمة إلى آخرها', '', 'i-cal', days.length) +
       kpi('ذروة التزامن', '', 'أكثر عدد مهام في وقت واحد', 'warn', 'i-play', peakOverlap()) +
       kpi('متوسط التقييم', '', 'للمهام المنجزة', 'up', 'i-star',
-        Number((S.tasks.filter(t => t.rating).reduce((a, t) => a + t.rating, 0) /
-          Math.max(1, S.tasks.filter(t => t.rating).length)).toFixed(1))) +
+        Number((V.tasks.filter(t => t.rating).reduce((a, t) => a + t.rating, 0) /
+          Math.max(1, V.tasks.filter(t => t.rating).length)).toFixed(1))) +
     '</div>' +
 
     '<div class="card gold">' +
@@ -4761,7 +5048,7 @@ function screenTimeline() {
         '<div class="tlhead">' + days.map(d =>
           '<span>' + dayName(d).slice(0, 3) + ' ' + AR(new Date(d).getDate()) + '</span>').join('') + '</div>' +
         rows.map((L, ri) => {
-          const ts = S.tasks.filter(t => t.leaderId === L.id).sort((a, b) => a.start - b.start);
+          const ts = V.tasks.filter(t => t.leaderId === L.id).sort((a, b) => a.start - b.start);
           return '<div class="tlrow">' +
             '<span class="tlname">' + E(L.kt) + '<br><span class="tiny faint">' +
               E(L.name.split(' ')[0]) + '</span></span>' +
@@ -4795,7 +5082,7 @@ function screenTimeline() {
 /* أكثر عدد مهام متزامنة في الموسم */
 function peakOverlap() {
   const pts = [];
-  S.tasks.forEach(t => { pts.push([t.start, 1]); pts.push([t.end, -1]); });
+  V.tasks.forEach(t => { pts.push([t.start, 1]); pts.push([t.end, -1]); });
   pts.sort((a, b) => a[0] - b[0]);
   let cur = 0, peak = 0;
   pts.forEach(p => { cur += p[1]; if (cur > peak) peak = cur; });
@@ -4808,7 +5095,7 @@ function taskDrawer(id) {
   const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, org = orgById(t.orgId) || {};
   const running = now() >= t.start && now() < t.end && t.status !== 'done';
   const team = t.assigned.map(userById).filter(Boolean);
-  const sp = (S.support || []).filter(s => s.taskId === t.id);
+  const sp = (V.support || []).filter(s => s.taskId === t.id);
 
   openDrawer(t.title, t.kt + ' · ' + (L.name || ''), c.i || 'i-tasks',
     '<div class="card" style="--kc:' + (c.c || 'var(--g)') + '">' +
@@ -5121,6 +5408,13 @@ document.addEventListener('change', e => {
     return;
   }
   /* قوائم الفلترة */
+  const gk = t.getAttribute && t.getAttribute('data-g');
+  if (gk) {
+    S.gate = S.gate || {};
+    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId' };
+    S.gate[map[gk]] = t.value || null;
+    save(); renderGate(); return;
+  }
   const fsel = t.getAttribute && t.getAttribute('data-f');
   if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
   if (!t.classList || !t.classList.contains('spec')) return;
@@ -5184,12 +5478,23 @@ const SCREENS = {
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline
+  timeline: screenTimeline, perms: screenPerms
 };
 
+/* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
+const READ_ACTS = ['go','wide','wall','wallauto','theme','palette','closepal','palrun',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gview',
+  'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
+  'rpopen','bedit','bclear','clock'];
+
 function render() {
-  const n = S.route.n;
-  const fn = SCREENS[n] || screenOps;
+  buildView();                       /* الرؤية قبل أي قراءة */
+  let n = S.route.n;
+  if (!maySee(n)) {                  /* شاشة غير ممنوحة: أوّل مسموحة أو صفحة المنع */
+    const first = allowed()[0];
+    if (first) { n = first; S.route = { n }; }
+  }
+  const fn = maySee(n) ? (SCREENS[n] || screenOps) : screenDenied;
   applyTheme();
   const room = document.getElementById('room');
   room.className = (S.wall ? 'wall' : '') + (S.wide && !S.wall ? ' wide' : '');
@@ -5247,6 +5552,12 @@ document.addEventListener('click', ev => {
   const b = ev.target.closest && ev.target.closest('[data-a]');
   if (!b) return;
   const a = b.dataset.a, id = b.dataset.id, v = b.dataset.v;
+
+  /* الحارس: من لا يملك التعديل لا يُنفّذ إجراءً — والاطّلاع مباح */
+  if (!canEdit() && READ_ACTS.indexOf(a) < 0) {
+    toast('صفتك للاطّلاع لا للتعديل — ' + curPerm().ar, 'r');
+    return;
+  }
 
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
@@ -5394,18 +5705,18 @@ document.addEventListener('click', ev => {
     }
     case 'nstep': {
       const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      const V = NUSUK_SVC[c.svc];
-      if (c.step >= V.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
+      const SV = NUSUK_SVC[c.svc];
+      if (c.step >= SV.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
       const note = (S.q.nstepnote || '').trim();
       const f = (S.files || {}).nusukStep || null;
       c.trail = c.trail || [];
       c.trail.push({ at:now(), by:'الكنترول',
-        text:V.steps[c.step] + (note ? ' — ' + note : ''), file:f });
+        text:SV.steps[c.step] + (note ? ' — ' + note : ''), file:f });
       c.step += 1;
-      c.state = c.step >= V.steps.length ? 'issued'
+      c.state = c.step >= SV.steps.length ? 'issued'
         : c.step >= 2 ? 'processing' : 'new';
       S.q.nstepnote = ''; if (S.files) delete S.files.nusukStep;
-      logIt(c.no + ' — ' + V.steps[c.step - 1], 'info');
+      logIt(c.no + ' — ' + SV.steps[c.step - 1], 'info');
       save(); nusukDrawer(c.id); toast(NUSUK_STATE[c.state].ar);
       return;
     }
@@ -5542,9 +5853,37 @@ document.addEventListener('click', ev => {
     case 'staffopen': staffDrawer(id); return;
     case 'logout': S.auth = false; S.drawer = null; save(); render();
       toast('خرجتَ من الغرفة'); return;
-    case 'grole': S.gateRole = v; save(); renderGate(); return;
-    case 'gin': S.auth = true; save(); render();
-      toast('أهلًا — ' + (GATE_ROLES.find(x => x.k === (S.gateRole || 'ctl')) || {}).l); return;
+    case 'grole': S.gate = S.gate || {}; S.gate.perm = v; save(); renderGate(); return;
+    case 'pgtog': {
+      const k = b.dataset.k;
+      S.grants[k] = S.grants[k] || [];
+      const i = S.grants[k].indexOf(v);
+      if (i >= 0) S.grants[k].splice(i, 1); else S.grants[k].push(v);
+      logIt((i >= 0 ? 'مُنعت' : 'مُنحت') + ' شاشة «' + (navOf(v) || {}).l +
+        '» لصفة ' + permOf(k).ar, 'info');
+      break;
+    }
+    case 'pgall': {
+      S.grants[v] = navItems().map(x => x.k).filter(x => x !== 'perms');
+      logIt('مُنحت كل الشاشات لصفة ' + permOf(v).ar, 'info');
+      toast('مُنحت كل الشاشات — بلا تعديل'); break;
+    }
+    case 'pgnone': {
+      S.grants[v] = [];
+      logIt('مُنعت كل الشاشات عن صفة ' + permOf(v).ar, 'info');
+      toast('لن ترى هذه الصفة شيئًا', 'r'); break;
+    }
+    case 'gin': {
+      const g = S.gate || { perm:'admin' };
+      S.actor = { perm:g.perm, orgId:g.orgId, hotelId:g.hotelId,
+        leaderId:g.leaderId, userId:g.userId };
+      S.auth = true;
+      const first = allowed()[0];
+      S.route = { n: first || 'ops' };
+      save(); render();
+      toast('دخلتَ بصفة ' + curPerm().ar + ' — ' + SCOPE_AR[curPerm().scope]);
+      return;
+    }
     /* المنتقي: من يُسنَد إليه */
     case 'pickdo': {
       const p = S.picker; if (!p) return;

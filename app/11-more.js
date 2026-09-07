@@ -77,7 +77,7 @@ function screenPilgrims() {
 function pilgrimDrawer(id) {
   const p = allPilgrimRows().find(x => x.id === id); if (!p) return;
   const L = userById(p.leaderId) || {};
-  const tk = S.tickets.filter(k => k.pilgrimId === p.id);
+  const tk = V.tickets.filter(k => k.pilgrimId === p.id);
   openDrawer(p.name, p.no + ' · ' + p.org, 'i-user',
     '<div class="fl" style="gap:14px">' + avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'lg') +
       '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(p.name) + '</b>' +
@@ -106,13 +106,13 @@ function pilgrimDrawer(id) {
 
 /* ══════════════ ٢) الجودة والتقييم ══════════════ */
 function screenQuality() {
-  const done = S.tasks.filter(t => t.status === 'done' && t.rating);
+  const done = V.tasks.filter(t => t.status === 'done' && t.rating);
   const avg = done.length ? done.reduce((a, t) => a + t.rating, 0) / done.length : 0;
   const board = leaders().map(L => {
-    const d = S.tasks.filter(t => t.leaderId === L.id && t.status === 'done' && t.rating);
+    const d = V.tasks.filter(t => t.leaderId === L.id && t.status === 'done' && t.rating);
     return { L, n:d.length, r:ktRating(L.id),
       low:d.filter(t => t.rating < 3.5).length,
-      auto:S.tasks.filter(t => t.leaderId === L.id && t.autoStarted).length };
+      auto:V.tasks.filter(t => t.leaderId === L.id && t.autoStarted).length };
   }).sort((a, b) => b.r - a.r);
   /* توزيع الدرجات على خمس درجات */
   const STARN = { 1:'نجمة', 2:'نجمتان', 3:'٣ نجوم', 4:'٤ نجوم', 5:'٥ نجوم' };
@@ -131,7 +131,7 @@ function screenQuality() {
         ic:'i-shield', cls:'up',
         sub:board[0] ? board[0].L.kt + ' · ' + board[0].L.name : '—',
         series:[3.9,4,4.1,4.2,4.3,4.2,4.4,board[0] ? board[0].r : 0] }) +
-      stat({ label:'بدأها النظام', n:S.tasks.filter(t => t.autoStarted).length, ic:'i-play',
+      stat({ label:'بدأها النظام', n:V.tasks.filter(t => t.autoStarted).length, ic:'i-play',
         cls:'bad', sub:'تُخصم من التزام الفريق', series:[1,2,2,3,4,5,6,7] }) +
     '</div>' +
 
@@ -174,7 +174,7 @@ function screenQuality() {
 const MEDIA_IC = { 'نص':'i-list', 'صور':'i-photo', 'فيديو':'i-play', 'PDF':'i-doc' };
 
 function screenGuides() {
-  const gs = S.guides.slice().sort((a, b) => b.at - a.at);
+  const gs = V.guides.slice().sort((a, b) => b.at - a.at);
   const ok = gs.filter(g => g.status === 'معتمد').length;
   return '<div class="grid g3">' +
       stat({ label:'أدلة معتمدة', n:ok, ic:'i-checkc', cls:'up',
@@ -212,7 +212,7 @@ function screenGuides() {
 }
 
 function guideDrawer(id) {
-  const g = S.guides.find(x => x.id === id); if (!g) return;
+  const g = V.guides.find(x => x.id === id); if (!g) return;
   const c = CAT[g.kind] || {}, by = userById(g.by) || {};
   const steps = [];
   for (let i = 1; i <= g.steps; i++) steps.push(i);
@@ -270,7 +270,7 @@ function GUIDE_STEP(kind, i) {
 
 /* ══════════════ ٤) البثّ والإشعارات ══════════════ */
 function screenBroadcast() {
-  const cs = S.casts.slice().sort((a, b) => b.at - a.at);
+  const cs = V.casts.slice().sort((a, b) => b.at - a.at);
   const aud = S.tab.aud || CAST_AUD[0];
   const kind = S.tab.ck || 'عادي';
   const reach = cs.reduce((a, c) => a + c.seen, 0), of = cs.reduce((a, c) => a + c.of, 0);
@@ -329,13 +329,13 @@ function screenBroadcast() {
 /* ══════════════ ٥) تبديل الشِفتات ══════════════ */
 function screenShifts() {
   const f = S.tab.sw || 'open';
-  const list = S.swaps.filter(w => f === 'open' ? w.state === 'pending'
+  const list = V.swaps.filter(w => f === 'open' ? w.state === 'pending'
     : f === 'done' ? w.state === 'done' : f === 'no' ? w.state === 'no' : true)
     .sort((a, b) => b.at - a.at);
   return '<div class="grid g3">' +
       stat({ label:'بانتظار قرارك', n:openSwaps().length, ic:'i-swap',
         cls:openSwaps().length ? 'warn' : '', sub:'رفعها الليدرز', series:[1,2,1,3,2,4,3,openSwaps().length] }) +
-      stat({ label:'اعتُمدت', n:S.swaps.filter(w => w.state === 'done').length, ic:'i-checkc',
+      stat({ label:'اعتُمدت', n:V.swaps.filter(w => w.state === 'done').length, ic:'i-checkc',
         cls:'up', sub:'وأُبلغ الطرفان', series:[2,3,3,4,5,5,6,6] }) +
       stat({ label:'ورديات اليوم', n:SHIFTS.length * leaders().length, ic:'i-hour',
         sub:AR(SHIFTS.length) + ' ورديات × ' + AR(leaders().length) + ' فرق', series:[9,12,12,15,15,15,15,15] }) +
@@ -344,7 +344,7 @@ function screenShifts() {
     '<div class="card">' +
       head('جدول الورديات', 'ثلاث ورديات تغطّي اليوم كاملًا', '', 'i-hour') +
       '<div class="grid g3">' + SHIFTS.map((sh, i) => {
-        const on = S.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
+        const on = V.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
         /* التوزيع لا يقسم بالتساوي: المسائية أثقل والليلية أخفّ */
         const share = [0.38, 0.40, 0.22][i];
         const nOn = Math.round(on * share);
@@ -393,17 +393,17 @@ function screenShifts() {
 function screenAudit() {
   const f = S.tab.lg || 'all';
   const q = qOf('log');
-  let list = S.log.slice().sort((a, b) => b.at - a.at);
+  let list = V.log.slice().sort((a, b) => b.at - a.at);
   if (f !== 'all') list = list.filter(l => l.kind === f);
   if (q) list = list.filter(l => l.text.indexOf(q) >= 0);
   const kinds = [['all', 'الكل']].concat(
-    Object.keys(LOG_KIND).filter(k => S.log.some(l => l.kind === k))
+    Object.keys(LOG_KIND).filter(k => V.log.some(l => l.kind === k))
       .map(k => [k, LOG_KIND[k].ar]));
 
   return '<div class="card">' +
     head('سجل النظام', 'كل قرار بصاحبه ووقته — لا شيء يُمحى ولا يُعدَّل',
-      pill(AR(S.log.length) + ' قيد', 'gold'), 'i-hist') +
-    '<div class="tools">' + search('log', 'ابحث في السجل…', S.log.length) +
+      pill(AR(V.log.length) + ' قيد', 'gold'), 'i-hist') +
+    '<div class="tools">' + search('log', 'ابحث في السجل…', V.log.length) +
       segmented('lg', kinds, f) + '</div>' +
     (list.length ? '<div class="tline">' + list.map((l, i) => {
       const k = LOG_KIND[l.kind] || LOG_KIND.info;

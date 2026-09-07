@@ -268,6 +268,13 @@ document.addEventListener('change', e => {
     return;
   }
   /* قوائم الفلترة */
+  const gk = t.getAttribute && t.getAttribute('data-g');
+  if (gk) {
+    S.gate = S.gate || {};
+    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId' };
+    S.gate[map[gk]] = t.value || null;
+    save(); renderGate(); return;
+  }
   const fsel = t.getAttribute && t.getAttribute('data-f');
   if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
   if (!t.classList || !t.classList.contains('spec')) return;

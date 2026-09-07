@@ -30,8 +30,8 @@ function filterBar(key, defs, n, total, ph) {
 }
 
 /* خيارات شائعة */
-const optOrgs   = () => S.orgs.map(o => [o.id, o.kt + ' · ' + o.ar]);
-const optKT     = () => S.orgs.map(o => [o.kt, o.kt + ' · ' + (o.type || '')]);
+const optOrgs   = () => V.orgs.map(o => [o.id, o.kt + ' · ' + o.ar]);
+const optKT     = () => V.orgs.map(o => [o.kt, o.kt + ' · ' + (o.type || '')]);
 const optHotels = () => HOTELS.map(h => [h.id, h.ar]);
 const optSpecs  = () => SPECS.map(s => [s, s]);
 const optCities = () => [...new Set(SITES.map(s => s.city))].map(c => [c, c]);
@@ -57,26 +57,26 @@ function staffOrg(u) {
 function staffTasks(id) {
   const u = userById(id); if (!u) return [];
   const out = [];
-  S.tasks.forEach(t => {
+  V.tasks.forEach(t => {
     if (t.leaderId === id || (t.assigned || []).indexOf(id) >= 0)
       out.push({ type:'hajj', at:t.start, title:t.title, sub:t.kt + ' · ' + t.place,
         state:t.status === 'done' ? 'منجزة' : now() >= t.start ? 'جارية' : 'قادمة', id:t.id });
   });
-  S.enrich.forEach(x => { if (x.muhsenId === id) {
+  V.enrich.forEach(x => { if (x.muhsenId === id) {
     const si = siteById(x.siteId);
     out.push({ type:'enrich', at:x.start, title:si.ar, sub:x.ref + ' · ' + si.city,
       state:x.status === 'done' ? 'منتهية' : 'مسكَّنة', id:x.id });
   }});
-  S.nusuk.forEach(c => { if (c.assignedTo === id) {
+  V.nusuk.forEach(c => { if (c.assignedTo === id) {
     out.push({ type:'nusuk', at:c.at, title:NUSUK_SVC[c.svc].ar + ' — ' + c.pilgrim,
       sub:c.no + ' · ' + c.kt, state:NUSUK_STATE[c.state].ar, id:c.id });
   }});
-  S.subs.forEach(b => { if (b.by === id) {
+  V.subs.forEach(b => { if (b.by === id) {
     const f = formById(b.formId) || {};
     out.push({ type:'comply', at:b.at, title:f.title + ' — ' + b.target,
       sub:'الزيارة ' + AR(b.visit) + ' · ' + AR(b.score) + '٪', state:'مُعبَّأ', id:b.id });
   }});
-  S.assigns.forEach(a => { if (a.to === id) {
+  V.assigns.forEach(a => { if (a.to === id) {
     out.push({ type:a.type, at:a.at, title:a.title, sub:a.sub, state:a.state, id:a.id });
   }});
   return out.sort((a, b) => b.at - a.at);
@@ -86,7 +86,7 @@ function staffTasks(id) {
 function screenStaff() {
   const role = S.tab.sr || 'all';
   const q = qOf('stf');
-  let all = S.users.filter(u => u.role === 'supervisor' || u.role === 'leader' || u.role === 'muhsen');
+  let all = V.users.filter(u => u.role === 'supervisor' || u.role === 'leader' || u.role === 'muhsen');
   const total = all.length;
   let list = all.slice();
   if (role !== 'all') list = list.filter(u => role === 'reserve' ? u.reserve
@@ -234,7 +234,7 @@ function paintPicker() {
 /* ما يقع عند الاختيار — لكل نوع أثره */
 function applyPick(kind, id, u) {
   if (kind === 'enrich') {
-    const x = S.enrich.find(e => e.id === id); if (!x) return;
+    const x = V.enrich.find(e => e.id === id); if (!x) return;
     const g = staffGroup(u), L = g ? userById(g.leaderId) : null;
     x.muhsenId = u.id; x.leaderId = g ? g.leaderId : x.leaderId;
     x.kt = g ? (orgById(g.orgId) || {}).kt : x.kt; x.status = 'assigned';
@@ -242,7 +242,7 @@ function applyPick(kind, id, u) {
       (L ? ' · ' + L.kt : ''), 'assign');
     toast('أُسندت إلى ' + u.name);
   } else if (kind === 'nusuk') {
-    const c = S.nusuk.find(x => x.id === id); if (!c) return;
+    const c = V.nusuk.find(x => x.id === id); if (!c) return;
     c.assignedTo = u.id;
     c.trail = c.trail || [];
     c.trail.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name, file:null });
@@ -251,21 +251,21 @@ function applyPick(kind, id, u) {
   } else if (kind === 'comply') {
     const a = S.pendForm; if (!a) return;
     const f = formById(a.formId) || {};
-    S.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
+    V.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
       title:f.title + ' — ' + a.target, sub:'نموذج امتثال · ' + a.target, state:'بانتظار التعبئة',
       formId:a.formId, target:a.target });
     logIt('أُسند نموذج «' + f.title + '» على ' + a.target + ' إلى ' + u.name, 'assign');
     toast('أُسند إلى ' + u.name);
     S.pendForm = null;
   } else if (kind === 'ticket') {
-    const k = S.tickets.find(x => x.id === id); if (!k) return;
+    const k = V.tickets.find(x => x.id === id); if (!k) return;
     k.assignedTo = u.id; k.status = 'قيد المعالجة';
     k.thread = k.thread || [];
     k.thread.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name });
     logIt('أُسندت تذكرة ' + k.no + ' إلى ' + u.name, 'ticket');
     toast('أُسندت إلى ' + u.name);
   } else if (kind === 'report') {
-    const r = S.reports.find(x => x.id === id); if (!r) return;
+    const r = V.reports.find(x => x.id === id); if (!r) return;
     r.assignedTo = u.id; r.status = 'قيد المعالجة';
     r.thread = r.thread || [];
     r.thread.push({ at:now(), by:'الكنترول', text:'أُسند إلى ' + u.name });
@@ -275,7 +275,7 @@ function applyPick(kind, id, u) {
     /* تسكين مشرف على فندق */
     const h = hotelById(id);
     u.hotelId = id;
-    S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
+    V.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
     logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar, 'assign');
     toast(u.name + ' → ' + h.ar);
   }
@@ -283,7 +283,7 @@ function applyPick(kind, id, u) {
 
 /* مرشّحو كل نوع */
 function candFor(kind, ref) {
-  const all = S.users.filter(u => u.role === 'muhsen');
+  const all = V.users.filter(u => u.role === 'muhsen');
   if (kind === 'enrich') {
     const x = ref;
     const g = x.leaderId ? groupsOf(x.leaderId)[0] : null;
@@ -298,7 +298,7 @@ function candFor(kind, ref) {
   if (kind === 'comply') {
     /* المحسن يُختار حسب الفندق الذي تسكن فيه مجموعته */
     const hid = ref;
-    const gs = S.groups.filter(g => g.hotelId === hid);
+    const gs = V.groups.filter(g => g.hotelId === hid);
     const ids = [];
     gs.forEach(g => { ids.push(g.leaderId); g.members.forEach(m => ids.push(m.id)); });
     const sup = supervisors().filter(u => u.hotelId === hid);

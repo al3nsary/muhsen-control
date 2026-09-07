@@ -6,12 +6,23 @@ const SCREENS = {
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline
+  timeline: screenTimeline, perms: screenPerms
 };
 
+/* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
+const READ_ACTS = ['go','wide','wall','wallauto','theme','palette','closepal','palrun',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gview',
+  'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
+  'rpopen','bedit','bclear','clock'];
+
 function render() {
-  const n = S.route.n;
-  const fn = SCREENS[n] || screenOps;
+  buildView();                       /* الرؤية قبل أي قراءة */
+  let n = S.route.n;
+  if (!maySee(n)) {                  /* شاشة غير ممنوحة: أوّل مسموحة أو صفحة المنع */
+    const first = allowed()[0];
+    if (first) { n = first; S.route = { n }; }
+  }
+  const fn = maySee(n) ? (SCREENS[n] || screenOps) : screenDenied;
   applyTheme();
   const room = document.getElementById('room');
   room.className = (S.wall ? 'wall' : '') + (S.wide && !S.wall ? ' wide' : '');
@@ -69,6 +80,12 @@ document.addEventListener('click', ev => {
   const b = ev.target.closest && ev.target.closest('[data-a]');
   if (!b) return;
   const a = b.dataset.a, id = b.dataset.id, v = b.dataset.v;
+
+  /* الحارس: من لا يملك التعديل لا يُنفّذ إجراءً — والاطّلاع مباح */
+  if (!canEdit() && READ_ACTS.indexOf(a) < 0) {
+    toast('صفتك للاطّلاع لا للتعديل — ' + curPerm().ar, 'r');
+    return;
+  }
 
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
@@ -216,18 +233,18 @@ document.addEventListener('click', ev => {
     }
     case 'nstep': {
       const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      const V = NUSUK_SVC[c.svc];
-      if (c.step >= V.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
+      const SV = NUSUK_SVC[c.svc];
+      if (c.step >= SV.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
       const note = (S.q.nstepnote || '').trim();
       const f = (S.files || {}).nusukStep || null;
       c.trail = c.trail || [];
       c.trail.push({ at:now(), by:'الكنترول',
-        text:V.steps[c.step] + (note ? ' — ' + note : ''), file:f });
+        text:SV.steps[c.step] + (note ? ' — ' + note : ''), file:f });
       c.step += 1;
-      c.state = c.step >= V.steps.length ? 'issued'
+      c.state = c.step >= SV.steps.length ? 'issued'
         : c.step >= 2 ? 'processing' : 'new';
       S.q.nstepnote = ''; if (S.files) delete S.files.nusukStep;
-      logIt(c.no + ' — ' + V.steps[c.step - 1], 'info');
+      logIt(c.no + ' — ' + SV.steps[c.step - 1], 'info');
       save(); nusukDrawer(c.id); toast(NUSUK_STATE[c.state].ar);
       return;
     }
@@ -364,9 +381,37 @@ document.addEventListener('click', ev => {
     case 'staffopen': staffDrawer(id); return;
     case 'logout': S.auth = false; S.drawer = null; save(); render();
       toast('خرجتَ من الغرفة'); return;
-    case 'grole': S.gateRole = v; save(); renderGate(); return;
-    case 'gin': S.auth = true; save(); render();
-      toast('أهلًا — ' + (GATE_ROLES.find(x => x.k === (S.gateRole || 'ctl')) || {}).l); return;
+    case 'grole': S.gate = S.gate || {}; S.gate.perm = v; save(); renderGate(); return;
+    case 'pgtog': {
+      const k = b.dataset.k;
+      S.grants[k] = S.grants[k] || [];
+      const i = S.grants[k].indexOf(v);
+      if (i >= 0) S.grants[k].splice(i, 1); else S.grants[k].push(v);
+      logIt((i >= 0 ? 'مُنعت' : 'مُنحت') + ' شاشة «' + (navOf(v) || {}).l +
+        '» لصفة ' + permOf(k).ar, 'info');
+      break;
+    }
+    case 'pgall': {
+      S.grants[v] = navItems().map(x => x.k).filter(x => x !== 'perms');
+      logIt('مُنحت كل الشاشات لصفة ' + permOf(v).ar, 'info');
+      toast('مُنحت كل الشاشات — بلا تعديل'); break;
+    }
+    case 'pgnone': {
+      S.grants[v] = [];
+      logIt('مُنعت كل الشاشات عن صفة ' + permOf(v).ar, 'info');
+      toast('لن ترى هذه الصفة شيئًا', 'r'); break;
+    }
+    case 'gin': {
+      const g = S.gate || { perm:'admin' };
+      S.actor = { perm:g.perm, orgId:g.orgId, hotelId:g.hotelId,
+        leaderId:g.leaderId, userId:g.userId };
+      S.auth = true;
+      const first = allowed()[0];
+      S.route = { n: first || 'ops' };
+      save(); render();
+      toast('دخلتَ بصفة ' + curPerm().ar + ' — ' + SCOPE_AR[curPerm().scope]);
+      return;
+    }
     /* المنتقي: من يُسنَد إليه */
     case 'pickdo': {
       const p = S.picker; if (!p) return;

@@ -117,7 +117,7 @@ function decisionItems() {
             '<button class="btn p sm" data-a="spok" data-id="' + s.id + '">إسناد من الاحتياط</button>'
     });
   });
-  S.reports.filter(r => r.room && r.status !== 'مغلق').forEach(r => items.push({
+  V.reports.filter(r => r.room && r.status !== 'مغلق').forEach(r => items.push({
     kind: 'warn', ic: 'i-key', t: 'تعديل بيانات غرفة — ' + r.kt,
     s: r.room.floor + ' · غرفة ' + r.room.no + ' — ' + r.title, at: r.at,
     acts: '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">تحديث قاعدة البيانات</button>'
@@ -127,7 +127,7 @@ function decisionItems() {
     s: r.title + ' — ' + r.body.slice(0, 70), at: r.at,
     acts: '<button class="btn l sm" data-a="go" data-n="reports">فتح التقرير</button>'
   }));
-  S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
+  V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
     kind: 'bad', ic: 'i-ticket', t: 'تذكرة حرجة — ' + k.kt,
     s: k.title + ' · ' + k.from, at: k.at,
     acts: '<button class="btn l sm" data-a="go" data-n="tickets">متابعة</button>'
@@ -161,7 +161,7 @@ function loadByHour() {
   const d0 = dayStart(now()), out = [];
   for (let h = 0; h < 24; h += 2) {
     const a = d0 + h * HR, b = a + 2 * HR;
-    const n = S.tasks.filter(t => t.start < b && t.end > a).length;
+    const n = V.tasks.filter(t => t.start < b && t.end > a).length;
     out.push({ l: AR(h), v: n, hot: now() >= a && now() < b });
   }
   return out;
@@ -170,9 +170,9 @@ function loadByHour() {
 /* ---------- توزيع حالات المهام ---------- */
 function statusMix() {
   const run = runningTasks().length;
-  const done = S.tasks.filter(t => t.status === 'done').length;
-  const next = S.tasks.filter(t => t.start > now()).length;
-  const auto = S.tasks.filter(t => t.autoStarted).length;
+  const done = V.tasks.filter(t => t.status === 'done').length;
+  const next = V.tasks.filter(t => t.start > now()).length;
+  const auto = V.tasks.filter(t => t.autoStarted).length;
   return [
     { l:'جارية',  v:run,  c:'var(--live)' },
     { l:'قادمة',  v:next, c:'var(--blue)' },
@@ -184,11 +184,11 @@ function statusMix() {
 /* ---------- مقارنة الفرق ---------- */
 function ktTable() {
   const rows = leaders().map(L => {
-    const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const ts = V.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done');
     const live = ts.filter(t => now() >= t.start && now() < t.end && t.status !== 'done').length;
     const tk = openTickets().filter(k => k.leaderId === L.id).length;
-    const sp = S.support.filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
+    const sp = V.support.filter(s => (taskById(s.taskId) || {}).leaderId === L.id).length;
     const auto = ts.filter(t => t.autoStarted).length;
     const rate = done.length ? Number((done.reduce((a, t) => a + (t.rating || 0), 0) / done.length).toFixed(1)) : 0;
     return {

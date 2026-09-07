@@ -15,7 +15,7 @@ const imgCSS = '<style>\n' +
   '</style>\n';
 
 const JS = ['02-data.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
-  '11-more.js', '14-staff.js', '15-flow.js', '12-types.js', '13-build.js', '09-timeline.js', '08-fx.js', '07-router.js'];
+  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '09-timeline.js', '08-fx.js', '07-router.js'];
 
 const shell =
   '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>\n' +

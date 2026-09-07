@@ -6,7 +6,7 @@
 /* ---------- طلبات الدعم: القرار الذي ينتظره الميدان ---------- */
 function screenSupport() {
   const f = S.tab.sf || 'open';
-  const all = S.support.slice().sort((a, b) => b.at - a.at);
+  const all = V.support.slice().sort((a, b) => b.at - a.at);
   const list = all.filter(s => f === 'open' ? s.state === 'pending'
     : f === 'done' ? s.state === 'done' : f === 'no' ? s.state === 'no' : true);
   return '<div class="grid g3">' +
@@ -51,18 +51,18 @@ function screenSupport() {
 function screenIncidents() {
   const f = S.tab.inc || 'all';
   const q = qOf('inc');
-  let list = S.feed.filter(x => f === 'all' ? true : x.kind === f);
+  let list = V.feed.filter(x => f === 'all' ? true : x.kind === f);
   const ic = fOf('inc','cat'), ik = fOf('inc','kt'), ist = fOf('inc','state');
   if (ic) list = list.filter(x => x.cat === ic);
   if (ik) list = list.filter(x => x.kt === ik);
   if (ist) list = list.filter(x => (x.state || 'مفتوح') === ist);
   if (q) list = list.filter(x => (x.title + ' ' + x.body + ' ' + (x.no || '')).indexOf(q) >= 0);
   return '<div class="grid g3">' +
-      stat({ label:'حرجة', n:S.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
+      stat({ label:'حرجة', n:V.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
         cls:'bad', sub:'تحتاج تدخّلًا الآن', series:[2,3,2,4,3,5,4,3] }) +
-      stat({ label:'تحتاج انتباهًا', n:S.feed.filter(x => x.kind === 'warn').length, ic:'i-info',
+      stat({ label:'تحتاج انتباهًا', n:V.feed.filter(x => x.kind === 'warn').length, ic:'i-info',
         cls:'warn', sub:'تُراقَب ولا تُهمَل', series:[4,5,4,6,5,7,6,5] }) +
-      stat({ label:'مكتملة', n:S.feed.filter(x => x.kind === 'ok').length, ic:'i-checkc',
+      stat({ label:'مكتملة', n:V.feed.filter(x => x.kind === 'ok').length, ic:'i-checkc',
         cls:'up', sub:'أُغلقت في الميدان', series:[6,7,8,9,10,11,12,13] }) +
     '</div>' +
     '<div class="card">' +
@@ -73,7 +73,7 @@ function screenIncidents() {
         { k:'cat',   label:'النوع',  opts:INC_CATS.map(c => [c.k, c.ar]) },
         { k:'kt',    label:'الـKT',  opts:optKT() },
         { k:'state', label:'الحالة', opts:[['مفتوح','مفتوح'],['قيد المعالجة','قيد المعالجة'],['مغلق','مغلق']] }
-      ], list.length, S.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
+      ], list.length, V.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
       (list.length ? '<div class="plist">' + list.map((x, i) => {
         const C = INC_CATS.find(c => c.k === x.cat) || INC_CATS[0];
         const st = x.state || 'مفتوح';
@@ -131,7 +131,7 @@ function screenTeams() {
     '</div>' +
     '<div class="grid g2">' + ls.map(L => {
     const team = teamOf(L.id), org = orgById(L.orgId) || {};
-    const ts = S.tasks.filter(t => t.leaderId === L.id);
+    const ts = V.tasks.filter(t => t.leaderId === L.id);
     const done = ts.filter(t => t.status === 'done').length;
     const g0 = groupsOf(L.id)[0];
     const isOpen = open === L.id;
@@ -177,7 +177,7 @@ function screenReserve() {
 /* ---------- التذاكر ---------- */
 function screenTickets() {
   const f = S.tab.kf || 'open';
-  let list = S.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
+  let list = V.tickets.filter(k => f === 'open' ? k.status !== 'مغلقة'
     : f === 'crit' ? k.pri === 'حرجة' : f === 'closed' ? k.status === 'مغلقة' : true)
     .sort((a, b) => b.at - a.at);
   const q = qOf('tkt');
@@ -187,14 +187,14 @@ function screenTickets() {
   if (tp) list = list.filter(k => k.pri === tp);
   if (ta) list = list.filter(k => ta === 'y' ? !!k.assignedTo : !k.assignedTo);
   if (q) list = list.filter(k => (k.title + ' ' + k.no + ' ' + k.from + ' ' + k.body).indexOf(q) >= 0);
-  const crit = S.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
+  const crit = V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
   return '<div class="grid g3">' +
       stat({ label:'مفتوحة', n:openTickets().length, ic:'i-ticket',
         cls:crit ? 'bad' : '', sub:AR(crit) + ' حرجة منها',
         series:[3,5,4,6,5,8,6,Math.max(1, openTickets().length)] }) +
-      stat({ label:'قيد المعالجة', n:S.tickets.filter(k => k.status === 'قيد المعالجة').length,
+      stat({ label:'قيد المعالجة', n:V.tickets.filter(k => k.status === 'قيد المعالجة').length,
         ic:'i-hour', cls:'warn', sub:'لدى الليدر أو الكنترول', series:[1,2,2,3,2,3,2,2] }) +
-      stat({ label:'مغلقة', n:S.tickets.filter(k => k.status === 'مغلقة').length, ic:'i-checkc',
+      stat({ label:'مغلقة', n:V.tickets.filter(k => k.status === 'مغلقة').length, ic:'i-checkc',
         cls:'up', sub:'حُلّت وأُبلغ صاحبها', series:[0,0,1,1,1,1,1,1] }) +
     '</div>' +
     '<div class="card">' +
@@ -203,10 +203,10 @@ function screenTickets() {
         [['open','مفتوحة'],['crit','حرجة'],['closed','مغلقة'],['all','الكل']], f) + '</div>' +
       filterBar('tkt', [
         { k:'kt',  label:'الـKT',     opts:optKT() },
-        { k:'cat', label:'التصنيف',   opts:[...new Set(S.tickets.map(k => k.cat))].map(c => [c, c]) },
+        { k:'cat', label:'التصنيف',   opts:[...new Set(V.tickets.map(k => k.cat))].map(c => [c, c]) },
         { k:'pri', label:'الأولوية',  opts:[['حرجة','حرجة'],['عاجلة','عاجلة'],['عادية','عادية']] },
         { k:'asg', label:'الإسناد',   opts:[['y','مُسنَدة'],['n','بلا إسناد']] }
-      ], list.length, S.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
+      ], list.length, V.tickets.length, 'ابحث بعنوان أو رقم أو اسم حاجّ…') +
       (list.length ? '<div class="plist">' + list.map((k, i) => {
         const pr = k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey';
         const to = k.assignedTo ? userById(k.assignedTo) : null;
@@ -232,7 +232,7 @@ function screenTickets() {
 /* ---------- التقارير ---------- */
 function screenReports() {
   const f = S.tab.rf || 'all';
-  const all = S.reports.slice().sort((a, b) => b.at - a.at);
+  const all = V.reports.slice().sort((a, b) => b.at - a.at);
   const list = f === 'room' ? all.filter(r => r.room)
     : f === 'esc' ? all.filter(r => r.escalated) : all;
   return '<div class="grid g3">' +

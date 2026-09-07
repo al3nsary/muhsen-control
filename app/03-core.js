@@ -2,13 +2,14 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 8;
-const APP_VER = 'نسخة ٠٫٨٫١';
+const SCHEMA = 9;
+const APP_VER = 'نسخة ٠٫٩';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
 const MIN = 60000, HR = 3600000, DAY = 86400000;
 const now = () => Date.now() + (S && S.clockOffset ? S.clockOffset : 0) * MIN;
+const VV = () => (typeof V !== 'undefined' && V) || S;
 const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 const two = n => (n < 10 ? '0' : '') + n;
 const dayStart = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
@@ -46,7 +47,9 @@ function seed() {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null,
-    assigns: [], flt: {}, auth: false
+    assigns: [], flt: {}, auth: false,
+    /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
+    grants: {}, actor: { perm: 'admin' }
   };
   S = st;
 
@@ -301,6 +304,7 @@ function load() {
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
   S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
   S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
+  S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -332,10 +336,10 @@ const siteById = id => SITES.find(s => s.id === id) || {};
 const hotelById = id => HOTELS.find(h => h.id === id) || {};
 const groupById = id => S.groups.find(g => g.id === id);
 const formById = id => S.forms.find(f => f.id === id);
-const supervisors = () => S.users.filter(u => u.role === 'supervisor');
-const groupsOf = lid => S.groups.filter(g => g.leaderId === lid);
+const supervisors = () => VV().users.filter(u => u.role === 'supervisor');
+const groupsOf = lid => VV().groups.filter(g => g.leaderId === lid);
 /* المحسن الحرّ: غير مسكَّن في أي مجموعة — هؤلاء وحدهم يظهرون عند التشكيل */
-const freeMuhsens = () => S.users.filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
+const freeMuhsens = () => VV().users.filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
 const inGroup = id => S.groups.some(g => g.members.some(m => m.id === id));
 /* درجة النموذج: نعم=كامل · التقييم نسبة من خمس · العدد لا يُحتسب */
 function formScore(f, answers) {
@@ -350,13 +354,13 @@ function formScore(f, answers) {
   });
   return max ? Math.round(got / max * 100) : 0;
 }
-const subsOf = fid => S.subs.filter(b => b.formId === fid);
-const openNusuk = () => S.nusuk.filter(c => c.state !== 'delivered');
-const freeEnrich = () => S.enrich.filter(x => x.status === 'unassigned');
+const subsOf = fid => VV().subs.filter(b => b.formId === fid);
+const openNusuk = () => VV().nusuk.filter(c => c.state !== 'delivered');
+const freeEnrich = () => VV().enrich.filter(x => x.status === 'unassigned');
 
 /* ---- أدوات الشاشات الجديدة ---- */
 const allPilgrimRows = () => leaders().reduce((a, L) =>
-  a.concat((S.pilgrims[L.kt] || []).map(p => Object.assign({ kt: L.kt, leaderId: L.id }, p))), []);
+  a.concat((VV().pilgrims[L.kt] || []).map(p => Object.assign({ kt: L.kt, leaderId: L.id }, p))), []);
 const guideOf = k => S.guides.find(g => g.kind === k);
 const openSwaps = () => S.swaps.filter(w => w.state === 'pending');
 /* تقييم الفريق: متوسط مهامه المنجزة */
@@ -371,17 +375,17 @@ function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('�
 const userById = id => S.users.find(u => u.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const orgById = id => S.orgs.find(o => o.id === id);
-const leaders = () => S.users.filter(u => u.role === 'leader');
+const leaders = () => VV().users.filter(u => u.role === 'leader');
 const teamOfLegacy = lid => S.users.filter(u => u.role === 'muhsen' && u.leaderId === lid && !u.reserve);
-const reserveTeam = () => S.users.filter(u => u.reserve);
+const reserveTeam = () => VV().users.filter(u => u.reserve);
 const ktOf = lid => (userById(lid) || {}).kt;
 
-const runningTasks = () => S.tasks.filter(t => t.status === 'running' ||
+const runningTasks = () => VV().tasks.filter(t => t.status === 'running' ||
   (t.status !== 'done' && now() >= t.start && now() < t.end));
-const todayTasks = () => S.tasks.filter(t => dayStart(t.start) === dayStart(now()));
-const openTickets = () => S.tickets.filter(k => k.status !== 'مغلقة');
-const escalatedReports = () => S.reports.filter(r => r.escalated && r.status !== 'مغلق');
-const openSupport = () => S.support.filter(s => s.state === 'pending');
+const todayTasks = () => VV().tasks.filter(t => dayStart(t.start) === dayStart(now()));
+const openTickets = () => VV().tickets.filter(k => k.status !== 'مغلقة');
+const escalatedReports = () => VV().reports.filter(r => r.escalated && r.status !== 'مغلق');
+const openSupport = () => VV().support.filter(s => s.state === 'pending');
 const allPilgrims = () => Object.keys(S.pilgrims).reduce((a, k) => a + S.pilgrims[k].length, 0);
 const allMuhsens = () => S.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
 

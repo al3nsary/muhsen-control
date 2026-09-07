@@ -41,6 +41,7 @@ const NAV = [
     { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
     { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
     { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
+    { k:'perms',    i:'i-shield',  l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
     { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
   ]}
 ];
@@ -76,8 +77,11 @@ function sidebar() {
     '</div>' +
 
     '<div class="sidescroll">' +
-    NAV.map(g => '<div class="grp"><span>' + E(g.g) + '</span></div>' +
-      g.items.map(x => {
+    NAV.map(g => {
+      const its = g.items.filter(x => maySee(x.k));
+      if (!its.length) return '';
+      return '<div class="grp"><span>' + E(g.g) + '</span></div>' +
+      its.map(x => {
         const n = navCount(x.k), on = x.k === r;
         const kids = x.kids && on
           ? '<div class="kids">' + x.kids.map(c => {
@@ -90,12 +94,13 @@ function sidebar() {
             }).join('') + '</div>'
           : '';
         return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
-            '" data-a="go" data-n="' + x.k + '" ' +
-            'title="' + E(x.l) + '">' +
+            '" data-a="go" data-n="' + x.k + '"' +
+            (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
             icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
             (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
           '</button>' + kids;
-      }).join('')).join('') +
+      }).join('');
+    }).join('') +
 
     '<div class="grp"><span>العرض</span></div>' +
     '<button class="nav" data-a="theme" title="تبديل الوضع · T">' +

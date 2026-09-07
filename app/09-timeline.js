@@ -4,7 +4,7 @@
    ============================================================ */
 
 function tlWindow() {
-  const all = S.tasks;
+  const all = V.tasks;
   if (!all.length) return { a: now() - DAY, b: now() + DAY };
   const a = Math.min.apply(null, all.map(t => t.start)) - 4 * HR;
   const b = Math.max.apply(null, all.map(t => t.end)) + 4 * HR;
@@ -23,12 +23,12 @@ function screenTimeline() {
   const rows = leaders().filter(L => zoom === 'all' || zoom === L.id);
 
   return '<div class="grid g4">' +
-      kpi('مهام الموسم', '', 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks', S.tasks.length) +
+      kpi('مهام الموسم', '', 'عبر ' + AR(leaders().length) + ' فرق', '', 'i-tasks', V.tasks.length) +
       kpi('أيام التشغيل', '', 'من أول مهمة إلى آخرها', '', 'i-cal', days.length) +
       kpi('ذروة التزامن', '', 'أكثر عدد مهام في وقت واحد', 'warn', 'i-play', peakOverlap()) +
       kpi('متوسط التقييم', '', 'للمهام المنجزة', 'up', 'i-star',
-        Number((S.tasks.filter(t => t.rating).reduce((a, t) => a + t.rating, 0) /
-          Math.max(1, S.tasks.filter(t => t.rating).length)).toFixed(1))) +
+        Number((V.tasks.filter(t => t.rating).reduce((a, t) => a + t.rating, 0) /
+          Math.max(1, V.tasks.filter(t => t.rating).length)).toFixed(1))) +
     '</div>' +
 
     '<div class="card gold">' +
@@ -42,7 +42,7 @@ function screenTimeline() {
         '<div class="tlhead">' + days.map(d =>
           '<span>' + dayName(d).slice(0, 3) + ' ' + AR(new Date(d).getDate()) + '</span>').join('') + '</div>' +
         rows.map((L, ri) => {
-          const ts = S.tasks.filter(t => t.leaderId === L.id).sort((a, b) => a.start - b.start);
+          const ts = V.tasks.filter(t => t.leaderId === L.id).sort((a, b) => a.start - b.start);
           return '<div class="tlrow">' +
             '<span class="tlname">' + E(L.kt) + '<br><span class="tiny faint">' +
               E(L.name.split(' ')[0]) + '</span></span>' +
@@ -76,7 +76,7 @@ function screenTimeline() {
 /* أكثر عدد مهام متزامنة في الموسم */
 function peakOverlap() {
   const pts = [];
-  S.tasks.forEach(t => { pts.push([t.start, 1]); pts.push([t.end, -1]); });
+  V.tasks.forEach(t => { pts.push([t.start, 1]); pts.push([t.end, -1]); });
   pts.sort((a, b) => a[0] - b[0]);
   let cur = 0, peak = 0;
   pts.forEach(p => { cur += p[1]; if (cur > peak) peak = cur; });
@@ -89,7 +89,7 @@ function taskDrawer(id) {
   const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, org = orgById(t.orgId) || {};
   const running = now() >= t.start && now() < t.end && t.status !== 'done';
   const team = t.assigned.map(userById).filter(Boolean);
-  const sp = (S.support || []).filter(s => s.taskId === t.id);
+  const sp = (V.support || []).filter(s => s.taskId === t.id);
 
   openDrawer(t.title, t.kt + ' · ' + (L.name || ''), c.i || 'i-tasks',
     '<div class="card" style="--kc:' + (c.c || 'var(--g)') + '">' +

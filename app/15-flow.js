@@ -74,20 +74,20 @@ function nusukNew() {
 
 /* ---------- مسار الحالة ---------- */
 function nusukDrawer(id) {
-  const c = S.nusuk.find(x => x.id === id); if (!c) return;
-  const V = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
+  const c = V.nusuk.find(x => x.id === id); if (!c) return;
+  const SV = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
   const to = c.assignedTo ? userById(c.assignedTo) : null;
   const done = c.state === 'delivered';
 
-  S.drawer = { title:V.ar + ' — ' + c.pilgrim, sub:c.no + ' · جواز ' + c.passport + ' · ' + c.kt,
-    icon:V.i, body:
+  S.drawer = { title:SV.ar + ' — ' + c.pilgrim, sub:c.no + ' · جواز ' + c.passport + ' · ' + c.kt,
+    icon:SV.i, body:
     '<div class="fl" style="gap:11px">' + pill(ST.ar, ST.c) +
-      pill('مهلة ' + AR(V.sla) + ' ساعة', 'grey') +
+      pill('مهلة ' + AR(SV.sla) + ' ساعة', 'grey') +
       '<span class="sp"></span><span class="tiny faint">فُتحت ' + ago(c.at) + ' · ' + E(c.openedBy) + '</span></div>' +
 
-    '<div class="card">' + head('المسار', 'الخطوة ' + AR(Math.min(c.step + 1, V.steps.length)) +
-        ' من ' + AR(V.steps.length)) +
-      '<div class="wf">' + V.steps.map((s, i) =>
+    '<div class="card">' + head('المسار', 'الخطوة ' + AR(Math.min(c.step + 1, SV.steps.length)) +
+        ' من ' + AR(SV.steps.length)) +
+      '<div class="wf">' + SV.steps.map((s, i) =>
         '<div class="wfs' + (i < c.step ? ' done' : i === c.step ? ' now' : '') + '">' +
           '<span class="wfn">' + (i < c.step ? icon('i-checkc','s14') : AR(i + 1)) + '</span>' +
           '<span class="nm"><b>' + E(s) + '</b></span></div>').join('') + '</div>' +
@@ -241,7 +241,7 @@ function formAssign(id) {
     icon:f.icon, body:
     '<div class="card">' + head('الجهة', 'المحسن يُختار من مجموعة تسكن فيها') +
       '<div class="plist">' + HOTELS.map(h => {
-        const gs = S.groups.filter(g => g.hotelId === h.id);
+        const gs = V.groups.filter(g => g.hotelId === h.id);
         const n = gs.reduce((a, g) => a + g.members.length + 1, 0);
         return '<button class="prow pick" data-a="fatarget" data-id="' + h.id + '"' +
           (n ? '' : ' disabled') + '>' +
@@ -257,7 +257,7 @@ function formAssign(id) {
 
 /* ══════════════ التذاكر والتقارير: إجراء حقيقي ══════════════ */
 function ticketDrawer(id) {
-  const k = S.tickets.find(x => x.id === id); if (!k) return;
+  const k = V.tickets.find(x => x.id === id); if (!k) return;
   const to = k.assignedTo ? userById(k.assignedTo) : null;
   const closed = k.status === 'مغلقة';
   S.drawer = { title:k.title, sub:k.no + ' · ' + k.from + ' · ' + k.kt, icon:'i-ticket', body:
@@ -270,7 +270,7 @@ function ticketDrawer(id) {
 
     '<div class="card">' + head('التصنيف والأولوية', 'يُغيَّران من هنا') +
       '<label class="fl2">التصنيف</label>' +
-      '<div class="chips">' + [...new Set(S.tickets.map(x => x.cat))].map(c =>
+      '<div class="chips">' + [...new Set(V.tickets.map(x => x.cat))].map(c =>
         '<button class="chip2' + (k.cat === c ? ' on' : '') + '" data-a="tkcat" data-id="' + k.id +
         '" data-v="' + E(c) + '">' + E(c) + '</button>').join('') + '</div>' +
       '<label class="fl2">الأولوية</label>' +
@@ -314,7 +314,7 @@ function ticketDrawer(id) {
 }
 
 function reportDrawer(id) {
-  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const r = V.reports.find(x => x.id === id); if (!r) return;
   const L = userById(r.from) || {}, to = r.assignedTo ? userById(r.assignedTo) : null;
   S.drawer = { title:r.title, sub:r.no + ' · ' + r.kt + ' · ' + (L.name || ''), icon:'i-flag', body:
     '<div class="fl" style="gap:9px;flex-wrap:wrap">' + pill(r.cat, 'gold') +
@@ -360,28 +360,43 @@ function reportDrawer(id) {
   renderDrawer();
 }
 
-/* ============================================================
-   بوّابة الدخول — أوّل ما يُرى، فليكن على مستوى ما بعده
-   ============================================================ */
-const GATE_ROLES = [
-  { k:'ctl',  i:'i-target', l:'غرفة العمليات', d:'صلاحية كاملة' },
-  { k:'sup',  i:'i-shield', l:'مشرف سكن',      d:'فنادقه ومجموعاتها' },
-  { k:'ops',  i:'i-users',  l:'منسّق تشكيل',   d:'المجموعات والتسكين' },
-  { k:'view', i:'i-eye',    l:'قراءة فقط',     d:'بلا إجراءات' }
-];
 
+/* ============================================================
+   البوّابة — يُدخَل بصفة، ويُمثَّل بها شخصٌ بعينه
+   ============================================================ */
 function renderGate() {
   const w = document.getElementById('gatewrap');
   if (!w) return;
   if (S.auth) { w.innerHTML = ''; return; }
-  const role = S.gateRole || 'ctl';
+  const a = S.gate = S.gate || { perm:'admin', orgId:null, hotelId:null, leaderId:null, userId:null };
+  const p = permOf(a.perm);
+  const gr = p.scope === 'all' ? navItems().length : ((S.grants || {})[p.k] || []).length;
+
+  /* من تُمثِّل؟ يُسأل عنه حسب النطاق */
+  let who = '', ready = true;
+  if (p.scope === 'org') {
+    ready = !!a.orgId;
+    who = pickRow('الجهة', S.orgs.filter(o => p.k === 'mission' ? o.type === 'بعثة' : o.type === 'شركة')
+      .map(o => [o.id, o.kt + ' · ' + o.ar]), a.orgId, 'gorg');
+  } else if (p.scope === 'hotel') {
+    ready = !!a.hotelId;
+    who = pickRow('الفندق', HOTELS.map(h => [h.id, h.ar]), a.hotelId, 'ghotel');
+  } else if (p.scope === 'team') {
+    ready = !!a.leaderId;
+    who = pickRow('الليدر', leaders().map(l => [l.id, l.kt + ' · ' + l.name]), a.leaderId, 'glead');
+  } else if (p.scope === 'self') {
+    ready = !!a.userId;
+    who = pickRow('المحسن', S.users.filter(u => u.role === 'muhsen' && !u.reserve)
+      .slice(0, 60).map(u => [u.id, u.name + ' · ' + u.code]), a.userId, 'guser');
+  }
+
   w.innerHTML =
     '<div id="gate">' +
       '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>' +
       '<button class="themebtn gtheme" data-a="theme">' +
         '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
         '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
-      '<div class="gwrap">' +
+      '<div class="gwrap wide">' +
         '<div class="gbrand">' +
           '<span class="gmark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
           '<span><h1>مُحسن · الكنترول</h1>' +
@@ -389,22 +404,41 @@ function renderGate() {
         '</div>' +
         '<div class="gcard">' +
           '<label class="fl2" style="margin-top:0">ادخل بصفتك</label>' +
-          '<div class="roles">' + GATE_ROLES.map(r =>
-            '<button class="role' + (r.k === role ? ' on' : '') + '" data-a="grole" data-v="' + r.k + '">' +
-            icon(r.i, 's18') + '<b>' + E(r.l) + '</b><span>' + E(r.d) + '</span></button>').join('') +
-          '</div>' +
-          '<label class="fl2">اسم المستخدم</label>' +
-          '<input class="fld" id="q-gu" data-q="gu" value="' + E(qOf('gu') || 'control') + '" ' +
-            'placeholder="اسم المستخدم" autocomplete="username">' +
-          '<label class="fl2">كلمة المرور</label>' +
-          '<input class="fld" type="password" id="q-gp" data-q="gp" value="' + E(qOf('gp') || '••••••••') + '" ' +
-            'placeholder="كلمة المرور" autocomplete="current-password">' +
-          '<button class="btn p" style="width:100%;margin-top:18px" data-a="gin">' +
-            icon('i-logout','s16') + 'دخول غرفة العمليات</button>' +
-          '<div class="tiny faint" style="margin-top:12px;text-align:center">' +
-            'نسخة معاينة — الدخول لا يتحقّق من كلمة مرور حقيقية.</div>' +
+          '<div class="roles">' + PERMS.map(x => {
+            const n = x.scope === 'all' ? navItems().length : ((S.grants || {})[x.k] || []).length;
+            return '<button class="role' + (x.k === a.perm ? ' on' : '') + '" ' +
+              'data-a="grole" data-v="' + x.k + '">' +
+              '<span class="fl" style="gap:8px;width:100%">' + icon(x.i, 's18') +
+                '<b style="flex:1">' + E(x.ar) + '</b>' +
+                (x.edit ? pill('تعديل','gold') : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
+              '</span>' +
+              '<span>' + E(SCOPE_AR[x.scope]) + '</span></button>';
+          }).join('') + '</div>' +
+
+          (who ? '<div class="whobox">' + who + '</div>' : '') +
+
+          '<div class="gnote">' + icon(gr ? 'i-checkc' : 'i-warn','s16') +
+            '<span>' + (p.scope === 'all'
+              ? 'الإدارة العليا ترى كل شيء وتعدّل كل شيء.'
+              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. اطّلاع بلا تعديل.'
+                   : 'لم تُسنَد لهذه الصفة أي شاشة — ستدخل ولا ترى شيئًا. هذا هو السلوك المقصود.') +
+            '</span></div>' +
+
+          '<button class="btn p" style="width:100%;margin-top:16px"' +
+            (ready ? '' : ' disabled') + ' data-a="gin">' +
+            icon('i-logout','s16') + 'دخول' + (ready ? '' : ' — اختر من تُمثِّل') + '</button>' +
         '</div>' +
         '<div class="gfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي · ' + APP_VER + '</div>' +
       '</div>' +
     '</div>';
+}
+
+function pickRow(label, opts, cur, act) {
+  return '<label class="fl2">' + E(label) + '</label>' +
+    '<label class="fsel wide' + (cur ? ' on' : '') + '"><span>' + E(label) + '</span>' +
+      '<select data-g="' + act + '">' +
+        '<option value="">— اختر —</option>' +
+        opts.map(o => '<option value="' + E(o[0]) + '"' +
+          (cur === o[0] ? ' selected' : '') + '>' + E(o[1]) + '</option>').join('') +
+      '</select>' + icon('i-fwd','s14') + '</label>';
 }

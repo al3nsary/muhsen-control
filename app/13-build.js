@@ -34,15 +34,15 @@ function screenBuild() {
   const ready = d.leaderId && d.members.length === 5 && d.orgId;
 
   return '<div class="grid g4">' +
-      stat({ label:'مجموعات مشكَّلة', n:S.groups.length, ic:'i-users', cls:'up',
-        sub:'تُسكَّن مهامها تلقائيًّا', series:[1,2,2,3,4,4,5,S.groups.length] }) +
+      stat({ label:'مجموعات مشكَّلة', n:V.groups.length, ic:'i-users', cls:'up',
+        sub:'تُسكَّن مهامها تلقائيًّا', series:[1,2,2,3,4,4,5,V.groups.length] }) +
       stat({ label:'محسنون بلا مجموعة', n:free.length, ic:'i-user',
         cls:free.length ? 'warn' : 'up', sub:'هؤلاء وحدهم متاحون للتشكيل',
         series:[25,20,15,10,7,4,2,Math.max(0, freeMuhsens().length)] }) +
       stat({ label:'مشرفون', n:supervisors().length, ic:'i-shield',
         sub:'على ' + AR(HOTELS.length) + ' فنادق', series:[1,2,2,3,3,4,4,supervisors().length] }) +
-      stat({ label:'جهات الحجّ', n:S.orgs.length, ic:'i-flag',
-        sub:'بعثات وشركات', series:[1,2,3,3,4,4,5,S.orgs.length] }) +
+      stat({ label:'جهات الحجّ', n:V.orgs.length, ic:'i-flag',
+        sub:'بعثات وشركات', series:[1,2,3,3,4,4,5,V.orgs.length] }) +
     '</div>' +
 
     '<div class="board3">' +
@@ -105,7 +105,7 @@ function screenBuild() {
         }).join('') + '</div>' +
 
         '<div class="pickrow"><span class="sl">جهة الحجّ</span>' +
-          '<div class="chips">' + S.orgs.map(o =>
+          '<div class="chips">' + V.orgs.map(o =>
             '<button class="chip2' + (d.orgId === o.id ? ' on' : '') + '" data-a="borg" data-id="' + o.id + '">' +
             E(o.kt) + ' · ' + E(o.ar) + '</button>').join('') + '</div></div>' +
 
@@ -131,11 +131,11 @@ function screenBuild() {
 
       /* ═════ المجموعات القائمة ═════ */
       '<div class="card src">' +
-        head('المجموعات القائمة', AR(S.groups.length) + ' مجموعة', '', 'i-checkc') +
-        (S.groups.length ? S.groups.map(g => {
+        head('المجموعات القائمة', AR(V.groups.length) + ' مجموعة', '', 'i-checkc') +
+        (V.groups.length ? V.groups.map(g => {
           const gl = userById(g.leaderId) || {}, go = orgById(g.orgId) || {};
           const gh = hotelById(g.hotelId), gs = g.supervisorId ? userById(g.supervisorId) : null;
-          const tn = S.tasks.filter(t => t.leaderId === g.leaderId).length;
+          const tn = V.tasks.filter(t => t.leaderId === g.leaderId).length;
           return '<div class="gitem' + (d.editing === g.id ? ' on' : '') + '">' +
             '<div class="fl" style="gap:10px">' + avatar(gl, 'sm') +
               '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(gl.name || '') + '</b>' +
@@ -161,7 +161,7 @@ function screenBuild() {
         '', 'i-shield') +
       '<div class="grid g2">' + HOTELS.map(h => {
         const sup = supervisors().filter(u => u.hotelId === h.id);
-        const gs = S.groups.filter(g => g.hotelId === h.id);
+        const gs = V.groups.filter(g => g.hotelId === h.id);
         return '<div class="hotel">' +
           '<div class="fl" style="gap:11px;margin-bottom:11px">' +
             '<span class="ico">' + icon('i-key','s18') + '</span>' +
