@@ -17,7 +17,7 @@ function personCard(u, act, extra) {
     (act ? 'data-a="' + act + '" data-id="' + u.id + '"' : 'disabled') + '>' +
     avatar(u, 'sm') +
     '<span class="nm"><b>' + E(u.name) + '</b>' +
-      '<span>' + E(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
+      '<span>' + LTR(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
     (extra || (g ? pill(g.no, 'grey') : '')) + '</button>';
 }
 
@@ -83,7 +83,7 @@ function screenBuild() {
           '<span class="sl">الليدر</span>' +
           (L ? '<div class="fl" style="flex:1;gap:11px">' + avatar(L, 'sm') +
               '<span class="nm" style="flex:1"><b>' + E(L.name) + '</b>' +
-              '<span>' + E(L.code) + ' · ' + E(L.kt) + ' · ' + AR(L.pilgrims) + ' حاجًّا</span></span>' +
+              '<span>' + LTR(L.code) + ' · ' + E(L.kt) + ' · ' + AR(L.pilgrims) + ' حاجًّا</span></span>' +
               '<button class="xbtn" data-a="bclrlead">' + icon('i-x','s14') + '</button></div>'
             : '<span class="ph">اختر ليدرًا من المصادر</span>') +
         '</div>' +
@@ -95,7 +95,7 @@ function screenBuild() {
             '<span class="sl">محسن ' + AR(i + 1) + '</span>' +
             (u ? '<div class="fl" style="flex:1;gap:10px">' + avatar(u, 'sm') +
                 '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-                '<span>' + E(u.code) + ' · ' + AR(u.age || 29) + ' سنة</span></span>' +
+                '<span>' + LTR(u.code) + ' · ' + AR(u.age || 29) + ' سنة</span></span>' +
                 '<select class="spec" data-a="bspec" data-id="' + u.id + '">' +
                   SPECS.map(s => '<option' + (s === m.spec ? ' selected' : '') + '>' + E(s) + '</option>').join('') +
                 '</select>' +
@@ -138,7 +138,7 @@ function screenBuild() {
           const tn = S.tasks.filter(t => t.leaderId === g.leaderId).length;
           return '<div class="gitem' + (d.editing === g.id ? ' on' : '') + '">' +
             '<div class="fl" style="gap:10px">' + avatar(gl, 'sm') +
-              '<span class="nm" style="flex:1"><b>' + E(g.no) + ' · ' + E(gl.name || '') + '</b>' +
+              '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(gl.name || '') + '</b>' +
               '<span>' + E(go.kt || '') + ' · ' + E(go.ar || '') + '</span></span>' +
               pill(AR(g.members.length + 1), 'gold') + '</div>' +
             '<div class="faces">' + g.members.map(m => {
@@ -173,13 +173,13 @@ function screenBuild() {
           (sup.length ? '<div class="plist">' + sup.map(u =>
             '<div class="prow" style="padding:9px 11px">' + avatar(u, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-            '<span>' + E(u.code) + ' · مشرف سكن</span></span>' +
+            '<span>' + LTR(u.code) + ' · مشرف سكن</span></span>' +
             pill('مشرف', 'gold') + '</div>').join('') + '</div>'
             : '<div class="tiny faint">بلا مشرف</div>') +
           (gs.length ? '<div class="hgroups">' + gs.map(g => {
             const gl = userById(g.leaderId) || {}, go = orgById(g.orgId) || {};
             return '<span class="hchip">' + avatar(gl, 'sm') +
-              '<span class="tiny"><b>' + E(g.no) + '</b><br>' +
+              '<span class="tiny"><b>' + LTR(g.no) + '</b><br>' +
               '<span class="faint">' + E(go.type || '') + ' · ' + E(go.kt || '') + '</span></span></span>';
           }).join('') + '</div>' : '') +
         '</div>';

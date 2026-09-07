@@ -4,6 +4,8 @@
 const E = s => String(s == null ? '' : s).replace(/[&<>"']/g,
   c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const icon = (n, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#' + n + '"/></svg>';
+/* معرّف مختلط: لاتيني وأرقام وشرطة — يُعزَل وإلا انقلب ترتيبه في العربية */
+const LTR = t => '<bdi class="ltr">' + E(t == null ? '' : t) + '</bdi>';
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 

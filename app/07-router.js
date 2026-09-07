@@ -158,7 +158,7 @@ document.addEventListener('click', ev => {
         g.members.forEach(m => { const u = userById(m.id);
           if (u && !d.members.some(x => x.id === m.id)) { u.groupId = null; u.leaderId = null; } });
       } else {
-        g = { id: uid('G'), no: 'GR-' + AR(101 + S.groups.length), at: now() };
+        g = { id: uid('G'), no: 'GR-' + (101 + S.groups.length), at: now() };
         S.groups.push(g);
       }
       Object.assign(g, { leaderId: d.leaderId, orgId: d.orgId, hotelId: d.hotelId,
@@ -187,11 +187,12 @@ document.addEventListener('click', ev => {
     case 'nfpil':  S.nform = S.nform || {}; S.nform.pid = id; nusukNew(); return;
     case 'nfclr':  S.nform.pid = ''; S.q.npil = ''; nusukNew(); return;
     case 'nfsave': {
-      const d = S.nform || {}; if (!d.pid) return;
+      const d = S.nform || {};
+      if (!d.pid) { toast('اختر الحاجّ أوّلًا — ابحث باسمه أو رقم جوازه', 'r'); return; }
       const p = allPilgrimRows().find(x => x.id === d.pid); if (!p) return;
       const L = leaders().find(l => l.kt === p.kt) || {};
       const f = (S.files || {}).nusukNew || null;
-      const c = { id:uid('N'), no:'NS-' + AR(4400 + S.nusuk.length), svc:d.svc || 'lost',
+      const c = { id:uid('N'), no:'NS-' + (4400 + S.nusuk.length), svc:d.svc || 'lost',
         pilgrimId:p.id, pilgrim:p.name, passport:p.no, kt:p.kt, leaderId:L.id || null,
         openedBy:'الكنترول', state:'new', step:1, assignedTo:null, at:now(),
         note:(S.q.nnote || '').trim() || 'حالة فُتحت من غرفة العمليات',
@@ -254,23 +255,38 @@ document.addEventListener('click', ev => {
     case 'fedit': S.fb = null; formBuilder(id); return;
     case 'fbscope': S.fb.scope = v; formBuilder(); return;
     case 'fbadd': {
-      const q = (S.q.fbq || '').trim(); if (!q) { toast('اكتب نصّ السؤال', 'r'); return; }
-      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q,
-        t:fOf('fb','qt') || 'yn', w:Number(fOf('fb','qw') || 2) });
+      const q = (S.q.fbq || '').trim();
+      if (!q) { toast('اكتب نصّ السؤال أوّلًا', 'r'); return; }
+      const t2 = fOf('fb','qt') || 'yn';
+      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q, t:t2,
+        w:QT_NOSCORE.indexOf(t2) < 0 ? Number(fOf('fb','qw') || 2) : 0,
+        req:!!fOf('fb','qr') });
       S.q.fbq = ''; formBuilder(); return;
+    }
+    case 'fbup': {
+      const i = Number(v); if (i < 1) return;
+      const a2 = S.fb.qs; const tmp = a2[i - 1]; a2[i - 1] = a2[i]; a2[i] = tmp;
+      formBuilder(); return;
     }
     case 'fbdel': S.fb.qs.splice(Number(v), 1); formBuilder(); return;
     case 'fbsave': {
-      const b2 = S.fb; if (!b2.title || !b2.qs.length) return;
+      const b2 = S.fb;
+      if (!b2.title) { toast('اكتب عنوان القالب', 'r'); return; }
+      if (!b2.qs.length) { toast('أضف سؤالًا واحدًا على الأقلّ', 'r'); return; }
+      b2.intro = S.q.fbi || b2.intro || '';
+      b2.pledge = S.q.fbp || b2.pledge || '';
       if (b2.editing) {
         const f = formById(b2.editing);
-        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs });
-        logIt('عُدِّل قالب «' + f.title + '»', 'guide');
+        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs,
+          intro:b2.intro, pledge:b2.pledge });
+        logIt('عُدِّل قالب «' + f.title + '» — ' + AR(f.qs.length) + ' أسئلة', 'guide');
       } else {
-        S.forms.push({ id:uid('F'), no:'FM-' + AR(201 + S.forms.length), title:b2.title,
-          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(), qs:b2.qs });
+        S.forms.push({ id:uid('F'), no:'FM-' + (201 + S.forms.length), title:b2.title,
+          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(),
+          qs:b2.qs, intro:b2.intro, pledge:b2.pledge });
         logIt('أُنشئ قالب «' + b2.title + '» بـ' + AR(b2.qs.length) + ' أسئلة', 'guide');
       }
+      S.q.fbi = ''; S.q.fbp = '';
       S.fb = null; S.drawer = null; toast('حُفظ القالب');
       break;
     }
@@ -376,7 +392,7 @@ document.addEventListener('click', ev => {
         : to.indexOf('الاحتياطي') >= 0 ? reserveTeam().length
         : to.indexOf('كل المحسنين') >= 0 ? S.users.filter(u => u.role === 'muhsen' && !u.reserve).length
         : 5;
-      S.casts.unshift({ id: uid('C'), no: 'BR-' + AR(9100 + S.casts.length),
+      S.casts.unshift({ id: uid('C'), no: 'BR-' + (9100 + S.casts.length),
         to, title: t, body: y || '—', kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
       logIt('بُثّت رسالة «' + t + '» إلى ' + to, 'cast');
       S.q.ct = ''; S.q.cb = '';

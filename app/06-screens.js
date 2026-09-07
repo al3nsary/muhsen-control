@@ -29,7 +29,7 @@ function screenSupport() {
           : s.state === 'done' ? ['لُبّي','live'] : ['اعتُذر','no'];
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
           avatar(L, 'sm') +
-          '<span class="nm" style="flex:1"><b>' + E(s.no) + ' · ' + E(t.title || '') + '</b>' +
+          '<span class="nm" style="flex:1"><b>' + LTR(s.no) + ' · ' + E(t.title || '') + '</b>' +
           '<span>' + E(t.kt || '') + ' · ' + E(L.name || '') + ' — يطلب ' +
             AR(s.count) + ' محسن</span></span>' +
           '<span class="end">' + pill(st[0], st[1]) +
@@ -82,7 +82,7 @@ function screenIncidents() {
           '<span class="krail ' + (x.kind === 'bad' ? 'r' : x.kind === 'warn' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + C.c + '">' + icon(C.i, 's18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(x.title) + '</b>' +
-          '<span>' + E(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
+          '<span>' + LTR(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
           (x.hotel ? ' · ' + E(x.hotel) : '') + '</span></span>' +
           pill(x.kind === 'bad' ? 'حرجة' : x.kind === 'warn' ? 'تحتاج انتباهًا' : 'مكتملة',
             x.kind === 'bad' ? 'no' : x.kind === 'warn' ? 'wait' : 'live') +
@@ -101,7 +101,7 @@ function muhsenRow(m, doneN) {
   return '<div class="prow" style="flex-wrap:wrap">' +
     '<span class="fl" style="flex:1;min-width:0">' + avatar(m) +
       '<span class="nm"><b>' + E(m.name) + '</b>' +
-      '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
+      '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
     '<span class="end">' + stars(muhsenRating(m.id)) + '</span>' +
     '<div class="pfoot" style="width:100%">' +
       '<span class="ok">' + AR(doneN) + ' مهمة مُتقنة</span>' +
@@ -168,7 +168,7 @@ function screenReserve() {
       '<div class="plist">' + res.map(m =>
         '<div class="prow">' + avatar(m) +
         '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
-        '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+        '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
         '<span class="fl" style="gap:9px">' + pill('متاح', 'live') +
         '<button class="btn l sm" data-a="go" data-n="support">إسناد لطلب</button></span></div>').join('') +
       '</div></div>';
@@ -215,7 +215,7 @@ function screenTickets() {
           '<span class="krail ' + (k.pri === 'حرجة' ? 'r' : k.pri === 'عاجلة' ? 'a' : '') + '"></span>' +
           '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
-          '<span>' + E(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
+          '<span>' + LTR(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') + pill(k.pri, pr) +
             pill(k.status, k.status === 'مغلقة' ? 'live' : 'wait') + '</span>' +
           (to ? '<span class="fl" style="gap:7px">' + avatar(to, 'sm') +
@@ -254,7 +254,7 @@ function screenReports() {
           '<span class="krail ' + (r.escalated ? 'a' : '') + '"></span>' +
           avatar(L, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(r.title) + '</b>' +
-          '<span>' + E(r.no) + ' · ' + E(r.kt) + ' · ' + E(L.name || '') + '</span></span>' +
+          '<span>' + LTR(r.no) + ' · ' + E(r.kt) + ' · ' + E(L.name || '') + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(r.cat, 'gold') +
             pill(r.status, r.escalated ? 'no' : 'wait') + '</span>' +
           '<span class="tiny faint">' + ago(r.at) + '</span>' +

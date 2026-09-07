@@ -190,10 +190,15 @@ function syncWall() {
    ============================================================ */
 /* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
 let lastDrawer = null;
-function repaintDrawer() {
-  if (lastDrawer) lastDrawer();
-}
-function rememberDrawer(fn) { lastDrawer = fn; }
+function repaintDrawer() { if (lastDrawer) lastDrawer(); }
+/* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
+['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
+ 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','guideDrawer','formDash',
+ 'subDrawer'].forEach(n => {
+  const f = window[n];
+  if (typeof f !== 'function') return;
+  window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
+});
 
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
@@ -271,11 +276,14 @@ document.addEventListener('change', e => {
   if (m) { m.spec = t.value; save(); }
 });
 
+/* حقول البحث وحدها تُعيد الرسم — وما عداها يُحفَظ ويُترك للكاتب */
+const LIVE_Q = ['pil','stf','log','enr','nsk','tkt','inc','tm','bld','npil'];
+/* حقول تُنسَخ فورًا إلى حالتها حتى لا يتأخّر التحقّق عن الكتابة */
+const MIRROR = { fbt: v => { if (S.fb) S.fb.title = v; } };
 document.addEventListener('input', e => {
   const t = e.target; if (!t) return;
   if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }
-  /* حقول الشاشات: تُحفظ فورًا، والرسم مؤجّل حتى لا يُفقد التركيز */
-  const k = t.getAttribute('data-q');
+  const k = t.getAttribute('data-q'); if (!k) return;
   if (k === 'pick') {
     S.picker.q = t.value;
     clearTimeout(qTimer);
@@ -286,17 +294,17 @@ document.addEventListener('input', e => {
     }, 200);
     return;
   }
-  if (k) {
-    S.q = S.q || {}; S.q[k] = t.value; save();
-    clearTimeout(qTimer);
-    if (k === 'ct' || k === 'cb') return;   /* التحرير لا يُعيد الرسم */
-    qTimer = setTimeout(() => {
-      const pos = t.selectionStart;
-      render();
-      const again = document.getElementById(t.id);
-      if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
-    }, 220);
-  }
+  S.q = S.q || {}; S.q[k] = t.value;
+  if (MIRROR[k]) MIRROR[k](t.value);
+  save();
+  if (LIVE_Q.indexOf(k) < 0) return;   /* نصّ يُكتب: لا يُمسّ الرسم */
+  clearTimeout(qTimer);
+  qTimer = setTimeout(() => {
+    const pos = t.selectionStart;
+    if (S.drawer) repaintDrawer(); else render();
+    const again = document.getElementById(t.id);
+    if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
+  }, 240);
 });
 let qTimer = null;
 

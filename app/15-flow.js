@@ -48,13 +48,13 @@ function nusukNew() {
       (chosen ? '<div class="prow" style="margin-top:12px">' +
           avatar({ g:chosen.g, av:chosen.g === 'f' ? 'p5' : 'p2' }, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(chosen.name) + '</b>' +
-          '<span>' + E(chosen.no) + ' · ' + E(chosen.kt) + ' · غرفة ' + AR(chosen.room) + '</span></span>' +
+          '<span>' + LTR(chosen.no) + ' · ' + E(chosen.kt) + ' · غرفة ' + AR(chosen.room) + '</span></span>' +
           '<button class="xbtn" data-a="nfclr">' + icon('i-x','s14') + '</button></div>'
         : (q ? '<div class="plist" style="margin-top:12px">' + pool.slice(0, 8).map(p =>
             '<button class="prow pick" data-a="nfpil" data-id="' + p.id + '">' +
             avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(p.name) + '</b>' +
-            '<span>' + E(p.no) + ' · ' + E(p.kt) + '</span></span></button>').join('') + '</div>'
+            '<span>' + LTR(p.no) + ' · ' + E(p.kt) + '</span></span></button>').join('') + '</div>'
           : '<div class="tiny faint" style="margin-top:12px">اكتب حرفين على الأقلّ.</div>')) +
     '</div>' +
 
@@ -64,8 +64,10 @@ function nusukNew() {
       '<div style="margin-top:11px">' + filePick('nusukNew') + '</div>' +
     '</div>' +
 
-    '<button class="btn p" style="width:100%"' + (chosen ? '' : ' disabled') +
-      ' data-a="nfsave">' + icon('i-checkc','s16') + 'فتح الحالة</button>'
+    '<button class="btn p" style="width:100%" data-a="nfsave">' +
+      icon('i-checkc','s16') + 'فتح الحالة</button>' +
+    (chosen ? '' : '<div class="tiny faint" style="margin-top:9px;text-align:center">' +
+      'اختر الحاجّ أوّلًا.</div>')
   };
   renderDrawer();
 }
@@ -94,7 +96,7 @@ function nusukDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? 'ينفّذها في الميدان' : 'لم تُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') +
+          '<span>' + LTR(to.code) + ' · ' + E(ROLE_AR[to.role] || '') +
           (to.reserve ? ' · احتياط' : '') + '</span></span>' +
           '<button class="btn l sm" data-a="nassign" data-id="' + c.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="nassign" data-id="' + c.id + '">' +
@@ -129,51 +131,106 @@ function nusukDrawer(id) {
 /* ══════════════ الامتثال: باني القالب ══════════════ */
 function formBuilder(id) {
   S.fb = S.fb || (id ? Object.assign({ editing:id }, JSON.parse(JSON.stringify(formById(id))))
-    : { title:'', scope:'فندق', icon:'i-clip', color:'#0B7A4B', qs:[], editing:null });
+    : { title:'', scope:'فندق', icon:'i-clip', color:'#0B7A4B', qs:[],
+        intro:'', pledge:'', editing:null });
   const b = S.fb;
+  const qt = fOf('fb','qt') || 'yn';
+  const scored = b.qs.filter(q => q.w && QT_NOSCORE.indexOf(q.t) < 0).length;
+
   S.drawer = { title:b.editing ? 'تعديل قالب' : 'قالب امتثال جديد',
-    sub:'يُبنى مرّة، ويُسنَد مرارًا، ولكل إجابة وزنها', icon:'i-clip', body:
-    '<div class="card">' + head('هوية القالب', 'اسمه ونطاقه') +
-      '<label class="fl2">العنوان</label>' +
+    sub:'يُبنى مرّة، ويُسنَد مرارًا، ولكل إجابة نوعها ووزنها', icon:'i-clip', body:
+    '<div class="card">' + head('١ · هوية القالب', 'اسمه ونطاقه ومقدّمته') +
+      '<label class="fl2" style="margin-top:0">العنوان</label>' +
       '<input class="fld" id="q-fbt" data-q="fbt" value="' + E(b.title) + '" ' +
         'placeholder="مثال: التزام الفندق بالعقد">' +
       '<label class="fl2">النطاق</label>' +
-      '<div class="chips">' + ['فندق','نقل','إعاشة','تفويج'].map(s =>
-        '<button class="chip2' + (b.scope === s ? ' on' : '') + '" data-a="fbscope" data-v="' + s + '">' +
-        E(s) + '</button>').join('') + '</div>' +
+      '<div class="chips">' + ['فندق','نقل','إعاشة','تفويج','مشاعر'].map(s2 =>
+        '<button class="chip2' + (b.scope === s2 ? ' on' : '') + '" data-a="fbscope" data-v="' + s2 + '">' +
+        E(s2) + '</button>').join('') + '</div>' +
+      '<label class="fl2">مقدّمة تُقرأ قبل التعبئة <span class="faint">(اختيارية)</span></label>' +
+      '<textarea class="fld" id="q-fbi" data-q="fbi" rows="2" ' +
+        'placeholder="ما الذي يُراجعه المحسن؟ ومتى؟">' + E(b.intro || '') + '</textarea>' +
     '</div>' +
 
-    '<div class="card">' + head('الأسئلة', AR(b.qs.length) + ' سؤالًا — الوزن صفر يعني لا يُحتسب') +
+    '<div class="card">' + head('٢ · الأسئلة',
+        AR(b.qs.length) + ' سؤالًا · ' + AR(scored) + ' منها يُحتسب في الدرجة') +
       (b.qs.length ? '<div class="plist">' + b.qs.map((q, i) =>
         '<div class="prow" style="flex-wrap:wrap">' +
           '<span class="sn">' + AR(i + 1) + '</span>' +
+          '<span class="ico sm" style="color:var(--gold2)">' + icon(QT_IC[q.t] || 'i-list','s14') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(q.q) + '</b>' +
-          '<span>' + E(QT[q.t]) + ' · وزن ' + AR(q.w) + '</span></span>' +
-          '<button class="xbtn" data-a="fbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
-        '</div>').join('') + '</div>'
-        : '<div class="tiny faint">لا سؤال بعد.</div>') +
+          '<span>' + E(QT[q.t]) +
+            (QT_NOSCORE.indexOf(q.t) < 0 && q.w ? ' · وزن ' + AR(q.w) : ' · توثيق') +
+            (q.req ? ' · إلزامي' : '') + '</span></span>' +
+          '<span class="fl" style="gap:5px">' +
+            (i > 0 ? '<button class="xbtn" data-a="fbup" data-v="' + i + '" title="أعلى">' +
+              icon('i-back','s14') + '</button>' : '') +
+            '<button class="xbtn" data-a="fbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
+          '</span></div>').join('') + '</div>'
+        : '<div class="tiny faint">لا سؤال بعد — أضف أوّل سؤال من الأسفل.</div>') +
 
       '<div class="qadd">' +
         '<input class="fld" id="q-fbq" data-q="fbq" value="' + E(qOf('fbq')) + '" ' +
           'placeholder="نصّ السؤال…">' +
         '<div class="fl" style="gap:9px;margin-top:10px;flex-wrap:wrap">' +
-          '<label class="fsel"><span>الإجابة</span>' +
-            '<select data-f="fb" data-fk="qt">' + Object.keys(QT).map(k =>
-              '<option value="' + k + '"' + (fOf('fb','qt') === k ? ' selected' : '') + '>' +
-              E(QT[k]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
-          '<label class="fsel"><span>الوزن</span>' +
-            '<select data-f="fb" data-fk="qw">' + [0,1,2,3].map(w =>
-              '<option value="' + w + '"' + (String(fOf('fb','qw')) === String(w) ? ' selected' : '') +
-              '>' + AR(w) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          '<label class="fsel on"><span>الإجابة</span>' +
+            '<select data-f="fb" data-fk="qt">' + Object.keys(QT).map(k2 =>
+              '<option value="' + k2 + '"' + (qt === k2 ? ' selected' : '') + '>' +
+              E(QT[k2]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          (QT_NOSCORE.indexOf(qt) < 0
+            ? '<label class="fsel"><span>الوزن</span>' +
+              '<select data-f="fb" data-fk="qw">' + [1,2,3].map(w =>
+                '<option value="' + w + '"' + (String(fOf('fb','qw') || 2) === String(w) ? ' selected' : '') +
+                '>' + AR(w) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>'
+            : '<span class="mchip">' + icon('i-info','s14') + 'توثيق — لا يُحتسب</span>') +
+          '<label class="fsel' + (fOf('fb','qr') ? ' on' : '') + '"><span>إلزامي</span>' +
+            '<select data-f="fb" data-fk="qr">' +
+              '<option value=""' + (fOf('fb','qr') ? '' : ' selected') + '>لا</option>' +
+              '<option value="1"' + (fOf('fb','qr') ? ' selected' : '') + '>نعم</option>' +
+            '</select>' + icon('i-fwd','s14') + '</label>' +
           '<button class="btn l sm" data-a="fbadd">' + icon('i-plus','s14') + 'أضف سؤالًا</button>' +
         '</div></div>' +
     '</div>' +
 
-    '<button class="btn p" style="width:100%"' + (b.title && b.qs.length ? '' : ' disabled') +
-      ' data-a="fbsave">' + icon('i-checkc','s16') +
+    '<div class="card">' + head('٣ · التعهّد', 'يُوقّعه المحسن قبل الإرسال — اتركه فارغًا لتخطّيه') +
+      '<textarea class="fld" id="q-fbp" data-q="fbp" rows="3" ' +
+        'placeholder="أتعهّد بأن ما أثبتُّه أعلاه مطابق لما عاينتُه بنفسي في الموقع.">' +
+        E(b.pledge || '') + '</textarea>' +
+    '</div>' +
+
+    '<div class="card gold">' + head('٤ · المعاينة', 'هكذا يراه المحسن في التطبيق', '', 'i-eye') +
+      formPreview(b) +
+    '</div>' +
+
+    '<button class="btn p" style="width:100%" data-a="fbsave">' + icon('i-checkc','s16') +
       (b.editing ? 'حفظ التعديل' : 'حفظ القالب') + '</button>'
   };
   renderDrawer();
+}
+
+/* معاينة النموذج كما يُعبَّأ في الميدان — لا وصف له بل هو نفسه */
+function formPreview(f) {
+  if (!f.title && !f.qs.length) return empty('لا شيء بعد', 'اكتب عنوانًا وأضف سؤالًا', 'i-clip');
+  return '<div class="fprev">' +
+    '<div class="fpt"><b>' + E(f.title || 'بلا عنوان') + '</b>' +
+      '<span>' + E(f.scope) + ' · ' + AR(f.qs.length) + ' أسئلة</span></div>' +
+    (f.intro ? '<div class="quote">' + E(f.intro) + '</div>' : '') +
+    f.qs.map((q, i) => '<div class="fq">' +
+      '<b>' + AR(i + 1) + ' · ' + E(q.q) + (q.req ? ' <i class="req">*</i>' : '') + '</b>' +
+      (q.t === 'yn' ? '<div class="chips"><span class="chip2">نعم</span>' +
+          '<span class="chip2">لا</span></div>'
+        : q.t === 'rate' ? '<div class="stars">' + [1,2,3,4,5].map(() =>
+            icon('i-star','s18 off')).join('') + '</div>'
+        : q.t === 'num' ? '<div class="fbox num">٠٠</div>'
+        : q.t === 'photo' ? '<div class="fbox photo">' + icon('i-photo','s18') +
+            'يلتقط صورة أو يرفعها</div>'
+        : q.t === 'sign' ? '<div class="fbox sign">' + icon('i-shield','s18') +
+            'أتعهّد بصحّة ما أثبتُّه</div>'
+        : '<div class="fbox">يكتب إجابته…</div>') +
+    '</div>').join('') +
+    (f.pledge ? '<div class="pledge">' + icon('i-shield','s16') +
+      '<span>' + E(f.pledge) + '</span></div>' : '') +
+  '</div>';
 }
 
 /* إسناد نموذج: يُختار الفندق أوّلًا، ثم المحسن من ساكنيه */
@@ -225,7 +282,7 @@ function ticketDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم تُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') + '</span></span>' +
+          '<span>' + LTR(to.code) + ' · ' + E(ROLE_AR[to.role] || '') + '</span></span>' +
           '<button class="btn l sm" data-a="tkassign" data-id="' + k.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="tkassign" data-id="' + k.id + '">' +
           icon('i-users','s16') + 'إسناد لمحسن أو ليدر</button>') +
@@ -274,7 +331,7 @@ function reportDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم يُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + '</span></span>' +
+          '<span>' + LTR(to.code) + '</span></span>' +
           '<button class="btn l sm" data-a="rpassign" data-id="' + r.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="rpassign" data-id="' + r.id + '">' +
           icon('i-users','s16') + 'إسناد لمن يعالجه</button>') +

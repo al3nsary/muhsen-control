@@ -132,7 +132,7 @@ function tabEnrich() {
           '<span class="krail" style="background:#1B6E9C"></span>' +
           '<span class="ico" style="color:#1B6E9C">' + icon('i-pin','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(si.ar) + '</b>' +
-          '<span>' + E(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
+          '<span>' + LTR(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
           '<span class="when"><b>' + hijri(x.start) + '</b>' +
             '<span class="num">' + t12(x.start) + ' — ' + t12(x.end) + '</span></span>' +
           '<span class="end">' + (M ? '<span class="fl" style="gap:8px">' + avatar(M, 'sm') +
@@ -196,7 +196,7 @@ function tabNusuk() {
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
-          '<span>' + E(c.no) + ' · جواز ' + E(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
+          '<span>' + LTR(c.no) + ' · جواز ' + LTR(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(V.ar, V.c) + pill(ST.ar, ST.c) + '</span>' +
           '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
@@ -240,7 +240,7 @@ function tabComply() {
           '<div class="fl" style="margin-bottom:11px">' +
             '<span class="ico" style="color:' + f.color + '">' + icon(f.icon,'s18') + '</span>' +
             '<span class="nm" style="flex:1"><b>' + E(f.title) + '</b>' +
-            '<span>' + E(f.no) + ' · ' + AR(f.qs.length) + ' أسئلة · ' + E(f.scope) + '</span></span>' +
+            '<span>' + LTR(f.no) + ' · ' + AR(f.qs.length) + ' أسئلة · ' + E(f.scope) + '</span></span>' +
             pill(AR(avg) + '٪', avg >= 85 ? 'live' : avg >= 70 ? 'wait' : 'no') + '</div>' +
           '<div class="mrow">' +
             '<span class="mchip">' + icon('i-users','s14') + AR(targets.length) + ' جهة</span>' +
@@ -329,6 +329,17 @@ function formDash(id) {
             '<b class="num" style="font-size:22px">' + AR(mean) + '</b>' +
             '<span class="tiny faint">المتوسط · الأدنى ' + AR(Math.min.apply(null, nums.concat(0))) +
             ' · الأعلى ' + AR(Math.max.apply(null, nums.concat(0))) + '</span></div>';
+        } else if (q.t === 'photo') {
+          const n2 = vals.filter(Boolean).length;
+          body = '<div class="fl" style="gap:10px;margin-top:8px">' +
+            '<span class="meter" style="flex:1"><i data-w="' +
+            Math.round(n2 / Math.max(1, vals.length) * 100) + '"></i></span>' +
+            '<span class="tiny num">' + AR(n2) + ' صورة من ' + AR(vals.length) + '</span></div>';
+        } else if (q.t === 'sign') {
+          const n2 = vals.filter(Boolean).length;
+          body = '<div class="fl" style="gap:10px;margin-top:8px">' +
+            pill(AR(n2) + ' مُتعهَّد', 'live') +
+            pill(AR(vals.length - n2) + ' بلا تعهّد', vals.length - n2 ? 'no' : 'grey') + '</div>';
         } else {
           body = '<div class="quote">' + E(String(vals[vals.length - 1] || '—')) + '</div>';
         }
@@ -362,6 +373,8 @@ function subDrawer(id) {
         const v = q.t === 'yn' ? (a.v ? pill('نعم','live') : pill('لا','no'))
           : q.t === 'rate' ? stars(a.v || 0)
           : q.t === 'num' ? '<b class="num">' + AR(a.v) + '</b>'
+          : q.t === 'photo' ? (a.v ? fileChip(a.v) : pill('بلا صورة','no'))
+          : q.t === 'sign' ? (a.v ? pill('مُتعهَّد','live') : pill('بلا تعهّد','no'))
           : '<span class="tiny">' + E(String(a.v || '—')) + '</span>';
         return '<div class="prow" style="padding:10px 12px">' +
           '<span class="nm" style="flex:1"><b style="font-size:12.5px">' + E(q.q) + '</b>' +

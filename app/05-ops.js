@@ -208,7 +208,7 @@ function ktDrawer(id) {
       const r = muhsenRating(m.id), nt = muhsenNotes(m.id);
       return '<div class="prow">' + avatar(m) +
         '<span class="nm"><b>' + E(m.name) + '</b>' +
-          '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+          '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
         '<span class="end">' + stars(r) + '</span></div>';
     }).join('') + '</div>' +
 

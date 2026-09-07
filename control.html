@@ -518,7 +518,12 @@ a{color:inherit; text-decoration:none}
   animation:slideL .34s var(--e) both}
 @keyframes slideL{from{transform:translateX(-100%)} to{transform:none}}
 .drawer .dh{display:flex; align-items:center; gap:12px; padding:18px 20px; border-bottom:1px solid var(--line)}
-.drawer .db{flex:1; min-height:0; overflow:auto; padding:18px 20px; display:flex; flex-direction:column; gap:14px}
+.drawer .db{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:18px 20px;
+  display:flex; flex-direction:column; gap:14px}
+/* حاسم: بلا هذا ينكمش كل ابن فيُقصّ محتواه ويبدو الدرج معطوبًا */
+.drawer .db > *{flex:none}
+.drawer .db .card{overflow:visible}
+.drawer .db .grid{overflow:visible}
 .drawer .db::-webkit-scrollbar{width:8px}
 .drawer .db::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 
@@ -1039,6 +1044,8 @@ a{color:inherit; text-decoration:none}
 .fsel.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
 .fsel > span{font-size:10.5px; font-weight:800; color:var(--dim2); white-space:nowrap}
 .fsel.on > span{color:var(--pGoldT)}
+select{color-scheme:inherit}
+.fsel select option, .spec option{background:var(--panel); color:var(--ink)}
 .fsel select{appearance:none; -webkit-appearance:none; border:0; outline:0; background:none;
   font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
   max-width:150px; text-overflow:ellipsis; padding:0}
@@ -1132,6 +1139,31 @@ a{color:inherit; text-decoration:none}
 .teamcard.open .teamhead .chev{transform:rotate(90deg); color:var(--gold2)}
 .teamcard{transition:box-shadow .3s var(--e3)}
 .teamcard.open{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+
+/* ══ معاينة النموذج كما يُعبَّأ في الميدان ══ */
+.fprev{padding:15px; border-radius:15px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.fpt{margin-bottom:12px}
+.fpt b{display:block; font-size:14px}
+.fpt span{display:block; font-size:10.5px; color:var(--dim2)}
+.fq{padding:11px 0; border-top:1px solid var(--line)}
+.fq > b{display:block; font-size:12.5px; font-weight:700; margin-bottom:9px; line-height:1.7}
+.fq .req{color:var(--red); font-style:normal}
+.fq .chips .chip2{cursor:default}
+.fq .stars .ic{fill:var(--starOff); stroke:none}
+.fbox{display:flex; align-items:center; gap:9px; padding:11px 13px; border-radius:11px;
+  font-size:11.5px; color:var(--dim2); background:var(--panel2);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.fbox.num{font-variant-numeric:tabular-nums; letter-spacing:2px}
+.fbox.photo{border:1.5px dashed var(--line2); box-shadow:none; background:none}
+.fbox.sign{color:var(--pGoldT); background:var(--pGoldB);
+  box-shadow:inset 0 0 0 1px var(--gold2)}
+.pledge{display:flex; align-items:flex-start; gap:10px; margin-top:13px; padding:12px 14px;
+  border-radius:13px; font-size:11.5px; line-height:1.8;
+  color:var(--pGoldT); background:var(--pGoldB); box-shadow:inset 0 0 0 1px var(--gold2)}
+.ico.sm{width:26px; height:26px; border-radius:9px}
+
+bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -1596,7 +1628,13 @@ for (let i = 0; i < 14; i++) {
 }
 
 /* ---------- قوالب الامتثال ---------- */
-const QT = { yn:'نعم / لا', rate:'تقييم ١–٥', num:'عدد', text:'نصّ' };
+/* أنواع الإجابة — ما يُحتسب وما يُوثَّق */
+const QT = { yn:'نعم / لا', rate:'تقييم ١–٥', num:'عدد', text:'نصّ',
+  photo:'صورة مرفقة', sign:'تعهّد وتوقيع' };
+const QT_IC = { yn:'i-checkc', rate:'i-star', num:'i-hash', text:'i-list',
+  photo:'i-photo', sign:'i-shield' };
+/* ما لا يُحتسب في الدرجة — يُوثَّق ولا يُقيَّم */
+const QT_NOSCORE = ['text', 'photo', 'num'];
 const FORM_SEED = [
   { title:'التزام الفندق بالعقد', scope:'فندق', by:'L1', ago:2600, i:'i-key', c:'#0B7A4B',
     qs:[
@@ -1606,8 +1644,11 @@ const FORM_SEED = [
       { q:'عدد العمالة المتاحة في الوردية',              t:'num',  w:2 },
       { q:'هل المصاعد تعمل بكامل طاقتها؟',               t:'yn',   w:3 },
       { q:'جاهزية مخارج الطوارئ',                        t:'rate', w:3 },
-      { q:'ملاحظات المشرف',                              t:'text', w:0 }
-    ] },
+      { q:'صورة لوحة السلامة عند المخرج',                 t:'photo', w:0, req:true },
+      { q:'ملاحظات المشرف',                              t:'text', w:0 },
+      { q:'أتعهّد بأنّ ما أثبتُّه مطابق لما عاينتُه',      t:'sign', w:3, req:true }
+    ], intro:'تُراجَع هذه البنود في جولة ميدانية داخل الفندق قبل التفويج.',
+    pledge:'أتعهّد بأنّ ما أثبتُّه أعلاه مطابق لما عاينتُه بنفسي في الموقع.' },
   { title:'جاهزية الحافلات', scope:'نقل', by:'L2', ago:1800, i:'i-bus', c:'#1B6E9C',
     qs:[
       { q:'هل عدد الحافلات مطابق للتفويج؟',   t:'yn',   w:3 },
@@ -1629,8 +1670,8 @@ const FORM_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 6;
-const APP_VER = 'نسخة ٠٫٨';
+const SCHEMA = 8;
+const APP_VER = 'نسخة ٠٫٨٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1708,7 +1749,7 @@ function seed() {
       arr.push({
         id: 'P' + L.kt + '-' + (1 + i),
         name: pilgrimName(pool, g, i + li * 3),
-        no: 'HJ-' + AR(70000 + li * 1000 + i),
+        no: 'HJ-' + (70000 + li * 1000 + i),
         g: g,
         country: org.country || '—', org: org.ar || '—',
         age: 34 + ((i * 7 + li * 5) % 42),
@@ -1746,7 +1787,7 @@ function seed() {
     const L = LEADERS[i % LEADERS.length];
     const pl = st.pilgrims[L.kt][i * 5 % st.pilgrims[L.kt].length];
     st.tickets.push({
-      id: uid('K'), no: 'TK-' + AR(4100 + i), title: k.t, body: k.body,
+      id: uid('K'), no: 'TK-' + (4100 + i), title: k.t, body: k.body,
       cat: k.cat, pri: k.pri, kt: L.kt, leaderId: L.id, from: pl.name, pilgrimId: pl.id,
       at: Date.now() - k.ago * MIN,
       status: i % 4 === 0 ? 'قيد المعالجة' : i === 7 ? 'مغلقة' : 'مفتوحة'
@@ -1757,7 +1798,7 @@ function seed() {
   REPORT_SEED.forEach((r, i) => {
     const L = LEADERS[i % LEADERS.length];
     st.reports.push({
-      id: uid('R'), no: 'RP-' + AR(5200 + i), cat: r.cat, title: r.t, body: r.b,
+      id: uid('R'), no: 'RP-' + (5200 + i), cat: r.cat, title: r.t, body: r.b,
       kt: L.kt, from: L.id, at: Date.now() - r.ago * MIN,
       escalated: !!r.esc, room: r.room ? { floor: 'الدور الثالث', no: '٣١٤' } : null,
       status: r.esc ? 'لدى الكنترول' : 'قيد المعالجة'
@@ -1767,7 +1808,7 @@ function seed() {
   /* طلبات الدعم */
   const t0 = st.tasks.find(t => t.start > Date.now());
   if (t0) st.support.push({
-    id: uid('SP'), no: 'SP-' + AR(7100), taskId: t0.id, by: t0.leaderId,
+    id: uid('SP'), no: 'SP-' + (7100), taskId: t0.id, by: t0.leaderId,
     count: 2, why: 'استُبعد محسنان لعدم الحاجة ثم تغيّر حجم الفوج.',
     at: Date.now() - 40 * MIN, state: 'pending'
   });
@@ -1791,7 +1832,7 @@ function seed() {
     /* عمر يُعرض في التشكيل */
     team.forEach((m, k) => { m.age = 24 + ((i * 5 + k * 7) % 26); });
     return {
-      id: 'G' + (101 + i), no: 'GR-' + AR(101 + i), leaderId: L.id, orgId: L.orgId,
+      id: 'G' + (101 + i), no: 'GR-' + (101 + i), leaderId: L.id, orgId: L.orgId,
       hotelId: h.id, supervisorId: sv ? sv.id : null,
       members: team.map((m, k) => ({ id: m.id, spec: SPECS[(i + k) % SPECS.length] })),
       at: Date.now() - (40 - i * 6) * DAY
@@ -1811,7 +1852,7 @@ function seed() {
       const start = Date.now() + ((i * 9 + r * 31) - 30) * HR;
       const assigned = (i + r) % 4 !== 0;
       st.enrich.push({
-        id: uid('X'), ref: 'EX-' + AR(88100 + i * 7 + r), siteId: si.id,
+        id: uid('X'), ref: 'EX-' + (88100 + i * 7 + r), siteId: si.id,
         start, end: start + si.dur * HR, seats: si.cap,
         booked: Math.round(si.cap * (0.55 + ((i + r) % 5) / 12)),
         kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null, muhsenId: null,
@@ -1830,7 +1871,7 @@ function seed() {
     const team = st.users.filter(u => u.role === 'muhsen' && u.leaderId === L.id);
     const done = c.st === 'delivered' || c.st === 'issued';
     return {
-      id: uid('N'), no: 'NS-' + AR(4400 + i), svc: c.svc, pilgrimId: p.id,
+      id: uid('N'), no: 'NS-' + (4400 + i), svc: c.svc, pilgrimId: p.id,
       pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
       openedBy: c.by, state: c.st, step: NUSUK_SVC[c.svc].steps.length - (c.st === 'new' ? 4
         : c.st === 'processing' ? 2 : c.st === 'issued' ? 1 : 0),
@@ -1844,8 +1885,9 @@ function seed() {
 
   /* ---------- الامتثال: قوالب وإدخالات ---------- */
   st.forms = FORM_SEED.map((f, i) => ({
-    id: 'F' + (201 + i), no: 'FM-' + AR(201 + i), title: f.title, scope: f.scope,
+    id: 'F' + (201 + i), no: 'FM-' + (201 + i), title: f.title, scope: f.scope,
     icon: f.i, color: f.c, by: f.by, at: Date.now() - f.ago * MIN,
+    intro: f.intro || '', pledge: f.pledge || '',
     qs: f.qs.map((q, k) => Object.assign({ id: 'q' + (k + 1) }, q))
   }));
 
@@ -1866,6 +1908,9 @@ function seed() {
           if (q.t === 'yn') return { id:q.id, v: (seed / 10 + lift) > 0.42 };
           if (q.t === 'rate') return { id:q.id, v: Math.max(1, Math.min(5, Math.round(2 + seed / 3 + lift * 3))) };
           if (q.t === 'num') return { id:q.id, v: 6 + seed * 2 + Math.round(lift * 10) };
+          if (q.t === 'photo') return { id:q.id, v: (seed + v) % 4 ? { name:'sala' + v + '.jpg',
+            size: 380000 + seed * 40000, type:'image/jpeg' } : null };
+          if (q.t === 'sign') return { id:q.id, v: (seed / 10 + lift) > 0.3 };
           return { id:q.id, v: v === visits ? 'استُوفيت الملاحظات السابقة.' : 'يحتاج متابعة في الزيارة القادمة.' };
         });
         st.subs.push({
@@ -1886,13 +1931,13 @@ function seed() {
 
   /* البثّ — ما أُرسل */
   st.casts = CAST_SEED.map((c, i) => ({
-    id: uid('C'), no: 'BR-' + AR(9100 + i), to: c.to, title: c.t, body: c.b,
+    id: uid('C'), no: 'BR-' + (9100 + i), to: c.to, title: c.t, body: c.b,
     kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
   }));
 
   /* الشِفتات — طلبات التبديل */
   st.swaps = SHIFT_SEED.map((x, i) => ({
-    id: uid('W'), no: 'SW-' + AR(6300 + i), from: x.from, to: x.to,
+    id: uid('W'), no: 'SW-' + (6300 + i), from: x.from, to: x.to,
     day: x.day, slot: x.slot, why: x.why, state: x.st, reason: null,
     at: Date.now() - x.ago * MIN
   }));
@@ -1905,7 +1950,7 @@ function seed() {
   /* الحوادث تُصنَّف: نوع وحالة وجهة وزمن استجابة */
   const INC_ST = ['مفتوح', 'قيد المعالجة', 'مغلق'];
   FEED_SEED.forEach((f, fi) => st.feed.push({
-    no: 'IN-' + AR(7300 + fi),
+    no: 'IN-' + (7300 + fi),
     cat: INC_CATS[fi % INC_CATS.length].k,
     kt: ORGS[fi % ORGS.length].kt,
     hotel: HOTELS[fi % HOTELS.length].ar,
@@ -1967,9 +2012,9 @@ function formScore(f, answers) {
     if (!q.w) return;
     const a = answers.find(x => x.id === q.id); if (!a) return;
     max += q.w;
-    if (q.t === 'yn') got += a.v ? q.w : 0;
+    if (q.t === 'yn' || q.t === 'sign') got += a.v ? q.w : 0;
     else if (q.t === 'rate') got += q.w * (a.v / 5);
-    else max -= q.w;
+    else max -= q.w;   /* نصّ وصورة وعدد: توثيق لا تقييم */
   });
   return max ? Math.round(got / max * 100) : 0;
 }
@@ -2025,6 +2070,8 @@ function go(n, id) { S.route = { n, id }; save(); render(); }
 const E = s => String(s == null ? '' : s).replace(/[&<>"']/g,
   c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const icon = (n, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#' + n + '"/></svg>';
+/* معرّف مختلط: لاتيني وأرقام وشرطة — يُعزَل وإلا انقلب ترتيبه في العربية */
+const LTR = t => '<bdi class="ltr">' + E(t == null ? '' : t) + '</bdi>';
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 
@@ -2621,7 +2668,7 @@ function ktDrawer(id) {
       const r = muhsenRating(m.id), nt = muhsenNotes(m.id);
       return '<div class="prow">' + avatar(m) +
         '<span class="nm"><b>' + E(m.name) + '</b>' +
-          '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+          '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
         '<span class="end">' + stars(r) + '</span></div>';
     }).join('') + '</div>' +
 
@@ -2662,7 +2709,7 @@ function screenSupport() {
           : s.state === 'done' ? ['لُبّي','live'] : ['اعتُذر','no'];
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
           avatar(L, 'sm') +
-          '<span class="nm" style="flex:1"><b>' + E(s.no) + ' · ' + E(t.title || '') + '</b>' +
+          '<span class="nm" style="flex:1"><b>' + LTR(s.no) + ' · ' + E(t.title || '') + '</b>' +
           '<span>' + E(t.kt || '') + ' · ' + E(L.name || '') + ' — يطلب ' +
             AR(s.count) + ' محسن</span></span>' +
           '<span class="end">' + pill(st[0], st[1]) +
@@ -2715,7 +2762,7 @@ function screenIncidents() {
           '<span class="krail ' + (x.kind === 'bad' ? 'r' : x.kind === 'warn' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + C.c + '">' + icon(C.i, 's18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(x.title) + '</b>' +
-          '<span>' + E(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
+          '<span>' + LTR(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
           (x.hotel ? ' · ' + E(x.hotel) : '') + '</span></span>' +
           pill(x.kind === 'bad' ? 'حرجة' : x.kind === 'warn' ? 'تحتاج انتباهًا' : 'مكتملة',
             x.kind === 'bad' ? 'no' : x.kind === 'warn' ? 'wait' : 'live') +
@@ -2734,7 +2781,7 @@ function muhsenRow(m, doneN) {
   return '<div class="prow" style="flex-wrap:wrap">' +
     '<span class="fl" style="flex:1;min-width:0">' + avatar(m) +
       '<span class="nm"><b>' + E(m.name) + '</b>' +
-      '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
+      '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
     '<span class="end">' + stars(muhsenRating(m.id)) + '</span>' +
     '<div class="pfoot" style="width:100%">' +
       '<span class="ok">' + AR(doneN) + ' مهمة مُتقنة</span>' +
@@ -2801,7 +2848,7 @@ function screenReserve() {
       '<div class="plist">' + res.map(m =>
         '<div class="prow">' + avatar(m) +
         '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
-        '<span>' + E(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
+        '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
         '<span class="fl" style="gap:9px">' + pill('متاح', 'live') +
         '<button class="btn l sm" data-a="go" data-n="support">إسناد لطلب</button></span></div>').join('') +
       '</div></div>';
@@ -2848,7 +2895,7 @@ function screenTickets() {
           '<span class="krail ' + (k.pri === 'حرجة' ? 'r' : k.pri === 'عاجلة' ? 'a' : '') + '"></span>' +
           '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
-          '<span>' + E(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
+          '<span>' + LTR(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') + pill(k.pri, pr) +
             pill(k.status, k.status === 'مغلقة' ? 'live' : 'wait') + '</span>' +
           (to ? '<span class="fl" style="gap:7px">' + avatar(to, 'sm') +
@@ -2887,7 +2934,7 @@ function screenReports() {
           '<span class="krail ' + (r.escalated ? 'a' : '') + '"></span>' +
           avatar(L, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(r.title) + '</b>' +
-          '<span>' + E(r.no) + ' · ' + E(r.kt) + ' · ' + E(L.name || '') + '</span></span>' +
+          '<span>' + LTR(r.no) + ' · ' + E(r.kt) + ' · ' + E(L.name || '') + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(r.cat, 'gold') +
             pill(r.status, r.escalated ? 'no' : 'wait') + '</span>' +
           '<span class="tiny faint">' + ago(r.at) + '</span>' +
@@ -2946,7 +2993,6 @@ const qOf = k => ((S.q && S.q[k]) || '').trim();
 /* ══════════════ ١) قاعدة الحجاج ══════════════ */
 function screenPilgrims() {
   const all = allPilgrimRows();
-  const kt = S.tab.pkt || 'all';
   const q = qOf('pil');
   let list = all.slice();
   const pk = fOf('pil','kt'), po = fOf('pil','org'), ps = fOf('pil','state'), pf = fOf('pil','flag');
@@ -2989,7 +3035,7 @@ function screenPilgrims() {
                  p.org, p.room, p.age, p.state],
           cells: [
             '<span class="fl">' + avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'sm') +
-              '<span class="nm"><b>' + E(p.name) + '</b><span>' + E(p.no) + '</span></span></span>',
+              '<span class="nm"><b>' + E(p.name) + '</b><span>' + LTR(p.no) + '</span></span></span>',
             '<b>' + E(p.kt) + '</b>',
             '<span class="tiny">' + E(p.org) + '<br><span class="faint">' + E(p.country) + '</span></span>',
             '<span class="tiny">' + E(p.floor) + '<br><b class="num">غرفة ' + AR(p.room) + '</b></span>',
@@ -3023,7 +3069,7 @@ function pilgrimDrawer(id) {
     '<div class="card">' + head('المسؤول عنه', 'ليدر الفريق') +
       '<div class="prow" style="box-shadow:none;border:0;padding:0">' + avatar(L) +
       '<span class="nm" style="flex:1"><b>' + E(L.name || '') + '</b>' +
-      '<span>' + E(L.kt || '') + ' · ' + E(L.phone || '') + '</span></span>' +
+      '<span>' + E(L.kt || '') + ' · ' + LTR(L.phone || '') + '</span></span>' +
       '<span>' + stars(ktRating(L.id)) + '</span></div></div>' +
 
     (tk.length ? '<div class="card">' + head('تذاكره', AR(tk.length)) +
@@ -3244,7 +3290,7 @@ function screenBroadcast() {
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
           '<span class="ico">' + icon('i-bell','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.title) + '</b>' +
-          '<span>' + E(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
+          '<span>' + LTR(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
           pill(c.kind, k) + '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:9px">' +
             '<div class="tiny muted">' + E(c.body) + '</div>' +
@@ -3304,7 +3350,7 @@ function screenShifts() {
             '<span class="arrow">' + icon('i-swap','s16') + '</span>' +
             avatar(b, 'sm') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(a.name || '') + ' ← ' + E(b.name || '') + '</b>' +
-          '<span>' + E(w.no) + ' · ' + E(w.day) + ' · ' + E(w.slot) + '</span>' +
+          '<span>' + LTR(w.no) + ' · ' + E(w.day) + ' · ' + E(w.slot) + '</span>' +
           '<div class="tiny muted" style="margin-top:6px">' + E(w.why) + '</div>' +
           (w.reason ? '<div class="tiny" style="margin-top:5px;color:var(--gold3)">ردّك: ' +
             E(w.reason) + '</div>' : '') + '</span>' +
@@ -3490,11 +3536,11 @@ function screenStaff() {
                   h && h.ar ? h.ar : 'ـ', tn, rt],
             cells:[
               '<span class="fl">' + avatar(u, 'sm') +
-                '<span class="nm"><b>' + E(u.name) + '</b><span>' + E(u.code) +
+                '<span class="nm"><b>' + E(u.name) + '</b><span>' + LTR(u.code) +
                 (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span></span>',
               u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '—',
                 u.role === 'supervisor' ? 'blue' : u.role === 'leader' ? 'live' : 'grey'),
-              g ? '<b>' + E(g.no) + '</b>' : '<span class="faint">—</span>',
+              g ? '<b>' + LTR(g.no) + '</b>' : '<span class="faint">—</span>',
               o ? '<span class="tiny"><b>' + E(o.kt) + '</b><br>' +
                 '<span class="faint">' + E(o.type) + '</span></span>' : '<span class="faint">—</span>',
               h && h.ar ? '<span class="tiny">' + E(h.ar) + '</span>' : '<span class="faint">—</span>',
@@ -3522,7 +3568,7 @@ function staffDrawer(id) {
   openDrawer(u.name, (ROLE_AR[u.role] || '') + ' · ' + u.code, 'i-idcard',
     '<div class="fl" style="gap:14px">' + avatar(u, 'lg') +
       '<span class="nm" style="flex:1"><b style="font-size:16px">' + E(u.name) + '</b>' +
-      '<span>' + E(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
+      '<span>' + LTR(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
       (u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '', 'live')) + '</div>' +
 
     '<div class="meta">' +
@@ -3533,8 +3579,8 @@ function staffDrawer(id) {
 
     '<div class="card">' + head('البيانات', 'ما يعرفه النظام عنه') +
       '<div class="kvlist">' +
-        kvRow('i-phone', 'الجوال', u.phone || '—') +
-        kvRow('i-users', 'المجموعة', g ? g.no : 'بلا مجموعة') +
+        kvRow('i-phone', 'الجوال', u.phone || '—', true) +
+        kvRow('i-users', 'المجموعة', g ? g.no : 'بلا مجموعة', true) +
         kvRow('i-flag', 'الجهة', o ? o.kt + ' · ' + o.ar + ' (' + o.type + ')' : '—') +
         kvRow('i-key', 'السكن', h && h.ar ? h.ar + ' · ' + h.city : '—') +
         (L ? kvRow('i-star', 'ليدره', L.name) : '') +
@@ -3563,9 +3609,9 @@ function staffDrawer(id) {
         : empty('لا مهام مُسنَدة', 'أسنِد له من شاشة المهام', 'i-tasks')) +
     '</div>');
 }
-function kvRow(ic, k, v) {
+function kvRow(ic, k, v, ltr) {
   return '<div class="kv2"><span class="ico sm">' + icon(ic, 's14') + '</span>' +
-    '<span class="k">' + E(k) + '</span><b>' + E(v) + '</b></div>';
+    '<span class="k">' + E(k) + '</span><b>' + (ltr ? LTR(v) : E(v)) + '</b></div>';
 }
 
 /* ============================================================
@@ -3677,7 +3723,7 @@ function pickerBody() {
       return '<button class="prow pick" data-a="pickdo" data-id="' + u.id + '">' +
         avatar(u, 'sm') +
         '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-        '<span>' + E(u.code) + ' · ' + E(u.specialty || '') +
+        '<span>' + LTR(u.code) + ' · ' + E(u.specialty || '') +
           (g ? ' · ' + g.no : '') + (h && h.ar ? ' · ' + h.ar : '') + '</span></span>' +
         (u.reserve ? pill('احتياط','gold') : '') +
         pill(AR(load) + ' مهمة', load > 14 ? 'no' : load > 8 ? 'wait' : 'live') +
@@ -3736,13 +3782,13 @@ function nusukNew() {
       (chosen ? '<div class="prow" style="margin-top:12px">' +
           avatar({ g:chosen.g, av:chosen.g === 'f' ? 'p5' : 'p2' }, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(chosen.name) + '</b>' +
-          '<span>' + E(chosen.no) + ' · ' + E(chosen.kt) + ' · غرفة ' + AR(chosen.room) + '</span></span>' +
+          '<span>' + LTR(chosen.no) + ' · ' + E(chosen.kt) + ' · غرفة ' + AR(chosen.room) + '</span></span>' +
           '<button class="xbtn" data-a="nfclr">' + icon('i-x','s14') + '</button></div>'
         : (q ? '<div class="plist" style="margin-top:12px">' + pool.slice(0, 8).map(p =>
             '<button class="prow pick" data-a="nfpil" data-id="' + p.id + '">' +
             avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(p.name) + '</b>' +
-            '<span>' + E(p.no) + ' · ' + E(p.kt) + '</span></span></button>').join('') + '</div>'
+            '<span>' + LTR(p.no) + ' · ' + E(p.kt) + '</span></span></button>').join('') + '</div>'
           : '<div class="tiny faint" style="margin-top:12px">اكتب حرفين على الأقلّ.</div>')) +
     '</div>' +
 
@@ -3752,8 +3798,10 @@ function nusukNew() {
       '<div style="margin-top:11px">' + filePick('nusukNew') + '</div>' +
     '</div>' +
 
-    '<button class="btn p" style="width:100%"' + (chosen ? '' : ' disabled') +
-      ' data-a="nfsave">' + icon('i-checkc','s16') + 'فتح الحالة</button>'
+    '<button class="btn p" style="width:100%" data-a="nfsave">' +
+      icon('i-checkc','s16') + 'فتح الحالة</button>' +
+    (chosen ? '' : '<div class="tiny faint" style="margin-top:9px;text-align:center">' +
+      'اختر الحاجّ أوّلًا.</div>')
   };
   renderDrawer();
 }
@@ -3782,7 +3830,7 @@ function nusukDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? 'ينفّذها في الميدان' : 'لم تُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') +
+          '<span>' + LTR(to.code) + ' · ' + E(ROLE_AR[to.role] || '') +
           (to.reserve ? ' · احتياط' : '') + '</span></span>' +
           '<button class="btn l sm" data-a="nassign" data-id="' + c.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="nassign" data-id="' + c.id + '">' +
@@ -3817,51 +3865,106 @@ function nusukDrawer(id) {
 /* ══════════════ الامتثال: باني القالب ══════════════ */
 function formBuilder(id) {
   S.fb = S.fb || (id ? Object.assign({ editing:id }, JSON.parse(JSON.stringify(formById(id))))
-    : { title:'', scope:'فندق', icon:'i-clip', color:'#0B7A4B', qs:[], editing:null });
+    : { title:'', scope:'فندق', icon:'i-clip', color:'#0B7A4B', qs:[],
+        intro:'', pledge:'', editing:null });
   const b = S.fb;
+  const qt = fOf('fb','qt') || 'yn';
+  const scored = b.qs.filter(q => q.w && QT_NOSCORE.indexOf(q.t) < 0).length;
+
   S.drawer = { title:b.editing ? 'تعديل قالب' : 'قالب امتثال جديد',
-    sub:'يُبنى مرّة، ويُسنَد مرارًا، ولكل إجابة وزنها', icon:'i-clip', body:
-    '<div class="card">' + head('هوية القالب', 'اسمه ونطاقه') +
-      '<label class="fl2">العنوان</label>' +
+    sub:'يُبنى مرّة، ويُسنَد مرارًا، ولكل إجابة نوعها ووزنها', icon:'i-clip', body:
+    '<div class="card">' + head('١ · هوية القالب', 'اسمه ونطاقه ومقدّمته') +
+      '<label class="fl2" style="margin-top:0">العنوان</label>' +
       '<input class="fld" id="q-fbt" data-q="fbt" value="' + E(b.title) + '" ' +
         'placeholder="مثال: التزام الفندق بالعقد">' +
       '<label class="fl2">النطاق</label>' +
-      '<div class="chips">' + ['فندق','نقل','إعاشة','تفويج'].map(s =>
-        '<button class="chip2' + (b.scope === s ? ' on' : '') + '" data-a="fbscope" data-v="' + s + '">' +
-        E(s) + '</button>').join('') + '</div>' +
+      '<div class="chips">' + ['فندق','نقل','إعاشة','تفويج','مشاعر'].map(s2 =>
+        '<button class="chip2' + (b.scope === s2 ? ' on' : '') + '" data-a="fbscope" data-v="' + s2 + '">' +
+        E(s2) + '</button>').join('') + '</div>' +
+      '<label class="fl2">مقدّمة تُقرأ قبل التعبئة <span class="faint">(اختيارية)</span></label>' +
+      '<textarea class="fld" id="q-fbi" data-q="fbi" rows="2" ' +
+        'placeholder="ما الذي يُراجعه المحسن؟ ومتى؟">' + E(b.intro || '') + '</textarea>' +
     '</div>' +
 
-    '<div class="card">' + head('الأسئلة', AR(b.qs.length) + ' سؤالًا — الوزن صفر يعني لا يُحتسب') +
+    '<div class="card">' + head('٢ · الأسئلة',
+        AR(b.qs.length) + ' سؤالًا · ' + AR(scored) + ' منها يُحتسب في الدرجة') +
       (b.qs.length ? '<div class="plist">' + b.qs.map((q, i) =>
         '<div class="prow" style="flex-wrap:wrap">' +
           '<span class="sn">' + AR(i + 1) + '</span>' +
+          '<span class="ico sm" style="color:var(--gold2)">' + icon(QT_IC[q.t] || 'i-list','s14') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(q.q) + '</b>' +
-          '<span>' + E(QT[q.t]) + ' · وزن ' + AR(q.w) + '</span></span>' +
-          '<button class="xbtn" data-a="fbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
-        '</div>').join('') + '</div>'
-        : '<div class="tiny faint">لا سؤال بعد.</div>') +
+          '<span>' + E(QT[q.t]) +
+            (QT_NOSCORE.indexOf(q.t) < 0 && q.w ? ' · وزن ' + AR(q.w) : ' · توثيق') +
+            (q.req ? ' · إلزامي' : '') + '</span></span>' +
+          '<span class="fl" style="gap:5px">' +
+            (i > 0 ? '<button class="xbtn" data-a="fbup" data-v="' + i + '" title="أعلى">' +
+              icon('i-back','s14') + '</button>' : '') +
+            '<button class="xbtn" data-a="fbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
+          '</span></div>').join('') + '</div>'
+        : '<div class="tiny faint">لا سؤال بعد — أضف أوّل سؤال من الأسفل.</div>') +
 
       '<div class="qadd">' +
         '<input class="fld" id="q-fbq" data-q="fbq" value="' + E(qOf('fbq')) + '" ' +
           'placeholder="نصّ السؤال…">' +
         '<div class="fl" style="gap:9px;margin-top:10px;flex-wrap:wrap">' +
-          '<label class="fsel"><span>الإجابة</span>' +
-            '<select data-f="fb" data-fk="qt">' + Object.keys(QT).map(k =>
-              '<option value="' + k + '"' + (fOf('fb','qt') === k ? ' selected' : '') + '>' +
-              E(QT[k]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
-          '<label class="fsel"><span>الوزن</span>' +
-            '<select data-f="fb" data-fk="qw">' + [0,1,2,3].map(w =>
-              '<option value="' + w + '"' + (String(fOf('fb','qw')) === String(w) ? ' selected' : '') +
-              '>' + AR(w) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          '<label class="fsel on"><span>الإجابة</span>' +
+            '<select data-f="fb" data-fk="qt">' + Object.keys(QT).map(k2 =>
+              '<option value="' + k2 + '"' + (qt === k2 ? ' selected' : '') + '>' +
+              E(QT[k2]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>' +
+          (QT_NOSCORE.indexOf(qt) < 0
+            ? '<label class="fsel"><span>الوزن</span>' +
+              '<select data-f="fb" data-fk="qw">' + [1,2,3].map(w =>
+                '<option value="' + w + '"' + (String(fOf('fb','qw') || 2) === String(w) ? ' selected' : '') +
+                '>' + AR(w) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>'
+            : '<span class="mchip">' + icon('i-info','s14') + 'توثيق — لا يُحتسب</span>') +
+          '<label class="fsel' + (fOf('fb','qr') ? ' on' : '') + '"><span>إلزامي</span>' +
+            '<select data-f="fb" data-fk="qr">' +
+              '<option value=""' + (fOf('fb','qr') ? '' : ' selected') + '>لا</option>' +
+              '<option value="1"' + (fOf('fb','qr') ? ' selected' : '') + '>نعم</option>' +
+            '</select>' + icon('i-fwd','s14') + '</label>' +
           '<button class="btn l sm" data-a="fbadd">' + icon('i-plus','s14') + 'أضف سؤالًا</button>' +
         '</div></div>' +
     '</div>' +
 
-    '<button class="btn p" style="width:100%"' + (b.title && b.qs.length ? '' : ' disabled') +
-      ' data-a="fbsave">' + icon('i-checkc','s16') +
+    '<div class="card">' + head('٣ · التعهّد', 'يُوقّعه المحسن قبل الإرسال — اتركه فارغًا لتخطّيه') +
+      '<textarea class="fld" id="q-fbp" data-q="fbp" rows="3" ' +
+        'placeholder="أتعهّد بأن ما أثبتُّه أعلاه مطابق لما عاينتُه بنفسي في الموقع.">' +
+        E(b.pledge || '') + '</textarea>' +
+    '</div>' +
+
+    '<div class="card gold">' + head('٤ · المعاينة', 'هكذا يراه المحسن في التطبيق', '', 'i-eye') +
+      formPreview(b) +
+    '</div>' +
+
+    '<button class="btn p" style="width:100%" data-a="fbsave">' + icon('i-checkc','s16') +
       (b.editing ? 'حفظ التعديل' : 'حفظ القالب') + '</button>'
   };
   renderDrawer();
+}
+
+/* معاينة النموذج كما يُعبَّأ في الميدان — لا وصف له بل هو نفسه */
+function formPreview(f) {
+  if (!f.title && !f.qs.length) return empty('لا شيء بعد', 'اكتب عنوانًا وأضف سؤالًا', 'i-clip');
+  return '<div class="fprev">' +
+    '<div class="fpt"><b>' + E(f.title || 'بلا عنوان') + '</b>' +
+      '<span>' + E(f.scope) + ' · ' + AR(f.qs.length) + ' أسئلة</span></div>' +
+    (f.intro ? '<div class="quote">' + E(f.intro) + '</div>' : '') +
+    f.qs.map((q, i) => '<div class="fq">' +
+      '<b>' + AR(i + 1) + ' · ' + E(q.q) + (q.req ? ' <i class="req">*</i>' : '') + '</b>' +
+      (q.t === 'yn' ? '<div class="chips"><span class="chip2">نعم</span>' +
+          '<span class="chip2">لا</span></div>'
+        : q.t === 'rate' ? '<div class="stars">' + [1,2,3,4,5].map(() =>
+            icon('i-star','s18 off')).join('') + '</div>'
+        : q.t === 'num' ? '<div class="fbox num">٠٠</div>'
+        : q.t === 'photo' ? '<div class="fbox photo">' + icon('i-photo','s18') +
+            'يلتقط صورة أو يرفعها</div>'
+        : q.t === 'sign' ? '<div class="fbox sign">' + icon('i-shield','s18') +
+            'أتعهّد بصحّة ما أثبتُّه</div>'
+        : '<div class="fbox">يكتب إجابته…</div>') +
+    '</div>').join('') +
+    (f.pledge ? '<div class="pledge">' + icon('i-shield','s16') +
+      '<span>' + E(f.pledge) + '</span></div>' : '') +
+  '</div>';
 }
 
 /* إسناد نموذج: يُختار الفندق أوّلًا، ثم المحسن من ساكنيه */
@@ -3913,7 +4016,7 @@ function ticketDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم تُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + ' · ' + E(ROLE_AR[to.role] || '') + '</span></span>' +
+          '<span>' + LTR(to.code) + ' · ' + E(ROLE_AR[to.role] || '') + '</span></span>' +
           '<button class="btn l sm" data-a="tkassign" data-id="' + k.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="tkassign" data-id="' + k.id + '">' +
           icon('i-users','s16') + 'إسناد لمحسن أو ليدر</button>') +
@@ -3962,7 +4065,7 @@ function reportDrawer(id) {
     '<div class="card">' + head('المُسنَد إليه', to ? '' : 'لم يُسنَد بعد') +
       (to ? '<div class="prow">' + avatar(to, 'sm') +
           '<span class="nm" style="flex:1"><b>' + E(to.name) + '</b>' +
-          '<span>' + E(to.code) + '</span></span>' +
+          '<span>' + LTR(to.code) + '</span></span>' +
           '<button class="btn l sm" data-a="rpassign" data-id="' + r.id + '">تغيير</button></div>'
         : '<button class="btn p" style="width:100%" data-a="rpassign" data-id="' + r.id + '">' +
           icon('i-users','s16') + 'إسناد لمن يعالجه</button>') +
@@ -4174,7 +4277,7 @@ function tabEnrich() {
           '<span class="krail" style="background:#1B6E9C"></span>' +
           '<span class="ico" style="color:#1B6E9C">' + icon('i-pin','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(si.ar) + '</b>' +
-          '<span>' + E(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
+          '<span>' + LTR(x.ref) + ' · ' + E(si.city) + ' · ' + AR(si.dur) + ' ساعات</span></span>' +
           '<span class="when"><b>' + hijri(x.start) + '</b>' +
             '<span class="num">' + t12(x.start) + ' — ' + t12(x.end) + '</span></span>' +
           '<span class="end">' + (M ? '<span class="fl" style="gap:8px">' + avatar(M, 'sm') +
@@ -4238,7 +4341,7 @@ function tabNusuk() {
           '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
           '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(V.i,'s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
-          '<span>' + E(c.no) + ' · جواز ' + E(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
+          '<span>' + LTR(c.no) + ' · جواز ' + LTR(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
           '<span class="fl" style="gap:7px">' + pill(V.ar, V.c) + pill(ST.ar, ST.c) + '</span>' +
           '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:10px">' +
@@ -4282,7 +4385,7 @@ function tabComply() {
           '<div class="fl" style="margin-bottom:11px">' +
             '<span class="ico" style="color:' + f.color + '">' + icon(f.icon,'s18') + '</span>' +
             '<span class="nm" style="flex:1"><b>' + E(f.title) + '</b>' +
-            '<span>' + E(f.no) + ' · ' + AR(f.qs.length) + ' أسئلة · ' + E(f.scope) + '</span></span>' +
+            '<span>' + LTR(f.no) + ' · ' + AR(f.qs.length) + ' أسئلة · ' + E(f.scope) + '</span></span>' +
             pill(AR(avg) + '٪', avg >= 85 ? 'live' : avg >= 70 ? 'wait' : 'no') + '</div>' +
           '<div class="mrow">' +
             '<span class="mchip">' + icon('i-users','s14') + AR(targets.length) + ' جهة</span>' +
@@ -4371,6 +4474,17 @@ function formDash(id) {
             '<b class="num" style="font-size:22px">' + AR(mean) + '</b>' +
             '<span class="tiny faint">المتوسط · الأدنى ' + AR(Math.min.apply(null, nums.concat(0))) +
             ' · الأعلى ' + AR(Math.max.apply(null, nums.concat(0))) + '</span></div>';
+        } else if (q.t === 'photo') {
+          const n2 = vals.filter(Boolean).length;
+          body = '<div class="fl" style="gap:10px;margin-top:8px">' +
+            '<span class="meter" style="flex:1"><i data-w="' +
+            Math.round(n2 / Math.max(1, vals.length) * 100) + '"></i></span>' +
+            '<span class="tiny num">' + AR(n2) + ' صورة من ' + AR(vals.length) + '</span></div>';
+        } else if (q.t === 'sign') {
+          const n2 = vals.filter(Boolean).length;
+          body = '<div class="fl" style="gap:10px;margin-top:8px">' +
+            pill(AR(n2) + ' مُتعهَّد', 'live') +
+            pill(AR(vals.length - n2) + ' بلا تعهّد', vals.length - n2 ? 'no' : 'grey') + '</div>';
         } else {
           body = '<div class="quote">' + E(String(vals[vals.length - 1] || '—')) + '</div>';
         }
@@ -4404,6 +4518,8 @@ function subDrawer(id) {
         const v = q.t === 'yn' ? (a.v ? pill('نعم','live') : pill('لا','no'))
           : q.t === 'rate' ? stars(a.v || 0)
           : q.t === 'num' ? '<b class="num">' + AR(a.v) + '</b>'
+          : q.t === 'photo' ? (a.v ? fileChip(a.v) : pill('بلا صورة','no'))
+          : q.t === 'sign' ? (a.v ? pill('مُتعهَّد','live') : pill('بلا تعهّد','no'))
           : '<span class="tiny">' + E(String(a.v || '—')) + '</span>';
         return '<div class="prow" style="padding:10px 12px">' +
           '<span class="nm" style="flex:1"><b style="font-size:12.5px">' + E(q.q) + '</b>' +
@@ -4431,7 +4547,7 @@ function personCard(u, act, extra) {
     (act ? 'data-a="' + act + '" data-id="' + u.id + '"' : 'disabled') + '>' +
     avatar(u, 'sm') +
     '<span class="nm"><b>' + E(u.name) + '</b>' +
-      '<span>' + E(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
+      '<span>' + LTR(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
     (extra || (g ? pill(g.no, 'grey') : '')) + '</button>';
 }
 
@@ -4497,7 +4613,7 @@ function screenBuild() {
           '<span class="sl">الليدر</span>' +
           (L ? '<div class="fl" style="flex:1;gap:11px">' + avatar(L, 'sm') +
               '<span class="nm" style="flex:1"><b>' + E(L.name) + '</b>' +
-              '<span>' + E(L.code) + ' · ' + E(L.kt) + ' · ' + AR(L.pilgrims) + ' حاجًّا</span></span>' +
+              '<span>' + LTR(L.code) + ' · ' + E(L.kt) + ' · ' + AR(L.pilgrims) + ' حاجًّا</span></span>' +
               '<button class="xbtn" data-a="bclrlead">' + icon('i-x','s14') + '</button></div>'
             : '<span class="ph">اختر ليدرًا من المصادر</span>') +
         '</div>' +
@@ -4509,7 +4625,7 @@ function screenBuild() {
             '<span class="sl">محسن ' + AR(i + 1) + '</span>' +
             (u ? '<div class="fl" style="flex:1;gap:10px">' + avatar(u, 'sm') +
                 '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-                '<span>' + E(u.code) + ' · ' + AR(u.age || 29) + ' سنة</span></span>' +
+                '<span>' + LTR(u.code) + ' · ' + AR(u.age || 29) + ' سنة</span></span>' +
                 '<select class="spec" data-a="bspec" data-id="' + u.id + '">' +
                   SPECS.map(s => '<option' + (s === m.spec ? ' selected' : '') + '>' + E(s) + '</option>').join('') +
                 '</select>' +
@@ -4552,7 +4668,7 @@ function screenBuild() {
           const tn = S.tasks.filter(t => t.leaderId === g.leaderId).length;
           return '<div class="gitem' + (d.editing === g.id ? ' on' : '') + '">' +
             '<div class="fl" style="gap:10px">' + avatar(gl, 'sm') +
-              '<span class="nm" style="flex:1"><b>' + E(g.no) + ' · ' + E(gl.name || '') + '</b>' +
+              '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(gl.name || '') + '</b>' +
               '<span>' + E(go.kt || '') + ' · ' + E(go.ar || '') + '</span></span>' +
               pill(AR(g.members.length + 1), 'gold') + '</div>' +
             '<div class="faces">' + g.members.map(m => {
@@ -4587,13 +4703,13 @@ function screenBuild() {
           (sup.length ? '<div class="plist">' + sup.map(u =>
             '<div class="prow" style="padding:9px 11px">' + avatar(u, 'sm') +
             '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-            '<span>' + E(u.code) + ' · مشرف سكن</span></span>' +
+            '<span>' + LTR(u.code) + ' · مشرف سكن</span></span>' +
             pill('مشرف', 'gold') + '</div>').join('') + '</div>'
             : '<div class="tiny faint">بلا مشرف</div>') +
           (gs.length ? '<div class="hgroups">' + gs.map(g => {
             const gl = userById(g.leaderId) || {}, go = orgById(g.orgId) || {};
             return '<span class="hchip">' + avatar(gl, 'sm') +
-              '<span class="tiny"><b>' + E(g.no) + '</b><br>' +
+              '<span class="tiny"><b>' + LTR(g.no) + '</b><br>' +
               '<span class="faint">' + E(go.type || '') + ' · ' + E(go.kt || '') + '</span></span></span>';
           }).join('') + '</div>' : '') +
         '</div>';
@@ -4728,7 +4844,7 @@ function taskDrawer(id) {
     (sp.length ? '<div class="card"><div class="h">' + icon('i-send','s16') +
       '<span class="sp"><b>طلبات الدعم</b></span></div>' +
       sp.map(s => '<div class="evt ' + (s.state === 'done' ? 'ok' : s.state === 'pending' ? 'warn' : 'bad') + '">' +
-        '<span class="dot"></span><span class="sp"><b>' + E(s.no) + ' — ' + AR(s.count) + ' محسن</b>' +
+        '<span class="dot"></span><span class="sp"><b>' + LTR(s.no) + ' — ' + AR(s.count) + ' محسن</b>' +
         '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join('') +
       '</div>' : '') +
 
@@ -4927,10 +5043,15 @@ function syncWall() {
    ============================================================ */
 /* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
 let lastDrawer = null;
-function repaintDrawer() {
-  if (lastDrawer) lastDrawer();
-}
-function rememberDrawer(fn) { lastDrawer = fn; }
+function repaintDrawer() { if (lastDrawer) lastDrawer(); }
+/* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
+['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
+ 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','guideDrawer','formDash',
+ 'subDrawer'].forEach(n => {
+  const f = window[n];
+  if (typeof f !== 'function') return;
+  window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
+});
 
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
@@ -5008,11 +5129,14 @@ document.addEventListener('change', e => {
   if (m) { m.spec = t.value; save(); }
 });
 
+/* حقول البحث وحدها تُعيد الرسم — وما عداها يُحفَظ ويُترك للكاتب */
+const LIVE_Q = ['pil','stf','log','enr','nsk','tkt','inc','tm','bld','npil'];
+/* حقول تُنسَخ فورًا إلى حالتها حتى لا يتأخّر التحقّق عن الكتابة */
+const MIRROR = { fbt: v => { if (S.fb) S.fb.title = v; } };
 document.addEventListener('input', e => {
   const t = e.target; if (!t) return;
   if (t.id === 'pq') { S.pq = t.value; S.psel = 0; renderPalette(); return; }
-  /* حقول الشاشات: تُحفظ فورًا، والرسم مؤجّل حتى لا يُفقد التركيز */
-  const k = t.getAttribute('data-q');
+  const k = t.getAttribute('data-q'); if (!k) return;
   if (k === 'pick') {
     S.picker.q = t.value;
     clearTimeout(qTimer);
@@ -5023,17 +5147,17 @@ document.addEventListener('input', e => {
     }, 200);
     return;
   }
-  if (k) {
-    S.q = S.q || {}; S.q[k] = t.value; save();
-    clearTimeout(qTimer);
-    if (k === 'ct' || k === 'cb') return;   /* التحرير لا يُعيد الرسم */
-    qTimer = setTimeout(() => {
-      const pos = t.selectionStart;
-      render();
-      const again = document.getElementById(t.id);
-      if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
-    }, 220);
-  }
+  S.q = S.q || {}; S.q[k] = t.value;
+  if (MIRROR[k]) MIRROR[k](t.value);
+  save();
+  if (LIVE_Q.indexOf(k) < 0) return;   /* نصّ يُكتب: لا يُمسّ الرسم */
+  clearTimeout(qTimer);
+  qTimer = setTimeout(() => {
+    const pos = t.selectionStart;
+    if (S.drawer) repaintDrawer(); else render();
+    const again = document.getElementById(t.id);
+    if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e2) {} }
+  }, 240);
 });
 let qTimer = null;
 
@@ -5212,7 +5336,7 @@ document.addEventListener('click', ev => {
         g.members.forEach(m => { const u = userById(m.id);
           if (u && !d.members.some(x => x.id === m.id)) { u.groupId = null; u.leaderId = null; } });
       } else {
-        g = { id: uid('G'), no: 'GR-' + AR(101 + S.groups.length), at: now() };
+        g = { id: uid('G'), no: 'GR-' + (101 + S.groups.length), at: now() };
         S.groups.push(g);
       }
       Object.assign(g, { leaderId: d.leaderId, orgId: d.orgId, hotelId: d.hotelId,
@@ -5241,11 +5365,12 @@ document.addEventListener('click', ev => {
     case 'nfpil':  S.nform = S.nform || {}; S.nform.pid = id; nusukNew(); return;
     case 'nfclr':  S.nform.pid = ''; S.q.npil = ''; nusukNew(); return;
     case 'nfsave': {
-      const d = S.nform || {}; if (!d.pid) return;
+      const d = S.nform || {};
+      if (!d.pid) { toast('اختر الحاجّ أوّلًا — ابحث باسمه أو رقم جوازه', 'r'); return; }
       const p = allPilgrimRows().find(x => x.id === d.pid); if (!p) return;
       const L = leaders().find(l => l.kt === p.kt) || {};
       const f = (S.files || {}).nusukNew || null;
-      const c = { id:uid('N'), no:'NS-' + AR(4400 + S.nusuk.length), svc:d.svc || 'lost',
+      const c = { id:uid('N'), no:'NS-' + (4400 + S.nusuk.length), svc:d.svc || 'lost',
         pilgrimId:p.id, pilgrim:p.name, passport:p.no, kt:p.kt, leaderId:L.id || null,
         openedBy:'الكنترول', state:'new', step:1, assignedTo:null, at:now(),
         note:(S.q.nnote || '').trim() || 'حالة فُتحت من غرفة العمليات',
@@ -5308,23 +5433,38 @@ document.addEventListener('click', ev => {
     case 'fedit': S.fb = null; formBuilder(id); return;
     case 'fbscope': S.fb.scope = v; formBuilder(); return;
     case 'fbadd': {
-      const q = (S.q.fbq || '').trim(); if (!q) { toast('اكتب نصّ السؤال', 'r'); return; }
-      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q,
-        t:fOf('fb','qt') || 'yn', w:Number(fOf('fb','qw') || 2) });
+      const q = (S.q.fbq || '').trim();
+      if (!q) { toast('اكتب نصّ السؤال أوّلًا', 'r'); return; }
+      const t2 = fOf('fb','qt') || 'yn';
+      S.fb.qs.push({ id:'q' + (S.fb.qs.length + 1), q, t:t2,
+        w:QT_NOSCORE.indexOf(t2) < 0 ? Number(fOf('fb','qw') || 2) : 0,
+        req:!!fOf('fb','qr') });
       S.q.fbq = ''; formBuilder(); return;
+    }
+    case 'fbup': {
+      const i = Number(v); if (i < 1) return;
+      const a2 = S.fb.qs; const tmp = a2[i - 1]; a2[i - 1] = a2[i]; a2[i] = tmp;
+      formBuilder(); return;
     }
     case 'fbdel': S.fb.qs.splice(Number(v), 1); formBuilder(); return;
     case 'fbsave': {
-      const b2 = S.fb; if (!b2.title || !b2.qs.length) return;
+      const b2 = S.fb;
+      if (!b2.title) { toast('اكتب عنوان القالب', 'r'); return; }
+      if (!b2.qs.length) { toast('أضف سؤالًا واحدًا على الأقلّ', 'r'); return; }
+      b2.intro = S.q.fbi || b2.intro || '';
+      b2.pledge = S.q.fbp || b2.pledge || '';
       if (b2.editing) {
         const f = formById(b2.editing);
-        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs });
-        logIt('عُدِّل قالب «' + f.title + '»', 'guide');
+        Object.assign(f, { title:b2.title, scope:b2.scope, qs:b2.qs,
+          intro:b2.intro, pledge:b2.pledge });
+        logIt('عُدِّل قالب «' + f.title + '» — ' + AR(f.qs.length) + ' أسئلة', 'guide');
       } else {
-        S.forms.push({ id:uid('F'), no:'FM-' + AR(201 + S.forms.length), title:b2.title,
-          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(), qs:b2.qs });
+        S.forms.push({ id:uid('F'), no:'FM-' + (201 + S.forms.length), title:b2.title,
+          scope:b2.scope, icon:'i-clip', color:'#0B7A4B', by:'ctl', at:now(),
+          qs:b2.qs, intro:b2.intro, pledge:b2.pledge });
         logIt('أُنشئ قالب «' + b2.title + '» بـ' + AR(b2.qs.length) + ' أسئلة', 'guide');
       }
+      S.q.fbi = ''; S.q.fbp = '';
       S.fb = null; S.drawer = null; toast('حُفظ القالب');
       break;
     }
@@ -5430,7 +5570,7 @@ document.addEventListener('click', ev => {
         : to.indexOf('الاحتياطي') >= 0 ? reserveTeam().length
         : to.indexOf('كل المحسنين') >= 0 ? S.users.filter(u => u.role === 'muhsen' && !u.reserve).length
         : 5;
-      S.casts.unshift({ id: uid('C'), no: 'BR-' + AR(9100 + S.casts.length),
+      S.casts.unshift({ id: uid('C'), no: 'BR-' + (9100 + S.casts.length),
         to, title: t, body: y || '—', kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
       logIt('بُثّت رسالة «' + t + '» إلى ' + to, 'cast');
       S.q.ct = ''; S.q.cb = '';

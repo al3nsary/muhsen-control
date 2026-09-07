@@ -139,11 +139,11 @@ function screenStaff() {
                   h && h.ar ? h.ar : 'ـ', tn, rt],
             cells:[
               '<span class="fl">' + avatar(u, 'sm') +
-                '<span class="nm"><b>' + E(u.name) + '</b><span>' + E(u.code) +
+                '<span class="nm"><b>' + E(u.name) + '</b><span>' + LTR(u.code) +
                 (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span></span>',
               u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '—',
                 u.role === 'supervisor' ? 'blue' : u.role === 'leader' ? 'live' : 'grey'),
-              g ? '<b>' + E(g.no) + '</b>' : '<span class="faint">—</span>',
+              g ? '<b>' + LTR(g.no) + '</b>' : '<span class="faint">—</span>',
               o ? '<span class="tiny"><b>' + E(o.kt) + '</b><br>' +
                 '<span class="faint">' + E(o.type) + '</span></span>' : '<span class="faint">—</span>',
               h && h.ar ? '<span class="tiny">' + E(h.ar) + '</span>' : '<span class="faint">—</span>',
@@ -171,7 +171,7 @@ function staffDrawer(id) {
   openDrawer(u.name, (ROLE_AR[u.role] || '') + ' · ' + u.code, 'i-idcard',
     '<div class="fl" style="gap:14px">' + avatar(u, 'lg') +
       '<span class="nm" style="flex:1"><b style="font-size:16px">' + E(u.name) + '</b>' +
-      '<span>' + E(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
+      '<span>' + LTR(u.code) + (u.specialty ? ' · ' + E(u.specialty) : '') + '</span></span>' +
       (u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '', 'live')) + '</div>' +
 
     '<div class="meta">' +
@@ -182,8 +182,8 @@ function staffDrawer(id) {
 
     '<div class="card">' + head('البيانات', 'ما يعرفه النظام عنه') +
       '<div class="kvlist">' +
-        kvRow('i-phone', 'الجوال', u.phone || '—') +
-        kvRow('i-users', 'المجموعة', g ? g.no : 'بلا مجموعة') +
+        kvRow('i-phone', 'الجوال', u.phone || '—', true) +
+        kvRow('i-users', 'المجموعة', g ? g.no : 'بلا مجموعة', true) +
         kvRow('i-flag', 'الجهة', o ? o.kt + ' · ' + o.ar + ' (' + o.type + ')' : '—') +
         kvRow('i-key', 'السكن', h && h.ar ? h.ar + ' · ' + h.city : '—') +
         (L ? kvRow('i-star', 'ليدره', L.name) : '') +
@@ -212,9 +212,9 @@ function staffDrawer(id) {
         : empty('لا مهام مُسنَدة', 'أسنِد له من شاشة المهام', 'i-tasks')) +
     '</div>');
 }
-function kvRow(ic, k, v) {
+function kvRow(ic, k, v, ltr) {
   return '<div class="kv2"><span class="ico sm">' + icon(ic, 's14') + '</span>' +
-    '<span class="k">' + E(k) + '</span><b>' + E(v) + '</b></div>';
+    '<span class="k">' + E(k) + '</span><b>' + (ltr ? LTR(v) : E(v)) + '</b></div>';
 }
 
 /* ============================================================
@@ -326,7 +326,7 @@ function pickerBody() {
       return '<button class="prow pick" data-a="pickdo" data-id="' + u.id + '">' +
         avatar(u, 'sm') +
         '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
-        '<span>' + E(u.code) + ' · ' + E(u.specialty || '') +
+        '<span>' + LTR(u.code) + ' · ' + E(u.specialty || '') +
           (g ? ' · ' + g.no : '') + (h && h.ar ? ' · ' + h.ar : '') + '</span></span>' +
         (u.reserve ? pill('احتياط','gold') : '') +
         pill(AR(load) + ' مهمة', load > 14 ? 'no' : load > 8 ? 'wait' : 'live') +

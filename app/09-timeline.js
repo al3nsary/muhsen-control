@@ -125,7 +125,7 @@ function taskDrawer(id) {
     (sp.length ? '<div class="card"><div class="h">' + icon('i-send','s16') +
       '<span class="sp"><b>طلبات الدعم</b></span></div>' +
       sp.map(s => '<div class="evt ' + (s.state === 'done' ? 'ok' : s.state === 'pending' ? 'warn' : 'bad') + '">' +
-        '<span class="dot"></span><span class="sp"><b>' + E(s.no) + ' — ' + AR(s.count) + ' محسن</b>' +
+        '<span class="dot"></span><span class="sp"><b>' + LTR(s.no) + ' — ' + AR(s.count) + ' محسن</b>' +
         '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join('') +
       '</div>' : '') +
 

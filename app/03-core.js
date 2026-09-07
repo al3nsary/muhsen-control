@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 6;
-const APP_VER = 'نسخة ٠٫٨';
+const SCHEMA = 8;
+const APP_VER = 'نسخة ٠٫٨٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -81,7 +81,7 @@ function seed() {
       arr.push({
         id: 'P' + L.kt + '-' + (1 + i),
         name: pilgrimName(pool, g, i + li * 3),
-        no: 'HJ-' + AR(70000 + li * 1000 + i),
+        no: 'HJ-' + (70000 + li * 1000 + i),
         g: g,
         country: org.country || '—', org: org.ar || '—',
         age: 34 + ((i * 7 + li * 5) % 42),
@@ -119,7 +119,7 @@ function seed() {
     const L = LEADERS[i % LEADERS.length];
     const pl = st.pilgrims[L.kt][i * 5 % st.pilgrims[L.kt].length];
     st.tickets.push({
-      id: uid('K'), no: 'TK-' + AR(4100 + i), title: k.t, body: k.body,
+      id: uid('K'), no: 'TK-' + (4100 + i), title: k.t, body: k.body,
       cat: k.cat, pri: k.pri, kt: L.kt, leaderId: L.id, from: pl.name, pilgrimId: pl.id,
       at: Date.now() - k.ago * MIN,
       status: i % 4 === 0 ? 'قيد المعالجة' : i === 7 ? 'مغلقة' : 'مفتوحة'
@@ -130,7 +130,7 @@ function seed() {
   REPORT_SEED.forEach((r, i) => {
     const L = LEADERS[i % LEADERS.length];
     st.reports.push({
-      id: uid('R'), no: 'RP-' + AR(5200 + i), cat: r.cat, title: r.t, body: r.b,
+      id: uid('R'), no: 'RP-' + (5200 + i), cat: r.cat, title: r.t, body: r.b,
       kt: L.kt, from: L.id, at: Date.now() - r.ago * MIN,
       escalated: !!r.esc, room: r.room ? { floor: 'الدور الثالث', no: '٣١٤' } : null,
       status: r.esc ? 'لدى الكنترول' : 'قيد المعالجة'
@@ -140,7 +140,7 @@ function seed() {
   /* طلبات الدعم */
   const t0 = st.tasks.find(t => t.start > Date.now());
   if (t0) st.support.push({
-    id: uid('SP'), no: 'SP-' + AR(7100), taskId: t0.id, by: t0.leaderId,
+    id: uid('SP'), no: 'SP-' + (7100), taskId: t0.id, by: t0.leaderId,
     count: 2, why: 'استُبعد محسنان لعدم الحاجة ثم تغيّر حجم الفوج.',
     at: Date.now() - 40 * MIN, state: 'pending'
   });
@@ -164,7 +164,7 @@ function seed() {
     /* عمر يُعرض في التشكيل */
     team.forEach((m, k) => { m.age = 24 + ((i * 5 + k * 7) % 26); });
     return {
-      id: 'G' + (101 + i), no: 'GR-' + AR(101 + i), leaderId: L.id, orgId: L.orgId,
+      id: 'G' + (101 + i), no: 'GR-' + (101 + i), leaderId: L.id, orgId: L.orgId,
       hotelId: h.id, supervisorId: sv ? sv.id : null,
       members: team.map((m, k) => ({ id: m.id, spec: SPECS[(i + k) % SPECS.length] })),
       at: Date.now() - (40 - i * 6) * DAY
@@ -184,7 +184,7 @@ function seed() {
       const start = Date.now() + ((i * 9 + r * 31) - 30) * HR;
       const assigned = (i + r) % 4 !== 0;
       st.enrich.push({
-        id: uid('X'), ref: 'EX-' + AR(88100 + i * 7 + r), siteId: si.id,
+        id: uid('X'), ref: 'EX-' + (88100 + i * 7 + r), siteId: si.id,
         start, end: start + si.dur * HR, seats: si.cap,
         booked: Math.round(si.cap * (0.55 + ((i + r) % 5) / 12)),
         kt: assigned ? L.kt : null, leaderId: assigned ? L.id : null, muhsenId: null,
@@ -203,7 +203,7 @@ function seed() {
     const team = st.users.filter(u => u.role === 'muhsen' && u.leaderId === L.id);
     const done = c.st === 'delivered' || c.st === 'issued';
     return {
-      id: uid('N'), no: 'NS-' + AR(4400 + i), svc: c.svc, pilgrimId: p.id,
+      id: uid('N'), no: 'NS-' + (4400 + i), svc: c.svc, pilgrimId: p.id,
       pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
       openedBy: c.by, state: c.st, step: NUSUK_SVC[c.svc].steps.length - (c.st === 'new' ? 4
         : c.st === 'processing' ? 2 : c.st === 'issued' ? 1 : 0),
@@ -217,8 +217,9 @@ function seed() {
 
   /* ---------- الامتثال: قوالب وإدخالات ---------- */
   st.forms = FORM_SEED.map((f, i) => ({
-    id: 'F' + (201 + i), no: 'FM-' + AR(201 + i), title: f.title, scope: f.scope,
+    id: 'F' + (201 + i), no: 'FM-' + (201 + i), title: f.title, scope: f.scope,
     icon: f.i, color: f.c, by: f.by, at: Date.now() - f.ago * MIN,
+    intro: f.intro || '', pledge: f.pledge || '',
     qs: f.qs.map((q, k) => Object.assign({ id: 'q' + (k + 1) }, q))
   }));
 
@@ -239,6 +240,9 @@ function seed() {
           if (q.t === 'yn') return { id:q.id, v: (seed / 10 + lift) > 0.42 };
           if (q.t === 'rate') return { id:q.id, v: Math.max(1, Math.min(5, Math.round(2 + seed / 3 + lift * 3))) };
           if (q.t === 'num') return { id:q.id, v: 6 + seed * 2 + Math.round(lift * 10) };
+          if (q.t === 'photo') return { id:q.id, v: (seed + v) % 4 ? { name:'sala' + v + '.jpg',
+            size: 380000 + seed * 40000, type:'image/jpeg' } : null };
+          if (q.t === 'sign') return { id:q.id, v: (seed / 10 + lift) > 0.3 };
           return { id:q.id, v: v === visits ? 'استُوفيت الملاحظات السابقة.' : 'يحتاج متابعة في الزيارة القادمة.' };
         });
         st.subs.push({
@@ -259,13 +263,13 @@ function seed() {
 
   /* البثّ — ما أُرسل */
   st.casts = CAST_SEED.map((c, i) => ({
-    id: uid('C'), no: 'BR-' + AR(9100 + i), to: c.to, title: c.t, body: c.b,
+    id: uid('C'), no: 'BR-' + (9100 + i), to: c.to, title: c.t, body: c.b,
     kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
   }));
 
   /* الشِفتات — طلبات التبديل */
   st.swaps = SHIFT_SEED.map((x, i) => ({
-    id: uid('W'), no: 'SW-' + AR(6300 + i), from: x.from, to: x.to,
+    id: uid('W'), no: 'SW-' + (6300 + i), from: x.from, to: x.to,
     day: x.day, slot: x.slot, why: x.why, state: x.st, reason: null,
     at: Date.now() - x.ago * MIN
   }));
@@ -278,7 +282,7 @@ function seed() {
   /* الحوادث تُصنَّف: نوع وحالة وجهة وزمن استجابة */
   const INC_ST = ['مفتوح', 'قيد المعالجة', 'مغلق'];
   FEED_SEED.forEach((f, fi) => st.feed.push({
-    no: 'IN-' + AR(7300 + fi),
+    no: 'IN-' + (7300 + fi),
     cat: INC_CATS[fi % INC_CATS.length].k,
     kt: ORGS[fi % ORGS.length].kt,
     hotel: HOTELS[fi % HOTELS.length].ar,
@@ -340,9 +344,9 @@ function formScore(f, answers) {
     if (!q.w) return;
     const a = answers.find(x => x.id === q.id); if (!a) return;
     max += q.w;
-    if (q.t === 'yn') got += a.v ? q.w : 0;
+    if (q.t === 'yn' || q.t === 'sign') got += a.v ? q.w : 0;
     else if (q.t === 'rate') got += q.w * (a.v / 5);
-    else max -= q.w;
+    else max -= q.w;   /* نصّ وصورة وعدد: توثيق لا تقييم */
   });
   return max ? Math.round(got / max * 100) : 0;
 }

@@ -518,7 +518,12 @@ a{color:inherit; text-decoration:none}
   animation:slideL .34s var(--e) both}
 @keyframes slideL{from{transform:translateX(-100%)} to{transform:none}}
 .drawer .dh{display:flex; align-items:center; gap:12px; padding:18px 20px; border-bottom:1px solid var(--line)}
-.drawer .db{flex:1; min-height:0; overflow:auto; padding:18px 20px; display:flex; flex-direction:column; gap:14px}
+.drawer .db{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:18px 20px;
+  display:flex; flex-direction:column; gap:14px}
+/* حاسم: بلا هذا ينكمش كل ابن فيُقصّ محتواه ويبدو الدرج معطوبًا */
+.drawer .db > *{flex:none}
+.drawer .db .card{overflow:visible}
+.drawer .db .grid{overflow:visible}
 .drawer .db::-webkit-scrollbar{width:8px}
 .drawer .db::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 
@@ -1039,6 +1044,8 @@ a{color:inherit; text-decoration:none}
 .fsel.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
 .fsel > span{font-size:10.5px; font-weight:800; color:var(--dim2); white-space:nowrap}
 .fsel.on > span{color:var(--pGoldT)}
+select{color-scheme:inherit}
+.fsel select option, .spec option{background:var(--panel); color:var(--ink)}
 .fsel select{appearance:none; -webkit-appearance:none; border:0; outline:0; background:none;
   font:inherit; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
   max-width:150px; text-overflow:ellipsis; padding:0}
@@ -1132,6 +1139,31 @@ a{color:inherit; text-decoration:none}
 .teamcard.open .teamhead .chev{transform:rotate(90deg); color:var(--gold2)}
 .teamcard{transition:box-shadow .3s var(--e3)}
 .teamcard.open{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+
+/* ══ معاينة النموذج كما يُعبَّأ في الميدان ══ */
+.fprev{padding:15px; border-radius:15px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.fpt{margin-bottom:12px}
+.fpt b{display:block; font-size:14px}
+.fpt span{display:block; font-size:10.5px; color:var(--dim2)}
+.fq{padding:11px 0; border-top:1px solid var(--line)}
+.fq > b{display:block; font-size:12.5px; font-weight:700; margin-bottom:9px; line-height:1.7}
+.fq .req{color:var(--red); font-style:normal}
+.fq .chips .chip2{cursor:default}
+.fq .stars .ic{fill:var(--starOff); stroke:none}
+.fbox{display:flex; align-items:center; gap:9px; padding:11px 13px; border-radius:11px;
+  font-size:11.5px; color:var(--dim2); background:var(--panel2);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.fbox.num{font-variant-numeric:tabular-nums; letter-spacing:2px}
+.fbox.photo{border:1.5px dashed var(--line2); box-shadow:none; background:none}
+.fbox.sign{color:var(--pGoldT); background:var(--pGoldB);
+  box-shadow:inset 0 0 0 1px var(--gold2)}
+.pledge{display:flex; align-items:flex-start; gap:10px; margin-top:13px; padding:12px 14px;
+  border-radius:13px; font-size:11.5px; line-height:1.8;
+  color:var(--pGoldT); background:var(--pGoldB); box-shadow:inset 0 0 0 1px var(--gold2)}
+.ico.sm{width:26px; height:26px; border-radius:9px}
+
+bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{

@@ -17,7 +17,6 @@ const qOf = k => ((S.q && S.q[k]) || '').trim();
 /* ══════════════ ١) قاعدة الحجاج ══════════════ */
 function screenPilgrims() {
   const all = allPilgrimRows();
-  const kt = S.tab.pkt || 'all';
   const q = qOf('pil');
   let list = all.slice();
   const pk = fOf('pil','kt'), po = fOf('pil','org'), ps = fOf('pil','state'), pf = fOf('pil','flag');
@@ -60,7 +59,7 @@ function screenPilgrims() {
                  p.org, p.room, p.age, p.state],
           cells: [
             '<span class="fl">' + avatar({ g:p.g, av:p.g === 'f' ? 'p5' : 'p2' }, 'sm') +
-              '<span class="nm"><b>' + E(p.name) + '</b><span>' + E(p.no) + '</span></span></span>',
+              '<span class="nm"><b>' + E(p.name) + '</b><span>' + LTR(p.no) + '</span></span></span>',
             '<b>' + E(p.kt) + '</b>',
             '<span class="tiny">' + E(p.org) + '<br><span class="faint">' + E(p.country) + '</span></span>',
             '<span class="tiny">' + E(p.floor) + '<br><b class="num">غرفة ' + AR(p.room) + '</b></span>',
@@ -94,7 +93,7 @@ function pilgrimDrawer(id) {
     '<div class="card">' + head('المسؤول عنه', 'ليدر الفريق') +
       '<div class="prow" style="box-shadow:none;border:0;padding:0">' + avatar(L) +
       '<span class="nm" style="flex:1"><b>' + E(L.name || '') + '</b>' +
-      '<span>' + E(L.kt || '') + ' · ' + E(L.phone || '') + '</span></span>' +
+      '<span>' + E(L.kt || '') + ' · ' + LTR(L.phone || '') + '</span></span>' +
       '<span>' + stars(ktRating(L.id)) + '</span></div></div>' +
 
     (tk.length ? '<div class="card">' + head('تذاكره', AR(tk.length)) +
@@ -315,7 +314,7 @@ function screenBroadcast() {
         return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
           '<span class="ico">' + icon('i-bell','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(c.title) + '</b>' +
-          '<span>' + E(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
+          '<span>' + LTR(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
           pill(c.kind, k) + '<span class="tiny faint">' + ago(c.at) + '</span>' +
           '<div style="width:100%;margin-top:9px">' +
             '<div class="tiny muted">' + E(c.body) + '</div>' +
@@ -375,7 +374,7 @@ function screenShifts() {
             '<span class="arrow">' + icon('i-swap','s16') + '</span>' +
             avatar(b, 'sm') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(a.name || '') + ' ← ' + E(b.name || '') + '</b>' +
-          '<span>' + E(w.no) + ' · ' + E(w.day) + ' · ' + E(w.slot) + '</span>' +
+          '<span>' + LTR(w.no) + ' · ' + E(w.day) + ' · ' + E(w.slot) + '</span>' +
           '<div class="tiny muted" style="margin-top:6px">' + E(w.why) + '</div>' +
           (w.reason ? '<div class="tiny" style="margin-top:5px;color:var(--gold3)">ردّك: ' +
             E(w.reason) + '</div>' : '') + '</span>' +
