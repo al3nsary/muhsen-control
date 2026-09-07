@@ -2,7 +2,7 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, build: screenBuild, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -371,12 +371,91 @@ document.addEventListener('click', ev => {
       logIt('أُغلق تقرير ' + r.no, 'info'); save(); reportDrawer(id);
       toast('أُغلق التقرير'); return; }
 
-    /* ─── تسكين المشرف على فندق ─── */
-    case 'supassign': {
-      openPicker('sup', id, { title:'من يُشرف على ' + hotelById(id).ar,
-        note:'المشرف يتبع الفندق — وتحته كل مجموعة تسكنه.',
-        cands:supervisors() });
+    /* ─── ١) المشرف على الفندق: واحد لا أكثر ─── */
+    case 'supassign':
+    case 'supswap': {
+      const cur = supOfHotel(id);
+      openPicker('sup', id, { title:(cur ? 'تغيير مشرف ' : 'تسكين مشرف ') + hotelById(id).ar,
+        note:'لكل فندق مشرف واحد. من يُختار يُزاح عن فندقه السابق إن كان له فندق، ' +
+          'ومن يُزاح هنا يعود حرًّا.',
+        cands:supervisors().filter(u => u.hotelId !== id) });
       return;
+    }
+    case 'suprm': {
+      const sv = supOfHotel(id); if (!sv) return;
+      sv.hotelId = null;
+      S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = null; });
+      logIt('أُزيل المشرف ' + sv.name + ' عن ' + hotelById(id).ar, 'assign');
+      toast(sv.name + ' عاد حرًّا', 'r');
+      break;
+    }
+
+    /* ─── ٢) الليدر على المجموعة ─── */
+    case 'gleadswap': {
+      const g = groupById(id); if (!g) return;
+      openPicker('glead', g.id, { title:'ليدر ' + g.no,
+        note:'لا يقود الليدر أكثر من مجموعتين. من يخرج هنا يعود إلى قائمة الليدرز.',
+        cands:leaders().filter(l => l.id !== g.leaderId && groupsOf(l.id).length < 2) });
+      return;
+    }
+    case 'ghotel': {
+      const g = groupById(id); if (!g) return;
+      S.pendHotel = g.id;
+      S.drawer = { title:'سكن ' + g.no, sub:'المشرف يتبع الفندق تلقائيًّا', icon:'i-key',
+        body:'<div class="plist">' + HOTELS.map(h => {
+          const sv = supOfHotel(h.id);
+          return '<button class="prow pick' + (g.hotelId === h.id ? ' on' : '') + '" ' +
+            'data-a="ghotelset" data-id="' + h.id + '">' +
+            '<span class="ico">' + icon('i-key','s16') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
+            '<span>' + E(h.dist) + ' · ' + (sv ? 'المشرف ' + E(sv.name) : 'بلا مشرف') +
+            '</span></span>' +
+            pill(AR(S.groups.filter(x => x.hotelId === h.id).length) + ' مجموعة', 'grey') +
+          '</button>';
+        }).join('') + '</div>' };
+      renderDrawer(); return;
+    }
+    case 'ghotelset': {
+      const g = groupById(S.pendHotel); if (!g) return;
+      g.hotelId = id;
+      const sv = supOfHotel(id);
+      g.supervisorId = sv ? sv.id : null;
+      logIt('نُقلت ' + g.no + ' إلى ' + hotelById(id).ar, 'assign');
+      toast('السكن ' + hotelById(id).ar + (sv ? ' — المشرف ' + sv.name : ' — بلا مشرف'));
+      S.pendHotel = null; S.drawer = null;
+      break;
+    }
+    case 'gnew': {
+      const L = leaders().find(l => groupsOf(l.id).length < 2);
+      if (!L) { toast('كل ليدر يقود مجموعتين', 'r'); return; }
+      const o = orgById(L.orgId) || S.orgs[0];
+      const g = { id:uid('G'), no:'GR-' + (101 + S.groups.length), leaderId:L.id,
+        orgId:o.id, hotelId:null, supervisorId:null, members:[], at:now() };
+      S.groups.push(g);
+      logIt('أُنشئت مجموعة ' + g.no + ' بقيادة ' + L.name, 'assign');
+      toast('أُنشئت ' + g.no + ' — أضف محسنيها وسكنها');
+      break;
+    }
+
+    /* ─── ٣) المحسن في مقعده ─── */
+    case 'mseatin': {
+      const g = groupById(id); if (!g) return;
+      if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
+      openPicker('mseat', g.id, { title:'مقعد في ' + g.no,
+        note:'المتاحون وحدهم — من دخل مجموعةً خرج من هذه القائمة.',
+        cands:freeMuhsens() });
+      return;
+    }
+    case 'mseatout': {
+      const g = groupById(id); if (!g) return;
+      const u = userById(v);
+      g.members = g.members.filter(m => m.id !== v);
+      if (u) { u.groupId = null; u.leaderId = null; u.kt = '—'; }
+      S.tasks.forEach(t => { if (t.leaderId === g.leaderId)
+        t.assigned = (t.assigned || []).filter(x => x !== v); });
+      logIt('أُخرج ' + ((u || {}).name || '') + ' من ' + g.no, 'assign');
+      toast(((u || {}).name || '') + ' عاد إلى المتاحين', 'r');
+      break;
     }
     case 'staffopen': staffDrawer(id); return;
     case 'logout': S.auth = false; S.drawer = null; save(); render();
@@ -395,6 +474,11 @@ document.addEventListener('click', ev => {
       S.grants[v] = navItems().map(x => x.k).filter(x => x !== 'perms');
       logIt('مُنحت كل الشاشات لصفة ' + permOf(v).ar, 'info');
       toast('مُنحت كل الشاشات — بلا تعديل'); break;
+    }
+    case 'pgdef': {
+      delete S.grants[v];
+      logIt('أُعيدت صفة ' + permOf(v).ar + ' إلى صلاحياتها الافتراضية', 'info');
+      toast('عادت إلى الافتراضي — ' + AR(grantsOf(v).length) + ' شاشة'); break;
     }
     case 'pgnone': {
       S.grants[v] = [];

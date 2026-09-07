@@ -1188,6 +1188,40 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   border-radius:12px; font-size:11.5px; line-height:1.8; color:var(--dim);
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 
+/* ══ خطوات التسكين الثلاث ══ */
+.asgsteps{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+@media (max-width:1080px){ .asgsteps{grid-template-columns:1fr} }
+.astep{display:flex; align-items:center; gap:12px; padding:14px 15px; border-radius:var(--r);
+  text-align:right; position:relative; overflow:hidden; color:var(--dim);
+  background:linear-gradient(180deg,var(--panel),var(--deep)); border:var(--cardEdge);
+  box-shadow:var(--shadow); transition:all .3s var(--e3)}
+.astep:hover{transform:translateY(-3px); box-shadow:var(--lift); color:var(--ink)}
+.astep.on{color:var(--ink); box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
+.astep .an{width:26px; height:26px; border-radius:9px; flex:none; display:grid;
+  place-items:center; font-size:12px; font-weight:800; color:var(--dim2);
+  background:var(--sheen2)}
+.astep.on .an{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold))}
+.astep .nm{flex:1} .astep .nm b{font-size:13px} .astep .nm span{font-size:10.5px}
+.astep .ae{flex:none; text-align:left; min-width:64px}
+.astep .ae b{display:block; font-size:12px}
+.astep .ae .meter{margin-top:5px; width:60px}
+/* ══ مقاعد المجموعة ══ */
+.gseat{padding:14px; border-radius:16px; margin-bottom:11px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.seats{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px}
+.seat{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
+  text-align:right; color:var(--dim2); background:var(--panel2);
+  box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
+.seat:hover{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2)}
+.seat.full{color:var(--ink)}
+.seat .nm{flex:1; min-width:0}
+.seat .nm b{display:block; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.seat .nm span{display:block; font-size:10px; color:var(--dim2)}
+.seat .plus{width:32px; height:32px; border-radius:11px; flex:none; display:grid;
+  place-items:center; border:1.5px dashed var(--line2)}
+.seat .x{color:var(--dim2); flex:none; opacity:0; transition:opacity .2s var(--e)}
+.seat.full:hover .x{opacity:1; color:var(--red)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -1693,8 +1727,8 @@ const FORM_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 9;
-const APP_VER = 'نسخة ٠٫٩';
+const SCHEMA = 12;
+const APP_VER = 'نسخة ٠٫٩٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1845,7 +1879,8 @@ function seed() {
   SUP_NAMES.forEach((s, i) => st.users.push({
     id: 'SV' + (3001 + i), role: 'supervisor', name: s.n, g: s.g, av: avOf(s.g, i),
     code: '#SV' + (3001 + i), specialty: 'إشراف سكن', phone: '+9665' + (57220000 + i * 211),
-    hotelId: HOTELS[i % HOTELS.length].id, kt: '—', age: 30 + (i * 3) % 26
+    /* فندق واحد لمشرف واحد — والزائد يبقى حرًّا للتسكين */
+    hotelId: i < HOTELS.length ? HOTELS[i].id : null, kt: '—', age: 30 + (i * 3) % 26
   }));
 
   /* ---------- التشكيل: لكل ليدر مجموعة بفريقه ---------- */
@@ -2025,7 +2060,7 @@ function teamOf(lid) {
 /* ---- أدوات الأنواع الأربعة والتشكيل ---- */
 const siteById = id => SITES.find(s => s.id === id) || {};
 const hotelById = id => HOTELS.find(h => h.id === id) || {};
-const groupById = id => S.groups.find(g => g.id === id);
+const groupById = id => S.groups.find(g => g.id === id);   /* الأصل: يُستعمل للتعديل */
 const formById = id => S.forms.find(f => f.id === id);
 const supervisors = () => VV().users.filter(u => u.role === 'supervisor');
 const groupsOf = lid => VV().groups.filter(g => g.leaderId === lid);
@@ -2117,7 +2152,8 @@ const NAV = [
     { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
   ]},
   { g:'التشكيل', items:[
-    { k:'build',    i:'i-users',   l:'التشكيل والتسكين', d:'بناء المجموعات وربطها بالجهات' },
+    { k:'assign',   i:'i-swap',    l:'التسكين',          d:'ثلاث خطوات: مشرفون · ليدرز · محسنون' },
+    { k:'build',    i:'i-users',   l:'التشكيل السريع',   d:'بناء مجموعة كاملة في صندوق واحد' },
     { k:'staff',    i:'i-idcard',  l:'الموظفون',        d:'مشرفون وليدرز ومحسنون — وبروفايل لكلٍّ' },
     { k:'teams',    i:'i-flag',    l:'الفرق والمجموعات', d:'كل KT وفريقه' },
     { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي', d:'يديره الكنترول وحده' }
@@ -3680,7 +3716,7 @@ function applyPick(kind, id, u) {
   } else if (kind === 'comply') {
     const a = S.pendForm; if (!a) return;
     const f = formById(a.formId) || {};
-    V.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
+    S.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
       title:f.title + ' — ' + a.target, sub:'نموذج امتثال · ' + a.target, state:'بانتظار التعبئة',
       formId:a.formId, target:a.target });
     logIt('أُسند نموذج «' + f.title + '» على ' + a.target + ' إلى ' + u.name, 'assign');
@@ -3701,12 +3737,39 @@ function applyPick(kind, id, u) {
     logIt('أُسند تقرير ' + r.no + ' إلى ' + u.name, 'assign');
     toast('أُسند إلى ' + u.name);
   } else if (kind === 'sup') {
-    /* تسكين مشرف على فندق */
+    /* لكل فندق مشرف واحد: يُزاح السابق، ويُترك فندق المختار الأوّل */
     const h = hotelById(id);
+    const prev = S.users.find(x => x.role === 'supervisor' && x.hotelId === id && x.id !== u.id);
+    if (prev) prev.hotelId = null;
+    const old = u.hotelId;
     u.hotelId = id;
-    V.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
-    logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar, 'assign');
-    toast(u.name + ' → ' + h.ar);
+    if (old && old !== id)
+      S.groups.forEach(g => { if (g.hotelId === old) g.supervisorId = null; });
+    S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
+    logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar +
+      (prev ? ' بدل ' + prev.name : ''), 'assign');
+    toast(u.name + ' → ' + h.ar + (prev ? ' — وأُزيح ' + prev.name : ''));
+  } else if (kind === 'glead') {
+    const g = S.groups.find(x => x.id === id); if (!g) return;
+    const org = orgById(g.orgId) || {};
+    g.leaderId = u.id;
+    g.members.forEach(m => { const mu = userById(m.id);
+      if (mu) { mu.leaderId = u.id; mu.kt = org.kt; } });
+    logIt('صار ' + u.name + ' ليدر ' + g.no, 'assign');
+    toast(g.no + ' → ' + u.name);
+  } else if (kind === 'mseat') {
+    const g = S.groups.find(x => x.id === id); if (!g) return;
+    if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
+    const org = orgById(g.orgId) || {};
+    g.members.push({ id:u.id, spec:u.specialty || SPECS[0] });
+    u.groupId = g.id; u.leaderId = g.leaderId; u.kt = org.kt;
+    let n = 0;
+    S.tasks.forEach(t => { if (t.leaderId === g.leaderId) {
+      t.assigned = t.assigned || [];
+      if (t.assigned.indexOf(u.id) < 0) { t.assigned.push(u.id); n++; }
+    } });
+    logIt('دخل ' + u.name + ' مجموعة ' + g.no + ' وسُكِّن على ' + AR(n) + ' مهمة', 'assign');
+    toast(u.name + ' → ' + g.no + ' · ' + AR(n) + ' مهمة');
   }
 }
 
@@ -3789,20 +3852,21 @@ const PERMS = [
     d:'يرى بياناته ومهامه وحدها' },
   { k:'muh_md',  ar:'محسن المدينة',    i:'i-user',   scope:'self',  edit:false,
     d:'يرى بياناته ومهامه وحدها' },
-  { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'none',  edit:false,
-    d:'نطاقه يُحدَّد لاحقًا' },
-  { k:'food',    ar:'إعاشة',           i:'i-food',   scope:'none',  edit:false,
-    d:'نطاقه يُحدَّد لاحقًا' },
-  { k:'trans',   ar:'نقل',             i:'i-bus',    scope:'none',  edit:false,
-    d:'نطاقه يُحدَّد لاحقًا' },
-  { k:'centers', ar:'مراكز',           i:'i-target', scope:'none',  edit:false,
-    d:'نطاقه يُحدَّد لاحقًا' },
-  { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'none',  edit:false,
-    d:'نطاقه يُحدَّد لاحقًا' }
+  { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'domain', edit:false, prov:true,
+    d:'مهام منى وعرفة والجمرات وحوادث التفويج' },
+  { k:'food',    ar:'إعاشة',           i:'i-food',   scope:'domain', edit:false, prov:true,
+    d:'تذاكر الإعاشة وحوادثها ونماذج امتثالها' },
+  { k:'trans',   ar:'نقل',             i:'i-bus',    scope:'domain', edit:false, prov:true,
+    d:'المطار والمغادرة والجولات ورحلات المزارات' },
+  { k:'centers', ar:'مراكز',           i:'i-target', scope:'domain', edit:false, prov:true,
+    d:'كل الحوادث والتذاكر والتقارير — بلا بيانات أشخاص' },
+  { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'domain', edit:false, prov:true,
+    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' }
 ];
 const permOf = k => PERMS.find(p => p.k === k) || PERMS[0];
 const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'فندقه ومن فيه',
-  team:'فريقه ومهامه', self:'بياناته وحدها', none:'لم يُحدَّد بعد' };
+  team:'فريقه ومهامه', self:'بياناته وحدها', domain:'اختصاصه عبر الجهات',
+  none:'لم يُحدَّد بعد' };
 
 /* الصفة الفاعلة الآن، ومن تُمثِّله */
 const curPerm = () => permOf(S.actor && S.actor.perm);
@@ -3811,9 +3875,66 @@ const canEdit = () => !!curPerm().edit;
 function allowed() {
   const p = curPerm();
   if (p.scope === 'all') return navItems().map(x => x.k);
-  return (S.grants && S.grants[p.k]) || [];
+  const g = S.grants && S.grants[p.k];
+  return g ? g : (DEFAULT_GRANTS[p.k] || []).slice();
 }
+/* هل خُصِّصت هذه الصفة أم ما زالت على افتراضها؟ */
+const isCustom = k => !!(S.grants && S.grants[k]);
+const grantsOf = k => (S.grants && S.grants[k]) || (DEFAULT_GRANTS[k] || []).slice();
 const maySee = k => allowed().indexOf(k) >= 0;
+
+
+/* ============================================================
+   الصلاحيات الافتراضية — لكل صفة ما يخدم عملها لا أكثر
+   القاعدة في اختيار الشاشات:
+     · يرى ما يخصّ عمله.
+     · لا يرى أدوات قرار الكنترول (الدعم · الشِفتات · الاحتياط · التشكيل).
+     · لا يرى إدارة النظام (الصلاحيات · الإعدادات · السجل · البثّ).
+   ============================================================ */
+const DEFAULT_GRANTS = {
+  admin:   null,                     /* لا تُقيَّد أصلًا */
+
+  /* الجهات: بياناتها التشغيلية كاملة — اطّلاعًا */
+  mission: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports'],
+  company: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports'],
+
+  /* المشرف: فندقه ومن فيه — ومعه ما يُرفع عن السكن */
+  sup:     ['ops','tasks','timeline','staff','teams','pilgrims','tickets','reports',
+            'incidents','quality','guides'],
+
+  /* الليدر: فريقه ومهامه — ولا يرى الاحتياط ولا يختار منه */
+  leader:  ['ops','tasks','timeline','staff','teams','pilgrims','tickets','reports',
+            'incidents','guides','shifts'],
+
+  /* المحسن: نفسه ومهامه ودليل تنفيذها */
+  muh_mk:  ['tasks','staff','guides'],
+  muh_md:  ['tasks','staff','guides'],
+
+  /* الخمس المؤجَّلة: نطاقها وظيفي مؤقّت حتى تُوصَف */
+  mashaer: ['ops','tasks','timeline','incidents','guides'],
+  food:    ['tasks','tickets','incidents','quality','guides'],
+  trans:   ['ops','tasks','timeline','tickets','incidents','guides'],
+  centers: ['ops','incidents','tickets','reports','timeline'],
+  medina:  ['ops','tasks','staff','teams','pilgrims','incidents']
+};
+
+/* ============================================================
+   النطاق الوظيفي — للصفات التي تقطع الجهات ولا تتبع واحدة
+   مؤقّت حتى يصف صاحب النظام حدودها.
+   ============================================================ */
+const DOMAIN = {
+  mashaer: { ar:'المشاعر',  kinds:['mina','arafah','jamarat'], inc:['crowd','sec'],
+             tkt:['تنظيم'],  form:['مشاعر','تفويج'], enrich:false },
+  food:    { ar:'الإعاشة',  kinds:[],                          inc:['food'],
+             tkt:['إعاشة'],  form:['إعاشة'],          enrich:false },
+  trans:   { ar:'النقل',    kinds:['airport','checkout','tour'], inc:['trans'],
+             tkt:['نقل','تنظيم'], form:['نقل'],       enrich:true },
+  centers: { ar:'المراكز',  kinds:[], all:true,                inc:null,
+             tkt:null,      form:[],                  enrich:false },
+  medina:  { ar:'المدينة',  kinds:[], city:'المدينة المنوّرة', inc:[],
+             tkt:[],        form:[],                  enrich:false }
+};
+const domainOf = k => DOMAIN[k];
 
 /* ============================================================
    بناء الرؤية V — نسخة مُصفّاة من S يقرأ منها كل عرض
@@ -3840,6 +3961,9 @@ function buildView() {
     groups = S.groups.filter(g => g.leaderId === a.leaderId);
     orgIds = [...new Set(groups.map(g => g.orgId))];
     kts = orgIds.map(id => (orgById(id) || {}).kt).filter(Boolean);
+  } else if (p.scope === 'domain') {
+    buildDomainView(p);
+    return;
   } else if (p.scope === 'self' && a.userId) {
     const u = userById(a.userId);
     const g = u && u.groupId ? groupById(u.groupId) : null;
@@ -3888,6 +4012,32 @@ function buildView() {
   V.casts    = S.casts;
 }
 
+/* رؤية الاختصاص: تقطع الجهات ولا تتبع واحدة —
+   ترى نوع العمل الذي تختصّ به، بلا بيانات أشخاص. */
+function buildDomainView(p) {
+  const d = domainOf(p.k) || {};
+  const inArr = (arr, v) => !arr || arr.indexOf(v) >= 0;
+  V = Object.create(S);
+  V.tasks    = d.all ? S.tasks : S.tasks.filter(t => (d.kinds || []).indexOf(t.kind) >= 0);
+  V.enrich   = d.enrich ? S.enrich : [];
+  V.incidents = null;
+  V.feed     = d.inc === null ? S.feed : S.feed.filter(f => (d.inc || []).indexOf(f.cat) >= 0);
+  V.tickets  = d.tkt === null ? S.tickets : S.tickets.filter(k => (d.tkt || []).indexOf(k.cat) >= 0);
+  V.reports  = d.all ? S.reports : [];
+  V.forms    = S.forms.filter(f => (d.form || []).indexOf(f.scope) >= 0);
+  V.subs     = S.subs.filter(b => V.forms.some(f => f.id === b.formId));
+  V.nusuk    = [];
+  /* لا بيانات أشخاص لهذه الصفات */
+  V.users    = [];
+  V.groups   = [];
+  V.orgs     = [];
+  V.pilgrims = {};
+  V.support  = [];
+  V.swaps    = [];
+  V.assigns  = [];
+  V.log      = [];
+}
+
 /* ============================================================
    شاشة إدارة الصلاحيات
    ============================================================ */
@@ -3895,17 +4045,16 @@ function screenPerms() {
   const sel = S.tab.pk || 'mission';
   const p = permOf(sel);
   const items = navItems().filter(x => x.k !== 'perms');
-  const gr = (S.grants && S.grants[sel]) || [];
+  const gr = grantsOf(sel);
 
   return '<div class="grid g4">' +
       stat({ label:'الصفات', n:PERMS.length, ic:'i-shield',
         sub:'واحدة تُعدّل، والبقية تطّلع', series:[4,6,8,9,10,11,12,PERMS.length] }) +
       stat({ label:'صفات مُسنَد لها', n:PERMS.filter(x => x.scope === 'all' ||
-        ((S.grants || {})[x.k] || []).length).length, ic:'i-checkc', cls:'up',
-        sub:'ترى شيئًا عند الدخول', series:[1,2,3,4,5,6,7,8] }) +
-      stat({ label:'صفات بلا شيء', n:PERMS.filter(x => x.scope !== 'all' &&
-        !((S.grants || {})[x.k] || []).length).length, ic:'i-x', cls:'warn',
-        sub:'تدخل فلا ترى شاشة', series:[11,10,9,8,7,6,5,4] }) +
+        grantsOf(x.k).length).length, ic:'i-checkc', cls:'up',
+        sub:'ترى ما يخدم عملها', series:[1,3,5,7,9,10,11,12] }) +
+      stat({ label:'صفات خُصِّصت', n:PERMS.filter(x => isCustom(x.k)).length, ic:'i-clip',
+        sub:'عُدِّلت عن افتراضها', series:[0,0,1,1,2,2,3,3] }) +
       stat({ label:'الشاشات', n:items.length, ic:'i-list',
         sub:'كل واحدة تُمنح أو تُمنع', series:[8,10,12,14,15,16,17,items.length] }) +
     '</div>' +
@@ -3914,20 +4063,21 @@ function screenPerms() {
       '<div class="card">' +
         head('الصفات', 'اختر صفةً لتضبط ما تراه', '', 'i-shield') +
         '<div class="plist">' + PERMS.map(x => {
-          const n = x.scope === 'all' ? items.length : ((S.grants || {})[x.k] || []).length;
+          const n = x.scope === 'all' ? items.length : grantsOf(x.k).length;
           return '<button class="prow pick' + (x.k === sel ? ' on' : '') + '" ' +
             'data-a="seg" data-k="pk" data-v="' + x.k + '">' +
             '<span class="ico" style="color:' + (x.edit ? 'var(--gold2)' : 'var(--dim)') + '">' +
               icon(x.i, 's18') + '</span>' +
             '<span class="nm" style="flex:1"><b>' + E(x.ar) + '</b>' +
             '<span>' + E(SCOPE_AR[x.scope]) + '</span></span>' +
-            (x.edit ? pill('تعديل', 'gold') : pill('اطّلاع', 'grey')) +
+            (x.prov ? pill('مؤقّت', 'wait') : x.edit ? pill('تعديل', 'gold') : pill('اطّلاع', 'grey')) +
             pill(AR(n) + ' شاشة', n ? 'live' : 'no') + '</button>';
         }).join('') + '</div>' +
       '</div>' +
 
       '<div class="card gold">' +
-        head(p.ar, p.d, p.edit ? pill('كل الشاشات — لا تُقيَّد', 'gold')
+        head(p.ar + (p.prov ? ' — نطاق مؤقّت' : ''), p.d,
+          p.edit ? pill('كل الشاشات — لا تُقيَّد', 'gold')
           : pill(AR(gr.length) + ' من ' + AR(items.length), gr.length ? 'live' : 'no'), p.i) +
         '<div class="meta">' +
           '<div><span class="k">النطاق</span><b>' + E(SCOPE_AR[p.scope]) + '</b></div>' +
@@ -3935,12 +4085,18 @@ function screenPerms() {
           '<div><span class="k">الشاشات</span><b class="num">' +
             AR(p.edit ? items.length : gr.length) + '</b></div>' +
         '</div>' +
+        (p.prov ? '<div class="quote" style="margin-top:14px">' +
+          'هذا النطاق <b>مؤقّت</b>: بُني على اختصاص الصفة (' + E((domainOf(p.k) || {}).ar || '') +
+          ') حتى تُوصَف حدودها. تراه في الشاشات ولا ترى بيانات أشخاص.</div>' : '') +
         (p.edit
           ? '<div class="quote" style="margin-top:14px">الإدارة العليا لا تُقيَّد — ' +
             'ترى كل شاشة وتملك كل إجراء. وهي الوحيدة كذلك.</div>'
           : '<div class="fl" style="gap:9px;margin:14px 0 12px;flex-wrap:wrap">' +
               '<button class="btn l sm" data-a="pgall" data-v="' + sel + '">منح الكل</button>' +
               '<button class="btn l sm" data-a="pgnone" data-v="' + sel + '">منع الكل</button>' +
+              (isCustom(sel) ? '<button class="btn p sm" data-a="pgdef" data-v="' + sel +
+                '">استعادة الافتراضي</button>' : '<span class="mchip">' +
+                icon('i-checkc','s14') + 'على الافتراضي</span>') +
             '</div>' +
             '<div class="permgrid">' + items.map(x => {
               const on = gr.indexOf(x.k) >= 0;
@@ -3978,8 +4134,8 @@ function screenDenied() {
     '<div class="empty" style="padding:44px 20px">' + icon('i-shield','s26') +
       '<b>لم تُسنَد لهذه الصفة أي شاشة</b>' +
       '<div class="tiny" style="margin-top:8px;line-height:2">' +
-      'هذا هو السلوك المقصود: لا يرى أحدٌ شيئًا حتى يُمنَح.<br>' +
-      'تُمنح الشاشات من «إدارة الصلاحيات» بصفة الإدارة العليا.</div>' +
+      'كل صفة لها صلاحيات افتراضية تخدم عملها — وهذه مُنعت عنها كلّها.<br>' +
+      'تُعاد من «إدارة الصلاحيات» بزرّ «استعادة الافتراضي».</div>' +
       '<button class="btn l" style="margin-top:18px" data-a="logout">' +
         icon('i-logout','s16') + 'الخروج وتبديل الصفة</button>' +
     '</div></div>';
@@ -5005,6 +5161,212 @@ function screenBuild() {
 }
 
 /* ============================================================
+   التسكين التراتبي — ثلاث خطوات لا لوحة واحدة
+     ١) المشرفون على الفنادق — مشرف واحد لكل فندق لا أكثر
+     ٢) الليدرز على المجموعات — لكل مجموعة جهةٌ وسكنٌ وليدر
+     ٣) المحسنون على الليدرز — خمسة لكل مجموعة
+   ============================================================ */
+
+const ASG_STEPS = [
+  { k:'sup',  ar:'المشرفون على الفنادق', i:'i-key',   d:'مشرف واحد لكل فندق' },
+  { k:'lead', ar:'الليدرز على المجموعات', i:'i-star',  d:'ليدر يقود مجموعتين لا ثلاثًا' },
+  { k:'muh',  ar:'المحسنون على الليدرز',  i:'i-users', d:'خمسة لكل مجموعة — ولا يُثنّى محسن' }
+];
+
+function screenAssign() {
+  const step = S.tab.asg || 'sup';
+  const done = {
+    sup:  HOTELS.filter(h => supOfHotel(h.id)).length,
+    lead: S.groups.length,
+    muh:  S.groups.filter(g => g.members.length === 5).length
+  };
+  const need = { sup: HOTELS.length, lead: S.groups.length || 1, muh: S.groups.length || 1 };
+
+  return '<div class="asgsteps">' + ASG_STEPS.map((s, i) => {
+    const pct = Math.round(done[s.k] / Math.max(1, need[s.k]) * 100);
+    return '<button class="astep' + (s.k === step ? ' on' : '') + '" ' +
+      'data-a="seg" data-k="asg" data-v="' + s.k + '">' +
+      '<span class="an">' + AR(i + 1) + '</span>' +
+      '<span class="ico" style="color:var(--gold2)">' + icon(s.i, 's18') + '</span>' +
+      '<span class="nm"><b>' + E(s.ar) + '</b><span>' + E(s.d) + '</span></span>' +
+      '<span class="ae"><b class="num">' + AR(done[s.k]) + '/' + AR(need[s.k]) + '</b>' +
+        '<span class="meter' + (pct < 100 ? ' gold' : '') + '"><i data-w="' + pct + '"></i></span>' +
+      '</span></button>';
+  }).join('') + '</div>' +
+    (step === 'sup' ? stepSup() : step === 'lead' ? stepLead() : stepMuh());
+}
+
+const supOfHotel = hid => supervisors().find(u => u.hotelId === hid) || null;
+
+/* ══════════════ ١) المشرفون على الفنادق ══════════════ */
+function stepSup() {
+  const q = qOf('asup');
+  const fs2 = fOf('asup','state');
+  let list = HOTELS.slice();
+  if (q) list = list.filter(h => h.ar.indexOf(q) >= 0);
+  if (fs2) list = list.filter(h => fs2 === 'y' ? !!supOfHotel(h.id) : !supOfHotel(h.id));
+  const free = supervisors().filter(u => !u.hotelId);
+
+  return '<div class="grid g23">' +
+    '<div class="card">' +
+      head('الفنادق', 'لكل فندق مشرف واحد — لا اثنان',
+        pill(AR(HOTELS.filter(h => supOfHotel(h.id)).length) + ' مُسكَّن', 'gold'), 'i-key') +
+      filterBar('asup', [
+        { k:'state', label:'التسكين', opts:[['y','له مشرف'],['n','بلا مشرف']] }
+      ], list.length, HOTELS.length, 'ابحث باسم فندق…') +
+      '<div class="plist">' + list.map(h => {
+        const sv = supOfHotel(h.id);
+        const gs = S.groups.filter(g => g.hotelId === h.id);
+        return '<div class="prow" style="flex-wrap:wrap">' +
+          '<span class="krail" style="background:' + (sv ? 'var(--live)' : 'var(--amber)') + '"></span>' +
+          '<span class="ico">' + icon('i-key','s18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
+          '<span>' + E(h.city) + ' · ' + E(h.dist) + ' · ' + AR(h.rooms) + ' غرفة</span></span>' +
+          pill(AR(gs.length) + ' مجموعة', gs.length ? 'live' : 'grey') +
+          '<div style="width:100%;margin-top:10px">' +
+            (sv
+              ? '<div class="fl" style="gap:10px;flex-wrap:wrap">' + avatar(sv, 'sm') +
+                '<span class="nm" style="flex:1"><b>' + E(sv.name) + '</b>' +
+                '<span>' + LTR(sv.code) + ' · مشرف سكن</span></span>' +
+                '<button class="btn l sm" data-a="supswap" data-id="' + h.id + '">تغيير</button>' +
+                '<button class="btn d sm" data-a="suprm" data-id="' + h.id + '">إزالة</button></div>'
+              : '<div class="fl" style="gap:10px">' +
+                '<span class="mchip">' + icon('i-warn','s14') + 'بلا مشرف</span>' +
+                '<button class="btn p sm" data-a="supswap" data-id="' + h.id + '">تسكين مشرف</button></div>') +
+          '</div></div>';
+      }).join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('مشرفون بلا فندق', free.length ? 'متاحون للتسكين' : 'كلّهم مسكَّنون',
+        pill(AR(free.length), free.length ? 'live' : 'grey'), 'i-shield') +
+      (free.length ? '<div class="plist">' + free.map(u =>
+        '<div class="prow">' + avatar(u, 'sm') +
+        '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
+        '<span>' + LTR(u.code) + ' · ' + AR(u.age || 34) + ' سنة</span></span>' +
+        pill('حرّ', 'live') + '</div>').join('') + '</div>'
+        : empty('لا مشرف حرّ', 'أزِل مشرفًا من فندقه ليعود إلى هنا', 'i-checkc')) +
+    '</div></div>';
+}
+
+/* ══════════════ ٢) الليدرز على المجموعات ══════════════ */
+function stepLead() {
+  const q = qOf('alead');
+  const fo = fOf('alead','org'), fh = fOf('alead','hotel'), ft = fOf('alead','type');
+  let gs = S.groups.slice();
+  if (fo) gs = gs.filter(g => g.orgId === fo);
+  if (fh) gs = gs.filter(g => g.hotelId === fh);
+  if (ft) gs = gs.filter(g => (orgById(g.orgId) || {}).type === ft);
+  if (q) gs = gs.filter(g => (g.no + ' ' + (userById(g.leaderId) || {}).name +
+    ' ' + (orgById(g.orgId) || {}).kt).indexOf(q) >= 0);
+  const freeL = leaders().filter(l => groupsOf(l.id).length < 2);
+
+  return '<div class="grid g23">' +
+    '<div class="card">' +
+      head('المجموعات وليدرزها', 'الليدر يقود مجموعتين لا ثلاثًا',
+        pill(AR(gs.length) + ' من ' + AR(S.groups.length), 'gold'), 'i-star') +
+      filterBar('alead', [
+        { k:'org',   label:'الجهة', opts:optOrgs() },
+        { k:'type',  label:'النوع', opts:optTypes() },
+        { k:'hotel', label:'السكن', opts:optHotels() }
+      ], gs.length, S.groups.length, 'ابحث برقم مجموعة أو ليدر أو KT…') +
+      '<div class="plist">' + (gs.length ? gs.map(g => {
+        const L = userById(g.leaderId) || {}, o = orgById(g.orgId) || {};
+        const h = hotelById(g.hotelId), sv = g.supervisorId ? userById(g.supervisorId) : null;
+        const n = groupsOf(g.leaderId).length;
+        return '<div class="prow" style="flex-wrap:wrap">' +
+          '<span class="krail" style="background:' +
+            (o.type === 'بعثة' ? 'var(--blue)' : 'var(--gold)') + '"></span>' +
+          avatar(L, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(L.name || '—') + '</b>' +
+          '<span>' + E(o.kt || '') + ' · ' + E(o.ar || '') + ' · ' + E(h.ar || 'بلا سكن') + '</span></span>' +
+          pill(E(o.type || '—'), o.type === 'بعثة' ? 'blue' : 'gold') +
+          pill(AR(g.members.length + 1) + '/٦', g.members.length === 5 ? 'live' : 'wait') +
+          (n > 1 ? pill('يقود ' + AR(n), 'wait') : '') +
+          '<div class="pfoot" style="width:100%">' +
+            '<span class="ok">' + (sv ? 'المشرف ' + E(sv.name) : 'بلا مشرف — سكِّن مشرف الفندق أوّلًا') + '</span>' +
+            '<span class="fl" style="gap:7px">' +
+              '<button class="btn l sm" data-a="gleadswap" data-id="' + g.id + '">تغيير الليدر</button>' +
+              '<button class="btn l sm" data-a="ghotel" data-id="' + g.id + '">تغيير السكن</button>' +
+            '</span></div></div>';
+      }).join('') : empty('لا مجموعة تطابق', 'وسّع الفلاتر', 'i-search')) + '</div>' +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('ليدرز يقبلون مجموعة', AR(freeL.length) + ' ليدرًا',
+        '<button class="btn p sm" data-a="gnew">' + icon('i-plus','s16') + 'مجموعة جديدة</button>',
+        'i-star') +
+      (freeL.length ? '<div class="plist">' + freeL.slice(0, 14).map(l =>
+        '<div class="prow">' + avatar(l, 'sm') +
+        '<span class="nm" style="flex:1"><b>' + E(l.name) + '</b>' +
+        '<span>' + E(l.kt) + ' · ' + AR(l.pilgrims) + ' حاجًّا</span></span>' +
+        pill(groupsOf(l.id).length ? 'يقود ١' : 'حرّ',
+          groupsOf(l.id).length ? 'wait' : 'live') + '</div>').join('') + '</div>'
+        : empty('كل ليدر يقود مجموعتين', 'لا مزيد', 'i-checkc')) +
+    '</div></div>';
+}
+
+/* ══════════════ ٣) المحسنون على الليدرز ══════════════ */
+function stepMuh() {
+  const q = qOf('amuh');
+  const fo = fOf('amuh','org'), fh = fOf('amuh','hotel'), fst = fOf('amuh','full');
+  let gs = S.groups.slice();
+  if (fo) gs = gs.filter(g => g.orgId === fo);
+  if (fh) gs = gs.filter(g => g.hotelId === fh);
+  if (fst) gs = gs.filter(g => fst === 'y' ? g.members.length === 5 : g.members.length < 5);
+  if (q) gs = gs.filter(g => (g.no + ' ' + (userById(g.leaderId) || {}).name).indexOf(q) >= 0 ||
+    g.members.some(m => ((userById(m.id) || {}).name || '').indexOf(q) >= 0));
+  const free = freeMuhsens();
+  const fq = qOf('afree');
+  const freeList = fq ? free.filter(u => (u.name + ' ' + u.code + ' ' + u.specialty).indexOf(fq) >= 0) : free;
+
+  return '<div class="grid g23">' +
+    '<div class="card">' +
+      head('المجموعات ومحسنوها', 'انقر مقعدًا فارغًا لتملأه، أو محسنًا لتُخرجه',
+        pill(AR(gs.length) + ' مجموعة', 'gold'), 'i-users') +
+      filterBar('amuh', [
+        { k:'org',   label:'الجهة',  opts:optOrgs() },
+        { k:'hotel', label:'السكن',  opts:optHotels() },
+        { k:'full',  label:'الاكتمال', opts:[['y','مكتملة'],['n','ناقصة']] }
+      ], gs.length, S.groups.length, 'ابحث بمجموعة أو ليدر أو محسن…') +
+      (gs.length ? gs.map(g => {
+        const L = userById(g.leaderId) || {}, o = orgById(g.orgId) || {};
+        return '<div class="gseat">' +
+          '<div class="fl" style="gap:10px;margin-bottom:11px">' + avatar(L, 'sm') +
+            '<span class="nm" style="flex:1"><b>' + LTR(g.no) + ' · ' + E(L.name || '') + '</b>' +
+            '<span>' + E(o.kt || '') + ' · ' + E(hotelById(g.hotelId).ar || '') + '</span></span>' +
+            pill(AR(g.members.length) + '/٥', g.members.length === 5 ? 'live' : 'wait') + '</div>' +
+          '<div class="seats">' + [0,1,2,3,4].map(i => {
+            const m = g.members[i], u = m ? userById(m.id) : null;
+            return u
+              ? '<button class="seat full" data-a="mseatout" data-id="' + g.id +
+                '" data-v="' + u.id + '" title="إخراجه من المجموعة">' + avatar(u, 'sm') +
+                '<span class="nm"><b>' + E(u.name) + '</b>' +
+                '<span>' + E(m.spec) + '</span></span>' +
+                '<span class="x">' + icon('i-x','s14') + '</span></button>'
+              : '<button class="seat" data-a="mseatin" data-id="' + g.id + '">' +
+                '<span class="plus">' + icon('i-plus','s16') + '</span>' +
+                '<span class="nm"><b>مقعد فارغ</b><span>انقر لتملأه</span></span></button>';
+          }).join('') + '</div></div>';
+      }).join('') : empty('لا مجموعة تطابق', 'وسّع الفلاتر', 'i-search')) +
+    '</div>' +
+
+    '<div class="card gold src">' +
+      head('محسنون بلا مجموعة', 'هؤلاء وحدهم متاحون',
+        pill(AR(free.length), free.length ? 'live' : 'grey'), 'i-user') +
+      '<div style="margin-bottom:11px">' + search('afree', 'ابحث في المتاحين…', free.length) + '</div>' +
+      (freeList.length ? freeList.slice(0, 40).map(u =>
+        '<div class="pcard" style="cursor:default">' + avatar(u, 'sm') +
+        '<span class="nm"><b>' + E(u.name) + '</b>' +
+        '<span>' + LTR(u.code) + ' · ' + E(u.specialty) + ' · ' + AR(u.age || 28) + ' سنة</span></span>' +
+        '</div>').join('') +
+        (freeList.length > 40 ? '<div class="tiny faint" style="margin-top:10px">و' +
+          AR(freeList.length - 40) + ' آخرين — ضيّق البحث</div>' : '')
+        : empty('لا محسن متاح', 'أخرِج محسنًا من مجموعته ليعود هنا', 'i-checkc')) +
+    '</div></div>';
+}
+
+/* ============================================================
    الخط الزمني للموسم — كل مهام كل الفرق في شاشة واحدة
    ترى التداخل والفجوة والضغط بنظرة، وتفتح أيّ مهمة بنقرة.
    ============================================================ */
@@ -5474,7 +5836,7 @@ function showShortcuts() {
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, build: screenBuild, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -5843,12 +6205,91 @@ document.addEventListener('click', ev => {
       logIt('أُغلق تقرير ' + r.no, 'info'); save(); reportDrawer(id);
       toast('أُغلق التقرير'); return; }
 
-    /* ─── تسكين المشرف على فندق ─── */
-    case 'supassign': {
-      openPicker('sup', id, { title:'من يُشرف على ' + hotelById(id).ar,
-        note:'المشرف يتبع الفندق — وتحته كل مجموعة تسكنه.',
-        cands:supervisors() });
+    /* ─── ١) المشرف على الفندق: واحد لا أكثر ─── */
+    case 'supassign':
+    case 'supswap': {
+      const cur = supOfHotel(id);
+      openPicker('sup', id, { title:(cur ? 'تغيير مشرف ' : 'تسكين مشرف ') + hotelById(id).ar,
+        note:'لكل فندق مشرف واحد. من يُختار يُزاح عن فندقه السابق إن كان له فندق، ' +
+          'ومن يُزاح هنا يعود حرًّا.',
+        cands:supervisors().filter(u => u.hotelId !== id) });
       return;
+    }
+    case 'suprm': {
+      const sv = supOfHotel(id); if (!sv) return;
+      sv.hotelId = null;
+      S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = null; });
+      logIt('أُزيل المشرف ' + sv.name + ' عن ' + hotelById(id).ar, 'assign');
+      toast(sv.name + ' عاد حرًّا', 'r');
+      break;
+    }
+
+    /* ─── ٢) الليدر على المجموعة ─── */
+    case 'gleadswap': {
+      const g = groupById(id); if (!g) return;
+      openPicker('glead', g.id, { title:'ليدر ' + g.no,
+        note:'لا يقود الليدر أكثر من مجموعتين. من يخرج هنا يعود إلى قائمة الليدرز.',
+        cands:leaders().filter(l => l.id !== g.leaderId && groupsOf(l.id).length < 2) });
+      return;
+    }
+    case 'ghotel': {
+      const g = groupById(id); if (!g) return;
+      S.pendHotel = g.id;
+      S.drawer = { title:'سكن ' + g.no, sub:'المشرف يتبع الفندق تلقائيًّا', icon:'i-key',
+        body:'<div class="plist">' + HOTELS.map(h => {
+          const sv = supOfHotel(h.id);
+          return '<button class="prow pick' + (g.hotelId === h.id ? ' on' : '') + '" ' +
+            'data-a="ghotelset" data-id="' + h.id + '">' +
+            '<span class="ico">' + icon('i-key','s16') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(h.ar) + '</b>' +
+            '<span>' + E(h.dist) + ' · ' + (sv ? 'المشرف ' + E(sv.name) : 'بلا مشرف') +
+            '</span></span>' +
+            pill(AR(S.groups.filter(x => x.hotelId === h.id).length) + ' مجموعة', 'grey') +
+          '</button>';
+        }).join('') + '</div>' };
+      renderDrawer(); return;
+    }
+    case 'ghotelset': {
+      const g = groupById(S.pendHotel); if (!g) return;
+      g.hotelId = id;
+      const sv = supOfHotel(id);
+      g.supervisorId = sv ? sv.id : null;
+      logIt('نُقلت ' + g.no + ' إلى ' + hotelById(id).ar, 'assign');
+      toast('السكن ' + hotelById(id).ar + (sv ? ' — المشرف ' + sv.name : ' — بلا مشرف'));
+      S.pendHotel = null; S.drawer = null;
+      break;
+    }
+    case 'gnew': {
+      const L = leaders().find(l => groupsOf(l.id).length < 2);
+      if (!L) { toast('كل ليدر يقود مجموعتين', 'r'); return; }
+      const o = orgById(L.orgId) || S.orgs[0];
+      const g = { id:uid('G'), no:'GR-' + (101 + S.groups.length), leaderId:L.id,
+        orgId:o.id, hotelId:null, supervisorId:null, members:[], at:now() };
+      S.groups.push(g);
+      logIt('أُنشئت مجموعة ' + g.no + ' بقيادة ' + L.name, 'assign');
+      toast('أُنشئت ' + g.no + ' — أضف محسنيها وسكنها');
+      break;
+    }
+
+    /* ─── ٣) المحسن في مقعده ─── */
+    case 'mseatin': {
+      const g = groupById(id); if (!g) return;
+      if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
+      openPicker('mseat', g.id, { title:'مقعد في ' + g.no,
+        note:'المتاحون وحدهم — من دخل مجموعةً خرج من هذه القائمة.',
+        cands:freeMuhsens() });
+      return;
+    }
+    case 'mseatout': {
+      const g = groupById(id); if (!g) return;
+      const u = userById(v);
+      g.members = g.members.filter(m => m.id !== v);
+      if (u) { u.groupId = null; u.leaderId = null; u.kt = '—'; }
+      S.tasks.forEach(t => { if (t.leaderId === g.leaderId)
+        t.assigned = (t.assigned || []).filter(x => x !== v); });
+      logIt('أُخرج ' + ((u || {}).name || '') + ' من ' + g.no, 'assign');
+      toast(((u || {}).name || '') + ' عاد إلى المتاحين', 'r');
+      break;
     }
     case 'staffopen': staffDrawer(id); return;
     case 'logout': S.auth = false; S.drawer = null; save(); render();
@@ -5867,6 +6308,11 @@ document.addEventListener('click', ev => {
       S.grants[v] = navItems().map(x => x.k).filter(x => x !== 'perms');
       logIt('مُنحت كل الشاشات لصفة ' + permOf(v).ar, 'info');
       toast('مُنحت كل الشاشات — بلا تعديل'); break;
+    }
+    case 'pgdef': {
+      delete S.grants[v];
+      logIt('أُعيدت صفة ' + permOf(v).ar + ' إلى صلاحياتها الافتراضية', 'info');
+      toast('عادت إلى الافتراضي — ' + AR(grantsOf(v).length) + ' شاشة'); break;
     }
     case 'pgnone': {
       S.grants[v] = [];

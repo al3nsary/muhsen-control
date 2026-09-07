@@ -251,7 +251,7 @@ function applyPick(kind, id, u) {
   } else if (kind === 'comply') {
     const a = S.pendForm; if (!a) return;
     const f = formById(a.formId) || {};
-    V.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
+    S.assigns.unshift({ id:uid('A'), type:'comply', to:u.id, at:now(),
       title:f.title + ' — ' + a.target, sub:'نموذج امتثال · ' + a.target, state:'بانتظار التعبئة',
       formId:a.formId, target:a.target });
     logIt('أُسند نموذج «' + f.title + '» على ' + a.target + ' إلى ' + u.name, 'assign');
@@ -272,12 +272,39 @@ function applyPick(kind, id, u) {
     logIt('أُسند تقرير ' + r.no + ' إلى ' + u.name, 'assign');
     toast('أُسند إلى ' + u.name);
   } else if (kind === 'sup') {
-    /* تسكين مشرف على فندق */
+    /* لكل فندق مشرف واحد: يُزاح السابق، ويُترك فندق المختار الأوّل */
     const h = hotelById(id);
+    const prev = S.users.find(x => x.role === 'supervisor' && x.hotelId === id && x.id !== u.id);
+    if (prev) prev.hotelId = null;
+    const old = u.hotelId;
     u.hotelId = id;
-    V.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
-    logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar, 'assign');
-    toast(u.name + ' → ' + h.ar);
+    if (old && old !== id)
+      S.groups.forEach(g => { if (g.hotelId === old) g.supervisorId = null; });
+    S.groups.forEach(g => { if (g.hotelId === id) g.supervisorId = u.id; });
+    logIt('سُكِّن المشرف ' + u.name + ' على ' + h.ar +
+      (prev ? ' بدل ' + prev.name : ''), 'assign');
+    toast(u.name + ' → ' + h.ar + (prev ? ' — وأُزيح ' + prev.name : ''));
+  } else if (kind === 'glead') {
+    const g = S.groups.find(x => x.id === id); if (!g) return;
+    const org = orgById(g.orgId) || {};
+    g.leaderId = u.id;
+    g.members.forEach(m => { const mu = userById(m.id);
+      if (mu) { mu.leaderId = u.id; mu.kt = org.kt; } });
+    logIt('صار ' + u.name + ' ليدر ' + g.no, 'assign');
+    toast(g.no + ' → ' + u.name);
+  } else if (kind === 'mseat') {
+    const g = S.groups.find(x => x.id === id); if (!g) return;
+    if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
+    const org = orgById(g.orgId) || {};
+    g.members.push({ id:u.id, spec:u.specialty || SPECS[0] });
+    u.groupId = g.id; u.leaderId = g.leaderId; u.kt = org.kt;
+    let n = 0;
+    S.tasks.forEach(t => { if (t.leaderId === g.leaderId) {
+      t.assigned = t.assigned || [];
+      if (t.assigned.indexOf(u.id) < 0) { t.assigned.push(u.id); n++; }
+    } });
+    logIt('دخل ' + u.name + ' مجموعة ' + g.no + ' وسُكِّن على ' + AR(n) + ' مهمة', 'assign');
+    toast(u.name + ' → ' + g.no + ' · ' + AR(n) + ' مهمة');
   }
 }
 

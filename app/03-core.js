@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 9;
-const APP_VER = 'نسخة ٠٫٩';
+const SCHEMA = 12;
+const APP_VER = 'نسخة ٠٫٩٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -154,7 +154,8 @@ function seed() {
   SUP_NAMES.forEach((s, i) => st.users.push({
     id: 'SV' + (3001 + i), role: 'supervisor', name: s.n, g: s.g, av: avOf(s.g, i),
     code: '#SV' + (3001 + i), specialty: 'إشراف سكن', phone: '+9665' + (57220000 + i * 211),
-    hotelId: HOTELS[i % HOTELS.length].id, kt: '—', age: 30 + (i * 3) % 26
+    /* فندق واحد لمشرف واحد — والزائد يبقى حرًّا للتسكين */
+    hotelId: i < HOTELS.length ? HOTELS[i].id : null, kt: '—', age: 30 + (i * 3) % 26
   }));
 
   /* ---------- التشكيل: لكل ليدر مجموعة بفريقه ---------- */
@@ -334,7 +335,7 @@ function teamOf(lid) {
 /* ---- أدوات الأنواع الأربعة والتشكيل ---- */
 const siteById = id => SITES.find(s => s.id === id) || {};
 const hotelById = id => HOTELS.find(h => h.id === id) || {};
-const groupById = id => S.groups.find(g => g.id === id);
+const groupById = id => S.groups.find(g => g.id === id);   /* الأصل: يُستعمل للتعديل */
 const formById = id => S.forms.find(f => f.id === id);
 const supervisors = () => VV().users.filter(u => u.role === 'supervisor');
 const groupsOf = lid => VV().groups.filter(g => g.leaderId === lid);
