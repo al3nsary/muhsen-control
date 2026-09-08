@@ -303,6 +303,7 @@ function applyPick(kind, id, u) {
     const org = orgById(g.orgId) || {};
     g.members.push({ id:u.id, spec:u.specialty || SPECS[0] });
     u.groupId = g.id; u.leaderId = g.leaderId; u.kt = org.kt;
+    if (u.reserve) u.reserve = false;   /* من دخل مجموعةً لم يعد احتياطًا */
     let n = 0;
     S.tasks.forEach(t => { if (t.leaderId === g.leaderId) {
       t.assigned = t.assigned || [];
@@ -316,11 +317,13 @@ function applyPick(kind, id, u) {
 /* مرشّحو كل نوع */
 function candFor(kind, ref) {
   const all = V.users.filter(u => u.role === 'muhsen');
+  /* الاحتياط مشترك بين كل الفرق — فهو مرشّح لكل نوع مهمّة */
+  const res = reserveTeam();
   if (kind === 'enrich') {
     const x = ref;
     const g = x.leaderId ? groupsOf(x.leaderId)[0] : null;
     const inGrp = g ? g.members.map(m => userById(m.id)).filter(Boolean) : [];
-    return inGrp.length ? inGrp : all.filter(u => staffGroup(u));
+    return (inGrp.length ? inGrp : all.filter(u => staffGroup(u))).concat(res);
   }
   if (kind === 'nusuk') {
     const c = ref, team = teamOf(c.leaderId);
@@ -334,7 +337,7 @@ function candFor(kind, ref) {
     const ids = [];
     gs.forEach(g => { ids.push(g.leaderId); g.members.forEach(m => ids.push(m.id)); });
     const sup = supervisors().filter(u => u.hotelId === hid);
-    return [...new Set(ids)].map(userById).filter(Boolean).concat(sup);
+    return [...new Set(ids)].map(userById).filter(Boolean).concat(sup).concat(res);
   }
   if (kind === 'ticket' || kind === 'report') {
     const t = ref, team = teamOf(t.leaderId), L = userById(t.leaderId);
@@ -360,7 +363,7 @@ function pickerBody() {
         '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
         '<span>' + LTR(u.code) + ' · ' + E(u.specialty || '') +
           (g ? ' · ' + g.no : '') + (h && h.ar ? ' · ' + h.ar : '') + '</span></span>' +
-        (u.reserve ? pill('احتياط','gold') : '') +
+        (u.reserve ? pill('احتياط · مشترك','gold') : '') +
         pill(AR(load) + ' مهمة', load > 14 ? 'no' : load > 8 ? 'wait' : 'live') +
       '</button>';
     }).join('') + '</div>'

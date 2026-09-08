@@ -1359,6 +1359,61 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 @media (max-width:760px){ .dashgrid{grid-template-columns:1fr}
   .dw,.dw.w2,.dw.w3,.dw.w4{grid-column:span 1} }
 
+/* ══ أشرطة اللوحة — كل شريط متجانس فلا تتمزّق الحوافّ ══ */
+.band{display:block}
+.bandhead{display:flex; align-items:center; gap:10px; margin:2px 2px 11px}
+.bandhead span{font-size:10.5px; font-weight:600; color:var(--faint); letter-spacing:.4px;
+  white-space:nowrap}
+.bandhead::after{content:""; flex:1; height:1px;
+  background:linear-gradient(90deg,var(--line2),transparent)}
+.bandgrid{display:grid; grid-template-columns:repeat(var(--cols),minmax(0,1fr));
+  gap:16px; grid-auto-flow:dense; align-items:stretch}
+.dw{min-width:0; height:var(--wh); animation:rise .5s var(--e3) both}
+.dw.w1{grid-column:span 1} .dw.w2{grid-column:span 2} .dw.w3{grid-column:span 3}
+/* البطاقة تملأ خانتها، وجسمها هو ما يُمرَّر */
+.dw > .card{height:100%; display:flex; flex-direction:column; overflow:hidden}
+.dw > .card > .h{flex:none}
+.wbody{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden}
+.wbody::-webkit-scrollbar{width:6px}
+.wbody::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.dw .tbl{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden}
+.dw .tbl::-webkit-scrollbar{width:6px}
+.dw .tbl::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.dw .tbl .th{position:sticky; top:0; z-index:2; background:var(--panel)}
+.dw .queue .qlist{flex:1; min-height:0; overflow-y:auto}
+.dw .gantt{flex:1; min-height:0; overflow-y:auto}
+.dw .heat{flex:1; min-height:0; overflow:auto}
+.dw .map{height:100%; min-height:230px}
+.dw .donutwrap{justify-content:center; height:100%}
+.dw .bars{height:100%; min-height:120px}
+.dw .chart{height:100%; display:flex; flex-direction:column; justify-content:flex-end}
+@media (max-width:1500px){ .band{--cols:min(3,var(--cols))}
+  .bandgrid{grid-template-columns:repeat(min(3,var(--cols)),minmax(0,1fr))} }
+@media (max-width:1180px){ .bandgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dw.w2,.dw.w3{grid-column:span 2} }
+@media (max-width:760px){ .bandgrid{grid-template-columns:1fr}
+  .dw,.dw.w2,.dw.w3{grid-column:span 1} }
+/* ══ مقياس نصف دائري ══ */
+.gauge{position:relative; display:grid; place-items:center; height:100%}
+.gauge svg{width:100%; max-width:210px; overflow:visible}
+.gv{position:absolute; bottom:6px; text-align:center}
+.gv b{display:block; font-size:30px; font-weight:700; letter-spacing:-1.2px;
+  font-variant-numeric:tabular-nums}
+.gv span{display:block; font-size:10.5px; color:var(--dim2)}
+/* ══ خريطة الكثافة ══ */
+.heat{overflow-x:auto; padding-bottom:4px}
+.hhead,.hrow{display:grid; grid-template-columns:34px repeat(12,minmax(24px,1fr)); gap:3px;
+  align-items:center; margin-bottom:3px; min-width:520px}
+.hhead span{font-size:9px; color:var(--faint); text-align:center}
+.hl{font-size:10.5px; color:var(--dim2); font-weight:600}
+.hc{height:26px; border-radius:6px; display:grid; place-items:center; font-size:9.5px;
+  font-weight:600; color:var(--onGold);
+  background:color-mix(in srgb, var(--g3) calc(var(--v) * 92%), var(--sheen));
+  transition:transform .18s var(--e)}
+.hc:hover{transform:scale(1.14); z-index:2}
+.hrow.today .hl{color:var(--gold2)}
+.hrow.today .hc{box-shadow:inset 0 0 0 1px var(--gold2)}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;

@@ -695,8 +695,8 @@ document.addEventListener('click', ev => {
       const g = groupById(id); if (!g) return;
       if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
       openPicker('mseat', g.id, { title:'مقعد في ' + g.no,
-        note:'المتاحون وحدهم — من دخل مجموعةً خرج من هذه القائمة.',
-        cands:freeMuhsens() });
+        note:'المتاحون وحدهم — ومعهم الاحتياط، فهو مشترك بين كل الفرق.',
+        cands:freeMuhsens().concat(reserveTeam()) });
       return;
     }
     case 'mseatout': {
