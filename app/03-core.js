@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 14;
-const APP_VER = 'نسخة ٠٫٩٫١';
+const SCHEMA = 16;
+const APP_VER = 'نسخة ١٫٠';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -49,7 +49,7 @@ function seed() {
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
     /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
-    grants: {}, actor: { perm: 'admin' }, open: {}
+    grants: {}, actor: { perm: 'admin' }, open: {}, cfg: {}, dash: []
   };
   S = st;
 
@@ -178,6 +178,30 @@ function seed() {
   /* من لم يدخل مجموعة يعود حرًّا: لا ليدر ولا مجموعة */
   st.users.forEach(u => {
     if (u.role === 'muhsen' && !u.reserve && !u.groupId) { u.leaderId = null; u.kt = '—'; }
+  });
+
+  /* ---------- طلبات الدعم: ما يرفعه الليدرز ---------- */
+  const SUP_WHY = [
+    'استُبعد محسنان لعدم الحاجة ثم تغيّر حجم الفوج',
+    'اعتذر محسنان لظرف صحّي قبل التفويج بساعتين',
+    'الفوج زاد أربعين حاجًّا عن الكشف الأوّل',
+    'مهمّة الجمرات تحتاج مرافقًا إضافيًّا لكبار السنّ',
+    'محسن الإعاشة في إجازة اضطرارية اليوم',
+    'تداخل موعد التفويج مع مهمّة الطواف',
+    'يحتاج ناطقًا بالملايوية لمجموعة جديدة',
+    'مشرف السكن طلب مرافقًا ليليًّا إضافيًّا'
+  ];
+  st.support = [];
+  SUP_WHY.forEach((why, i) => {
+    const t = st.tasks[(i * 13 + 5) % st.tasks.length];
+    const state = i < 4 ? 'pending' : i < 6 ? 'done' : 'no';
+    st.support.push({
+      id: uid('SP'), no: 'SP-' + (3001 + i), taskId: t.id, by: t.leaderId,
+      count: 1 + (i % 3), why, state,
+      reason: state === 'done' ? 'أُسند ' + AR(1 + (i % 3)) + ' من الاحتياط'
+        : state === 'no' ? 'الاحتياط مرتبط بعرفة — أعِد التوزيع داخل فريقك' : null,
+      at: Date.now() - (20 + i * 47) * MIN
+    });
   });
 
   /* ---------- إثراء التجربة: تصل جاهزة من نظام المزارات ---------- */
@@ -356,8 +380,10 @@ function seed() {
     by:'L2', at:Date.now() - 600 * MIN });
 
   /* البثّ — ما أُرسل */
+  const CDEST = ['muhsen','muhsen','hajj','muhsen','ctl','hajj'];
   st.casts = CAST_SEED.map((c, i) => ({
-    id: uid('C'), no: 'BR-' + (9100 + i), to: c.to, title: c.t, body: c.b,
+    id: uid('C'), no: 'BR-' + (9100 + i), dest: CDEST[i % CDEST.length], aud: 'all',
+    to: c.to, title: c.t, body: c.b,
     kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
   }));
 
@@ -398,7 +424,7 @@ function load() {
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.contractors = S.contractors || []; S.deals = S.deals || [];
   S.buses = S.buses || []; S.trips = S.trips || [];
-  S.open = S.open || {};
+  S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }

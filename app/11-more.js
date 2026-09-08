@@ -203,64 +203,6 @@ function GUIDE_STEP(kind, i) {
   return a[i - 1] || ('الخطوة ' + AR(i));
 }
 
-/* ══════════════ ٤) البثّ والإشعارات ══════════════ */
-function screenBroadcast() {
-  const cs = V.casts.slice().sort((a, b) => b.at - a.at);
-  const aud = S.tab.aud || CAST_AUD[0];
-  const kind = S.tab.ck || 'عادي';
-  const reach = cs.reduce((a, c) => a + c.seen, 0), of = cs.reduce((a, c) => a + c.of, 0);
-  return '<div class="grid g23">' +
-    '<div class="card gold">' +
-      head('رسالة جديدة', 'تصل التطبيق فورًا — وخارجه إن كان الجهاز مغلقًا', '', 'i-bell') +
-      '<div class="compose">' +
-        '<label class="fl2">إلى</label>' +
-        '<div class="chips">' + CAST_AUD.map(a =>
-          '<button class="chip2' + (a === aud ? ' on' : '') + '" data-a="seg" data-k="aud" ' +
-          'data-v="' + E(a) + '">' + E(a) + '</button>').join('') + '</div>' +
-        '<label class="fl2">الأهمية</label>' +
-        segmented('ck', [['عادي','عادي'],['عاجل','عاجل'],['حرج','حرج']], kind) +
-        '<label class="fl2">العنوان</label>' +
-        '<input class="fld" id="q-ct" data-q="ct" value="' + E(qOf('ct')) +
-          '" placeholder="سطر واحد يُقرأ في الإشعار">' +
-        '<label class="fl2">النصّ</label>' +
-        '<textarea class="fld" id="q-cb" data-q="cb" rows="4" ' +
-          'placeholder="ما الذي يجب أن يفعله من يقرأ؟">' + E(qOf('cb')) + '</textarea>' +
-        '<div class="fl" style="margin-top:14px;gap:10px">' +
-          '<button class="btn p" data-a="castsend" style="flex:1">' + icon('i-send','s16') + 'بثّ الآن</button>' +
-          '<button class="btn l" data-a="castclear">مسح</button>' +
-        '</div>' +
-        '<div class="tiny faint" style="margin-top:10px">' +
-          'يصل إلى: <b>' + E(aud) + '</b> — ويُسجَّل في سجل النظام باسمك ووقته.</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="card hov">' +
-      head('الوصول', 'كم فُتحت من المرسَل', '', 'i-eye') +
-      '<div class="donutwrap">' + donut({ data:[
-        { l:'فُتحت', v:reach, c:'var(--live)' },
-        { l:'لم تُفتح', v:Math.max(0, of - reach), c:'var(--line2)' }
-      ], center:'مستلم' }) + '</div>' +
-    '</div></div>' +
-
-    '<div class="card">' +
-      head('ما أُرسل', AR(cs.length) + ' رسالة — والأحدث أولًا', '', 'i-hist') +
-      '<div class="plist">' + cs.map((c, i) => {
-        const k = c.kind === 'حرج' ? 'no' : c.kind === 'عاجل' ? 'wait' : 'grey';
-        const pct = Math.round(c.seen / Math.max(1, c.of) * 100);
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
-          '<span class="ico">' + icon('i-bell','s18') + '</span>' +
-          '<span class="nm" style="flex:1"><b>' + E(c.title) + '</b>' +
-          '<span>' + LTR(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
-          pill(c.kind, k) + '<span class="tiny faint">' + ago(c.at) + '</span>' +
-          '<div style="width:100%;margin-top:9px">' +
-            '<div class="tiny muted">' + E(c.body) + '</div>' +
-            '<div class="fl" style="gap:10px;margin-top:9px">' +
-              '<span class="meter gold" style="flex:1"><i data-w="' + pct + '"></i></span>' +
-              '<span class="tiny faint num">' + AR(c.seen) + '/' + AR(c.of) + ' فتحوها</span>' +
-            '</div></div></div>';
-      }).join('') + '</div>' +
-    '</div>';
-}
-
 /* ══════════════ ٥) تبديل الشِفتات ══════════════ */
 function screenShifts() {
   const f = S.tab.sw || 'open';

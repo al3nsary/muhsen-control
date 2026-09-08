@@ -12,7 +12,8 @@ const SCREENS = {
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
 const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
+  'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock'];
 
@@ -768,19 +769,57 @@ document.addEventListener('click', ev => {
     case 'castsend': {
       const t = (S.q.ct || '').trim(), y = (S.q.cb || '').trim();
       if (!t) { toast('اكتب عنوانًا يُقرأ في الإشعار', 'r'); return; }
-      const to = S.tab.aud || CAST_AUD[0];
-      const of = to.indexOf('الليدرز') >= 0 ? leaders().length
-        : to.indexOf('الاحتياطي') >= 0 ? reserveTeam().length
-        : to.indexOf('كل المحسنين') >= 0 ? S.users.filter(u => u.role === 'muhsen' && !u.reserve).length
-        : 5;
+      const dest = S.tab.cdest || 'muhsen';
+      const aud = S.tab['caud_' + dest] || 'all';
+      const of = audN(dest, aud) || 1;
+      const toAr = audAr(dest, aud);
       S.casts.unshift({ id: uid('C'), no: 'BR-' + (9100 + S.casts.length),
-        to, title: t, body: y || '—', kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
-      logIt('بُثّت رسالة «' + t + '» إلى ' + to, 'cast');
+        dest, aud, to: toAr, title: t, body: y || '—',
+        kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
+      logIt('بُثّت «' + t + '» إلى ' + CAST_DEST[dest].ar + ' — ' + toAr +
+        ' (' + AR(of) + ' مستلمًا)', 'cast');
       S.q.ct = ''; S.q.cb = '';
-      toast('بُثّت إلى ' + to);
+      toast('بُثّت إلى ' + AR(of) + ' مستلمًا في ' + CAST_DEST[dest].ar);
       break;
     }
     case 'castclear': S.q.ct = ''; S.q.cb = ''; break;
+    /* ─── تخصيص اللوحة ─── */
+    case 'dashedit': dashEdit(); return;
+    case 'dashtog': {
+      const cur = dashKeys();
+      const i = cur.indexOf(v);
+      if (i >= 0) cur.splice(i, 1); else cur.push(v);
+      S.dash = cur; save(); dashEdit(); return;
+    }
+    case 'dashoff': {
+      S.dash = dashKeys().filter(x => x !== v); save(); dashEdit(); return;
+    }
+    case 'dashup': {
+      const c = dashKeys(), i = Number(v);
+      const t = c[i - 1]; c[i - 1] = c[i]; c[i] = t;
+      S.dash = c; save(); dashEdit(); return;
+    }
+    case 'dashdn': {
+      const c = dashKeys(), i = Number(v);
+      const t = c[i + 1]; c[i + 1] = c[i]; c[i] = t;
+      S.dash = c; save(); dashEdit(); return;
+    }
+    case 'dashreset': {
+      S.dash = DASH_DEFAULT.slice(); save(); dashEdit();
+      toast('عادت اللوحة إلى الافتراضي'); return;
+    }
+    case 'cfgtog': {
+      S.cfg[v] = S.cfg[v] === false;
+      logIt('غُيّر إعداد «' + v + '» إلى ' + (S.cfg[v] === false ? 'مطفأ' : 'مشغّل'), 'info');
+      break;
+    }
+    case 'cfgsave': {
+      S.cfg.name = (S.q.cfgname || '').trim() || 'مُحسن · الكنترول';
+      S.cfg.season = (S.q.cfgseason || '').trim() || 'موسم حج ١٤٤٨ هـ';
+      S.cfg.theme = S.tab.cfgtheme || 'sys';
+      logIt('حُفظت إعدادات الموقع', 'info');
+      toast('حُفظت'); break;
+    }
     /* الشِفتات */
     case 'swok': {
       const w = S.swaps.find(x => x.id === id); if (!w) return;

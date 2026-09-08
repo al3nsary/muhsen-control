@@ -1332,6 +1332,42 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .gwrap.wide{width:min(560px,100%)}
 
+/* ══ وجهات الإشعار ══ */
+.dests{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px}
+@media (max-width:900px){ .dests{grid-template-columns:1fr} }
+.dest{display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:12px;
+  border-radius:14px; text-align:right; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .24s var(--e)}
+.dest:hover{color:var(--ink); background:var(--sheen2)}
+.dest.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--dc);
+  background:color-mix(in srgb,var(--dc) 10%,transparent)}
+.dest b{font-size:12.5px} .dest span{font-size:10px; line-height:1.6}
+/* ══ مفتاح تشغيل ══ */
+.tgl{width:42px; height:24px; border-radius:99px; flex:none; position:relative;
+  background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background .26s var(--e)}
+.tgl i{position:absolute; top:3px; inset-inline-start:3px; width:18px; height:18px;
+  border-radius:50%; background:var(--dim2);
+  transition:inset-inline-start .28s var(--e2), background .26s var(--e)}
+.tgl.on{background:color-mix(in srgb,var(--live) 22%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--live) 45%,transparent)}
+.tgl.on i{inset-inline-start:21px; background:var(--live)}
+
+/* ══ شبكة اللوحة المخصَّصة — لا تُسمَّ dash فذاك صنف خطوط الخريطة ══ */
+.dashgrid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px;
+  align-items:start}
+.dw{min-width:0; animation:rise .55s var(--e3) both}
+.dw.w1{grid-column:span 1} .dw.w2{grid-column:span 2}
+.dw.w3{grid-column:span 3} .dw.w4{grid-column:span 4}
+.dw > .card{margin:0; height:100%}
+@media (max-width:1500px){ .dashgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dw.w3,.dw.w4{grid-column:span 3} }
+@media (max-width:1180px){ .dashgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dw.w2,.dw.w3,.dw.w4{grid-column:span 2} }
+@media (max-width:760px){ .dashgrid{grid-template-columns:1fr}
+  .dw,.dw.w2,.dw.w3,.dw.w4{grid-column:span 1} }
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
@@ -1872,8 +1908,8 @@ const TRIP_KIND = {
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 14;
-const APP_VER = 'نسخة ٠٫٩٫١';
+const SCHEMA = 16;
+const APP_VER = 'نسخة ١٫٠';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -1919,7 +1955,7 @@ function seed() {
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
     /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
-    grants: {}, actor: { perm: 'admin' }, open: {}
+    grants: {}, actor: { perm: 'admin' }, open: {}, cfg: {}, dash: []
   };
   S = st;
 
@@ -2048,6 +2084,30 @@ function seed() {
   /* من لم يدخل مجموعة يعود حرًّا: لا ليدر ولا مجموعة */
   st.users.forEach(u => {
     if (u.role === 'muhsen' && !u.reserve && !u.groupId) { u.leaderId = null; u.kt = '—'; }
+  });
+
+  /* ---------- طلبات الدعم: ما يرفعه الليدرز ---------- */
+  const SUP_WHY = [
+    'استُبعد محسنان لعدم الحاجة ثم تغيّر حجم الفوج',
+    'اعتذر محسنان لظرف صحّي قبل التفويج بساعتين',
+    'الفوج زاد أربعين حاجًّا عن الكشف الأوّل',
+    'مهمّة الجمرات تحتاج مرافقًا إضافيًّا لكبار السنّ',
+    'محسن الإعاشة في إجازة اضطرارية اليوم',
+    'تداخل موعد التفويج مع مهمّة الطواف',
+    'يحتاج ناطقًا بالملايوية لمجموعة جديدة',
+    'مشرف السكن طلب مرافقًا ليليًّا إضافيًّا'
+  ];
+  st.support = [];
+  SUP_WHY.forEach((why, i) => {
+    const t = st.tasks[(i * 13 + 5) % st.tasks.length];
+    const state = i < 4 ? 'pending' : i < 6 ? 'done' : 'no';
+    st.support.push({
+      id: uid('SP'), no: 'SP-' + (3001 + i), taskId: t.id, by: t.leaderId,
+      count: 1 + (i % 3), why, state,
+      reason: state === 'done' ? 'أُسند ' + AR(1 + (i % 3)) + ' من الاحتياط'
+        : state === 'no' ? 'الاحتياط مرتبط بعرفة — أعِد التوزيع داخل فريقك' : null,
+      at: Date.now() - (20 + i * 47) * MIN
+    });
   });
 
   /* ---------- إثراء التجربة: تصل جاهزة من نظام المزارات ---------- */
@@ -2226,8 +2286,10 @@ function seed() {
     by:'L2', at:Date.now() - 600 * MIN });
 
   /* البثّ — ما أُرسل */
+  const CDEST = ['muhsen','muhsen','hajj','muhsen','ctl','hajj'];
   st.casts = CAST_SEED.map((c, i) => ({
-    id: uid('C'), no: 'BR-' + (9100 + i), to: c.to, title: c.t, body: c.b,
+    id: uid('C'), no: 'BR-' + (9100 + i), dest: CDEST[i % CDEST.length], aud: 'all',
+    to: c.to, title: c.t, body: c.b,
     kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
   }));
 
@@ -2268,7 +2330,7 @@ function load() {
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.contractors = S.contractors || []; S.deals = S.deals || [];
   S.buses = S.buses || []; S.trips = S.trips || [];
-  S.open = S.open || {};
+  S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -2913,107 +2975,6 @@ function opsMap() {
   '</div>';
 }
 
-/* ---------- صفّ الأدوات العلوي ---------- */
-function opsBar() {
-  const rng = S.tab.rng || 'today';
-  return '<div class="opsbar">' +
-    '<div class="hello"><b>غرفة العمليات</b>' +
-      '<span class="tiny faint">' + dayName(now()) + ' · ' + hijri(now()) + ' — ' +
-      AR(leaders().length) + ' فرق · ' + AR(allPilgrims()) + ' حاجًّا تحت الإشراف</span></div>' +
-    '<span class="sp"></span>' +
-    segmented('rng', [['today','اليوم'],['week','الأسبوع'],['season','الموسم']], rng) +
-    '<button class="btn l sm" data-a="go" data-n="timeline">' + icon('i-hist','s16') + 'الخط الزمني</button>' +
-    '<button class="btn p sm" data-a="palette">' + icon('i-search','s16') + 'أمر سريع' +
-      '<span class="kbd2">Ctrl K</span></button>' +
-  '</div>';
-}
-
-/* نطاق المدة المختارة */
-function rangeTasks() {
-  const r = S.tab.rng || 'today';
-  if (r === 'season') return V.tasks.slice();
-  if (r === 'week') {
-    const a = dayStart(now()) - 3 * DAY, b = a + 7 * DAY;
-    return V.tasks.filter(t => t.start >= a && t.start < b);
-  }
-  return todayTasks();
-}
-
-function screenOps() {
-  const rng = S.tab.rng || 'today';
-  const scope = rangeTasks();
-  const live = runningTasks();
-  const done = scope.filter(t => t.status === 'done');
-  const auto = scope.filter(t => t.autoStarted).length;
-  const crit = openTickets().filter(k => k.pri === 'حرجة').length;
-  const queue = decisionItems();
-  const pend = queue.length;
-  const rngName = rng === 'today' ? 'اليوم' : rng === 'week' ? 'هذا الأسبوع' : 'الموسم';
-
-  return opsBar() +
-
-    '<div class="grid g4">' +
-      stat({ label:'مهام ' + rngName, n:scope.length, delta:scope.length - 8, ic:'i-tasks',
-        sub:AR(done.length) + ' منجزة · ' + AR(live.length) + ' جارية',
-        series:[6,8,7,11,9,13,10,Math.max(1,scope.length)] }) +
-      stat({ label:'قرارات تنتظرك', n:pend, delta:pend ? pend - 1 : 0, ic:'i-send',
-        cls:pend ? 'warn' : '', sub:AR(openSupport().length) + ' دعم · ' +
-        AR(escalatedReports().length) + ' تقرير مصعَّد', series:[1,2,1,3,2,4,3,Math.max(1,pend)] }) +
-      stat({ label:'تذاكر مفتوحة', n:openTickets().length, delta:2, ic:'i-ticket',
-        cls:crit ? 'bad' : '', sub:AR(crit) + ' حرجة · من الحجاج',
-        series:[3,5,4,6,5,8,6,Math.max(1,openTickets().length)] }) +
-      stat({ label:'التزام البدء', n:scope.length ? Math.round((1 - auto / Math.max(1, scope.length)) * 100) : 100,
-        suffix:'٪', delta:auto ? -auto : 0, ic:'i-play', cls:auto ? 'warn' : 'up',
-        sub:auto ? AR(auto) + ' مهمة بدأها النظام' : 'كل المهام بدأها ليدرها',
-        series:[88,90,86,92,89,94,91,100] }) +
-    '</div>' +
-
-    decisionQueue() +
-
-    '<div class="grid g23">' +
-      '<div class="card hov">' +
-        head('حِمل اليوم بالساعات', 'كم مهمة تعمل في كل نافذتين — والعمود المضيء هو الآن',
-          pill(AR(live.length) + ' الآن', live.length ? 'live' : 'grey'), 'i-hist') +
-        chartBars({ data: loadByHour(), foot: 'الذروة تكشف الساعات التي تحتاج احتياطًا جاهزًا.' }) +
-      '</div>' +
-      '<div class="card hov">' +
-        head('توزيع الحالات', 'من ' + AR(V.tasks.length) + ' مهمة في الموسم', '', 'i-pie') +
-        '<div class="donutwrap">' + donut({ data: statusMix(), center:'مهمة' }) + '</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="grid g23">' +
-      '<div class="card gold hov">' +
-        head('خريطة العمليات', 'المسارات الحيّة تتحرّك باتجاه التفويج',
-          '<span class="fl" style="gap:8px">' + pill(AR(live.length) + ' نشطة', 'live') +
-          '<button class="btn l sm" data-a="go" data-n="tasks">المهام</button></span>') +
-        opsMap() +
-        '<div class="maplegend">' +
-          '<span><i class="ok"></i>مستقر</span>' +
-          '<span><i class="wr"></i>مهام جارية</span>' +
-          '<span><i class="bd"></i>تجاوز الوقت</span>' +
-          '<span><i class="sn"></i>يتحرّك خلال ٦ ساعات</span>' +
-          '<span class="faint" style="margin-inline-start:auto">النقطة المتحرّكة رتل في طريقه</span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="card hov fillcol">' +
-        head('تدفّق الحوادث', 'مباشر من التطبيق',
-          '<button class="btn l sm" data-a="go" data-n="incidents">الكل</button>') +
-        '<div class="feed">' + V.feed.slice(0, 9).map((f, i) =>
-          '<div class="evt ' + f.kind + '" style="animation-delay:' + (i * 40) + 'ms">' +
-          '<span class="dot"></span>' +
-          '<span class="sp"><b>' + E(f.title) + '</b><p>' + E(f.body) + '</p></span>' +
-          '<span class="t">' + ago(f.at) + '</span></div>').join('') + '</div>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="card hov">' +
-      head('الفرق الميدانية', 'انقر صفًّا لفتح تفصيله · انقر عنوان عمود لتفرزه',
-        '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') + 'كل الفرق</button>') +
-      ktTable() +
-    '</div>';
-}
-
 /* ---------- درج الفريق ---------- */
 function ktDrawer(id) {
   const L = userById(id); if (!L) return;
@@ -3336,32 +3297,6 @@ function screenReports() {
       }).join('') + '</div>' : empty('لا تقارير في هذا التصنيف', '', 'i-flag')) + '</div>';
 }
 
-/* ---------- الإعدادات ---------- */
-function screenSettings() {
-  return '<div class="grid g2">' +
-    '<div class="card">' + head('التجربة', 'أدوات معاينة لا تُشحن للعميل', '', 'i-hour') +
-      '<div class="tiny muted" style="margin-bottom:12px">تقديم الساعة يكشف سلوك النوافذ الزمنية.</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        [['-60','− ساعة'],['-15','− ١٥ د'],['0','الآن'],['15','+ ١٥ د'],['60','+ ساعة'],['360','+ ٦ ساعات']]
-          .map(x => '<button class="btn l sm" data-a="clock" data-v="' + x[0] + '">' + x[1] + '</button>').join('') +
-      '</div>' +
-      '<div class="tiny faint" style="margin-top:12px">الإزاحة الحالية: ' +
-        AR(S.clockOffset || 0) + ' دقيقة</div>' +
-      '<button class="btn d" style="margin-top:16px" data-a="reset">' + icon('i-reset','s16') +
-        'إعادة ضبط كل البيانات</button>' +
-    '</div>' +
-    '<div class="card gold">' + head('عن النظام', 'مُحسن · الكنترول', '', 'i-shield') +
-      '<div class="tiny muted" style="line-height:2.1">' +
-      '· هذا النظام هو <b>المصدر الأصل</b>: منه تُخلق المهام والفرق والحجاج والأدلة.<br>' +
-      '· تطبيق الميدان يقرأ منه ويرفع إليه الطلبات والتقارير.<br>' +
-      '· مشروعان منفصلان في مستودعين — يربطهما العقد لا الملفات.</div>' +
-      '<div class="meta" style="margin-top:14px">' +
-        '<div><span class="k">النسخة</span><b>' + APP_VER.replace('نسخة ', '') + '</b></div>' +
-        '<div><span class="k">البنية</span><b class="num">' + AR(SCHEMA) + '</b></div>' +
-        '<div><span class="k">الشاشات</span><b class="num">' + AR(Object.keys(SCREENS).length) + '</b></div>' +
-      '</div>' +
-    '</div></div>';
-}
 
 /* ============================================================
    الشاشات الستّ التي كانت هيكلًا — بُنيت على البيانات الأصل
@@ -3566,64 +3501,6 @@ function GUIDE_STEP(kind, i) {
   };
   const a = M[kind] || [];
   return a[i - 1] || ('الخطوة ' + AR(i));
-}
-
-/* ══════════════ ٤) البثّ والإشعارات ══════════════ */
-function screenBroadcast() {
-  const cs = V.casts.slice().sort((a, b) => b.at - a.at);
-  const aud = S.tab.aud || CAST_AUD[0];
-  const kind = S.tab.ck || 'عادي';
-  const reach = cs.reduce((a, c) => a + c.seen, 0), of = cs.reduce((a, c) => a + c.of, 0);
-  return '<div class="grid g23">' +
-    '<div class="card gold">' +
-      head('رسالة جديدة', 'تصل التطبيق فورًا — وخارجه إن كان الجهاز مغلقًا', '', 'i-bell') +
-      '<div class="compose">' +
-        '<label class="fl2">إلى</label>' +
-        '<div class="chips">' + CAST_AUD.map(a =>
-          '<button class="chip2' + (a === aud ? ' on' : '') + '" data-a="seg" data-k="aud" ' +
-          'data-v="' + E(a) + '">' + E(a) + '</button>').join('') + '</div>' +
-        '<label class="fl2">الأهمية</label>' +
-        segmented('ck', [['عادي','عادي'],['عاجل','عاجل'],['حرج','حرج']], kind) +
-        '<label class="fl2">العنوان</label>' +
-        '<input class="fld" id="q-ct" data-q="ct" value="' + E(qOf('ct')) +
-          '" placeholder="سطر واحد يُقرأ في الإشعار">' +
-        '<label class="fl2">النصّ</label>' +
-        '<textarea class="fld" id="q-cb" data-q="cb" rows="4" ' +
-          'placeholder="ما الذي يجب أن يفعله من يقرأ؟">' + E(qOf('cb')) + '</textarea>' +
-        '<div class="fl" style="margin-top:14px;gap:10px">' +
-          '<button class="btn p" data-a="castsend" style="flex:1">' + icon('i-send','s16') + 'بثّ الآن</button>' +
-          '<button class="btn l" data-a="castclear">مسح</button>' +
-        '</div>' +
-        '<div class="tiny faint" style="margin-top:10px">' +
-          'يصل إلى: <b>' + E(aud) + '</b> — ويُسجَّل في سجل النظام باسمك ووقته.</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="card hov">' +
-      head('الوصول', 'كم فُتحت من المرسَل', '', 'i-eye') +
-      '<div class="donutwrap">' + donut({ data:[
-        { l:'فُتحت', v:reach, c:'var(--live)' },
-        { l:'لم تُفتح', v:Math.max(0, of - reach), c:'var(--line2)' }
-      ], center:'مستلم' }) + '</div>' +
-    '</div></div>' +
-
-    '<div class="card">' +
-      head('ما أُرسل', AR(cs.length) + ' رسالة — والأحدث أولًا', '', 'i-hist') +
-      '<div class="plist">' + cs.map((c, i) => {
-        const k = c.kind === 'حرج' ? 'no' : c.kind === 'عاجل' ? 'wait' : 'grey';
-        const pct = Math.round(c.seen / Math.max(1, c.of) * 100);
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 60) + 'ms">' +
-          '<span class="ico">' + icon('i-bell','s18') + '</span>' +
-          '<span class="nm" style="flex:1"><b>' + E(c.title) + '</b>' +
-          '<span>' + LTR(c.no) + ' · إلى ' + E(c.to) + '</span></span>' +
-          pill(c.kind, k) + '<span class="tiny faint">' + ago(c.at) + '</span>' +
-          '<div style="width:100%;margin-top:9px">' +
-            '<div class="tiny muted">' + E(c.body) + '</div>' +
-            '<div class="fl" style="gap:10px;margin-top:9px">' +
-              '<span class="meter gold" style="flex:1"><i data-w="' + pct + '"></i></span>' +
-              '<span class="tiny faint num">' + AR(c.seen) + '/' + AR(c.of) + ' فتحوها</span>' +
-            '</div></div></div>';
-      }).join('') + '</div>' +
-    '</div>';
 }
 
 /* ══════════════ ٥) تبديل الشِفتات ══════════════ */
@@ -6318,6 +6195,578 @@ function guideView(id) {
 }
 
 /* ============================================================
+   الإشعارات — ثلاث وجهات، ولكلٍّ فئاتها
+   تطبيق المحسن · تطبيق الحاجّ · الكنترول
+   ============================================================ */
+
+const CAST_DEST = {
+  muhsen: { ar:'تطبيق المحسن', i:'i-user',   c:'#0B7A4B',
+            d:'يصل الميدان في جهازه — ويوقظه إن كان مغلقًا' },
+  hajj:   { ar:'تطبيق الحاجّ',  i:'i-users',  c:'#6B4E9E',
+            d:'يصل الحاجّ بلغته — ويظهر في إشعاراته' },
+  ctl:    { ar:'الكنترول',      i:'i-target', c:'#1B6E9C',
+            d:'داخل غرفة العمليات لمن يحمل الصفة' }
+};
+
+/* فئات كل وجهة — تُبنى من البيانات الحيّة لا من قائمة ثابتة */
+function castAud(dest) {
+  if (dest === 'muhsen') return [
+    ['all',      'كل المحسنين',      S.users.filter(u => u.role === 'muhsen' && !u.reserve).length],
+    ['leaders',  'الليدرز',          leaders().length],
+    ['sups',     'المشرفون',         supervisors().length],
+    ['reserve',  'الفريق الاحتياطي', reserveTeam().length]
+  ].concat(S.orgs.map(o => ['kt:' + o.kt, o.kt + ' · ' + o.ar,
+      S.users.filter(u => u.kt === o.kt && u.role === 'muhsen').length]))
+   .concat(SPECS.map(s => ['sp:' + s, 'تخصّص ' + s,
+      S.users.filter(u => u.specialty === s && u.role === 'muhsen').length]));
+
+  if (dest === 'hajj') return [
+    ['all', 'كل الحجاج', allPilgrimRows().length],
+    ['arrived',  'من وصلوا',      allPilgrimRows().filter(p => p.state === 'وصل').length],
+    ['pending',  'من لم يصلوا',   allPilgrimRows().filter(p => p.state === 'لم يصل').length],
+    ['care',     'حالات الرعاية', allPilgrimRows().filter(p => p.flag).length]
+  ].concat(S.orgs.map(o => ['kt:' + o.kt, o.kt + ' · ' + o.ar,
+      (S.pilgrims[o.kt] || []).length]))
+   .concat(HOTELS.map(h => ['ht:' + h.id, 'نُزلاء ' + h.ar,
+      S.groups.filter(g => g.hotelId === h.id).reduce((a, g) =>
+        a + ((S.pilgrims[(orgById(g.orgId) || {}).kt] || []).length), 0)]));
+
+  return [['all', 'كل مستخدمي الكنترول', PERMS.length]]
+    .concat(PERMS.map(p => ['pm:' + p.k, 'صفة ' + p.ar, 1]));
+}
+const audAr = (dest, k) => (castAud(dest).find(x => x[0] === k) || [0, k])[1];
+const audN  = (dest, k) => (castAud(dest).find(x => x[0] === k) || [0, 0, 0])[2] || 0;
+
+function screenBroadcast() {
+  const dest = S.tab.cdest || 'muhsen';
+  const aud  = S.tab['caud_' + dest] || 'all';
+  const kind = S.tab.ck || 'عادي';
+  const cs = V.casts.slice().sort((a, b) => b.at - a.at);
+  const q = qOf('cst');
+  const fd = fOf('cst','dest');
+  let list = cs;
+  if (fd) list = list.filter(c => (c.dest || 'muhsen') === fd);
+  if (q) list = list.filter(c => (c.title + ' ' + c.body + ' ' + c.no).indexOf(q) >= 0);
+  const reach = cs.reduce((a, c) => a + c.seen, 0), of = cs.reduce((a, c) => a + c.of, 0);
+
+  return '<div class="grid g4">' +
+      stat({ label:'رسائل مُرسَلة', n:cs.length, ic:'i-bell',
+        sub:'على ثلاث وجهات', series:[2,4,6,8,10,12,13,cs.length] }) +
+      stat({ label:'نسبة الفتح', n:of ? Math.round(reach / of * 100) : 0, suffix:'٪',
+        ic:'i-eye', cls:'up', sub:AR(reach) + ' من ' + AR(of),
+        series:[52,60,66,70,74,78,82,of ? Math.round(reach / of * 100) : 0] }) +
+      stat({ label:'إلى الميدان', n:cs.filter(c => (c.dest || 'muhsen') === 'muhsen').length,
+        ic:'i-user', sub:'تطبيق المحسن', series:[1,2,3,4,5,6,7,8] }) +
+      stat({ label:'إلى الحجاج', n:cs.filter(c => c.dest === 'hajj').length, ic:'i-users',
+        sub:'تطبيق الحاجّ', series:[0,1,1,2,2,3,3,4] }) +
+    '</div>' +
+
+    '<div class="grid g23">' +
+      '<div class="card gold">' +
+        head('رسالة جديدة', 'اختر الوجهة أوّلًا — فالفئات تتبعها', '', 'i-bell') +
+        '<div class="compose">' +
+          '<label class="fl2" style="margin-top:0">الوجهة</label>' +
+          '<div class="dests">' + Object.keys(CAST_DEST).map(k => {
+            const D2 = CAST_DEST[k];
+            return '<button class="dest' + (dest === k ? ' on' : '') + '" ' +
+              'data-a="seg" data-k="cdest" data-v="' + k + '" style="--dc:' + D2.c + '">' +
+              '<span class="ico" style="color:' + D2.c + '">' + icon(D2.i,'s18') + '</span>' +
+              '<b>' + E(D2.ar) + '</b><span>' + E(D2.d) + '</span></button>';
+          }).join('') + '</div>' +
+
+          '<label class="fl2">الفئة المستهدَفة</label>' +
+          '<div class="chips">' + castAud(dest).map(a =>
+            '<button class="chip2' + (aud === a[0] ? ' on' : '') + '" ' +
+            'data-a="seg" data-k="caud_' + dest + '" data-v="' + E(a[0]) + '">' +
+            E(a[1]) + '<i style="font-style:normal;opacity:.65;margin-inline-start:5px">' +
+            AR(a[2]) + '</i></button>').join('') + '</div>' +
+
+          '<label class="fl2">الأهمية</label>' +
+          segmented('ck', [['عادي','عادي'],['عاجل','عاجل'],['حرج','حرج']], kind) +
+          '<label class="fl2">العنوان</label>' +
+          '<input class="fld" id="q-ct" data-q="ct" value="' + E(qOf('ct')) +
+            '" placeholder="سطر واحد يُقرأ في الإشعار">' +
+          '<label class="fl2">النصّ</label>' +
+          '<textarea class="fld" id="q-cb" data-q="cb" rows="4" ' +
+            'placeholder="ما الذي يجب أن يفعله من يقرأ؟">' + E(qOf('cb')) + '</textarea>' +
+          '<div class="fl" style="margin-top:14px;gap:10px">' +
+            '<button class="btn p" data-a="castsend" style="flex:1">' + icon('i-send','s16') +
+              'بثّ إلى ' + AR(audN(dest, aud)) + ' مستلمًا</button>' +
+            '<button class="btn l" data-a="castclear">مسح</button>' +
+          '</div>' +
+          '<div class="gnote">' + icon(CAST_DEST[dest].i,'s16') +
+            '<span><b>' + E(CAST_DEST[dest].ar) + '</b> — ' + E(audAr(dest, aud)) +
+            ' · ' + AR(audN(dest, aud)) + ' مستلمًا. ويُقيَّد في سجل النظام باسمك ووقته.</span></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card hov">' +
+        head('الوصول', 'كم فُتحت من المرسَل', '', 'i-eye') +
+        '<div class="donutwrap">' + donut({ data:[
+          { l:'فُتحت', v:reach, c:'var(--live)' },
+          { l:'لم تُفتح', v:Math.max(0, of - reach), c:'var(--line2)' }
+        ], center:'مستلم' }) + '</div>' +
+        '<div class="plist" style="margin-top:14px">' + Object.keys(CAST_DEST).map(k => {
+          const mine = cs.filter(c => (c.dest || 'muhsen') === k);
+          const r = mine.reduce((a, c) => a + c.seen, 0);
+          const o = mine.reduce((a, c) => a + c.of, 0);
+          return '<div class="prow" style="padding:10px 12px">' +
+            '<span class="ico" style="color:' + CAST_DEST[k].c + '">' +
+              icon(CAST_DEST[k].i,'s16') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(CAST_DEST[k].ar) + '</b>' +
+            '<span>' + AR(mine.length) + ' رسالة</span></span>' +
+            '<span class="fl" style="gap:8px;min-width:110px">' +
+              '<span class="meter" style="flex:1"><i data-w="' +
+                (o ? Math.round(r / o * 100) : 0) + '"></i></span>' +
+              '<b class="num">' + AR(o ? Math.round(r / o * 100) : 0) + '٪</b></span></div>';
+        }).join('') + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      head('ما أُرسل', AR(list.length) + ' من ' + AR(cs.length), '', 'i-hist') +
+      filterBar('cst', [
+        { k:'dest', label:'الوجهة', opts:Object.keys(CAST_DEST).map(k => [k, CAST_DEST[k].ar]) }
+      ], list.length, cs.length, 'ابحث بعنوان أو نصّ أو رقم…') +
+      (list.length ? '<div class="plist">' + list.map((c, i) => {
+        const D2 = CAST_DEST[c.dest || 'muhsen'];
+        const k = c.kind === 'حرج' ? 'no' : c.kind === 'عاجل' ? 'wait' : 'grey';
+        const pct = Math.round(c.seen / Math.max(1, c.of) * 100);
+        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
+          '<span class="krail" style="background:' + D2.c + '"></span>' +
+          '<span class="ico" style="color:' + D2.c + '">' + icon(D2.i,'s18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(c.title) + '</b>' +
+          '<span>' + LTR(c.no) + ' · ' + E(D2.ar) + ' · ' + E(c.to) + '</span></span>' +
+          pill(c.kind, k) + '<span class="tiny faint">' + ago(c.at) + '</span>' +
+          '<div style="width:100%;margin-top:9px">' +
+            '<div class="tiny muted">' + E(c.body) + '</div>' +
+            '<div class="fl" style="gap:10px;margin-top:9px">' +
+              '<span class="meter gold" style="flex:1"><i data-w="' + pct + '"></i></span>' +
+              '<span class="tiny faint num">' + AR(c.seen) + '/' + AR(c.of) + ' فتحوها</span>' +
+            '</div></div></div>';
+      }).join('') + '</div>' : empty('لا رسالة تطابق', '', 'i-bell')) +
+    '</div>';
+}
+
+/* ============================================================
+   إعدادات الموقع
+   ============================================================ */
+function screenSettings() {
+  const cfg = S.cfg = S.cfg || {};
+  return '<div class="grid g2">' +
+    '<div class="card">' + head('هوية الموقع', 'ما يظهر في الترويسة والبوّابة', '', 'i-shield') +
+      '<label class="fl2" style="margin-top:0">اسم النظام</label>' +
+      '<input class="fld" id="q-cfgname" data-q="cfgname" value="' +
+        E(cfg.name || 'مُحسن · الكنترول') + '">' +
+      '<label class="fl2">الموسم</label>' +
+      '<input class="fld" id="q-cfgseason" data-q="cfgseason" value="' +
+        E(cfg.season || 'موسم حج ١٤٤٨ هـ') + '">' +
+      '<label class="fl2">الوضع الافتراضي عند أوّل دخول</label>' +
+      segmented('cfgtheme', [['night','ليلي'],['day','نهاري'],['sys','يتبع الجهاز']],
+        cfg.theme || 'sys') +
+      '<button class="btn p" style="width:100%;margin-top:16px" data-a="cfgsave">' +
+        icon('i-checkc','s16') + 'حفظ إعدادات الموقع</button>' +
+    '</div>' +
+
+    '<div class="card">' + head('التشغيل', 'ما يضبط سلوك النظام', '', 'i-gear') +
+      '<div class="kvlist">' +
+        cfgRow('sms', 'إرسال الرسائل النصية', 'يُطفأ فتُسجَّل ولا تُرسَل') +
+        cfgRow('autostart', 'بدء المهام تلقائيًّا', 'إن لم يبدأها ليدرها في وقتها') +
+        cfgRow('notify', 'الإشعارات الخارجية', 'توقظ الجهاز المغلق') +
+        cfgRow('audit', 'تقييد كل إجراء في السجل', 'يُنصح بإبقائه') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('التجربة', 'أدوات معاينة لا تُشحن للعميل', '', 'i-hour') +
+      '<div class="tiny muted" style="margin-bottom:12px">تقديم الساعة يكشف سلوك النوافذ الزمنية.</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        [['-360','− ٦ ساعات'],['-60','− ساعة'],['-15','− ١٥ د'],['0','الآن'],
+         ['15','+ ١٥ د'],['60','+ ساعة'],['360','+ ٦ ساعات']]
+          .map(x => '<button class="btn l sm" data-a="clock" data-v="' + x[0] + '">' +
+            x[1] + '</button>').join('') +
+      '</div>' +
+      '<div class="tiny faint" style="margin-top:12px">الإزاحة الحالية: ' +
+        AR(S.clockOffset || 0) + ' دقيقة</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('البيانات', 'حجمها وإعادة ضبطها', '', 'i-list') +
+      '<div class="meta">' +
+        '<div><span class="k">موظفون</span><b class="num">' +
+          AR(S.users.filter(u => u.role !== 'x').length) + '</b></div>' +
+        '<div><span class="k">حجاج</span><b class="num">' + AR(allPilgrimRows().length) + '</b></div>' +
+        '<div><span class="k">مهام</span><b class="num">' + AR(S.tasks.length) + '</b></div>' +
+      '</div>' +
+      '<div class="tiny faint" style="margin-top:12px">' +
+        'الحجم في المتصفّح: ' + AR(storeKb()) + ' ك.ب · بنية ' + AR(SCHEMA) + '</div>' +
+      '<button class="btn d" style="margin-top:14px;width:100%" data-a="reset">' +
+        icon('i-reset','s16') + 'إعادة ضبط كل البيانات</button>' +
+    '</div>' +
+
+    '<div class="card gold">' + head('عن النظام', APP_VER, '', 'i-info') +
+      '<div class="tiny muted" style="line-height:2.1">' +
+      '· هذا النظام هو <b>المصدر الأصل</b>: منه تُخلق المهام والفرق والحجاج والأدلة.<br>' +
+      '· تطبيق الميدان يقرأ منه ويرفع إليه الطلبات والتقارير.<br>' +
+      '· مشروعان منفصلان في مستودعين — يربطهما العقد لا الملفات.</div>' +
+      '<div class="meta" style="margin-top:14px">' +
+        '<div><span class="k">النسخة</span><b>' + APP_VER.replace('نسخة ', '') + '</b></div>' +
+        '<div><span class="k">البنية</span><b class="num">' + AR(SCHEMA) + '</b></div>' +
+        '<div><span class="k">الشاشات</span><b class="num">' +
+          AR(Object.keys(SCREENS).length) + '</b></div>' +
+      '</div>' +
+    '</div></div>';
+}
+function cfgRow(k, label, note) {
+  const on = S.cfg[k] !== false;
+  return '<div class="kv2"><span class="ico sm">' + icon(on ? 'i-checkc' : 'i-x','s14') + '</span>' +
+    '<span class="k" style="flex:1;min-width:0"><b style="display:block;font-size:12.5px;' +
+      'color:var(--ink)">' + E(label) + '</b>' + E(note) + '</span>' +
+    '<button class="tgl' + (on ? ' on' : '') + '" data-a="cfgtog" data-v="' + k + '">' +
+      '<i></i></button></div>';
+}
+const storeKb = () => {
+  try { return Math.round((localStorage.getItem(KEY) || '').length / 1024); }
+  catch (e) { return 0; }
+};
+
+/* ============================================================
+   لوحة عمليات تُخصَّص
+   ─────────────────────────────────────────────────────────────
+   كل عنصر «ودجت» له مفتاح ومقاس وراسم. المشغّل يختار ما يريد
+   ويعيد ترتيبه، ويُحفظ اختياره. والافتراض لوحة كاملة معقولة.
+   ============================================================ */
+
+const WIDGETS = [
+  /* ── مؤشّرات ── */
+  { k:'kpiTasks',   ar:'مؤشّر المهام',        g:'مؤشّرات', w:1, i:'i-tasks',  f:wTasksKpi },
+  { k:'kpiDecide',  ar:'مؤشّر القرارات',      g:'مؤشّرات', w:1, i:'i-send',   f:wDecideKpi },
+  { k:'kpiTickets', ar:'مؤشّر التذاكر',       g:'مؤشّرات', w:1, i:'i-ticket', f:wTicketsKpi },
+  { k:'kpiStart',   ar:'مؤشّر التزام البدء',  g:'مؤشّرات', w:1, i:'i-play',   f:wStartKpi },
+  { k:'kpiStaff',   ar:'مؤشّر الموظفين',      g:'مؤشّرات', w:1, i:'i-idcard', f:wStaffKpi },
+  { k:'kpiPil',     ar:'مؤشّر الحجاج',        g:'مؤشّرات', w:1, i:'i-users',  f:wPilKpi },
+  { k:'kpiBus',     ar:'مؤشّر الباصات',       g:'مؤشّرات', w:1, i:'i-bus',    f:wBusKpi },
+  { k:'kpiNusuk',   ar:'مؤشّر نُسك',          g:'مؤشّرات', w:1, i:'i-idcard', f:wNusukKpi },
+  { k:'kpiQuality', ar:'مؤشّر الجودة',        g:'مؤشّرات', w:1, i:'i-star',   f:wQualityKpi },
+  { k:'kpiAfasha',  ar:'مؤشّر العفاشة',       g:'مؤشّرات', w:1, i:'i-truck',  f:wAfashaKpi },
+
+  /* ── رسوم ── */
+  { k:'chLoad',     ar:'حِمل اليوم بالساعات', g:'رسوم', w:2, i:'i-hist',   f:wLoad },
+  { k:'chStatus',   ar:'توزيع حالات المهام',  g:'رسوم', w:1, i:'i-pie',    f:wStatus },
+  { k:'chTypes',    ar:'أنواع العمل',         g:'رسوم', w:1, i:'i-tasks',  f:wTypes },
+  { k:'chOrgs',     ar:'الحِمل حسب الجهة',    g:'رسوم', w:2, i:'i-flag',   f:wOrgs },
+  { k:'chInc',      ar:'الحوادث حسب النوع',   g:'رسوم', w:1, i:'i-warn',   f:wInc },
+  { k:'chRating',   ar:'توزيع التقييمات',     g:'رسوم', w:1, i:'i-star',   f:wRating },
+  { k:'chHotels',   ar:'إشغال الفنادق',       g:'رسوم', w:2, i:'i-key',    f:wHotels },
+  { k:'chBusDay',   ar:'رحلات الباصات اليوم', g:'رسوم', w:2, i:'i-bus',    f:wBusDay },
+
+  /* ── قوائم ── */
+  { k:'queue',      ar:'صفّ القرارات',        g:'قوائم', w:3, i:'i-send',   f:wQueue },
+  { k:'feed',       ar:'تدفّق الحوادث',       g:'قوائم', w:1, i:'i-warn',   f:wFeed },
+  { k:'nextTasks',  ar:'المهام القادمة',      g:'قوائم', w:1, i:'i-cal',    f:wNext },
+  { k:'liveTasks',  ar:'الجارية الآن',        g:'قوائم', w:1, i:'i-play',   f:wLive },
+  { k:'ktTable',    ar:'جدول الفرق',          g:'قوائم', w:3, i:'i-users',  f:wKt },
+  { k:'topStaff',   ar:'أعلى المحسنين تقييمًا', g:'قوائم', w:1, i:'i-star', f:wTop },
+  { k:'busNext',    ar:'الرحلات القادمة',     g:'قوائم', w:1, i:'i-bus',    f:wBusNext },
+  { k:'nusukOpen',  ar:'حالات نُسك المفتوحة', g:'قوائم', w:1, i:'i-idcard', f:wNusukList },
+
+  /* ── خرائط ── */
+  { k:'map',        ar:'خريطة العمليات',      g:'خرائط', w:2, i:'i-pin',    f:wMap },
+  { k:'gantt',      ar:'مسار الباصات',        g:'خرائط', w:3, i:'i-bus',    f:wGantt }
+];
+const widgetOf = k => WIDGETS.find(w => w.k === k);
+const DASH_DEFAULT = ['kpiTasks','kpiDecide','kpiTickets','kpiStart',
+  'queue','chLoad','chStatus','map','feed','ktTable'];
+const dashKeys = () => (S.dash && S.dash.length ? S.dash : DASH_DEFAULT.slice())
+  .filter(widgetOf);
+
+function screenOps() {
+  const keys = dashKeys();
+  const rng = S.tab.rng || 'today';
+  return '<div class="opsbar">' +
+    '<div class="hello"><b>' + E((S.cfg && S.cfg.name) || 'غرفة العمليات') + '</b>' +
+      '<span class="tiny faint">' + dayName(now()) + ' · ' + hijri(now()) + ' — ' +
+      AR(leaders().length) + ' فرق · ' + AR(allPilgrimRows().length) + ' حاجًّا</span></div>' +
+    '<span class="sp"></span>' +
+    segmented('rng', [['today','اليوم'],['week','الأسبوع'],['season','الموسم']], rng) +
+    '<button class="btn l sm" data-a="go" data-n="timeline">' + icon('i-hist','s16') + 'الخط الزمني</button>' +
+    '<button class="btn p sm" data-a="dashedit">' + icon('i-gear','s16') + 'تخصيص اللوحة' +
+      '<span class="kbd2">' + AR(keys.length) + '</span></button>' +
+  '</div>' +
+  (keys.length
+    ? '<div class="dashgrid">' + keys.map((k, i) => {
+        const w = widgetOf(k);
+        return '<div class="dw w' + w.w + '" style="animation-delay:' + (i * 45) + 'ms">' +
+          w.f() + '</div>';
+      }).join('') + '</div>'
+    : '<div class="card">' + empty('اللوحة فارغة', 'اضغط «تخصيص اللوحة» واختر ما يهمّك', 'i-target') +
+      '</div>');
+}
+
+/* ---------- محرّر اللوحة ---------- */
+function dashEdit() {
+  const keys = dashKeys();
+  const groups = [...new Set(WIDGETS.map(w => w.g))];
+  S.drawer = { title:'تخصيص لوحة العمليات',
+    sub:'اختر ما يهمّك ورتّبه — يُحفظ لك وحدك', icon:'i-gear', body:
+
+    '<div class="card gold">' + head('لوحتك الآن', AR(keys.length) + ' عنصرًا — الأعلى أوّلًا',
+        '<button class="btn l sm" data-a="dashreset">الافتراضي</button>') +
+      (keys.length ? '<div class="plist">' + keys.map((k, i) => {
+        const w = widgetOf(k);
+        return '<div class="prow" style="padding:9px 11px">' +
+          '<span class="sn">' + AR(i + 1) + '</span>' +
+          '<span class="ico sm" style="color:var(--gold2)">' + icon(w.i,'s14') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(w.ar) + '</b>' +
+          '<span>' + E(w.g) + ' · عرض ' + AR(w.w) + '</span></span>' +
+          '<span class="fl" style="gap:4px">' +
+            (i > 0 ? '<button class="xbtn" data-a="dashup" data-v="' + i + '" title="أعلى">' +
+              icon('i-back','s14') + '</button>' : '') +
+            (i < keys.length - 1 ? '<button class="xbtn" data-a="dashdn" data-v="' + i +
+              '" title="أسفل">' + icon('i-fwd','s14') + '</button>' : '') +
+            '<button class="xbtn" data-a="dashoff" data-v="' + k + '">' + icon('i-x','s14') + '</button>' +
+          '</span></div>';
+      }).join('') + '</div>' : '<div class="tiny faint">لا عنصر — اختر من الأسفل.</div>') +
+    '</div>' +
+
+    groups.map(g => '<div class="card">' +
+      head(g, AR(WIDGETS.filter(w => w.g === g).length) + ' عنصرًا') +
+      '<div class="permgrid">' + WIDGETS.filter(w => w.g === g).map(w => {
+        const on = keys.indexOf(w.k) >= 0;
+        return '<button class="pchk' + (on ? ' on' : '') + '" data-a="dashtog" data-v="' + w.k + '">' +
+          '<span class="box">' + (on ? icon('i-checkc','s14') : '') + '</span>' +
+          icon(w.i,'s16') + '<b>' + E(w.ar) + '</b></button>';
+      }).join('') + '</div></div>').join('')
+  };
+  renderDrawer();
+}
+
+/* ============================================================
+   الودجتس — كل واحد يقرأ الرؤية V فيحترم الصلاحية
+   ============================================================ */
+function rangeTasks() {
+  const r = S.tab.rng || 'today';
+  if (r === 'season') return V.tasks.slice();
+  if (r === 'week') {
+    const a = dayStart(now()) - 3 * DAY, b = a + 7 * DAY;
+    return V.tasks.filter(t => t.start >= a && t.start < b);
+  }
+  return V.tasks.filter(t => dayStart(t.start) === dayStart(now()));
+}
+
+function wTasksKpi() {
+  const s = rangeTasks(), d = s.filter(t => t.status === 'done');
+  return stat({ label:'مهام المدة', n:s.length, delta:s.length - 8, ic:'i-tasks',
+    sub:AR(d.length) + ' منجزة · ' + AR(runningTasks().length) + ' جارية',
+    series:[6,8,7,11,9,13,10,Math.max(1, s.length)] });
+}
+function wDecideKpi() {
+  const n = decisionItems().length;
+  return stat({ label:'قرارات تنتظرك', n, delta:n ? n - 1 : 0, ic:'i-send',
+    cls:n ? 'warn' : 'up', sub:AR(openSupport().length) + ' دعم · ' +
+      AR(escalatedReports().length) + ' تقرير', series:[1,2,1,3,2,4,3,Math.max(1, n)] });
+}
+function wTicketsKpi() {
+  const crit = V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
+  return stat({ label:'تذاكر مفتوحة', n:openTickets().length, delta:2, ic:'i-ticket',
+    cls:crit ? 'bad' : '', sub:AR(crit) + ' حرجة · من الحجاج',
+    series:[3,5,4,6,5,8,6,Math.max(1, openTickets().length)] });
+}
+function wStartKpi() {
+  const s = rangeTasks(), auto = s.filter(t => t.autoStarted).length;
+  const pct = s.length ? Math.round((1 - auto / s.length) * 100) : 100;
+  return stat({ label:'التزام البدء', n:pct, suffix:'٪', delta:auto ? -auto : 0,
+    ic:'i-play', cls:auto ? 'warn' : 'up',
+    sub:auto ? AR(auto) + ' مهمة بدأها النظام' : 'كل المهام بدأها ليدرها',
+    series:[88,90,86,92,89,94,91,pct] });
+}
+function wStaffKpi() {
+  const n = V.users.filter(u => u.role === 'muhsen' && !u.reserve).length;
+  return stat({ label:'المحسنون', n, ic:'i-idcard', cls:'up',
+    sub:AR(leaders().length) + ' ليدرًا · ' + AR(supervisors().length) + ' مشرفًا',
+    series:[40,70,100,120,140,150,158,n] });
+}
+function wPilKpi() {
+  const all = allPilgrimRows();
+  const arr = all.filter(p => p.state === 'وصل').length;
+  return stat({ label:'الحجاج', n:all.length, ic:'i-users',
+    sub:AR(arr) + ' وصلوا · ' + AR(all.filter(p => p.flag).length) + ' حالة رعاية',
+    series:[380,620,900,1180,1400,1550,1640,all.length] });
+}
+function wBusKpi() {
+  const t = V.trips.filter(x => dayStart(x.at) === dayStart(now()));
+  return stat({ label:'رحلات اليوم', n:t.length, ic:'i-bus',
+    sub:AR(V.buses.length) + ' باصات · ' + AR(t.filter(x => x.done).length) + ' انتهت',
+    series:[12,18,24,30,36,42,48,Math.max(1, t.length)] });
+}
+function wNusukKpi() {
+  return stat({ label:'حالات نُسك', n:openNusuk().length, ic:'i-idcard',
+    cls:openNusuk().length ? 'warn' : 'up', sub:'مفتوحة تنتظر إجراءً',
+    series:[2,3,4,3,5,4,6,Math.max(1, openNusuk().length)] });
+}
+function wQualityKpi() {
+  const d = V.tasks.filter(t => t.status === 'done' && t.rating);
+  const avg = d.length ? (d.reduce((a, t) => a + t.rating, 0) / d.length).toFixed(1) : '0.0';
+  return stat({ label:'متوسط التقييم', n:avg, ic:'i-star', cls:'up',
+    sub:'من ' + AR(d.length) + ' مهمة مقيَّمة', series:[3.6,3.7,3.9,4,4.1,4,4.2,Number(avg)] });
+}
+function wAfashaKpi() {
+  const ag = V.contractors.filter(c => {
+    const d = lastDeal(c.id); return d && (d.state === 'agreed' || d.state === 'offline'); }).length;
+  return stat({ label:'مقاولو العفاشة', n:V.contractors.length, ic:'i-truck',
+    sub:AR(ag) + ' متعاقَد معهم', series:[2,4,6,8,9,10,10,V.contractors.length] });
+}
+
+/* ── رسوم ── */
+function card(title, sub, body, ic, right) {
+  return '<div class="card hov">' + head(title, sub, right || '', ic) + body + '</div>';
+}
+function wLoad() {
+  return card('حِمل اليوم بالساعات', 'كل نافذة ساعتان — والعمود المضيء هو الآن',
+    chartBars({ data: loadByHour(), foot:'الذروة تكشف الساعات التي تحتاج احتياطًا جاهزًا.' }),
+    'i-hist', pill(AR(runningTasks().length) + ' الآن', runningTasks().length ? 'live' : 'grey'));
+}
+function wStatus() {
+  return card('توزيع الحالات', 'من ' + AR(V.tasks.length) + ' مهمة',
+    '<div class="donutwrap">' + donut({ data: statusMix(), center:'مهمة' }) + '</div>', 'i-pie');
+}
+function wTypes() {
+  const d = Object.keys(TASKTYPE).map(k => ({
+    l: TASKTYPE[k].ar, c: TASKTYPE[k].c,
+    v: k === 'hajj' ? V.tasks.length : k === 'enrich' ? V.enrich.length
+      : k === 'nusuk' ? V.nusuk.length : V.subs.length
+  })).filter(x => x.v);
+  return card('أنواع العمل', 'أين يتوزّع الجهد',
+    '<div class="donutwrap">' + donut({ data:d, center:'بند' }) + '</div>', 'i-tasks');
+}
+function wOrgs() {
+  const d = V.orgs.slice(0, 12).map(o => ({
+    l: o.kt.replace('KT',''), v: V.tasks.filter(t => t.kt === o.kt).length, hot:false }));
+  return card('الحِمل حسب الجهة', 'عدد مهام كل KT',
+    chartBars({ data:d, foot:'الجهة الأثقل تستحق احتياطًا أقرب.' }), 'i-flag');
+}
+function wInc() {
+  const d = INC_CATS.map(c => ({ l:c.ar, v:V.feed.filter(f => f.cat === c.k).length, c:c.c }))
+    .filter(x => x.v);
+  return card('الحوادث حسب النوع', 'ما يتكرّر يُعالَج من جذره',
+    '<div class="donutwrap">' + donut({ data:d, center:'حادثة' }) + '</div>', 'i-warn');
+}
+function wRating() {
+  const d = V.tasks.filter(t => t.status === 'done' && t.rating);
+  const a = [5,4,3,2,1].map(n => ({ l:AR(n), v:d.filter(t => Math.round(t.rating) === n).length }));
+  return card('توزيع التقييمات', 'أين تتكدّس المهام', chartBars({ data:a }), 'i-star');
+}
+function wHotels() {
+  const d = HOTELS.slice(0, 12).map(h => ({
+    l:h.ar.split(' ')[h.ar.split(' ').length - 1],
+    v:V.groups.filter(g => g.hotelId === h.id).length, hot:false }));
+  return card('إشغال الفنادق', 'كم مجموعة في كل فندق',
+    chartBars({ data:d, foot:'الفندق بلا مجموعة يعني عقدًا معطّلًا.' }), 'i-key');
+}
+function wBusDay() {
+  const d0 = dayStart(now());
+  const d = V.buses.map(b => ({ l:b.no.replace('باص ',''),
+    v:V.trips.filter(t => t.busId === b.id && dayStart(t.at) === d0).length, hot:false }));
+  return card('رحلات الباصات اليوم', 'توزيع الحِمل على الأسطول',
+    chartBars({ data:d, foot:'الباص الفارغ يُسنَد إليه، والمزدحم يُخفَّف.' }), 'i-bus');
+}
+
+/* ── قوائم ── */
+function wQueue() { return decisionQueue(); }
+function wFeed() {
+  return '<div class="card hov fillcol">' +
+    head('تدفّق الحوادث', 'مباشر من الميدان',
+      '<button class="btn l sm" data-a="go" data-n="incidents">الكل</button>', 'i-warn') +
+    '<div class="feed">' + V.feed.slice(0, 9).map((f, i) =>
+      '<div class="evt ' + f.kind + '" style="animation-delay:' + (i * 40) + 'ms">' +
+      '<span class="dot"></span><span class="sp"><b>' + E(f.title) + '</b>' +
+      '<p>' + E(f.body) + '</p></span><span class="t">' + ago(f.at) + '</span></div>').join('') +
+    '</div></div>';
+}
+function taskMini(t) {
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
+  return '<div class="prow" data-a="tlopen" data-id="' + t.id + '" style="padding:10px 12px">' +
+    '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
+      icon(c.i || 'i-tasks','s16') + '</span>' +
+    '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
+    '<span>' + E(t.kt) + ' · ' + E(L.name || '') + '</span></span>' +
+    '<span class="tiny faint num">' + t12(t.start) + '</span></div>';
+}
+function wNext() {
+  const n = V.tasks.filter(t => t.start > now()).sort((a, b) => a.start - b.start).slice(0, 7);
+  return card('المهام القادمة', AR(n.length) + ' مهمة',
+    n.length ? '<div class="plist">' + n.map(taskMini).join('') + '</div>'
+      : empty('لا مهام قادمة', '', 'i-cal'), 'i-cal');
+}
+function wLive() {
+  const n = runningTasks().slice(0, 7);
+  return card('الجارية الآن', AR(n.length) + ' مهمة',
+    n.length ? '<div class="plist">' + n.map(taskMini).join('') + '</div>'
+      : empty('لا مهمة جارية', 'وهذا خبر جيّد', 'i-checkc'), 'i-play');
+}
+function wKt() {
+  return '<div class="card hov">' +
+    head('الفرق الميدانية', 'انقر صفًّا لتفصيله · انقر عنوان عمود لتفرزه',
+      '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') +
+      'كل الفرق</button>', 'i-users') + ktTable() + '</div>';
+}
+function wTop() {
+  const ms = V.users.filter(u => u.role === 'muhsen' && u.groupId)
+    .map(u => ({ u, r:muhsenRating(u.id) })).sort((a, b) => b.r - a.r).slice(0, 7);
+  return card('أعلى المحسنين تقييمًا', 'من الفرق المشكَّلة',
+    '<div class="plist">' + ms.map((x, i) =>
+      '<div class="prow" data-a="staffopen" data-id="' + x.u.id + '" style="padding:9px 11px">' +
+      '<span class="rk' + (i === 0 ? ' top' : '') + '">' + AR(i + 1) + '</span>' +
+      avatar(x.u, 'sm') +
+      '<span class="nm" style="flex:1"><b>' + E(x.u.name) + '</b>' +
+      '<span>' + E(x.u.kt) + ' · ' + E(x.u.specialty) + '</span></span>' +
+      stars(x.r) + '</div>').join('') + '</div>', 'i-star');
+}
+function wBusNext() {
+  const n = V.trips.filter(t => t.at > now()).sort((a, b) => a.at - b.at).slice(0, 7);
+  return card('الرحلات القادمة', AR(n.length) + ' رحلة',
+    n.length ? '<div class="plist">' + n.map(t => {
+      const b = busById(t.busId) || {};
+      return '<div class="prow" data-a="tropen" data-id="' + t.id + '" style="padding:10px 12px">' +
+        '<span class="ico" style="color:' + (b.color || 'var(--dim)') + '">' +
+          icon('i-bus','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(t.to) + '</b>' +
+        '<span>' + E(b.no || '') + ' · ' + AR(t.riders.length) + ' راكبًا</span></span>' +
+        '<span class="tiny faint num">' + t12(t.at) + '</span></div>';
+    }).join('') + '</div>' : empty('لا رحلة قادمة', '', 'i-bus'), 'i-bus');
+}
+function wNusukList() {
+  const n = openNusuk().slice(0, 7);
+  return card('حالات نُسك المفتوحة', AR(n.length) + ' حالة',
+    n.length ? '<div class="plist">' + n.map(c =>
+      '<div class="prow" data-a="nopen" data-id="' + c.id + '" style="padding:10px 12px">' +
+      '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' +
+        icon(NUSUK_SVC[c.svc].i,'s16') + '</span>' +
+      '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
+      '<span>' + E(NUSUK_SVC[c.svc].ar) + ' · ' + E(c.kt) + '</span></span>' +
+      pill(NUSUK_STATE[c.state].ar, NUSUK_STATE[c.state].c) + '</div>').join('') + '</div>'
+      : empty('لا حالة مفتوحة', '', 'i-checkc'), 'i-idcard');
+}
+
+/* ── خرائط ── */
+function wMap() {
+  return '<div class="card gold hov">' +
+    head('خريطة العمليات', 'المسارات الحيّة تتحرّك باتجاه التفويج',
+      '<span class="fl" style="gap:8px">' + pill(AR(runningTasks().length) + ' نشطة', 'live') +
+      '<button class="btn l sm" data-a="go" data-n="tasks">المهام</button></span>', 'i-pin') +
+    opsMap() +
+    '<div class="maplegend">' +
+      '<span><i class="ok"></i>مستقر</span><span><i class="wr"></i>مهام جارية</span>' +
+      '<span><i class="bd"></i>تجاوز الوقت</span><span><i class="sn"></i>يتحرّك خلال ٦ ساعات</span>' +
+      '<span class="faint" style="margin-inline-start:auto">النقطة المتحرّكة رتل في طريقه</span>' +
+    '</div></div>';
+}
+function wGantt() {
+  return '<div class="card hov">' +
+    head('مسار الباصات اليوم', 'كل صفٍّ باصّ — والخطّ الأحمر هو الآن',
+      '<button class="btn l sm" data-a="go" data-n="transport">النقل</button>', 'i-bus') +
+    busGantt(dayStart(now())) + '</div>';
+}
+
+/* ============================================================
    الخط الزمني للموسم — كل مهام كل الفرق في شاشة واحدة
    ترى التداخل والفجوة والضغط بنظرة، وتفتح أيّ مهمة بنقرة.
    ============================================================ */
@@ -6664,7 +7113,7 @@ function repaintDrawer() { if (lastDrawer) lastDrawer(); }
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
- 'whoDrawer'].forEach(n => {
+ 'whoDrawer','dashEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
@@ -6815,7 +7264,8 @@ const SCREENS = {
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
 const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
+  'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock'];
 
@@ -7571,19 +8021,57 @@ document.addEventListener('click', ev => {
     case 'castsend': {
       const t = (S.q.ct || '').trim(), y = (S.q.cb || '').trim();
       if (!t) { toast('اكتب عنوانًا يُقرأ في الإشعار', 'r'); return; }
-      const to = S.tab.aud || CAST_AUD[0];
-      const of = to.indexOf('الليدرز') >= 0 ? leaders().length
-        : to.indexOf('الاحتياطي') >= 0 ? reserveTeam().length
-        : to.indexOf('كل المحسنين') >= 0 ? S.users.filter(u => u.role === 'muhsen' && !u.reserve).length
-        : 5;
+      const dest = S.tab.cdest || 'muhsen';
+      const aud = S.tab['caud_' + dest] || 'all';
+      const of = audN(dest, aud) || 1;
+      const toAr = audAr(dest, aud);
       S.casts.unshift({ id: uid('C'), no: 'BR-' + (9100 + S.casts.length),
-        to, title: t, body: y || '—', kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
-      logIt('بُثّت رسالة «' + t + '» إلى ' + to, 'cast');
+        dest, aud, to: toAr, title: t, body: y || '—',
+        kind: S.tab.ck || 'عادي', seen: 0, of, at: now() });
+      logIt('بُثّت «' + t + '» إلى ' + CAST_DEST[dest].ar + ' — ' + toAr +
+        ' (' + AR(of) + ' مستلمًا)', 'cast');
       S.q.ct = ''; S.q.cb = '';
-      toast('بُثّت إلى ' + to);
+      toast('بُثّت إلى ' + AR(of) + ' مستلمًا في ' + CAST_DEST[dest].ar);
       break;
     }
     case 'castclear': S.q.ct = ''; S.q.cb = ''; break;
+    /* ─── تخصيص اللوحة ─── */
+    case 'dashedit': dashEdit(); return;
+    case 'dashtog': {
+      const cur = dashKeys();
+      const i = cur.indexOf(v);
+      if (i >= 0) cur.splice(i, 1); else cur.push(v);
+      S.dash = cur; save(); dashEdit(); return;
+    }
+    case 'dashoff': {
+      S.dash = dashKeys().filter(x => x !== v); save(); dashEdit(); return;
+    }
+    case 'dashup': {
+      const c = dashKeys(), i = Number(v);
+      const t = c[i - 1]; c[i - 1] = c[i]; c[i] = t;
+      S.dash = c; save(); dashEdit(); return;
+    }
+    case 'dashdn': {
+      const c = dashKeys(), i = Number(v);
+      const t = c[i + 1]; c[i + 1] = c[i]; c[i] = t;
+      S.dash = c; save(); dashEdit(); return;
+    }
+    case 'dashreset': {
+      S.dash = DASH_DEFAULT.slice(); save(); dashEdit();
+      toast('عادت اللوحة إلى الافتراضي'); return;
+    }
+    case 'cfgtog': {
+      S.cfg[v] = S.cfg[v] === false;
+      logIt('غُيّر إعداد «' + v + '» إلى ' + (S.cfg[v] === false ? 'مطفأ' : 'مشغّل'), 'info');
+      break;
+    }
+    case 'cfgsave': {
+      S.cfg.name = (S.q.cfgname || '').trim() || 'مُحسن · الكنترول';
+      S.cfg.season = (S.q.cfgseason || '').trim() || 'موسم حج ١٤٤٨ هـ';
+      S.cfg.theme = S.tab.cfgtheme || 'sys';
+      logIt('حُفظت إعدادات الموقع', 'info');
+      toast('حُفظت'); break;
+    }
     /* الشِفتات */
     case 'swok': {
       const w = S.swaps.find(x => x.id === id); if (!w) return;

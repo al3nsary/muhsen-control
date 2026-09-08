@@ -1323,6 +1323,42 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .gwrap.wide{width:min(560px,100%)}
 
+/* ══ وجهات الإشعار ══ */
+.dests{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px}
+@media (max-width:900px){ .dests{grid-template-columns:1fr} }
+.dest{display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:12px;
+  border-radius:14px; text-align:right; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .24s var(--e)}
+.dest:hover{color:var(--ink); background:var(--sheen2)}
+.dest.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--dc);
+  background:color-mix(in srgb,var(--dc) 10%,transparent)}
+.dest b{font-size:12.5px} .dest span{font-size:10px; line-height:1.6}
+/* ══ مفتاح تشغيل ══ */
+.tgl{width:42px; height:24px; border-radius:99px; flex:none; position:relative;
+  background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line2);
+  transition:background .26s var(--e)}
+.tgl i{position:absolute; top:3px; inset-inline-start:3px; width:18px; height:18px;
+  border-radius:50%; background:var(--dim2);
+  transition:inset-inline-start .28s var(--e2), background .26s var(--e)}
+.tgl.on{background:color-mix(in srgb,var(--live) 22%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--live) 45%,transparent)}
+.tgl.on i{inset-inline-start:21px; background:var(--live)}
+
+/* ══ شبكة اللوحة المخصَّصة — لا تُسمَّ dash فذاك صنف خطوط الخريطة ══ */
+.dashgrid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px;
+  align-items:start}
+.dw{min-width:0; animation:rise .55s var(--e3) both}
+.dw.w1{grid-column:span 1} .dw.w2{grid-column:span 2}
+.dw.w3{grid-column:span 3} .dw.w4{grid-column:span 4}
+.dw > .card{margin:0; height:100%}
+@media (max-width:1500px){ .dashgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dw.w3,.dw.w4{grid-column:span 3} }
+@media (max-width:1180px){ .dashgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dw.w2,.dw.w3,.dw.w4{grid-column:span 2} }
+@media (max-width:760px){ .dashgrid{grid-template-columns:1fr}
+  .dw,.dw.w2,.dw.w3,.dw.w4{grid-column:span 1} }
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;

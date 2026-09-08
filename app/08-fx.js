@@ -195,7 +195,7 @@ function repaintDrawer() { if (lastDrawer) lastDrawer(); }
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
- 'whoDrawer'].forEach(n => {
+ 'whoDrawer','dashEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) { lastDrawer = () => f(a); return f(a); };

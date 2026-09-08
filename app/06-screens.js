@@ -267,29 +267,3 @@ function screenReports() {
       }).join('') + '</div>' : empty('لا تقارير في هذا التصنيف', '', 'i-flag')) + '</div>';
 }
 
-/* ---------- الإعدادات ---------- */
-function screenSettings() {
-  return '<div class="grid g2">' +
-    '<div class="card">' + head('التجربة', 'أدوات معاينة لا تُشحن للعميل', '', 'i-hour') +
-      '<div class="tiny muted" style="margin-bottom:12px">تقديم الساعة يكشف سلوك النوافذ الزمنية.</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        [['-60','− ساعة'],['-15','− ١٥ د'],['0','الآن'],['15','+ ١٥ د'],['60','+ ساعة'],['360','+ ٦ ساعات']]
-          .map(x => '<button class="btn l sm" data-a="clock" data-v="' + x[0] + '">' + x[1] + '</button>').join('') +
-      '</div>' +
-      '<div class="tiny faint" style="margin-top:12px">الإزاحة الحالية: ' +
-        AR(S.clockOffset || 0) + ' دقيقة</div>' +
-      '<button class="btn d" style="margin-top:16px" data-a="reset">' + icon('i-reset','s16') +
-        'إعادة ضبط كل البيانات</button>' +
-    '</div>' +
-    '<div class="card gold">' + head('عن النظام', 'مُحسن · الكنترول', '', 'i-shield') +
-      '<div class="tiny muted" style="line-height:2.1">' +
-      '· هذا النظام هو <b>المصدر الأصل</b>: منه تُخلق المهام والفرق والحجاج والأدلة.<br>' +
-      '· تطبيق الميدان يقرأ منه ويرفع إليه الطلبات والتقارير.<br>' +
-      '· مشروعان منفصلان في مستودعين — يربطهما العقد لا الملفات.</div>' +
-      '<div class="meta" style="margin-top:14px">' +
-        '<div><span class="k">النسخة</span><b>' + APP_VER.replace('نسخة ', '') + '</b></div>' +
-        '<div><span class="k">البنية</span><b class="num">' + AR(SCHEMA) + '</b></div>' +
-        '<div><span class="k">الشاشات</span><b class="num">' + AR(Object.keys(SCREENS).length) + '</b></div>' +
-      '</div>' +
-    '</div></div>';
-}
