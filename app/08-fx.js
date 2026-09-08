@@ -193,8 +193,9 @@ let lastDrawer = null;
 function repaintDrawer() { if (lastDrawer) lastDrawer(); }
 /* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
- 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','guideDrawer','formDash',
- 'subDrawer'].forEach(n => {
+ 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
+ 'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
+ 'whoDrawer'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
@@ -271,7 +272,8 @@ document.addEventListener('change', e => {
   const gk = t.getAttribute && t.getAttribute('data-g');
   if (gk) {
     S.gate = S.gate || {};
-    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId' };
+    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId',
+      gct:'contractorId' };
     S.gate[map[gk]] = t.value || null;
     save(); renderGate(); return;
   }

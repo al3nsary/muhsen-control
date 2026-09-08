@@ -292,6 +292,11 @@ function applyPick(kind, id, u) {
       if (mu) { mu.leaderId = u.id; mu.kt = org.kt; } });
     logIt('صار ' + u.name + ' ليدر ' + g.no, 'assign');
     toast(g.no + ' → ' + u.name);
+  } else if (kind === 'rider') {
+    const t = S.trips.find(x => x.id === id); if (!t) return;
+    if (t.riders.indexOf(u.id) < 0) t.riders.push(u.id);
+    logIt('أُضيف ' + u.name + ' راكبًا في ' + t.no, 'info');
+    toast(u.name + ' → ' + t.no);
   } else if (kind === 'mseat') {
     const g = S.groups.find(x => x.id === id); if (!g) return;
     if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }

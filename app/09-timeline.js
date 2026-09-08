@@ -91,7 +91,23 @@ function taskDrawer(id) {
   const team = t.assigned.map(userById).filter(Boolean);
   const sp = (V.support || []).filter(s => s.taskId === t.id);
 
+  const gd = guideForTask(t);
   openDrawer(t.title, t.kt + ' · ' + (L.name || ''), c.i || 'i-tasks',
+    /* دليل التنفيذ: الخاصّ يَغلب على دليل التصنيف */
+    '<div class="card gold">' +
+      head('دليل التنفيذ', gd ? (gd.taskId ? 'دليل خاصّ بهذه المهمّة' : 'دليل تصنيفها')
+        : 'لا دليل — تُنفَّذ بلا مرجع', '', 'i-guide') +
+      (gd ? '<div class="prow" data-a="gdview" data-id="' + gd.id + '">' +
+        '<span class="ico" style="color:var(--gold2)">' + icon('i-guide','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(gd.title) + '</b>' +
+        '<span>' + AR((gd.steps||[]).length) + ' خطوة · ' + AR((gd.media||[]).length) +
+        ' وسيطًا · ن' + AR(gd.ver) + '</span></span>' +
+        (gd.taskId ? pill('خاصّ','gold') : pill('بالتصنيف','grey')) + '</div>'
+        : '<div class="tiny faint">لا دليل لتصنيف هذه المهمّة بعد.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" ' +
+        'data-a="tguide" data-id="' + t.id + '">' + icon('i-guide','s14') +
+        (gd && gd.taskId ? 'تغيير الدليل الخاصّ' : 'ربط دليل بهذه المهمّة') + '</button>' +
+    '</div>' +
     '<div class="card" style="--kc:' + (c.c || 'var(--g)') + '">' +
       '<div class="h"><span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
         icon(c.i || 'i-tasks','s18') + '</span>' +

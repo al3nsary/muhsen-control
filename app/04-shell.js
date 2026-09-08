@@ -9,98 +9,111 @@ const LTR = t => '<bdi class="ltr">' + E(t == null ? '' : t) + '</bdi>';
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 
-/* خريطة الأقسام — قائمة واحدة تتوسّع وتنطوي، لا سكة ولوح منفصلين */
+/* ============================================================
+   خريطة الأقسام
+   ─────────────────────────────────────────────────────────────
+   عنصران لا ثالث لهما:
+     · ورقة  { k }        تنتقل عند النقر.
+     · حاوية { p, kids }  تُفتح وتُطوى عند النقر — ولا تنتقل.
+   وكل ابن ورقة كاملة: طريقٌ وتابٌ إن لزم.
+   ============================================================ */
 const NAV = [
   { g:'العمليات', items:[
-    { k:'ops',      i:'i-target',  l:'لوحة العمليات',   d:'الوضع الآن على المستوى الكلي' },
-    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع من العمل الميداني',
-      kids:[
-        { t:'hajj',   i:'i-kaaba',  l:'مهام الحجّ' },
-        { t:'enrich', i:'i-bus',    l:'إثراء التجربة' },
-        { t:'nusuk',  i:'i-idcard', l:'نُسك' },
-        { t:'comply', i:'i-clip',   l:'الامتثال' }
-      ] },
-    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'مسار اليوم لكل مجموعة' },
-    { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
+    { k:'ops',      i:'i-target', l:'لوحة العمليات', d:'الوضع الآن — لوحة تُخصَّص' },
+    { p:'tasksg',   i:'i-tasks',  l:'المهام', d:'أربعة أنواع وأدلّتها', kids:[
+      { k:'tasks', t:['tt','hajj'],   i:'i-kaaba',  l:'مهام الحجّ' },
+      { k:'tasks', t:['tt','enrich'], i:'i-pin',    l:'إثراء التجربة' },
+      { k:'tasks', t:['tt','nusuk'],  i:'i-idcard', l:'نُسك' },
+      { k:'tasks', t:['tt','comply'], i:'i-clip',   l:'الامتثال' },
+      { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
+    ]},
+    { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
+    { k:'transport', i:'i-bus',  l:'النقل',       d:'جدولة عشرة باصات على الموسم' },
+    { k:'incidents', i:'i-warn', l:'الحوادث',     d:'ما يحتاج تدخّلًا الآن' }
   ]},
-  { g:'التشكيل', items:[
-    { k:'assign',   i:'i-swap',    l:'التسكين',          d:'ثلاث خطوات: مشرفون · ليدرز · محسنون' },
-    { k:'build',    i:'i-users',   l:'التشكيل السريع',   d:'بناء مجموعة كاملة في صندوق واحد' },
-    { k:'staff',    i:'i-idcard',  l:'الموظفون',        d:'مشرفون وليدرز ومحسنون — وبروفايل لكلٍّ' },
-    { k:'teams',    i:'i-flag',    l:'الفرق والمجموعات', d:'كل KT وفريقه' },
-    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي', d:'يديره الكنترول وحده' }
+
+  { g:'الموظفون', items:[
+    { p:'staffg', i:'i-idcard', l:'الموظفون', d:'السجلّ والتسكين والتعاقد', kids:[
+      { k:'staff',                     i:'i-idcard', l:'سجلّ الموظفين' },
+      { k:'assign', t:['asg','sup'],   i:'i-key',    l:'المشرفون على الفنادق' },
+      { k:'assign', t:['asg','lead'],  i:'i-star',   l:'الليدرز على المجموعات' },
+      { k:'assign', t:['asg','muh'],   i:'i-users',  l:'المحسنون على الليدرز' },
+      { k:'teams',                     i:'i-flag',   l:'الفرق والمجموعات' },
+      { k:'reserve',                   i:'i-shield', l:'الفريق الاحتياطي' },
+      { k:'shifts',                    i:'i-swap',   l:'تبديل الشِفتات' },
+      { k:'afasha',                    i:'i-truck',  l:'العفاشة' }
+    ]},
+    { k:'build', i:'i-users', l:'التشكيل السريع', d:'مجموعة كاملة في صندوق واحد' }
   ]},
-  { g:'الطلبات الصاعدة', items:[
-    { k:'support',  i:'i-send',    l:'طلبات الدعم',     d:'من الليدرز — تُسند من الاحتياط' },
-    { k:'reports',  i:'i-flag',    l:'التقارير',        d:'المصعَّدة من الميدان' },
-    { k:'tickets',  i:'i-ticket',  l:'التذاكر',         d:'ترد من التطبيق وتُوجَّه' },
-    { k:'shifts',   i:'i-swap',    l:'تبديل الشِفتات',  d:'ما رفعه الليدرز' }
+
+  { g:'المتابعة', items:[
+    { p:'followg', i:'i-send', l:'المتابعة', d:'ما يصعد من الميدان', kids:[
+      { k:'support', i:'i-send',   l:'طلبات الدعم' },
+      { k:'reports', i:'i-flag',   l:'التقارير' },
+      { k:'tickets', i:'i-ticket', l:'التذاكر' }
+    ]}
   ]},
+
   { g:'السجلات والنشر', items:[
-    { k:'pilgrims', i:'i-user',    l:'قاعدة الحجاج',    d:'الغرف والأدوار والحالات' },
-    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
-    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
-    { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
-    { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
-    { k:'perms',    i:'i-shield',  l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
-    { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
+    { k:'pilgrims',  i:'i-user',   l:'الحجاج',          d:'السجلّ الأصل — غرفهم وحالاتهم' },
+    { k:'quality',   i:'i-star',   l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
+    { k:'broadcast', i:'i-bell',   l:'الإشعارات',       d:'إلى المحسن أو الحاجّ أو الكنترول' },
+    { k:'audit',     i:'i-hist',   l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
+    { k:'perms',     i:'i-shield', l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
+    { k:'settings',  i:'i-gear',   l:'الإعدادات',       d:'إعدادات الموقع والتجربة' }
   ]}
 ];
-const navItems = () => NAV.reduce((a, g) => a.concat(g.items), []);
+
+/* كل ورقة في النظام — الأوراق المباشرة وأبناء الحاويات */
+const navItems = () => NAV.reduce((a, g) =>
+  a.concat(g.items.reduce((b, x) => b.concat(x.kids ? x.kids : [x]), [])), []);
 const navOf = k => navItems().find(x => x.k === k) || navItems()[0];
+/* هل هذا الابن هو المفتوح الآن؟ الطريق والتاب معًا */
+const kidOn = x => x.k === S.route.n && (!x.t || S.tab[x.t[0]] === x.t[1]);
+/* الحاوية مفتوحة إن طُلب فتحها أو كان الطريق داخلها */
+function grpOpen(x) {
+  if (S.open && Object.prototype.hasOwnProperty.call(S.open, x.p)) return !!S.open[x.p];
+  return x.kids.some(c => c.k === S.route.n);
+}
 
 /* عدّادات تُعلَّق على الأقسام */
-function navCount(k) {
+function navCount(k, t) {
+  if (t && t[0] === 'tt') {
+    if (t[1] === 'nusuk')  return openNusuk().length;
+    if (t[1] === 'enrich') return freeEnrich().length;
+    return 0;
+  }
   if (k === 'support')   return openSupport().length;
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
-  if (k === 'incidents') return S.feed.filter(f => f.kind === 'bad').length;
+  if (k === 'incidents') return V.feed.filter(f => f.kind === 'bad').length;
   if (k === 'shifts')    return openSwaps().length;
-  if (k === 'nusuk')     return openNusuk().length;
-  if (k === 'enrich')    return freeEnrich().length;
+  if (k === 'afasha')    return openDeals().length;
   return 0;
 }
-const navUrgent = k => ['support', 'incidents', 'nusuk'].indexOf(k) >= 0;
+const navUrgent = k => ['support', 'incidents', 'afasha'].indexOf(k) >= 0;
+/* عدّاد الحاوية: مجموع أبنائها */
+const grpCount = x => x.kids.reduce((a, c) => a + navCount(c.k, c.t), 0);
 
-/* ---------- القائمة الواحدة ----------
-   حالتان لا لوحان: موسَّعة بأسمائها، ومطويّة بأيقوناتها.
-   التوسيع والطيّ من الزرّ نفسه في رأس القائمة. */
+/* ---------- القائمة الواحدة ---------- */
 function sidebar() {
-  const r = S.route.n, sub = S.tab.tt || 'hajj';
   const narrow = !!S.wide;
   return '<nav class="side' + (narrow ? ' mini' : '') + '" aria-label="الأقسام">' +
     '<div class="sidehead">' +
       '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
       '<span class="brandtxt"><b>مُحسن · الكنترول</b>' +
         '<span>غرفة العمليات — موسم حج ١٤٤٨ هـ</span></span>' +
-      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع القائمة' : 'طيّ القائمة') + ' · B" ' +
+      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع' : 'طيّ') + ' القائمة · B" ' +
         'aria-label="طيّ القائمة">' + icon(narrow ? 'i-fwd' : 'i-back', 's18') + '</button>' +
     '</div>' +
 
     '<div class="sidescroll">' +
     NAV.map(g => {
-      const its = g.items.filter(x => maySee(x.k));
+      const its = g.items.filter(x => x.kids
+        ? x.kids.some(c => maySee(c.k)) : maySee(x.k));
       if (!its.length) return '';
       return '<div class="grp"><span>' + E(g.g) + '</span></div>' +
-      its.map(x => {
-        const n = navCount(x.k), on = x.k === r;
-        const kids = x.kids && on
-          ? '<div class="kids">' + x.kids.map(c => {
-              const cn = navCount(c.t);
-              return '<button class="kid' + (c.t === sub ? ' on' : '') + '" ' +
-                'data-a="seg" data-k="tt" data-v="' + c.t + '">' +
-                icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
-                (cn ? '<span class="n' + (navUrgent(c.t) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
-              '</button>';
-            }).join('') + '</div>'
-          : '';
-        return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
-            '" data-a="go" data-n="' + x.k + '"' +
-            (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
-            icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
-            (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
-          '</button>' + kids;
-      }).join('');
+        its.map(x => x.kids ? navGroup(x, narrow) : navLeaf(x)).join('');
     }).join('') +
 
     '<div class="grp"><span>العرض</span></div>' +
@@ -112,11 +125,39 @@ function sidebar() {
       '<b>جدار العرض</b><span class="n q">F</span></button>' +
     '<button class="nav" data-a="shortcuts" title="الاختصارات · ؟">' + icon('i-info','s18') +
       '<b>الاختصارات</b><span class="n q">؟</span></button>' +
-    '<button class="nav" data-a="logout" title="تسجيل الخروج">' + icon('i-logout','s18') +
-      '<b>تسجيل الخروج</b></button>' +
     '<div class="brandfoot">' + icon('i-shield','s14') + '<span>نظام مُحسن · نُزلي</span></div>' +
     '</div>' +
   '</nav>';
+}
+
+function navLeaf(x) {
+  const n = navCount(x.k), on = x.k === S.route.n;
+  return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
+    '" data-a="go" data-n="' + x.k + '"' + (S.wide ? ' title="' + E(x.l) + '"' : '') + '>' +
+    icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+    (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+  '</button>';
+}
+
+function navGroup(x, narrow) {
+  const open = grpOpen(x), n = grpCount(x);
+  const inside = x.kids.some(c => c.k === S.route.n);
+  const kids = x.kids.filter(c => maySee(c.k));
+  return '<button class="nav grpnav' + (open ? ' open' : '') + (inside ? ' inside' : '') +
+      (n ? ' hasn' : '') + '" data-a="grp" data-n="' + x.p + '"' +
+      (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
+      icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+      (n ? '<span class="n' + (navUrgent(x.p) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+      '<span class="chev">' + icon('i-fwd','s14') + '</span>' +
+    '</button>' +
+    (open && !narrow ? '<div class="kids">' + kids.map(c => {
+      const cn = navCount(c.k, c.t);
+      return '<button class="kid' + (kidOn(c) ? ' on' : '') + '" data-a="gokid" ' +
+        'data-n="' + c.k + '"' + (c.t ? ' data-k="' + c.t[0] + '" data-v="' + c.t[1] + '"' : '') + '>' +
+        icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
+        (cn ? '<span class="n' + (navUrgent(c.k) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
+      '</button>';
+    }).join('') + '</div>' : '');
 }
 
 /* ---------- الشريط العلوي ---------- */
@@ -141,7 +182,33 @@ function topbar() {
       icon('i-fullscreen','s18') + '</button>' +
     '<button class="iconbtn" data-a="shortcuts" aria-label="الاختصارات" title="الاختصارات · ؟">' +
       icon('i-info','s18') + '</button>' +
+    whoami() +
   '</header>';
+}
+
+/* من الداخل الآن — صورته واسمه وصفته ونطاقه */
+function actorUser() {
+  const a = S.actor || {};
+  if (a.userId)   return userById(a.userId);
+  if (a.leaderId) return userById(a.leaderId);
+  if (a.hotelId)  return S.users.find(u => u.role === 'supervisor' && u.hotelId === a.hotelId);
+  return null;
+}
+function actorLabel() {
+  const a = S.actor || {}, p = curPerm();
+  if (a.orgId)   { const o = orgById(a.orgId) || {}; return o.kt + ' · ' + o.ar; }
+  if (a.hotelId) return (hotelById(a.hotelId) || {}).ar || '';
+  const u = actorUser();
+  return u ? (u.kt && u.kt !== '—' ? u.kt : u.code) : SCOPE_AR[p.scope];
+}
+function whoami() {
+  const p = curPerm(), u = actorUser();
+  return '<button class="who" data-a="whoami" title="هويتك ونطاقك">' +
+    (u ? avatar(u, 'sm')
+       : '<span class="ico sm" style="color:var(--gold2)">' + icon(p.i, 's16') + '</span>') +
+    '<span class="nm"><b>' + E(u ? u.name : p.ar) + '</b>' +
+    '<span>' + E(u ? p.ar : actorLabel()) + '</span></span>' +
+    icon('i-fwd','s14') + '</button>';
 }
 
 /* ---------- لبنات مشتركة ---------- */

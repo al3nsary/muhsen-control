@@ -384,6 +384,10 @@ function renderGate() {
   } else if (p.scope === 'team') {
     ready = !!a.leaderId;
     who = pickRow('الليدر', leaders().map(l => [l.id, l.kt + ' · ' + l.name]), a.leaderId, 'glead');
+  } else if (p.scope === 'deal') {
+    ready = !!a.contractorId;
+    who = pickRow('المقاول', S.contractors.map(c => [c.id, c.name + ' · ' + c.company]),
+      a.contractorId, 'gct');
   } else if (p.scope === 'self') {
     ready = !!a.userId;
     who = pickRow('المحسن', S.users.filter(u => u.role === 'muhsen' && !u.reserve)

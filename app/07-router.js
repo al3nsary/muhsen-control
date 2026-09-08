@@ -6,12 +6,13 @@ const SCREENS = {
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline, perms: screenPerms
+  timeline: screenTimeline, perms: screenPerms,
+  afasha: screenAfasha, transport: screenTransport
 };
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
-const READ_ACTS = ['go','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gview',
+const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock'];
 
@@ -103,6 +104,162 @@ document.addEventListener('click', ev => {
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
     case 'seg': S.tab[b.dataset.k] = v; break;
+    /* الحاوية تُفتح وتُطوى ولا تنتقل */
+    case 'grp': {
+      const p = b.dataset.n;
+      S.open = S.open || {};
+      const item = NAV.reduce((r, g) => r || g.items.find(x => x.p === p), null);
+      S.open[p] = !grpOpen(item);
+      save(); render(); return;
+    }
+    case 'gokid': {
+      if (b.dataset.k) S.tab[b.dataset.k] = b.dataset.v;
+      S.route = { n: b.dataset.n };
+      break;
+    }
+    case 'whoami': whoDrawer(); return;
+
+    /* ─── العفاشة ─── */
+    case 'cnew': S.q.cn = ''; S.q.cc = ''; S.q.cp = ''; S.q.cw = ''; contractorNew(); return;
+    case 'copen': contractorDrawer(id); return;
+    case 'csave': {
+      const n = (S.q.cn || '').trim(), co = (S.q.cc || '').trim(), ph = (S.q.cp || '').trim();
+      if (!n || !ph) { toast('الاسم ورقم الجوال لا بدّ منهما', 'r'); return; }
+      const seq = 401 + S.contractors.length;
+      const c = { id:uid('CT'), name:n, company:co || '—',
+        workers:Number(String(S.q.cw || '').replace(/\D/g, '')) || 10, phone:ph,
+        user:'afasha' + seq, pass:'MC' + (7100 + S.contractors.length * 13),
+        sms:'queued', smsAt:now(), at:now() };
+      S.contractors.unshift(c);
+      /* الرسالة تُرسَل فورًا، وحالتها تُحدَّث بعد لحظات كما في المزوّد */
+      sendSms(c);
+      logIt('أُضيف المقاول ' + n + ' وأُرسلت بيانات دخوله', 'info');
+      S.drawer = null; toast('أُضيف — وأُرسلت رسالته');
+      break;
+    }
+    case 'csms': {
+      const c = contractorById(id); if (!c) return;
+      c.sms = 'queued'; c.smsAt = now(); sendSms(c);
+      logIt('أُعيد إرسال بيانات الدخول إلى ' + c.name, 'info');
+      toast('أُعيد الإرسال');
+      break;
+    }
+    case 'cdeal': dealNew(id); return;
+    case 'dsend': {
+      const c = contractorById(S.pendDeal); if (!c) return;
+      const d = mkDeal(c, 'sent');
+      logIt('أُرسل عقد ' + d.no + ' إلى ' + c.name, 'info');
+      S.drawer = null; S.pendDeal = null;
+      toast('أُرسل العقد — بانتظار ردّه');
+      break;
+    }
+    case 'doffline': {
+      const c = contractorById(S.pendDeal); if (!c) return;
+      const d = mkDeal(c, 'offline');
+      d.reason = 'وُقّع خارج النظام واعتمده الكنترول';
+      logIt('اعتُمد عقد ' + d.no + ' مع ' + c.name + ' — وُقّع خارج النظام', 'info');
+      S.drawer = null; S.pendDeal = null;
+      toast('اعتُمد العقد');
+      break;
+    }
+    case 'cagree': {
+      const d = dealById(id); if (!d) return;
+      const own = curPerm().scope === 'deal';
+      d.state = 'agreed';
+      d.reason = own ? 'قبله المقاول من حسابه' : 'وافق الكنترول نيابةً عنه';
+      d.actAt = now();
+      logIt('قُبل عقد ' + d.no + ' — ' + d.reason, 'info');
+      toast('قُبل العقد');
+      break;
+    }
+    case 'crefuse': {
+      const d = dealById(id); if (!d) return;
+      d.state = 'refused';
+      d.reason = curPerm().scope === 'deal' ? 'رفضه المقاول' : 'سُجّل رفضه';
+      d.actAt = now();
+      logIt('رُفض عقد ' + d.no, 'info');
+      toast('سُجّل الرفض', 'r');
+      break;
+    }
+
+    /* ─── النقل ─── */
+    case 'tropen': tripDrawer(id); return;
+    case 'trmove': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.at += Number(v) * MIN;
+      logIt('أُعيدت جدولة ' + t.no + ' ' + (Number(v) > 0 ? 'تأخيرًا' : 'تقديمًا') +
+        ' ' + AR(Math.abs(Number(v))) + ' دقيقة', 'info');
+      save(); tripDrawer(id); toast('الانطلاق ' + t12(t.at));
+      return;
+    }
+    case 'trdone': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.done = true; logIt('انتهت الرحلة ' + t.no, 'info');
+      save(); tripDrawer(id); toast('انتهت'); return;
+    }
+    case 'trbus': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      S.pendTrip = id;
+      S.drawer = { title:'باص ' + t.no, sub:'اختر باصًا آخر', icon:'i-bus',
+        body:'<div class="plist">' + S.buses.map(b => {
+          const busy = S.trips.filter(x => x.busId === b.id &&
+            Math.abs(x.at - t.at) < 60 * MIN && x.id !== t.id).length;
+          return '<button class="prow pick' + (b.id === t.busId ? ' on' : '') + '" ' +
+            'data-a="trbusset" data-id="' + b.id + '">' +
+            '<span class="ico" style="color:' + b.color + '">' + icon('i-bus','s16') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(b.no) + '</b>' +
+            '<span>' + LTR(b.plate) + ' · ' + E(b.driver) + ' · ' + AR(b.cap) + ' مقعدًا</span></span>' +
+            (busy ? pill('تعارض ' + AR(busy), 'no') : pill('متاح', 'live')) + '</button>';
+        }).join('') + '</div>' };
+      renderDrawer(); return;
+    }
+    case 'trbusset': {
+      const t = S.trips.find(x => x.id === S.pendTrip); if (!t) return;
+      const b2 = busById(id);
+      t.busId = id; t.driver = b2.driver; t.cap = b2.cap;
+      if (t.riders.length > b2.cap) t.riders = t.riders.slice(0, b2.cap);
+      logIt('نُقلت ' + t.no + ' إلى ' + b2.no, 'info');
+      S.pendTrip = null; S.drawer = null; toast('الباص ' + b2.no);
+      break;
+    }
+    case 'trider': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      if (t.riders.length >= t.cap) { toast('الباص مكتمل', 'r'); return; }
+      const task = t.taskId ? taskById(t.taskId) : null;
+      const cands = (task ? (task.assigned || []).map(userById).filter(Boolean)
+        : S.users.filter(u => u.role === 'muhsen' && u.groupId))
+        .filter(u => t.riders.indexOf(u.id) < 0);
+      if (!cands.length) { toast('لا مرشّح متاح', 'r'); return; }
+      openPicker('rider', t.id, { title:'راكب في ' + t.no,
+        note:'محسنو المهمّة أولى بالمقعد.', cands });
+      return;
+    }
+    case 'trrmv': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.riders = t.riders.filter(r => r !== v);
+      save(); tripDrawer(id); return;
+    }
+    case 'trnew': {
+      const day = S.tab.trday ? Number(S.tab.trday) : dayStart(now());
+      const t2 = S.tasks.filter(x => dayStart(x.start) === day)
+        .sort((a, b) => a.start - b.start)[0];
+      const bus = S.buses.reduce((best, b) => {
+        const n1 = S.trips.filter(x => x.busId === b.id && dayStart(x.at) === day).length;
+        const n2 = S.trips.filter(x => x.busId === best.id && dayStart(x.at) === day).length;
+        return n1 < n2 ? b : best;
+      }, S.buses[0]);
+      const at = t2 ? t2.start - 45 * MIN : day + 8 * HR;
+      const g = t2 ? S.groups.find(x => x.leaderId === t2.leaderId) : null;
+      const tr = { id:uid('TR'), no:'TP-' + (701 + S.trips.length), busId:bus.id,
+        taskId:t2 ? t2.id : null, kind:t2 ? 'toTask' : 'toHotel',
+        from:g ? (hotelById(g.hotelId).ar || 'نقطة التجمّع') : 'نقطة التجمّع',
+        to:t2 ? t2.place : 'الفندق', at, dur:40, cap:bus.cap,
+        riders:g ? g.members.slice(0, 4).map(m => m.id) : [], driver:bus.driver, done:false };
+      S.trips.push(tr);
+      logIt('جُدولت رحلة ' + tr.no + ' على ' + bus.no + ' — ' + t12(at), 'info');
+      toast('جُدولت على ' + bus.no + ' — الأقلّ حِملًا');
+      break;
+    }
     /* الفرز: النقرة الأولى تختار العمود، والثانية تعكس الاتجاه */
     case 'sort': {
       const k = b.dataset.k, c = Number(v);
@@ -113,7 +270,102 @@ document.addEventListener('click', ev => {
     }
     case 'ktopen': ktDrawer(id); return;
     case 'pilopen': pilgrimDrawer(id); return;
-    case 'gview': guideDrawer(id); return;
+    case 'gdview': guideView(id); return;
+    case 'gdnew':  S.gb = null; S.q.gbs = ''; guideEdit(null); return;
+    case 'gdedit': S.gb = null; guideEdit(id); return;
+    case 'gbscope': {
+      S.gb.scope = v;
+      const t = gTargets(v);
+      S.gb.target = t.length ? t[0][0] : null;
+      guideEdit(); return;
+    }
+    case 'gbadd': {
+      const s2 = (S.q.gbs || '').trim();
+      if (!s2) { toast('اكتب نصّ الخطوة', 'r'); return; }
+      S.gb.steps.push(s2); S.q.gbs = ''; guideEdit(); return;
+    }
+    case 'gbdel': S.gb.steps.splice(Number(v), 1); guideEdit(); return;
+    case 'gbup': {
+      const i = Number(v), a2 = S.gb.steps;
+      const tmp = a2[i - 1]; a2[i - 1] = a2[i]; a2[i] = tmp;
+      guideEdit(); return;
+    }
+    case 'gbmadd': {
+      const f = (S.files || {}).guide;
+      const k = fOf('gb','mk') || 'video';
+      if (!f && k !== 'text') { toast('اختر ملفًا أوّلًا', 'r'); return; }
+      S.gb.media.push({ k, name:f ? f.name : 'نصّ الخطوات', size:f ? f.size : 0 });
+      if (S.files) delete S.files.guide;
+      guideEdit(); return;
+    }
+    case 'gbmdel': S.gb.media.splice(Number(v), 1); guideEdit(); return;
+    case 'gbsave':
+    case 'gbsavepub': {
+      const b2 = S.gb;
+      b2.title = (S.q.gbt || b2.title || '').trim();
+      if (!b2.title) { toast('اكتب عنوان الدليل', 'r'); return; }
+      if (!b2.steps.length) { toast('أضف خطوة واحدة على الأقلّ', 'r'); return; }
+      const pub = a === 'gbsavepub';
+      if (b2.editing) {
+        const g = S.guides.find(x => x.id === b2.editing);
+        Object.assign(g, { title:b2.title, scope:b2.scope, target:b2.target,
+          taskId:b2.taskId, steps:b2.steps, media:b2.media, at:now() });
+        if (pub) { g.status = 'live'; g.ver += 1; }
+        logIt('عُدِّل دليل «' + g.title + '»' + (pub ? ' ونُشر ن' + AR(g.ver) : ''), 'guide');
+      } else {
+        S.guides.unshift({ id:uid('GD'), scope:b2.scope, target:b2.target, taskId:b2.taskId,
+          title:b2.title, ver:1, status:pub ? 'live' : 'draft',
+          media:b2.media, steps:b2.steps, by:'ctl', at:now() });
+        logIt('أُنشئ دليل «' + b2.title + '»' + (pub ? ' ونُشر' : ' كمسودة'), 'guide');
+      }
+      S.gb = null; S.q.gbt = ''; S.drawer = null;
+      toast(pub ? 'حُفظ ونُشر — يقرؤه الميدان' : 'حُفظ كمسودة');
+      break;
+    }
+    case 'gdpub': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      g.status = 'live'; g.ver += 1; g.at = now();
+      logIt('اعتُمدت النسخة ' + AR(g.ver) + ' من «' + g.title + '»', 'guide');
+      toast('نُشر — يقرؤه الميدان الآن'); break;
+    }
+    case 'gdunpub': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      g.status = 'draft';
+      logIt('سُحب دليل «' + g.title + '» من النشر', 'guide');
+      toast('سُحب — لم يعد يراه الميدان', 'r'); break;
+    }
+    /* ربط دليل بمهمّة بعينها */
+    case 'tguide': {
+      const t = taskById(id); if (!t) return;
+      S.pendTask = id;
+      const own = S.guides.filter(g => !g.taskId || g.taskId === id);
+      S.drawer = { title:'دليل ' + t.title, sub:'اختر دليلًا يَغلب على دليل التصنيف',
+        icon:'i-guide', body:
+        '<div class="quote">دليل التصنيف الآن: <b>' +
+          E((guideFor('hajj', t.kind) || {}).title || 'لا يوجد') + '</b></div>' +
+        '<div class="plist" style="margin-top:12px">' + own.map(g =>
+          '<button class="prow pick' + (g.taskId === id ? ' on' : '') + '" ' +
+          'data-a="tguideset" data-id="' + g.id + '">' +
+          '<span class="ico">' + icon((G_SCOPE[g.scope] || G_SCOPE.free).i,'s16') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(g.title) + '</b>' +
+          '<span>' + E((G_SCOPE[g.scope] || G_SCOPE.free).ar) + ' · ' +
+            AR((g.steps || []).length) + ' خطوة</span></span>' +
+          pill(G_ST[g.status].ar, G_ST[g.status].c) + '</button>').join('') + '</div>' +
+        '<button class="btn l" style="width:100%;margin-top:12px" data-a="tguideclr">' +
+          'إلغاء الربط — يعود إلى دليل التصنيف</button>' };
+      renderDrawer(); return;
+    }
+    case 'tguideset': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      S.guides.forEach(x => { if (x.taskId === S.pendTask) x.taskId = null; });
+      g.taskId = S.pendTask;
+      logIt('رُبط دليل «' + g.title + '» بمهمّة ' + (taskById(S.pendTask) || {}).title, 'guide');
+      S.drawer = null; toast('رُبط الدليل بالمهمّة'); break;
+    }
+    case 'tguideclr': {
+      S.guides.forEach(x => { if (x.taskId === S.pendTask) x.taskId = null; });
+      S.drawer = null; toast('عاد إلى دليل التصنيف'); break;
+    }
     case 'fdash': formDash(id); return;
     case 'fsub': subDrawer(id); return;
 
@@ -488,7 +740,7 @@ document.addEventListener('click', ev => {
     case 'gin': {
       const g = S.gate || { perm:'admin' };
       S.actor = { perm:g.perm, orgId:g.orgId, hotelId:g.hotelId,
-        leaderId:g.leaderId, userId:g.userId };
+        leaderId:g.leaderId, userId:g.userId, contractorId:g.contractorId };
       S.auth = true;
       const first = allowed()[0];
       S.route = { n: first || 'ops' };

@@ -32,12 +32,14 @@ const PERMS = [
   { k:'centers', ar:'مراكز',           i:'i-target', scope:'domain', edit:false, prov:true,
     d:'كل الحوادث والتذاكر والتقارير — بلا بيانات أشخاص' },
   { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'domain', edit:false, prov:true,
-    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' }
+    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' },
+  { k:'afasha',  ar:'مقاول عفاشة',     i:'i-truck',  scope:'deal',   edit:false,
+    d:'يرى عقده وحده — وصلاحيته الموافقة عليه' }
 ];
 const permOf = k => PERMS.find(p => p.k === k) || PERMS[0];
 const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'فندقه ومن فيه',
   team:'فريقه ومهامه', self:'بياناته وحدها', domain:'اختصاصه عبر الجهات',
-  none:'لم يُحدَّد بعد' };
+  deal:'عقده وحده', none:'لم يُحدَّد بعد' };
 
 /* الصفة الفاعلة الآن، ومن تُمثِّله */
 const curPerm = () => permOf(S.actor && S.actor.perm);
@@ -86,7 +88,9 @@ const DEFAULT_GRANTS = {
   food:    ['tasks','tickets','incidents','quality','guides'],
   trans:   ['ops','tasks','timeline','tickets','incidents','guides'],
   centers: ['ops','incidents','tickets','reports','timeline'],
-  medina:  ['ops','tasks','staff','teams','pilgrims','incidents']
+  medina:  ['ops','tasks','staff','teams','pilgrims','incidents'],
+  /* المقاول: شاشة واحدة — عقده */
+  afasha:  ['afasha']
 };
 
 /* ============================================================
@@ -135,6 +139,15 @@ function buildView() {
   } else if (p.scope === 'domain') {
     buildDomainView(p);
     return;
+  } else if (p.scope === 'deal') {
+    /* المقاول لا يرى إلا نفسه وعقده */
+    V = Object.create(S);
+    V.contractors = S.contractors.filter(c => c.id === a.contractorId);
+    V.deals = S.deals.filter(d => d.contractorId === a.contractorId);
+    ['users','groups','orgs','tasks','tickets','reports','support','nusuk','enrich',
+     'subs','assigns','swaps','feed','log','buses','trips'].forEach(k => { V[k] = []; });
+    V.pilgrims = {};
+    return;
   } else if (p.scope === 'self' && a.userId) {
     const u = userById(a.userId);
     const g = u && u.groupId ? groupById(u.groupId) : null;
@@ -181,6 +194,13 @@ function buildView() {
   V.forms    = S.forms;
   V.guides   = S.guides;
   V.casts    = S.casts;
+  /* العفاشة والنقل: الكنترول وحده يديرهما، وغيره يرى رحلاته */
+  V.contractors = p.scope === 'all' ? S.contractors : [];
+  V.deals    = p.scope === 'all' ? S.deals : [];
+  V.buses    = S.buses;
+  V.trips    = p.scope === 'self'
+    ? S.trips.filter(t => t.riders.indexOf(a.userId) >= 0)
+    : S.trips.filter(t => !t.taskId || V.tasks.some(x => x.id === t.taskId));
 }
 
 /* رؤية الاختصاص: تقطع الجهات ولا تتبع واحدة —
@@ -207,6 +227,10 @@ function buildDomainView(p) {
   V.swaps    = [];
   V.assigns  = [];
   V.log      = [];
+  V.contractors = [];
+  V.deals = [];
+  V.buses = d.enrich || d.all ? S.buses : [];
+  V.trips = d.enrich || d.all ? S.trips : [];
 }
 
 /* ============================================================
@@ -293,6 +317,41 @@ function screenPerms() {
           '<span class="tiny">' + E(x.d) + '</span>' +
         '</div>').join('') + '</div></div>' +
     '</div>';
+}
+
+/* ---------- بطاقة من الداخل ---------- */
+function whoDrawer() {
+  const p = curPerm(), u = actorUser(), a = S.actor || {};
+  const gr = allowed();
+  S.drawer = { title:u ? u.name : p.ar, sub:p.ar + ' · ' + SCOPE_AR[p.scope],
+    icon:p.i, body:
+    '<div class="fl" style="gap:14px">' +
+      (u ? avatar(u, 'lg') : '<span class="gmark" style="width:56px;height:56px;' +
+        'border-radius:18px"><i></i></span>') +
+      '<span class="nm" style="flex:1"><b style="font-size:16px">' +
+        E(u ? u.name : p.ar) + '</b>' +
+      '<span>' + E(u ? u.code : actorLabel()) + '</span></span>' +
+      (p.edit ? pill('تعديل كامل','gold') : pill('اطّلاع','grey')) + '</div>' +
+    '<div class="meta">' +
+      '<div><span class="k">الصفة</span><b>' + E(p.ar) + '</b></div>' +
+      '<div><span class="k">النطاق</span><b>' + E(SCOPE_AR[p.scope]) + '</b></div>' +
+      '<div><span class="k">الشاشات</span><b class="num">' + AR(gr.length) + '</b></div>' +
+    '</div>' +
+    (u ? '<div class="card">' + head('بياناته', '') + '<div class="kvlist">' +
+      kvRow('i-phone','الجوال', u.phone || '—', true) +
+      kvRow('i-users','المجموعة', (staffGroup(u) || {}).no || '—', true) +
+      kvRow('i-key','السكن', (staffHotel(u) || {}).ar || '—') +
+      '</div></div>' : '') +
+    '<div class="card">' + head('ما تراه', AR(gr.length) + ' شاشة') +
+      '<div class="permgrid">' + gr.map(k => {
+        const it = navOf(k);
+        return '<span class="pchk on"><span class="box">' + icon('i-checkc','s14') +
+          '</span>' + icon(it.i, 's16') + '<b>' + E(it.l) + '</b></span>';
+      }).join('') + '</div></div>' +
+    '<button class="btn d" style="width:100%" data-a="logout">' +
+      icon('i-logout','s16') + 'الخروج وتبديل الصفة</button>'
+  };
+  renderDrawer();
 }
 
 /* ============================================================

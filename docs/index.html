@@ -8,7 +8,8 @@
 </head>
 <body>
 <title>مُحسن · الكنترول</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
 
 <style>
 /* ══════════════════════════════════════════════════════════════
@@ -109,7 +110,7 @@
 
 :root{
   --r:18px; --r2:24px; --r3:14px;
-  --f:"Almarai","SF Arabic","Segoe UI",system-ui,sans-serif;
+  --f:"IBM Plex Sans Arabic","SF Arabic","Segoe UI",system-ui,sans-serif;
   --rail:80px; --side:268px; --top:66px;
   --e:cubic-bezier(.22,.7,.2,1);
   --e2:cubic-bezier(.34,1.4,.44,1);
@@ -119,7 +120,8 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{height:100%; margin:0}
 body{
-  direction:rtl; font-family:var(--f); font-size:14px; line-height:1.7;
+  direction:rtl; font-family:var(--f); font-size:14px; line-height:1.75;
+  font-feature-settings:"tnum" 1;
   color:var(--ink); background:var(--void); overflow:hidden;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
@@ -204,7 +206,7 @@ a{color:inherit; text-decoration:none}
 .nav .ic{width:18px; height:18px; flex:none}
 .nav b{font-size:13px; font-weight:700; flex:1; text-align:right; overflow:hidden;
   text-overflow:ellipsis}
-.nav .n{font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:99px; flex:none;
+.nav .n{font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT); font-variant-numeric:tabular-nums}
 .nav .n.q{background:var(--pWaitB); color:var(--pWaitT)}
 
@@ -222,7 +224,7 @@ a{color:inherit; text-decoration:none}
 .kid.on{color:var(--navOnInk); background:var(--navSheen2)}
 .kid b{font-size:12px; font-weight:700; flex:1; text-align:right}
 .kid .ic{flex:none; opacity:.85}
-.kid .n{font-size:9.5px; font-weight:800; padding:1px 6px; border-radius:99px; flex:none;
+.kid .n{font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT)}
 .kid .n.q{background:var(--pWaitB); color:var(--pWaitT)}
 
@@ -268,7 +270,7 @@ a{color:inherit; text-decoration:none}
 .iconbtn:hover{color:var(--ink); background:var(--sheen2); transform:translateY(-1px)}
 .iconbtn:active{transform:scale(.93)}
 .iconbtn .bdg{position:absolute; top:-4px; inset-inline-start:-4px; min-width:18px; height:18px;
-  border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:800;
+  border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
   display:grid; place-items:center; padding:0 5px; border:2px solid var(--deep)}
 /* مفتاح الوضع */
 .themebtn{width:auto; min-width:118px; padding:0 6px 0 12px; display:flex; align-items:center;
@@ -347,7 +349,7 @@ a{color:inherit; text-decoration:none}
 .kpi{padding:17px 19px 42px; min-height:150px; cursor:default;
   display:flex; flex-direction:column; justify-content:flex-start; gap:2px}
 .kpi .lab{font-size:11.5px; color:var(--dim2); display:flex; align-items:center; gap:6px}
-.kpi b{display:block; font-size:36px; font-weight:800; line-height:1.2; letter-spacing:-1.4px;
+.kpi b{display:block; font-size:36px; font-weight:700; line-height:1.2; letter-spacing:-1.4px;
   font-variant-numeric:tabular-nums; margin-top:5px}
 .kpi .sub{font-size:11px; color:var(--dim2); position:relative; z-index:2; margin-top:auto}
 .kpi .spark{position:absolute; inset-inline:0; bottom:0; height:38px; color:var(--spark);
@@ -591,7 +593,7 @@ a{color:inherit; text-decoration:none}
 .opsbar .sp{flex:1; min-width:12px}
 .hello b{display:block; font-size:19px; letter-spacing:-.5px; line-height:1.35}
 .hello .tiny{display:block; margin-top:1px}
-.kbd2{font-size:9.5px; font-weight:800; letter-spacing:.4px; padding:2px 6px; border-radius:6px;
+.kbd2{font-size:9.5px; font-weight:700; letter-spacing:.4px; padding:2px 6px; border-radius:6px;
   background:rgba(255,255,255,.16); color:inherit; margin-inline-start:2px}
 
 /* ══ مبدّل مدى بمؤشّر ينزلق ══ */
@@ -611,7 +613,7 @@ a{color:inherit; text-decoration:none}
   transition:inset-inline-start .46s var(--e2)}
 
 /* ══ فارق عن المدة السابقة ══ */
-.delta{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800;
+.delta{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:700;
   padding:2px 8px; border-radius:99px; font-variant-numeric:tabular-nums; flex:none;
   animation:rise .5s var(--e3) .3s both}
 .delta.up{color:var(--live); background:color-mix(in srgb,var(--live) 14%,transparent)}
@@ -647,7 +649,7 @@ a{color:inherit; text-decoration:none}
 @keyframes arcin{from{opacity:0; transform:scale(.72)} to{opacity:1; transform:none}}
 .donut .dc{position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; pointer-events:none}
-.donut .dc b{font-size:32px; font-weight:800; letter-spacing:-1.2px; line-height:1.1;
+.donut .dc b{font-size:32px; font-weight:700; letter-spacing:-1.2px; line-height:1.1;
   font-variant-numeric:tabular-nums}
 .donut .dc span{font-size:11px; color:var(--dim2)}
 .legend{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 14px; width:100%}
@@ -658,7 +660,7 @@ a{color:inherit; text-decoration:none}
 /* ══ الجدول ══ */
 .tbl{margin:0 -4px}
 .tbl .th{display:grid; gap:10px; padding:0 10px 9px; border-bottom:1px solid var(--line)}
-.tbl .th button{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800;
+.tbl .th button{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
   letter-spacing:.2px; color:var(--faint); transition:color .2s var(--e)}
 .tbl .th button:hover{color:var(--ink)}
 .tbl .th button.on{color:var(--gold2)}
@@ -713,7 +715,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ بطاقة مصغّرة ══ */
 .card.mini{padding:13px 14px; min-height:0}
-.card.mini b{display:block; font-size:23px; font-weight:800; letter-spacing:-.9px; margin-top:2px;
+.card.mini b{display:block; font-size:23px; font-weight:700; letter-spacing:-.9px; margin-top:2px;
   font-variant-numeric:tabular-nums}
 
 /* ══ نعومة: الحركة الطويلة تسير بمنحنى أسّي ══ */
@@ -778,7 +780,7 @@ a{color:inherit; text-decoration:none}
 .meta > div{flex:1; text-align:center; padding:0 5px; border-inline-start:1px solid var(--line)}
 .meta > div:first-child{border:0}
 .meta .k{display:block; font-size:10px; color:var(--dim2); margin-bottom:4px}
-.meta b{display:block; font-size:15px; font-weight:800; line-height:1.35}
+.meta b{display:block; font-size:15px; font-weight:700; line-height:1.35}
 
 /* ══ ضلع النوع على حافّة البطاقة ══ */
 .prow{position:relative; overflow:hidden}
@@ -826,7 +828,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ حقول التحرير ══ */
 .compose{display:flex; flex-direction:column}
-.fl2{display:block; font-size:11px; font-weight:800; color:var(--dim2); margin:14px 2px 7px}
+.fl2{display:block; font-size:11px; font-weight:700; color:var(--dim2); margin:14px 2px 7px}
 .fl2:first-child{margin-top:0}
 .fld{width:100%; background:var(--sheen); border:0; outline:0; color:var(--ink); font:inherit;
   font-size:13px; padding:12px 14px; border-radius:13px; resize:vertical;
@@ -850,7 +852,7 @@ a{color:inherit; text-decoration:none}
 .brow:hover{transform:translateX(-3px); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line2)}
 .brow:active{transform:scale(.985)}
 .rk{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
-  font-size:12px; font-weight:800; color:var(--dim2); background:var(--sheen2)}
+  font-size:12px; font-weight:700; color:var(--dim2); background:var(--sheen2)}
 .rk.top{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold));
   box-shadow:0 0 14px -3px var(--gold)}
 .bar2{flex:1; min-width:52px; height:6px; border-radius:99px; background:var(--sheen2); overflow:hidden}
@@ -877,7 +879,7 @@ a{color:inherit; text-decoration:none}
 .step{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:12px;
   background:var(--sheen); animation:trin .45s var(--e3) both}
 .sn{width:24px; height:24px; border-radius:8px; flex:none; display:grid; place-items:center;
-  font-size:11px; font-weight:800; color:var(--onGold);
+  font-size:11px; font-weight:700; color:var(--onGold);
   background:linear-gradient(150deg,var(--g3),var(--g2))}
 .step .nm b{font-size:12.5px; font-weight:400; line-height:1.6}
 
@@ -930,7 +932,7 @@ a{color:inherit; text-decoration:none}
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .tcard.on .tico{background:var(--sheen2)}
 .tcard .nm b{font-size:13.5px} .tcard .nm span{font-size:10.5px; line-height:1.5}
-.tn{font-size:19px; font-weight:800; letter-spacing:-.6px; flex:none;
+.tn{font-size:19px; font-weight:700; letter-spacing:-.6px; flex:none;
   font-variant-numeric:tabular-nums; color:var(--dim2)}
 .tcard.on .tn{color:var(--gold2)}
 
@@ -971,7 +973,7 @@ a{color:inherit; text-decoration:none}
 .card.src::-webkit-scrollbar{width:8px}
 .card.src::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 .srcgrp{margin-bottom:18px}
-.slab{display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:800;
+.slab{display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700;
   color:var(--faint); letter-spacing:.3px; margin:0 2px 9px}
 .slab .cnt{font-style:normal; margin-inline-start:auto; font-size:10px; padding:1px 7px;
   border-radius:99px; background:var(--sheen2); color:var(--dim2)}
@@ -989,7 +991,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ الصندوق ══ */
 .buildbox{position:sticky; top:0}
-.cnt2{font-size:12px; font-weight:800; padding:4px 12px; border-radius:99px;
+.cnt2{font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;
   color:var(--dim2); background:var(--sheen2); font-variant-numeric:tabular-nums}
 .cnt2.ok{color:var(--onGold); background:linear-gradient(150deg,var(--g3),var(--g2))}
 .slot{display:flex; align-items:center; gap:11px; min-height:56px; padding:9px 12px;
@@ -998,7 +1000,7 @@ a{color:inherit; text-decoration:none}
   transition:box-shadow .26s var(--e), background .26s var(--e)}
 .slot.lead{background:var(--pGoldB); box-shadow:inset 0 0 0 1px var(--gold2)}
 .slot.full{box-shadow:inset 0 0 0 1px var(--line2); background:var(--panel2)}
-.slot .sl{font-size:10.5px; font-weight:800; color:var(--dim2); min-width:56px; flex:none}
+.slot .sl{font-size:10.5px; font-weight:700; color:var(--dim2); min-width:56px; flex:none}
 .slot.lead .sl{color:var(--pGoldT)}
 .slot .ph{font-size:11.5px; color:var(--faint)}
 .slot .nm b{font-size:12.5px} .slot .nm span{font-size:10.5px}
@@ -1010,7 +1012,7 @@ a{color:inherit; text-decoration:none}
   border-radius:9px; border:0; outline:0; flex:none; max-width:104px;
   background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line)}
 .pickrow{margin-bottom:12px}
-.pickrow .sl{display:block; font-size:10.5px; font-weight:800; color:var(--dim2); margin:0 2px 8px}
+.pickrow .sl{display:block; font-size:10.5px; font-weight:700; color:var(--dim2); margin:0 2px 8px}
 .btn[disabled]{opacity:.45; cursor:not-allowed}
 .btn[disabled]:hover{transform:none; box-shadow:0 0 0 1px var(--hair)}
 
@@ -1051,7 +1053,7 @@ a{color:inherit; text-decoration:none}
   transition:box-shadow .24s var(--e), background .24s var(--e)}
 .fsel:hover{background:var(--sheen2)}
 .fsel.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
-.fsel > span{font-size:10.5px; font-weight:800; color:var(--dim2); white-space:nowrap}
+.fsel > span{font-size:10.5px; font-weight:700; color:var(--dim2); white-space:nowrap}
 .fsel.on > span{color:var(--pGoldT)}
 select{color-scheme:inherit}
 .fsel select option, .spec option{background:var(--panel); color:var(--ink)}
@@ -1068,7 +1070,7 @@ select{color-scheme:inherit}
   background:var(--line)}
 .wfs:last-child::before{display:none}
 .wfn{width:30px; height:30px; border-radius:50%; flex:none; display:grid; place-items:center;
-  font-size:11.5px; font-weight:800; z-index:2;
+  font-size:11.5px; font-weight:700; z-index:2;
   color:var(--dim2); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .wfs.done .wfn{color:#fff; background:linear-gradient(150deg,var(--g3),var(--g2)); box-shadow:none}
 .wfs.done::before{background:var(--g3)}
@@ -1094,7 +1096,7 @@ select{color-scheme:inherit}
 /* ══ إضافة سؤال ══ */
 .qadd{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
 .prow .sn{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
-  font-size:11px; font-weight:800; color:var(--onGold);
+  font-size:11px; font-weight:700; color:var(--onGold);
   background:linear-gradient(150deg,var(--g3),var(--g2))}
 .prow.pick{cursor:pointer; text-align:right}
 .prow.pick:hover{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
@@ -1207,7 +1209,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .astep:hover{transform:translateY(-3px); box-shadow:var(--lift); color:var(--ink)}
 .astep.on{color:var(--ink); box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
 .astep .an{width:26px; height:26px; border-radius:9px; flex:none; display:grid;
-  place-items:center; font-size:12px; font-weight:800; color:var(--dim2);
+  place-items:center; font-size:12px; font-weight:700; color:var(--dim2);
   background:var(--sheen2)}
 .astep.on .an{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold))}
 .astep .nm{flex:1} .astep .nm b{font-size:13px} .astep .nm span{font-size:10.5px}
@@ -1230,6 +1232,105 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   place-items:center; border:1.5px dashed var(--line2)}
 .seat .x{color:var(--dim2); flex:none; opacity:0; transition:opacity .2s var(--e)}
 .seat.full:hover .x{opacity:1; color:var(--red)}
+
+
+/* ═══════════════════════════════════════════════════
+   الحاويات · الهوية · العفاشة · النقل
+   ═══════════════════════════════════════════════════ */
+
+/* ══ حاوية في القائمة ══ */
+.grpnav .chev{color:var(--navFaint); flex:none; transition:transform .3s var(--e2)}
+.grpnav.open .chev{transform:rotate(90deg); color:var(--gold2)}
+.grpnav.inside:not(.on){color:var(--navInk)}
+.grpnav.inside::before{opacity:.45}
+.side.mini .grpnav .chev{display:none}
+
+/* ══ هوية الداخل في الشريط ══ */
+.who{display:flex; align-items:center; gap:9px; padding:5px 11px 5px 7px; border-radius:99px;
+  flex:none; max-width:210px; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .22s var(--e)}
+.who:hover{color:var(--ink); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--gold2)}
+.who .nm{min-width:0; text-align:right}
+.who .nm b{display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.who .nm span{display:block; font-size:10px; color:var(--dim2); white-space:nowrap}
+.who .ic{flex:none; opacity:.6}
+.who .av{width:30px; height:30px}
+@media (max-width:1180px){ .who .nm{display:none} .who{max-width:none; padding:5px} }
+
+/* ══ حالة الرسالة النصية ══ */
+.smsbox{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:500;
+  padding:4px 10px; border-radius:99px; flex:none;
+  color:var(--dim2); background:var(--sheen2)}
+.smsbox.live{color:var(--pLiveT); background:var(--pLiveB)}
+.smsbox.wait{color:var(--pWaitT); background:var(--pWaitB)}
+.smsbox.no{color:var(--pNoT); background:var(--pNoB)}
+.smsbox.grey{color:var(--dim2); background:var(--sheen2)}
+
+/* ══ شريط أيام الموسم ══ */
+.daystrip{display:flex; gap:9px; overflow-x:auto; padding-bottom:6px}
+.daystrip::-webkit-scrollbar{height:6px}
+.daystrip::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.dchip{flex:none; min-width:96px; padding:11px 13px; border-radius:14px; text-align:center;
+  color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .22s var(--e)}
+.dchip:hover{color:var(--ink); background:var(--sheen2)}
+.dchip.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.dchip.today b::after{content:"•"; color:var(--live); margin-inline-start:5px}
+.dchip b{display:block; font-size:12.5px; font-weight:600}
+.dchip span{display:block; font-size:10px; color:var(--dim2); margin-top:2px}
+.dchip i{display:inline-block; margin-top:6px; font-style:normal; font-size:10px;
+  padding:1px 8px; border-radius:99px; background:var(--sheen2)}
+.dchip.on i{background:var(--panel)}
+
+/* ══ مسار الباصات ══ */
+.gantt{margin-top:4px}
+.ghead{position:relative; height:20px; margin-inline-start:74px; margin-bottom:6px}
+.ghead span{position:absolute; transform:translateX(50%); font-size:9.5px; color:var(--faint);
+  white-space:nowrap}
+.grow{display:flex; align-items:center; gap:10px; margin-bottom:7px}
+.glabel{width:64px; flex:none; display:flex; align-items:center; gap:7px;
+  padding-inline-start:8px; border-inline-start:3px solid var(--bc); border-radius:2px}
+.glabel b{font-size:11.5px; font-weight:600}
+.glabel span{font-size:9.5px; color:var(--dim2); font-variant-numeric:tabular-nums}
+.gtrack{position:relative; flex:1; height:32px; border-radius:9px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); overflow:hidden}
+.gnow{position:absolute; inset-block:0; width:2px; background:var(--red); z-index:3;
+  box-shadow:0 0 10px 1px color-mix(in srgb,var(--red) 70%,transparent)}
+.gtrip{position:absolute; inset-block:4px; border-radius:6px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; padding:0 4px;
+  font-size:9px; font-weight:600; color:#fff; white-space:nowrap;
+  background:var(--bc); opacity:.9; transition:all .2s var(--e)}
+.gtrip:hover{opacity:1; transform:scaleY(1.12); z-index:4;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.7)}
+.gtrip span{overflow:hidden; text-overflow:ellipsis}
+.gtrip.done{opacity:.42}
+.gtrip.late{box-shadow:inset 0 0 0 1.5px var(--red)}
+.gtrip.running{box-shadow:0 0 0 1.5px var(--live), 0 0 14px -2px var(--live)}
+
+/* ══ بطاقة باص ══ */
+.busbox{padding:14px; border-radius:16px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); border-inline-start:3px solid var(--bc)}
+
+/* ══ شبكة الصلاحيات ══ */
+.permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px}
+.pchk{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
+  text-align:right; color:var(--dim); background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
+.pchk:hover{color:var(--ink); background:var(--sheen2)}
+.pchk.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.pchk b{font-size:11.5px; font-weight:600; flex:1}
+.pchk .box{width:18px; height:18px; border-radius:6px; flex:none; display:grid; place-items:center;
+  box-shadow:inset 0 0 0 1.5px var(--line2)}
+.pchk.on .box{color:var(--onGold); box-shadow:none;
+  background:linear-gradient(150deg,var(--gold2),var(--gold))}
+.fsel.wide{width:100%; justify-content:space-between}
+.fsel.wide select{max-width:none; flex:1}
+.whobox{margin-top:6px}
+.gnote{display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:11px 13px;
+  border-radius:12px; font-size:11.5px; line-height:1.8;
+  color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.gwrap.wide{width:min(560px,100%)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -1320,6 +1421,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 4H6.5A2.5 2.5 0 004 6.5v11A2.5 2.5 0 006.5 20h8"/><path d="M17 8.5L20.5 12 17 15.5M20 12H10"/></symbol>
   <symbol id="i-idcard" viewBox="0 0 24 24"><rect x="2.6" y="5" width="18.8" height="14" rx="2.6"/><circle cx="8.4" cy="10.6" r="2.1"/><path d="M5 16.4c.5-1.8 1.9-2.6 3.4-2.6s2.9.8 3.4 2.6"/><path d="M14.6 10h4.2M14.6 13.4h4.2"/></symbol>
   <symbol id="i-food" viewBox="0 0 24 24"><path d="M6 3v8a2.4 2.4 0 004.8 0V3M8.4 11v10"/><path d="M17.4 3c-1.7 0-2.8 2-2.8 5s1.1 4 2.8 4 2.8-1 2.8-4-1.1-5-2.8-5zM17.4 12v9"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.6 6.4h10.2v9.4H2.6z"/><path d="M12.8 9.4h4l3.6 3v3.4h-7.6z"/><circle cx="7" cy="18" r="1.9"/><circle cx="16.6" cy="18" r="1.9"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.4A8.6 8.6 0 019.6 3.5a8.6 8.6 0 1010.9 10.9z"/></symbol>
   <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.6"/><circle cx="8.6" cy="10" r="1.7"/><path d="M4 17l4.6-4.4 3.4 3 3-2.6L20 17"/></symbol>
   <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M8.6 13h6.8M8.6 16.6h4.6"/></symbol>
@@ -1732,11 +1834,45 @@ const FORM_SEED = [
     ] }
 ];
 
+/* ---------- العفاشة: مقاولون ---------- */
+const CONTRACTOR_SEED = [
+  ['سعد بن مبارك',     'مؤسسة السند لخدمات العفش',  14, 'delivered', 'agreed'],
+  ['ناصر الشهراني',    'شركة أمانة للنقل الداخلي',   22, 'delivered', 'agreed'],
+  ['عبدالله بن حمود',  'مؤسسة الوفاء للعفش',         9,  'delivered', 'sent'],
+  ['ماجد العمري',      'شركة مسار الخدمات المساندة', 31, 'delivered', 'offline'],
+  ['فهد بن عايض',      'مؤسسة الرحاب للعمالة',       17, 'sent',      'sent'],
+  ['سلطان القرشي',     'شركة إتقان لخدمات الحجّ',    26, 'delivered', 'refused'],
+  ['بدر الجهني',       'مؤسسة الصفا للنقل',          11, 'failed',    'draft'],
+  ['تركي بن سالم',     'شركة ركن الخدمات',           19, 'delivered', 'agreed'],
+  ['يوسف الحكمي',      'مؤسسة نماء للعمالة',         13, 'queued',    'draft'],
+  ['خالد بن مرزوق',    'شركة البيان للنقل',          28, 'delivered', 'sent']
+];
+
+/* ---------- النقل: عشرة باصات ---------- */
+const BUS_SEED = [
+  ['باص ١', 'MKH-4021', 45, 'راشد بن عوض',    '#0B7A4B'],
+  ['باص ٢', 'MKH-4088', 45, 'عايض الزهراني',  '#1B6E9C'],
+  ['باص ٣', 'MKH-4133', 50, 'مبارك السبيعي',  '#6B4E9E'],
+  ['باص ٤', 'MKH-4176', 50, 'حمد المطيري',    '#B8791A'],
+  ['باص ٥', 'MKH-4204', 32, 'صالح بن دخيل',   '#C0392B'],
+  ['باص ٦', 'MKH-4251', 45, 'عوض القحطاني',   '#1E7A8A'],
+  ['باص ٧', 'MKH-4299', 50, 'منصور الحربي',   '#8A5A1E'],
+  ['باص ٨', 'MKH-4318', 32, 'زايد الشمري',    '#5A6C63'],
+  ['باص ٩', 'MKH-4360', 45, 'دخيل الله العتيبي', '#0F6E52'],
+  ['باص ١٠','MKH-4402', 50, 'مسفر الغامدي',   '#9A4A7A']
+];
+const TRIP_KIND = {
+  toTask:  { ar:'إلى مهمة',      i:'i-tasks' },
+  toHotel: { ar:'إلى فندق',      i:'i-key' },
+  airport: { ar:'استقبال حجاج',  i:'i-plane' },
+  back:    { ar:'عودة',          i:'i-back' }
+};
+
 /* ============================================================
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 12;
+const SCHEMA = 14;
 const APP_VER = 'نسخة ٠٫٩٫١';
 let S = null;
 
@@ -1783,7 +1919,7 @@ function seed() {
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
     /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
-    grants: {}, actor: { perm: 'admin' }
+    grants: {}, actor: { perm: 'admin' }, open: {}
   };
   S = st;
 
@@ -1993,11 +2129,101 @@ function seed() {
     });
   });
 
-  /* أدلة التنفيذ — نسخة معتمدة لكل نشاط */
-  st.guides = GUIDE_SEED.map(g => ({
-    id: uid('D'), kind: g.k, ver: g.v, status: g.st, media: g.media,
-    steps: g.steps, by: g.by, at: Date.now() - g.ago * MIN
+
+  /* ---------- العفاشة ---------- */
+  st.contractors = CONTRACTOR_SEED.map((c, i) => ({
+    id: 'CT' + (401 + i), name: c[0], company: c[1], workers: c[2],
+    phone: '+96650' + (3110000 + i * 4177),
+    user: 'afasha' + (401 + i), pass: 'MC' + (7100 + i * 13),
+    sms: c[3], smsAt: Date.now() - (40 + i * 90) * MIN,
+    at: Date.now() - (3 + i) * DAY
   }));
+  st.deals = [];
+  CONTRACTOR_SEED.forEach((c, i) => {
+    if (c[4] === 'draft') return;
+    const ct = st.contractors[i];
+    st.deals.push({
+      id: 'DL' + (601 + i), no: 'CN-' + (601 + i), contractorId: ct.id,
+      title: 'تعاقد نقل عفش الحجاج — موسم ١٤٤٨ هـ',
+      body: 'نقل عفش الحجاج بين الفنادق والمشاعر طوال الموسم، بعدد عمّال لا يقلّ عن ' +
+        AR(ct.workers) + ' عاملًا، وبإشراف مشرف السكن في كل فندق.',
+      value: 32000 + i * 4500, hours: 48, state: c[4],
+      file: i % 3 === 0 ? { name:'عرض-' + (601 + i) + '.pdf', size:284000 + i * 9000,
+        type:'application/pdf' } : null,
+      reason: c[4] === 'refused' ? 'اعتذر — ارتباط بموسم آخر' :
+        c[4] === 'offline' ? 'وُقّع ورقيًّا في المكتب، واعتمده الكنترول' : null,
+      at: Date.now() - (2 + i) * DAY + 3 * HR
+    });
+  });
+
+  /* ---------- النقل: عشرة باصات ورحلاتها ---------- */
+  st.buses = BUS_SEED.map((b, i) => ({
+    id: 'BS' + (501 + i), no: b[0], plate: b[1], cap: b[2], driver: b[3],
+    color: b[4], phone: '+96653' + (2200000 + i * 3313)
+  }));
+
+  st.trips = [];
+  let tn = 0;
+  /* رحلة لكل مهمة قريبة: ذهاب وعودة، مع توزيع على الباصات */
+  const soon = st.tasks
+    .filter(t => t.start > Date.now() - 3 * DAY && t.start < Date.now() + 5 * DAY)
+    .sort((a, b) => a.start - b.start);
+  soon.forEach((t, i) => {
+    const bus = st.buses[i % st.buses.length];
+    const kind = t.kind === 'airport' ? 'airport'
+      : t.kind === 'checkin' || t.kind === 'checkout' ? 'toHotel' : 'toTask';
+    const g = st.groups.find(x => x.leaderId === t.leaderId);
+    const hotel = g ? HOTEL_SEED[(st.groups.indexOf(g)) % HOTEL_SEED.length][0] : 'نقطة التجمّع';
+    const riders = g ? g.members.slice(0, 3 + (i % 3)).map(m => m.id) : [];
+    const dep = t.start - (45 + (i % 4) * 15) * MIN;
+    st.trips.push({
+      id: 'TR' + (701 + tn), no: 'TP-' + (701 + tn), busId: bus.id, taskId: t.id,
+      kind, from: hotel, to: t.place, at: dep, dur: 35 + (i % 5) * 10,
+      cap: bus.cap, riders, driver: bus.driver,
+      done: t.start < Date.now()
+    });
+    tn++;
+    /* عودة بعد انتهاء المهمّة */
+    if (i % 2 === 0) {
+      st.trips.push({
+        id: 'TR' + (701 + tn), no: 'TP-' + (701 + tn), busId: bus.id, taskId: t.id,
+        kind: 'back', from: t.place, to: hotel, at: t.end + 20 * MIN,
+        dur: 35 + (i % 4) * 10, cap: bus.cap, riders, driver: bus.driver,
+        done: t.end < Date.now()
+      });
+      tn++;
+    }
+  });
+
+  /* أدلة التنفيذ — نسخة معتمدة لكل نشاط */
+  /* الأدلة: لكل نشاط حجّ دليله، ولبعض الخدمات والمزارات كذلك */
+  const MK = { 'نص':'text', 'صور':'photo', 'فيديو':'video', 'PDF':'pdf' };
+  st.guides = GUIDE_SEED.map((g, i) => {
+    const steps = [];
+    for (let s2 = 1; s2 <= g.steps; s2++) steps.push(GUIDE_STEP(g.k, s2));
+    return {
+      id: 'GD' + (801 + i), scope: 'hajj', target: g.k, taskId: null,
+      title: 'دليل ' + (CAT[g.k] || {}).ar, ver: g.v,
+      status: g.st === 'معتمد' ? 'live' : g.st === 'مسودة' ? 'draft' : 'review',
+      media: g.media.map(m => ({ k: MK[m] || 'text',
+        name: m === 'فيديو' ? 'شرح-' + g.k + '.mp4' : m === 'PDF' ? 'دليل-' + g.k + '.pdf'
+          : m === 'صور' ? 'صور-' + g.k + '.zip' : 'نصّ الخطوات',
+        size: 240000 + i * 31000 })),
+      steps, by: g.by, at: Date.now() - g.ago * MIN
+    };
+  });
+  /* دليلان خارج نشاط الحجّ ليُرى الربط بالأنواع الأخرى */
+  st.guides.push({ id:'GD820', scope:'nusuk', target:'lost', taskId:null,
+    title:'دليل إصدار بدل فاقد', ver:2, status:'live',
+    media:[{ k:'video', name:'خطوات-بدل-فاقد.mp4', size:412000 },
+           { k:'pdf', name:'نموذج-الإقرار.pdf', size:186000 }],
+    steps:NUSUK_SVC.lost.steps.slice(), by:'L1', at:Date.now() - 900 * MIN });
+  st.guides.push({ id:'GD821', scope:'enrich', target:'s1', taskId:null,
+    title:'دليل زيارة جبل النور', ver:1, status:'live',
+    media:[{ k:'photo', name:'مسار-الصعود.jpg', size:520000 }],
+    steps:['التجمّع عند المدخل وعدّ المجموعة','التنبيه على كبار السنّ بعدم الصعود',
+      'شرح تاريخ الغار من الأسفل','وقت حرّ ثلاثون دقيقة','العدّ قبل الركوب'],
+    by:'L2', at:Date.now() - 600 * MIN });
 
   /* البثّ — ما أُرسل */
   st.casts = CAST_SEED.map((c, i) => ({
@@ -2040,6 +2266,9 @@ function load() {
   S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
   S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
+  S.contractors = S.contractors || []; S.deals = S.deals || [];
+  S.buses = S.buses || []; S.trips = S.trips || [];
+  S.open = S.open || {};
   S.forms = S.forms || []; S.subs = S.subs || [];
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -2104,6 +2333,22 @@ function ktRating(id) {
   return d.length ? Math.round(d.reduce((a, t) => a + t.rating, 0) / d.length * 10) / 10 : 0;
 }
 
+/* مزوّد الرسائل: يُرسَل فورًا، وتصل الحالة بعد لحظات.
+   الرقم غير السعودي أو الناقص يفشل — وهذا ما يُختبر. */
+function sendSms(c) {
+  const okNum = /^\+?9665\d{8}$/.test(String(c.phone).replace(/\s/g, ''));
+  c.sms = 'sent'; c.smsAt = now(); save();
+  setTimeout(() => {
+    const cc = S.contractors.find(x => x.id === c.id);
+    if (!cc) return;
+    cc.sms = okNum ? 'delivered' : 'failed';
+    cc.smsAt = now();
+    logIt('رسالة ' + cc.name + ': ' + (okNum ? 'وصلت' : 'لم تصل — الرقم غير صالح'), 'info');
+    save();
+    if (S.route.n === 'afasha') render();
+  }, 1800);
+}
+
 function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('أُعيد ضبط البيانات'); }
 
 /* ---------- مساعدات ---------- */
@@ -2146,98 +2391,111 @@ const LTR = t => '<bdi class="ltr">' + E(t == null ? '' : t) + '</bdi>';
 const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
 const IMG = window.IMG || {};
 
-/* خريطة الأقسام — قائمة واحدة تتوسّع وتنطوي، لا سكة ولوح منفصلين */
+/* ============================================================
+   خريطة الأقسام
+   ─────────────────────────────────────────────────────────────
+   عنصران لا ثالث لهما:
+     · ورقة  { k }        تنتقل عند النقر.
+     · حاوية { p, kids }  تُفتح وتُطوى عند النقر — ولا تنتقل.
+   وكل ابن ورقة كاملة: طريقٌ وتابٌ إن لزم.
+   ============================================================ */
 const NAV = [
   { g:'العمليات', items:[
-    { k:'ops',      i:'i-target',  l:'لوحة العمليات',   d:'الوضع الآن على المستوى الكلي' },
-    { k:'tasks',    i:'i-tasks',   l:'المهام',          d:'أربعة أنواع من العمل الميداني',
-      kids:[
-        { t:'hajj',   i:'i-kaaba',  l:'مهام الحجّ' },
-        { t:'enrich', i:'i-bus',    l:'إثراء التجربة' },
-        { t:'nusuk',  i:'i-idcard', l:'نُسك' },
-        { t:'comply', i:'i-clip',   l:'الامتثال' }
-      ] },
-    { k:'timeline', i:'i-hist',    l:'الخط الزمني',     d:'مسار اليوم لكل مجموعة' },
-    { k:'incidents',i:'i-warn',    l:'الحوادث',         d:'ما يحتاج تدخّلًا الآن' }
+    { k:'ops',      i:'i-target', l:'لوحة العمليات', d:'الوضع الآن — لوحة تُخصَّص' },
+    { p:'tasksg',   i:'i-tasks',  l:'المهام', d:'أربعة أنواع وأدلّتها', kids:[
+      { k:'tasks', t:['tt','hajj'],   i:'i-kaaba',  l:'مهام الحجّ' },
+      { k:'tasks', t:['tt','enrich'], i:'i-pin',    l:'إثراء التجربة' },
+      { k:'tasks', t:['tt','nusuk'],  i:'i-idcard', l:'نُسك' },
+      { k:'tasks', t:['tt','comply'], i:'i-clip',   l:'الامتثال' },
+      { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
+    ]},
+    { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
+    { k:'transport', i:'i-bus',  l:'النقل',       d:'جدولة عشرة باصات على الموسم' },
+    { k:'incidents', i:'i-warn', l:'الحوادث',     d:'ما يحتاج تدخّلًا الآن' }
   ]},
-  { g:'التشكيل', items:[
-    { k:'assign',   i:'i-swap',    l:'التسكين',          d:'ثلاث خطوات: مشرفون · ليدرز · محسنون' },
-    { k:'build',    i:'i-users',   l:'التشكيل السريع',   d:'بناء مجموعة كاملة في صندوق واحد' },
-    { k:'staff',    i:'i-idcard',  l:'الموظفون',        d:'مشرفون وليدرز ومحسنون — وبروفايل لكلٍّ' },
-    { k:'teams',    i:'i-flag',    l:'الفرق والمجموعات', d:'كل KT وفريقه' },
-    { k:'reserve',  i:'i-shield',  l:'الفريق الاحتياطي', d:'يديره الكنترول وحده' }
+
+  { g:'الموظفون', items:[
+    { p:'staffg', i:'i-idcard', l:'الموظفون', d:'السجلّ والتسكين والتعاقد', kids:[
+      { k:'staff',                     i:'i-idcard', l:'سجلّ الموظفين' },
+      { k:'assign', t:['asg','sup'],   i:'i-key',    l:'المشرفون على الفنادق' },
+      { k:'assign', t:['asg','lead'],  i:'i-star',   l:'الليدرز على المجموعات' },
+      { k:'assign', t:['asg','muh'],   i:'i-users',  l:'المحسنون على الليدرز' },
+      { k:'teams',                     i:'i-flag',   l:'الفرق والمجموعات' },
+      { k:'reserve',                   i:'i-shield', l:'الفريق الاحتياطي' },
+      { k:'shifts',                    i:'i-swap',   l:'تبديل الشِفتات' },
+      { k:'afasha',                    i:'i-truck',  l:'العفاشة' }
+    ]},
+    { k:'build', i:'i-users', l:'التشكيل السريع', d:'مجموعة كاملة في صندوق واحد' }
   ]},
-  { g:'الطلبات الصاعدة', items:[
-    { k:'support',  i:'i-send',    l:'طلبات الدعم',     d:'من الليدرز — تُسند من الاحتياط' },
-    { k:'reports',  i:'i-flag',    l:'التقارير',        d:'المصعَّدة من الميدان' },
-    { k:'tickets',  i:'i-ticket',  l:'التذاكر',         d:'ترد من التطبيق وتُوجَّه' },
-    { k:'shifts',   i:'i-swap',    l:'تبديل الشِفتات',  d:'ما رفعه الليدرز' }
+
+  { g:'المتابعة', items:[
+    { p:'followg', i:'i-send', l:'المتابعة', d:'ما يصعد من الميدان', kids:[
+      { k:'support', i:'i-send',   l:'طلبات الدعم' },
+      { k:'reports', i:'i-flag',   l:'التقارير' },
+      { k:'tickets', i:'i-ticket', l:'التذاكر' }
+    ]}
   ]},
+
   { g:'السجلات والنشر', items:[
-    { k:'pilgrims', i:'i-user',    l:'قاعدة الحجاج',    d:'الغرف والأدوار والحالات' },
-    { k:'quality',  i:'i-star',    l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
-    { k:'guides',   i:'i-guide',   l:'أدلة التنفيذ',    d:'تُحرَّر هنا وتُنشر إلى التطبيق' },
-    { k:'broadcast',i:'i-bell',    l:'البثّ والإشعارات',d:'إلى فئة مختارة' },
-    { k:'audit',    i:'i-hist',    l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
-    { k:'perms',    i:'i-shield',  l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
-    { k:'settings', i:'i-gear',    l:'الإعدادات',       d:'التجربة وإعادة الضبط' }
+    { k:'pilgrims',  i:'i-user',   l:'الحجاج',          d:'السجلّ الأصل — غرفهم وحالاتهم' },
+    { k:'quality',   i:'i-star',   l:'الجودة والتقييم', d:'تقييم المشرفين والحجاج' },
+    { k:'broadcast', i:'i-bell',   l:'الإشعارات',       d:'إلى المحسن أو الحاجّ أو الكنترول' },
+    { k:'audit',     i:'i-hist',   l:'سجل النظام',      d:'كل قرار بصاحبه ووقته' },
+    { k:'perms',     i:'i-shield', l:'الصلاحيات',       d:'من يرى ماذا — وأمن مستوى الصفّ' },
+    { k:'settings',  i:'i-gear',   l:'الإعدادات',       d:'إعدادات الموقع والتجربة' }
   ]}
 ];
-const navItems = () => NAV.reduce((a, g) => a.concat(g.items), []);
+
+/* كل ورقة في النظام — الأوراق المباشرة وأبناء الحاويات */
+const navItems = () => NAV.reduce((a, g) =>
+  a.concat(g.items.reduce((b, x) => b.concat(x.kids ? x.kids : [x]), [])), []);
 const navOf = k => navItems().find(x => x.k === k) || navItems()[0];
+/* هل هذا الابن هو المفتوح الآن؟ الطريق والتاب معًا */
+const kidOn = x => x.k === S.route.n && (!x.t || S.tab[x.t[0]] === x.t[1]);
+/* الحاوية مفتوحة إن طُلب فتحها أو كان الطريق داخلها */
+function grpOpen(x) {
+  if (S.open && Object.prototype.hasOwnProperty.call(S.open, x.p)) return !!S.open[x.p];
+  return x.kids.some(c => c.k === S.route.n);
+}
 
 /* عدّادات تُعلَّق على الأقسام */
-function navCount(k) {
+function navCount(k, t) {
+  if (t && t[0] === 'tt') {
+    if (t[1] === 'nusuk')  return openNusuk().length;
+    if (t[1] === 'enrich') return freeEnrich().length;
+    return 0;
+  }
   if (k === 'support')   return openSupport().length;
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
-  if (k === 'incidents') return S.feed.filter(f => f.kind === 'bad').length;
+  if (k === 'incidents') return V.feed.filter(f => f.kind === 'bad').length;
   if (k === 'shifts')    return openSwaps().length;
-  if (k === 'nusuk')     return openNusuk().length;
-  if (k === 'enrich')    return freeEnrich().length;
+  if (k === 'afasha')    return openDeals().length;
   return 0;
 }
-const navUrgent = k => ['support', 'incidents', 'nusuk'].indexOf(k) >= 0;
+const navUrgent = k => ['support', 'incidents', 'afasha'].indexOf(k) >= 0;
+/* عدّاد الحاوية: مجموع أبنائها */
+const grpCount = x => x.kids.reduce((a, c) => a + navCount(c.k, c.t), 0);
 
-/* ---------- القائمة الواحدة ----------
-   حالتان لا لوحان: موسَّعة بأسمائها، ومطويّة بأيقوناتها.
-   التوسيع والطيّ من الزرّ نفسه في رأس القائمة. */
+/* ---------- القائمة الواحدة ---------- */
 function sidebar() {
-  const r = S.route.n, sub = S.tab.tt || 'hajj';
   const narrow = !!S.wide;
   return '<nav class="side' + (narrow ? ' mini' : '') + '" aria-label="الأقسام">' +
     '<div class="sidehead">' +
       '<span class="mark"><i style="background-image:url(' + (IMG.logo_white || '') + ')"></i></span>' +
       '<span class="brandtxt"><b>مُحسن · الكنترول</b>' +
         '<span>غرفة العمليات — موسم حج ١٤٤٨ هـ</span></span>' +
-      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع القائمة' : 'طيّ القائمة') + ' · B" ' +
+      '<button class="fold" data-a="wide" title="' + (narrow ? 'توسيع' : 'طيّ') + ' القائمة · B" ' +
         'aria-label="طيّ القائمة">' + icon(narrow ? 'i-fwd' : 'i-back', 's18') + '</button>' +
     '</div>' +
 
     '<div class="sidescroll">' +
     NAV.map(g => {
-      const its = g.items.filter(x => maySee(x.k));
+      const its = g.items.filter(x => x.kids
+        ? x.kids.some(c => maySee(c.k)) : maySee(x.k));
       if (!its.length) return '';
       return '<div class="grp"><span>' + E(g.g) + '</span></div>' +
-      its.map(x => {
-        const n = navCount(x.k), on = x.k === r;
-        const kids = x.kids && on
-          ? '<div class="kids">' + x.kids.map(c => {
-              const cn = navCount(c.t);
-              return '<button class="kid' + (c.t === sub ? ' on' : '') + '" ' +
-                'data-a="seg" data-k="tt" data-v="' + c.t + '">' +
-                icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
-                (cn ? '<span class="n' + (navUrgent(c.t) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
-              '</button>';
-            }).join('') + '</div>'
-          : '';
-        return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
-            '" data-a="go" data-n="' + x.k + '"' +
-            (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
-            icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
-            (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
-          '</button>' + kids;
-      }).join('');
+        its.map(x => x.kids ? navGroup(x, narrow) : navLeaf(x)).join('');
     }).join('') +
 
     '<div class="grp"><span>العرض</span></div>' +
@@ -2249,11 +2507,39 @@ function sidebar() {
       '<b>جدار العرض</b><span class="n q">F</span></button>' +
     '<button class="nav" data-a="shortcuts" title="الاختصارات · ؟">' + icon('i-info','s18') +
       '<b>الاختصارات</b><span class="n q">؟</span></button>' +
-    '<button class="nav" data-a="logout" title="تسجيل الخروج">' + icon('i-logout','s18') +
-      '<b>تسجيل الخروج</b></button>' +
     '<div class="brandfoot">' + icon('i-shield','s14') + '<span>نظام مُحسن · نُزلي</span></div>' +
     '</div>' +
   '</nav>';
+}
+
+function navLeaf(x) {
+  const n = navCount(x.k), on = x.k === S.route.n;
+  return '<button class="nav' + (on ? ' on' : '') + (n ? ' hasn' : '') +
+    '" data-a="go" data-n="' + x.k + '"' + (S.wide ? ' title="' + E(x.l) + '"' : '') + '>' +
+    icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+    (n ? '<span class="n' + (navUrgent(x.k) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+  '</button>';
+}
+
+function navGroup(x, narrow) {
+  const open = grpOpen(x), n = grpCount(x);
+  const inside = x.kids.some(c => c.k === S.route.n);
+  const kids = x.kids.filter(c => maySee(c.k));
+  return '<button class="nav grpnav' + (open ? ' open' : '') + (inside ? ' inside' : '') +
+      (n ? ' hasn' : '') + '" data-a="grp" data-n="' + x.p + '"' +
+      (narrow ? ' title="' + E(x.l) + '"' : '') + '>' +
+      icon(x.i, 's18') + '<b>' + E(x.l) + '</b>' +
+      (n ? '<span class="n' + (navUrgent(x.p) ? '' : ' q') + '">' + AR(n) + '</span>' : '') +
+      '<span class="chev">' + icon('i-fwd','s14') + '</span>' +
+    '</button>' +
+    (open && !narrow ? '<div class="kids">' + kids.map(c => {
+      const cn = navCount(c.k, c.t);
+      return '<button class="kid' + (kidOn(c) ? ' on' : '') + '" data-a="gokid" ' +
+        'data-n="' + c.k + '"' + (c.t ? ' data-k="' + c.t[0] + '" data-v="' + c.t[1] + '"' : '') + '>' +
+        icon(c.i, 's14') + '<b>' + E(c.l) + '</b>' +
+        (cn ? '<span class="n' + (navUrgent(c.k) ? '' : ' q') + '">' + AR(cn) + '</span>' : '') +
+      '</button>';
+    }).join('') + '</div>' : '');
 }
 
 /* ---------- الشريط العلوي ---------- */
@@ -2278,7 +2564,33 @@ function topbar() {
       icon('i-fullscreen','s18') + '</button>' +
     '<button class="iconbtn" data-a="shortcuts" aria-label="الاختصارات" title="الاختصارات · ؟">' +
       icon('i-info','s18') + '</button>' +
+    whoami() +
   '</header>';
+}
+
+/* من الداخل الآن — صورته واسمه وصفته ونطاقه */
+function actorUser() {
+  const a = S.actor || {};
+  if (a.userId)   return userById(a.userId);
+  if (a.leaderId) return userById(a.leaderId);
+  if (a.hotelId)  return S.users.find(u => u.role === 'supervisor' && u.hotelId === a.hotelId);
+  return null;
+}
+function actorLabel() {
+  const a = S.actor || {}, p = curPerm();
+  if (a.orgId)   { const o = orgById(a.orgId) || {}; return o.kt + ' · ' + o.ar; }
+  if (a.hotelId) return (hotelById(a.hotelId) || {}).ar || '';
+  const u = actorUser();
+  return u ? (u.kt && u.kt !== '—' ? u.kt : u.code) : SCOPE_AR[p.scope];
+}
+function whoami() {
+  const p = curPerm(), u = actorUser();
+  return '<button class="who" data-a="whoami" title="هويتك ونطاقك">' +
+    (u ? avatar(u, 'sm')
+       : '<span class="ico sm" style="color:var(--gold2)">' + icon(p.i, 's16') + '</span>') +
+    '<span class="nm"><b>' + E(u ? u.name : p.ar) + '</b>' +
+    '<span>' + E(u ? p.ar : actorLabel()) + '</span></span>' +
+    icon('i-fwd','s14') + '</button>';
 }
 
 /* ---------- لبنات مشتركة ---------- */
@@ -3223,71 +3535,6 @@ function screenQuality() {
     '</div>';
 }
 
-/* ══════════════ ٣) أدلة التنفيذ ══════════════ */
-const MEDIA_IC = { 'نص':'i-list', 'صور':'i-photo', 'فيديو':'i-play', 'PDF':'i-doc' };
-
-function screenGuides() {
-  const gs = V.guides.slice().sort((a, b) => b.at - a.at);
-  const ok = gs.filter(g => g.status === 'معتمد').length;
-  return '<div class="grid g3">' +
-      stat({ label:'أدلة معتمدة', n:ok, ic:'i-checkc', cls:'up',
-        sub:'يقرؤها التطبيق الآن', series:[4,5,5,6,6,7,6,ok] }) +
-      stat({ label:'مسودات', n:gs.filter(g => g.status === 'مسودة').length, ic:'i-guide',
-        cls:'warn', sub:'لا يراها الميدان', series:[3,2,3,2,3,2,3,2] }) +
-      stat({ label:'قيد المراجعة', n:gs.filter(g => g.status === 'قيد المراجعة').length,
-        ic:'i-hour', sub:'بانتظار اعتمادك', series:[0,1,0,1,1,0,1,1] }) +
-    '</div>' +
-
-    '<div class="card gold">' +
-      head('أدلة التنفيذ', 'لكل نشاط دليله — والمعتمَد وحده يصل الأجهزة', '', 'i-guide') +
-      '<div class="gcards">' + gs.map((g, i) => {
-        const c = CAT[g.kind] || {}, by = userById(g.by) || {};
-        const st = g.status === 'معتمد' ? 'live' : g.status === 'مسودة' ? 'grey' : 'wait';
-        return '<div class="gcard" style="animation-delay:' + (i * 50) + 'ms">' +
-          '<span class="gtop" style="background:' + (c.c || 'var(--dim)') + '"></span>' +
-          '<div class="fl" style="margin-bottom:11px">' +
-            '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
-              icon(c.i || 'i-tasks', 's18') + '</span>' +
-            '<span class="nm" style="flex:1"><b>' + E(c.ar || g.kind) + '</b>' +
-            '<span>النسخة ' + AR(g.ver) + ' · ' + AR(g.steps) + ' خطوة</span></span>' +
-            pill(g.status, st) + '</div>' +
-          '<div class="mrow">' + g.media.map(m =>
-            '<span class="mchip">' + icon(MEDIA_IC[m] || 'i-doc', 's14') + E(m) + '</span>').join('') +
-          '</div>' +
-          '<div class="pfoot">' +
-            '<span class="ok">' + E(by.name || '—') + ' · ' + ago(g.at) + '</span>' +
-            (g.status === 'معتمد'
-              ? '<button class="btn l sm" data-a="gview" data-id="' + g.id + '">معاينة</button>'
-              : '<button class="btn p sm" data-a="gpub" data-id="' + g.id + '">اعتماد ونشر</button>') +
-          '</div></div>';
-      }).join('') + '</div>' +
-    '</div>';
-}
-
-function guideDrawer(id) {
-  const g = V.guides.find(x => x.id === id); if (!g) return;
-  const c = CAT[g.kind] || {}, by = userById(g.by) || {};
-  const steps = [];
-  for (let i = 1; i <= g.steps; i++) steps.push(i);
-  openDrawer(c.ar || g.kind, 'النسخة ' + AR(g.ver) + ' · ' + g.status, c.i || 'i-guide',
-    '<div class="meta">' +
-      '<div><span class="k">النسخة</span><b class="num">' + AR(g.ver) + '</b></div>' +
-      '<div><span class="k">الخطوات</span><b class="num">' + AR(g.steps) + '</b></div>' +
-      '<div><span class="k">الوسائط</span><b class="num">' + AR(g.media.length) + '</b></div>' +
-    '</div>' +
-    '<div class="card">' + head('ما يحويه', g.media.join(' · ')) +
-      '<div class="mrow">' + g.media.map(m =>
-        '<span class="mchip">' + icon(MEDIA_IC[m] || 'i-doc', 's14') + E(m) + '</span>').join('') +
-      '</div></div>' +
-    '<div class="card">' + head('الخطوات', 'كما يراها المحسن في التطبيق') +
-      '<div class="steps">' + steps.map(i =>
-        '<div class="step" style="animation-delay:' + (i * 40) + 'ms">' +
-        '<span class="sn">' + AR(i) + '</span>' +
-        '<span class="nm"><b>' + E(GUIDE_STEP(g.kind, i)) + '</b></span></div>').join('') +
-      '</div></div>' +
-    '<div class="tiny faint">حرّرها ' + E(by.name || '—') + ' · ' + ago(g.at) + '</div>');
-}
-
 /* نصّ الخطوة — يُشتقّ من النشاط حتى لا يكون حشوًا */
 function GUIDE_STEP(kind, i) {
   const M = {
@@ -3766,6 +4013,11 @@ function applyPick(kind, id, u) {
       if (mu) { mu.leaderId = u.id; mu.kt = org.kt; } });
     logIt('صار ' + u.name + ' ليدر ' + g.no, 'assign');
     toast(g.no + ' → ' + u.name);
+  } else if (kind === 'rider') {
+    const t = S.trips.find(x => x.id === id); if (!t) return;
+    if (t.riders.indexOf(u.id) < 0) t.riders.push(u.id);
+    logIt('أُضيف ' + u.name + ' راكبًا في ' + t.no, 'info');
+    toast(u.name + ' → ' + t.no);
   } else if (kind === 'mseat') {
     const g = S.groups.find(x => x.id === id); if (!g) return;
     if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
@@ -3870,12 +4122,14 @@ const PERMS = [
   { k:'centers', ar:'مراكز',           i:'i-target', scope:'domain', edit:false, prov:true,
     d:'كل الحوادث والتذاكر والتقارير — بلا بيانات أشخاص' },
   { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'domain', edit:false, prov:true,
-    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' }
+    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' },
+  { k:'afasha',  ar:'مقاول عفاشة',     i:'i-truck',  scope:'deal',   edit:false,
+    d:'يرى عقده وحده — وصلاحيته الموافقة عليه' }
 ];
 const permOf = k => PERMS.find(p => p.k === k) || PERMS[0];
 const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'فندقه ومن فيه',
   team:'فريقه ومهامه', self:'بياناته وحدها', domain:'اختصاصه عبر الجهات',
-  none:'لم يُحدَّد بعد' };
+  deal:'عقده وحده', none:'لم يُحدَّد بعد' };
 
 /* الصفة الفاعلة الآن، ومن تُمثِّله */
 const curPerm = () => permOf(S.actor && S.actor.perm);
@@ -3924,7 +4178,9 @@ const DEFAULT_GRANTS = {
   food:    ['tasks','tickets','incidents','quality','guides'],
   trans:   ['ops','tasks','timeline','tickets','incidents','guides'],
   centers: ['ops','incidents','tickets','reports','timeline'],
-  medina:  ['ops','tasks','staff','teams','pilgrims','incidents']
+  medina:  ['ops','tasks','staff','teams','pilgrims','incidents'],
+  /* المقاول: شاشة واحدة — عقده */
+  afasha:  ['afasha']
 };
 
 /* ============================================================
@@ -3973,6 +4229,15 @@ function buildView() {
   } else if (p.scope === 'domain') {
     buildDomainView(p);
     return;
+  } else if (p.scope === 'deal') {
+    /* المقاول لا يرى إلا نفسه وعقده */
+    V = Object.create(S);
+    V.contractors = S.contractors.filter(c => c.id === a.contractorId);
+    V.deals = S.deals.filter(d => d.contractorId === a.contractorId);
+    ['users','groups','orgs','tasks','tickets','reports','support','nusuk','enrich',
+     'subs','assigns','swaps','feed','log','buses','trips'].forEach(k => { V[k] = []; });
+    V.pilgrims = {};
+    return;
   } else if (p.scope === 'self' && a.userId) {
     const u = userById(a.userId);
     const g = u && u.groupId ? groupById(u.groupId) : null;
@@ -4019,6 +4284,13 @@ function buildView() {
   V.forms    = S.forms;
   V.guides   = S.guides;
   V.casts    = S.casts;
+  /* العفاشة والنقل: الكنترول وحده يديرهما، وغيره يرى رحلاته */
+  V.contractors = p.scope === 'all' ? S.contractors : [];
+  V.deals    = p.scope === 'all' ? S.deals : [];
+  V.buses    = S.buses;
+  V.trips    = p.scope === 'self'
+    ? S.trips.filter(t => t.riders.indexOf(a.userId) >= 0)
+    : S.trips.filter(t => !t.taskId || V.tasks.some(x => x.id === t.taskId));
 }
 
 /* رؤية الاختصاص: تقطع الجهات ولا تتبع واحدة —
@@ -4045,6 +4317,10 @@ function buildDomainView(p) {
   V.swaps    = [];
   V.assigns  = [];
   V.log      = [];
+  V.contractors = [];
+  V.deals = [];
+  V.buses = d.enrich || d.all ? S.buses : [];
+  V.trips = d.enrich || d.all ? S.trips : [];
 }
 
 /* ============================================================
@@ -4131,6 +4407,41 @@ function screenPerms() {
           '<span class="tiny">' + E(x.d) + '</span>' +
         '</div>').join('') + '</div></div>' +
     '</div>';
+}
+
+/* ---------- بطاقة من الداخل ---------- */
+function whoDrawer() {
+  const p = curPerm(), u = actorUser(), a = S.actor || {};
+  const gr = allowed();
+  S.drawer = { title:u ? u.name : p.ar, sub:p.ar + ' · ' + SCOPE_AR[p.scope],
+    icon:p.i, body:
+    '<div class="fl" style="gap:14px">' +
+      (u ? avatar(u, 'lg') : '<span class="gmark" style="width:56px;height:56px;' +
+        'border-radius:18px"><i></i></span>') +
+      '<span class="nm" style="flex:1"><b style="font-size:16px">' +
+        E(u ? u.name : p.ar) + '</b>' +
+      '<span>' + E(u ? u.code : actorLabel()) + '</span></span>' +
+      (p.edit ? pill('تعديل كامل','gold') : pill('اطّلاع','grey')) + '</div>' +
+    '<div class="meta">' +
+      '<div><span class="k">الصفة</span><b>' + E(p.ar) + '</b></div>' +
+      '<div><span class="k">النطاق</span><b>' + E(SCOPE_AR[p.scope]) + '</b></div>' +
+      '<div><span class="k">الشاشات</span><b class="num">' + AR(gr.length) + '</b></div>' +
+    '</div>' +
+    (u ? '<div class="card">' + head('بياناته', '') + '<div class="kvlist">' +
+      kvRow('i-phone','الجوال', u.phone || '—', true) +
+      kvRow('i-users','المجموعة', (staffGroup(u) || {}).no || '—', true) +
+      kvRow('i-key','السكن', (staffHotel(u) || {}).ar || '—') +
+      '</div></div>' : '') +
+    '<div class="card">' + head('ما تراه', AR(gr.length) + ' شاشة') +
+      '<div class="permgrid">' + gr.map(k => {
+        const it = navOf(k);
+        return '<span class="pchk on"><span class="box">' + icon('i-checkc','s14') +
+          '</span>' + icon(it.i, 's16') + '<b>' + E(it.l) + '</b></span>';
+      }).join('') + '</div></div>' +
+    '<button class="btn d" style="width:100%" data-a="logout">' +
+      icon('i-logout','s16') + 'الخروج وتبديل الصفة</button>'
+  };
+  renderDrawer();
 }
 
 /* ============================================================
@@ -4536,6 +4847,10 @@ function renderGate() {
   } else if (p.scope === 'team') {
     ready = !!a.leaderId;
     who = pickRow('الليدر', leaders().map(l => [l.id, l.kt + ' · ' + l.name]), a.leaderId, 'glead');
+  } else if (p.scope === 'deal') {
+    ready = !!a.contractorId;
+    who = pickRow('المقاول', S.contractors.map(c => [c.id, c.name + ' · ' + c.company]),
+      a.contractorId, 'gct');
   } else if (p.scope === 'self') {
     ready = !!a.userId;
     who = pickRow('المحسن', S.users.filter(u => u.role === 'muhsen' && !u.reserve)
@@ -5376,6 +5691,633 @@ function stepMuh() {
 }
 
 /* ============================================================
+   العفاشة — مقاولون لهم عمّال، يُتعاقد معهم
+   ─────────────────────────────────────────────────────────────
+   الدورة: يُضاف المقاول ← تصل رسالة نصية بدخوله ←
+   يُرسَل له عقدٌ بتفاصيله ومرفقه ← يقبل أو يرفض،
+   وللكنترول أن يوافق نيابةً عنه إن تُعوقد خارج النظام.
+   ============================================================ */
+
+const DEAL_ST = {
+  draft:   { ar:'مسودة',            c:'grey' },
+  sent:    { ar:'أُرسل — بانتظاره', c:'wait' },
+  agreed:  { ar:'قُبل',              c:'live' },
+  refused: { ar:'رُفض',              c:'no'   },
+  offline: { ar:'مُعتمد خارج النظام', c:'blue' }
+};
+const SMS_ST = {
+  queued:    { ar:'في الطابور',  c:'grey', i:'i-hour' },
+  sent:      { ar:'أُرسلت',      c:'wait', i:'i-send' },
+  delivered: { ar:'وصلت',        c:'live', i:'i-checkc' },
+  failed:    { ar:'لم تصل',      c:'no',   i:'i-x' }
+};
+
+const openDeals = () => V.deals.filter(d => d.state === 'sent' || d.state === 'draft');
+const dealById = id => S.deals.find(d => d.id === id);
+const contractorById = id => S.contractors.find(c => c.id === id);
+const dealsOf = cid => V.deals.filter(d => d.contractorId === cid);
+
+function screenAfasha() {
+  const q = qOf('afa');
+  const fst = fOf('afa','state'), fsm = fOf('afa','sms');
+  let list = V.contractors.slice();
+  if (fst) list = list.filter(c => (lastDeal(c.id) || {}).state === fst);
+  if (fsm) list = list.filter(c => c.sms === fsm);
+  if (q) list = list.filter(c => (c.name + ' ' + c.company + ' ' + c.phone).indexOf(q) >= 0);
+  const agreed = V.contractors.filter(c => {
+    const d = lastDeal(c.id); return d && (d.state === 'agreed' || d.state === 'offline'); }).length;
+
+  return '<div class="grid g4">' +
+      stat({ label:'المقاولون', n:V.contractors.length, ic:'i-truck',
+        sub:'لكلٍّ عمّاله', series:[2,4,6,8,10,12,13,V.contractors.length] }) +
+      stat({ label:'متعاقَد معهم', n:agreed, ic:'i-checkc', cls:'up',
+        sub:'قبلوا أو اعتُمدوا خارج النظام', series:[0,1,2,3,4,5,6,agreed] }) +
+      stat({ label:'بانتظار ردّهم', n:V.deals.filter(d => d.state === 'sent').length, ic:'i-hour',
+        cls:'warn', sub:'أُرسل العقد ولم يُبَتّ',
+        series:[1,2,2,3,3,4,3,Math.max(1, V.deals.filter(d => d.state === 'sent').length)] }) +
+      stat({ label:'رسائل لم تصل', n:V.contractors.filter(c => c.sms === 'failed').length,
+        ic:'i-x', cls:'bad', sub:'تحتاج رقمًا صحيحًا', series:[0,1,0,1,1,2,1,1] }) +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('مقاولو العفاشة', 'يُضاف المقاول فتصل رسالته، ثم يُرسَل له العقد',
+        '<button class="btn p sm" data-a="cnew">' + icon('i-plus','s16') + 'مقاول جديد</button>',
+        'i-truck') +
+      filterBar('afa', [
+        { k:'state', label:'العقد',   opts:Object.keys(DEAL_ST).map(k => [k, DEAL_ST[k].ar]) },
+        { k:'sms',   label:'الرسالة', opts:Object.keys(SMS_ST).map(k => [k, SMS_ST[k].ar]) }
+      ], list.length, V.contractors.length, 'ابحث باسم مقاول أو شركة أو رقم…') +
+
+      (list.length ? '<div class="plist">' + list.map((c, i) => {
+        const d = lastDeal(c.id), st = d ? DEAL_ST[d.state] : DEAL_ST.draft;
+        const sm = SMS_ST[c.sms] || SMS_ST.queued;
+        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
+          '<span class="krail" style="background:' +
+            (d && (d.state === 'agreed' || d.state === 'offline') ? 'var(--live)'
+              : d && d.state === 'refused' ? 'var(--red)' : 'var(--amber)') + '"></span>' +
+          '<span class="ico">' + icon('i-truck','s18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(c.name) + '</b>' +
+          '<span>' + E(c.company) + ' · ' + LTR(c.phone) + ' · ' +
+            AR(c.workers) + ' عاملًا</span></span>' +
+          pill(st.ar, st.c) +
+          '<span class="smsbox" title="حالة الرسالة النصية">' + icon(sm.i,'s14') +
+            '<span>' + E(sm.ar) + '</span></span>' +
+          '<span class="tiny faint">' + ago(c.at) + '</span>' +
+          '<div class="pfoot" style="width:100%">' +
+            '<span class="ok">' + LTR(c.user) + ' · ' +
+              (d ? 'العقد ' + LTR(d.no) + (d.file ? ' · مرفق' : '') : 'بلا عقد بعد') + '</span>' +
+            '<span class="fl" style="gap:7px">' +
+              (c.sms === 'failed'
+                ? '<button class="btn l sm" data-a="csms" data-id="' + c.id + '">إعادة الإرسال</button>' : '') +
+              '<button class="btn l sm" data-a="copen" data-id="' + c.id + '">الملفّ</button>' +
+              (!d || d.state === 'refused'
+                ? '<button class="btn p sm" data-a="cdeal" data-id="' + c.id + '">إرسال عقد</button>'
+                : d.state === 'sent'
+                ? '<button class="btn p sm" data-a="cagree" data-id="' + d.id + '">موافقة نيابةً عنه</button>'
+                : pill('مكتمل', 'live')) +
+            '</span></div></div>';
+      }).join('') + '</div>'
+        : empty('لا مقاول يطابق', 'أضف مقاولًا أو وسّع الفلاتر', 'i-truck')) +
+    '</div>';
+}
+const lastDeal = cid => S.deals.filter(d => d.contractorId === cid)
+  .sort((a, b) => b.at - a.at)[0] || null;
+
+/* ---------- إضافة مقاول ---------- */
+function contractorNew() {
+  S.drawer = { title:'مقاول عفاشة جديد', sub:'بالحفظ تصل رسالته النصية فورًا',
+    icon:'i-truck', body:
+    '<div class="card">' + head('بياناته', 'ثلاثة تكفي للبدء') +
+      '<label class="fl2" style="margin-top:0">اسم المقاول</label>' +
+      '<input class="fld" id="q-cn" data-q="cn" value="' + E(qOf('cn')) + '" ' +
+        'placeholder="مثال: سعد بن مبارك">' +
+      '<label class="fl2">الشركة</label>' +
+      '<input class="fld" id="q-cc" data-q="cc" value="' + E(qOf('cc')) + '" ' +
+        'placeholder="مثال: مؤسسة السند لخدمات العفش">' +
+      '<label class="fl2">رقم الجوال</label>' +
+      '<input class="fld" id="q-cp" data-q="cp" value="' + E(qOf('cp')) + '" ' +
+        'placeholder="+9665…" dir="ltr" style="text-align:right">' +
+      '<label class="fl2">عدد العمّال</label>' +
+      '<input class="fld" id="q-cw" data-q="cw" value="' + E(qOf('cw')) + '" ' +
+        'placeholder="مثال: ١٢">' +
+    '</div>' +
+    '<div class="quote">' + icon('i-send','s14') +
+      ' بالحفظ تُنشأ له بيانات دخول وتُرسَل برسالة نصية إلى رقمه، ' +
+      'وصلاحيته لا تتجاوز <b>الموافقة على العقد</b>.</div>' +
+    '<button class="btn p" style="width:100%" data-a="csave">' +
+      icon('i-checkc','s16') + 'حفظ وإرسال بيانات الدخول</button>'
+  };
+  renderDrawer();
+}
+
+/* ---------- إرسال عقد ---------- */
+function dealNew(cid) {
+  const c = contractorById(cid); if (!c) return;
+  S.pendDeal = cid;
+  S.drawer = { title:'عقد مع ' + c.name, sub:c.company + ' · ' + AR(c.workers) + ' عاملًا',
+    icon:'i-doc', body:
+    '<div class="card">' + head('تفاصيل التعاقد', 'ما سيقرؤه قبل أن يقبل') +
+      '<label class="fl2" style="margin-top:0">عنوان العقد</label>' +
+      '<input class="fld" id="q-dt" data-q="dt" value="' + E(qOf('dt') ||
+        'تعاقد نقل عفش الحجاج — موسم ١٤٤٨ هـ') + '">' +
+      '<label class="fl2">النطاق والمدّة</label>' +
+      '<textarea class="fld" id="q-db" data-q="db" rows="4" ' +
+        'placeholder="ما المطلوب؟ وأين؟ وكم مدّته؟">' + E(qOf('db') ||
+        'نقل عفش الحجاج بين الفنادق والمشاعر طوال الموسم، بعدد عمّال لا يقلّ عن المتّفق عليه، ' +
+        'وبإشراف مشرف السكن في كل فندق.') + '</textarea>' +
+      '<div class="grid g2" style="gap:10px;margin-top:12px">' +
+        '<span><label class="fl2" style="margin-top:0">القيمة (ريال)</label>' +
+        '<input class="fld" id="q-dv" data-q="dv" value="' + E(qOf('dv') || '٤٥٠٠٠') + '"></span>' +
+        '<span><label class="fl2" style="margin-top:0">مدّة الردّ (ساعة)</label>' +
+        '<input class="fld" id="q-dh" data-q="dh" value="' + E(qOf('dh') || '٤٨') + '"></span>' +
+      '</div>' +
+      '<div style="margin-top:12px">' + filePick('deal') + '</div>' +
+    '</div>' +
+    '<div class="fl" style="gap:10px">' +
+      '<button class="btn p" style="flex:1" data-a="dsend">' + icon('i-send','s16') +
+        'إرسال العقد إليه</button>' +
+      '<button class="btn l" data-a="doffline">' + icon('i-checkc','s16') +
+        'تُعوقد خارج النظام</button>' +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+/* ---------- ملفّ المقاول ---------- */
+function contractorDrawer(id) {
+  const c = contractorById(id); if (!c) return;
+  const ds = S.deals.filter(d => d.contractorId === id).sort((a, b) => b.at - a.at);
+  const sm = SMS_ST[c.sms] || SMS_ST.queued;
+  S.drawer = { title:c.name, sub:c.company, icon:'i-truck', body:
+    '<div class="meta">' +
+      '<div><span class="k">العمّال</span><b class="num">' + AR(c.workers) + '</b></div>' +
+      '<div><span class="k">العقود</span><b class="num">' + AR(ds.length) + '</b></div>' +
+      '<div><span class="k">منذ</span><b>' + ago(c.at) + '</b></div>' +
+    '</div>' +
+
+    '<div class="card">' + head('البيانات والدخول', 'صلاحيته: الموافقة على العقد فقط') +
+      '<div class="kvlist">' +
+        kvRow('i-phone','الجوال', c.phone, true) +
+        kvRow('i-user','اسم الدخول', c.user, true) +
+        kvRow('i-key','الرقم السرّي', c.pass, true) +
+        kvRow('i-shield','الصفة', 'مقاول عفاشة') +
+      '</div>' +
+      '<div class="fl" style="gap:10px;margin-top:13px;flex-wrap:wrap">' +
+        '<span class="smsbox ' + sm.c + '">' + icon(sm.i,'s14') +
+          '<span>الرسالة: ' + E(sm.ar) + (c.smsAt ? ' · ' + ago(c.smsAt) : '') + '</span></span>' +
+        '<button class="btn l sm" data-a="csms" data-id="' + c.id + '">' +
+          icon('i-send','s14') + 'إعادة إرسال بيانات الدخول</button>' +
+      '</div>' +
+      '<div class="quote" style="margin-top:12px">' + E(smsText(c)) + '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('العقود', AR(ds.length) + ' عقدًا',
+        '<button class="btn p sm" data-a="cdeal" data-id="' + c.id + '">عقد جديد</button>') +
+      (ds.length ? '<div class="plist">' + ds.map(d => {
+        const st = DEAL_ST[d.state];
+        return '<div class="prow" style="flex-wrap:wrap">' +
+          '<span class="ico">' + icon('i-doc','s16') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(d.title) + '</b>' +
+          '<span>' + LTR(d.no) + ' · ' + AR(d.value) + ' ريال · ' + ago(d.at) + '</span></span>' +
+          pill(st.ar, st.c) +
+          '<div style="width:100%">' +
+            '<div class="quote">' + E(d.body) + '</div>' +
+            (d.file ? '<div style="margin-top:9px">' + fileChip(d.file) + '</div>' : '') +
+            (d.state === 'sent' ? '<div class="fl" style="gap:9px;margin-top:11px">' +
+              '<button class="btn p sm" data-a="cagree" data-id="' + d.id + '">موافقة نيابةً عنه</button>' +
+              '<button class="btn d sm" data-a="crefuse" data-id="' + d.id + '">تسجيل رفضه</button></div>' : '') +
+            (d.reason ? '<div class="tiny" style="margin-top:8px;color:var(--gold3)">' +
+              E(d.reason) + '</div>' : '') +
+          '</div></div>';
+      }).join('') + '</div>' : empty('لا عقد بعد', 'أرسل له أوّل عقد', 'i-doc')) +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+const smsText = c => 'مُحسن · الكنترول: أهلًا ' + c.name + '، بيانات دخولك: ' +
+  'المستخدم ' + c.user + ' والرقم السرّي ' + c.pass + '. ' +
+  'ادخل للاطّلاع على العقد والموافقة عليه.';
+
+/* ============================================================
+   النقل — عشرة باصات تنقل المحسنين طوال الموسم
+   ─────────────────────────────────────────────────────────────
+   الرحلة تتبع مهمّة: من نقطة الانطلاق إلى موقعها، ثم عودة.
+   وللباص الواحد رحلات في اليوم، تُجدوَل وتُعاد جدولتها.
+   ============================================================ */
+
+const BUS_ST = {
+  planned: { ar:'مجدولة',  c:'wait' },
+  running: { ar:'جارية',   c:'live' },
+  done:    { ar:'انتهت',   c:'grey' },
+  late:    { ar:'متأخّرة', c:'no'   }
+};
+const tripsOf = bid => V.trips.filter(t => t.busId === bid);
+const busById = id => S.buses.find(b => b.id === id);
+const tripState = t => t.done ? 'done'
+  : now() > t.at + 30 * MIN && !t.done ? 'late'
+  : now() >= t.at ? 'running' : 'planned';
+
+/* رحلات يومٍ بعينه مرتّبة */
+function tripsOn(day) {
+  const d0 = dayStart(day), d1 = d0 + DAY;
+  return V.trips.filter(t => t.at >= d0 && t.at < d1).sort((a, b) => a.at - b.at);
+}
+
+function screenTransport() {
+  const day = S.tab.trday ? Number(S.tab.trday) : dayStart(now());
+  const q = qOf('trp');
+  const fb = fOf('trp','bus'), fk = fOf('trp','kind');
+  let list = tripsOn(day);
+  if (fb) list = list.filter(t => t.busId === fb);
+  if (fk) list = list.filter(t => t.kind === fk);
+  if (q) list = list.filter(t => (t.from + ' ' + t.to + ' ' + t.no).indexOf(q) >= 0);
+  const late = tripsOn(day).filter(t => tripState(t) === 'late').length;
+  const seats = tripsOn(day).reduce((a, t) => a + t.cap, 0);
+  const taken = tripsOn(day).reduce((a, t) => a + t.riders.length, 0);
+
+  /* أيام الموسم: خمسة قبل وخمسة بعد */
+  const days = [];
+  for (let i = -3; i <= 4; i++) days.push(dayStart(now()) + i * DAY);
+
+  return '<div class="grid g4">' +
+      stat({ label:'الباصات', n:S.buses.length, ic:'i-bus',
+        sub:'تنقل المحسنين طوال الموسم', series:[4,6,7,8,9,10,10,S.buses.length] }) +
+      stat({ label:'رحلات اليوم', n:tripsOn(day).length, ic:'i-hist',
+        sub:dayName(day) + ' · ' + hijri(day),
+        series:[12,18,22,26,30,34,38,Math.max(1, tripsOn(day).length)] }) +
+      stat({ label:'إشغال المقاعد', n:seats ? Math.round(taken / seats * 100) : 0, suffix:'٪',
+        ic:'i-users', cls:'up', sub:AR(taken) + ' من ' + AR(seats) + ' مقعدًا',
+        series:[42,50,58,63,70,74,78,seats ? Math.round(taken / seats * 100) : 0] }) +
+      stat({ label:'متأخّرة', n:late, ic:'i-warn', cls:late ? 'bad' : 'up',
+        sub:late ? 'تجاوزت موعدها بنصف ساعة' : 'كل الرحلات في وقتها',
+        series:[2,1,2,1,1,0,1,late] }) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('يوم الجدول', 'اختر يومًا لترى رحلاته',
+        pill(AR(tripsOn(day).length) + ' رحلة', 'gold'), 'i-cal') +
+      '<div class="daystrip">' + days.map(d =>
+        '<button class="dchip' + (d === day ? ' on' : '') + (d === dayStart(now()) ? ' today' : '') +
+        '" data-a="seg" data-k="trday" data-v="' + d + '">' +
+        '<b>' + E(dayName(d)) + '</b><span>' + hijri(d) + '</span>' +
+        '<i>' + AR(tripsOn(d).length) + '</i></button>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('مسار اليوم', 'كل صفٍّ باصّ، وكل كتلة رحلة — والخطّ الأحمر هو الآن',
+        '<button class="btn p sm" data-a="trnew">' + icon('i-plus','s16') + 'جدولة رحلة</button>',
+        'i-bus') +
+      busGantt(day) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('رحلات اليوم', 'مرتّبة بوقتها', '', 'i-hist') +
+      filterBar('trp', [
+        { k:'bus',  label:'الباص',  opts:S.buses.map(b => [b.id, b.no + ' · ' + b.plate]) },
+        { k:'kind', label:'النوع',  opts:[['toTask','إلى مهمة'],['toHotel','إلى فندق'],
+          ['airport','استقبال حجاج'],['back','عودة']] }
+      ], list.length, tripsOn(day).length, 'ابحث بنقطة أو رقم رحلة…') +
+      (list.length ? '<div class="plist">' + list.map((t, i) => {
+        const b = busById(t.busId) || {}, st = BUS_ST[tripState(t)];
+        const full = Math.round(t.riders.length / Math.max(1, t.cap) * 100);
+        return '<div class="prow trow" data-a="tropen" data-id="' + t.id + '" ' +
+          'style="flex-wrap:wrap;animation-delay:' + (i * 35) + 'ms">' +
+          '<span class="krail" style="background:' + (b.color || 'var(--dim)') + '"></span>' +
+          '<span class="ico" style="color:' + (b.color || 'var(--dim)') + '">' +
+            icon('i-bus','s18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(t.from) + ' ← ' + E(t.to) + '</b>' +
+          '<span>' + LTR(t.no) + ' · ' + E(b.no || '') + ' · ' + E(t.driver) + '</span></span>' +
+          '<span class="when"><b>' + t12(t.at) + '</b>' +
+            '<span class="num">' + AR(t.dur) + ' دقيقة</span></span>' +
+          '<span class="fl" style="gap:9px;min-width:140px">' +
+            '<span class="meter" style="flex:1"><i data-w="' + full + '"></i></span>' +
+            '<span class="tiny faint num">' + AR(t.riders.length) + '/' + AR(t.cap) + '</span></span>' +
+          pill(st.ar, st.c) + '</div>';
+      }).join('') + '</div>' : empty('لا رحلة في هذا اليوم', 'جدوِل رحلة من الأعلى', 'i-bus')) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('الأسطول', AR(S.buses.length) + ' باصات', '', 'i-bus') +
+      '<div class="grid g3">' + S.buses.map(b => {
+        const mine = tripsOn(day).filter(t => t.busId === b.id);
+        const busy = mine.reduce((a, t) => a + t.dur, 0);
+        return '<div class="busbox" style="--bc:' + b.color + '">' +
+          '<div class="fl" style="gap:10px;margin-bottom:10px">' +
+            '<span class="ico" style="color:' + b.color + '">' + icon('i-bus','s18') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(b.no) + '</b>' +
+            '<span>' + LTR(b.plate) + ' · ' + AR(b.cap) + ' مقعدًا</span></span>' +
+            pill(AR(mine.length) + ' رحلة', mine.length ? 'live' : 'grey') + '</div>' +
+          '<div class="tiny faint">' + E(b.driver) + ' · ' + LTR(b.phone) + '</div>' +
+          '<div class="meter gold" style="margin-top:10px"><i data-w="' +
+            Math.min(100, Math.round(busy / 600 * 100)) + '"></i></div>' +
+          '<div class="tiny faint" style="margin-top:6px">' +
+            AR(Math.round(busy / 60)) + ' ساعات تشغيل اليوم</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+    '</div>';
+}
+
+/* ---------- مسار اليوم: صفّ لكل باص ---------- */
+function busGantt(day) {
+  const d0 = dayStart(day);
+  const H0 = 4, H1 = 24;                    /* اليوم يُعرض من الرابعة فجرًا */
+  const span = (H1 - H0) * 60;
+  const pos = ms => Math.max(0, Math.min(100,
+    ((ms - d0) / MIN - H0 * 60) / span * 100));
+  const nowPct = dayStart(now()) === d0 ? pos(now()) : -1;
+
+  return '<div class="gantt">' +
+    '<div class="ghead">' + Array.from({ length: 10 }, (_, i) => {
+      const h = H0 + i * 2;
+      return '<span style="inset-inline-start:' + ((h - H0) * 60 / span * 100) + '%">' +
+        AR(h > 12 ? h - 12 : h) + (h >= 12 ? ' م' : ' ص') + '</span>';
+    }).join('') + '</div>' +
+    S.buses.map(b => {
+      const mine = tripsOn(day).filter(t => t.busId === b.id);
+      return '<div class="grow">' +
+        '<span class="glabel" style="--bc:' + b.color + '"><b>' + E(b.no) + '</b>' +
+          '<span>' + AR(mine.length) + '</span></span>' +
+        '<span class="gtrack">' +
+          (nowPct >= 0 ? '<i class="gnow" style="inset-inline-start:' + nowPct + '%"></i>' : '') +
+          mine.map(t => {
+            const l = pos(t.at), w = Math.max(1.4, t.dur / span * 100);
+            const st = tripState(t);
+            return '<button class="gtrip ' + st + '" data-a="tropen" data-id="' + t.id + '" ' +
+              'style="inset-inline-start:' + l + '%;width:' + w + '%;--bc:' + b.color + '" ' +
+              'title="' + E(t.from + ' ← ' + t.to + ' · ' + t12(t.at)) + '">' +
+              '<span>' + E(t.to) + '</span></button>';
+          }).join('') +
+        '</span></div>';
+    }).join('') +
+  '</div>';
+}
+
+/* ---------- درج الرحلة ---------- */
+function tripDrawer(id) {
+  const t = V.trips.find(x => x.id === id) || S.trips.find(x => x.id === id);
+  if (!t) return;
+  const b = busById(t.busId) || {}, st = BUS_ST[tripState(t)];
+  const task = t.taskId ? taskById(t.taskId) : null;
+  S.drawer = { title:t.from + ' ← ' + t.to, sub:t.no + ' · ' + b.no + ' · ' + t12(t.at),
+    icon:'i-bus', body:
+    '<div class="fl" style="gap:9px;flex-wrap:wrap">' + pill(st.ar, st.c) +
+      pill(AR(t.dur) + ' دقيقة', 'grey') +
+      pill(AR(t.riders.length) + '/' + AR(t.cap) + ' مقعدًا', 'gold') + '</div>' +
+
+    '<div class="meta">' +
+      '<div><span class="k">الانطلاق</span><b>' + t12(t.at) + '</b></div>' +
+      '<div><span class="k">الوصول</span><b>' + t12(t.at + t.dur * MIN) + '</b></div>' +
+      '<div><span class="k">السائق</span><b>' + E(t.driver.split(' ')[0]) + '</b></div>' +
+    '</div>' +
+
+    (task ? '<div class="card">' + head('المهمّة المرتبطة', task.kt + ' · ' + task.place) +
+      '<div class="prow" data-a="tlopen" data-id="' + task.id + '">' +
+        '<span class="ico">' + icon((CAT[task.kind] || {}).i || 'i-tasks','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(task.title) + '</b>' +
+        '<span>' + hijri(task.start) + ' · ' + t12(task.start) + '</span></span></div></div>' : '') +
+
+    '<div class="card gold">' + head('إعادة الجدولة', 'قدِّم الرحلة أو أخِّرها') +
+      '<div class="fl" style="gap:8px;flex-wrap:wrap">' +
+        [-60, -30, -15, 15, 30, 60].map(m =>
+          '<button class="btn l sm" data-a="trmove" data-id="' + t.id + '" data-v="' + m + '">' +
+          (m > 0 ? '+' : '−') + ' ' + AR(Math.abs(m)) + ' د</button>').join('') +
+      '</div>' +
+      '<div class="fl" style="gap:10px;margin-top:13px">' +
+        '<button class="btn l" style="flex:1" data-a="trbus" data-id="' + t.id + '">' +
+          icon('i-swap','s16') + 'تغيير الباص</button>' +
+        (t.done ? '' : '<button class="btn p" data-a="trdone" data-id="' + t.id + '">' +
+          icon('i-checkc','s16') + 'إنهاء</button>') +
+      '</div></div>' +
+
+    '<div class="card">' + head('الركّاب', AR(t.riders.length) + ' محسنًا',
+        '<button class="btn l sm" data-a="trider" data-id="' + t.id + '">إضافة راكب</button>') +
+      (t.riders.length ? '<div class="plist">' + t.riders.map(rid => {
+        const u = userById(rid); if (!u) return '';
+        return '<div class="prow">' + avatar(u, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
+          '<span>' + LTR(u.code) + ' · ' + E(u.kt) + '</span></span>' +
+          '<button class="xbtn" data-a="trrmv" data-id="' + t.id + '" data-v="' + rid + '">' +
+            icon('i-x','s14') + '</button></div>';
+      }).join('') + '</div>' : empty('لا ركّاب بعد', 'أضف من محسني المهمّة', 'i-users')) +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+/* ============================================================
+   أدلة التنفيذ — تُبنى هنا وتُربط بالمهام وتُنشر إلى الأجهزة
+   ─────────────────────────────────────────────────────────────
+   الدليل يُربط بطريقين:
+     · بالتصنيف — فيسري على كل مهام نوعه تلقائيًّا.
+     · بمهمّة بعينها — فيَغلب على تصنيفها.
+   ============================================================ */
+
+const G_SCOPE = {
+  hajj:   { ar:'نشاط حجّ',       i:'i-kaaba',  c:'#0B7A4B' },
+  enrich: { ar:'مزار — إثراء',   i:'i-pin',    c:'#1B6E9C' },
+  nusuk:  { ar:'خدمة نُسك',      i:'i-idcard', c:'#6B4E9E' },
+  comply: { ar:'نموذج امتثال',   i:'i-clip',   c:'#B8791A' },
+  free:   { ar:'دليل خاصّ',      i:'i-guide',  c:'#8A5A1E' }
+};
+const G_ST = {
+  draft:  { ar:'مسودة',        c:'grey' },
+  review: { ar:'قيد المراجعة', c:'wait' },
+  live:   { ar:'معتمد',        c:'live' }
+};
+const MEDIA_KIND = {
+  text:  { ar:'نص',    i:'i-list' },
+  photo: { ar:'صور',   i:'i-photo' },
+  video: { ar:'فيديو', i:'i-play' },
+  pdf:   { ar:'PDF',   i:'i-doc' }
+};
+
+/* خيارات الهدف حسب التصنيف */
+function gTargets(scope) {
+  if (scope === 'hajj')   return Object.keys(CAT).map(k => [k, CAT[k].ar]);
+  if (scope === 'enrich') return SITES.map(s => [s.id, s.ar]);
+  if (scope === 'nusuk')  return Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]);
+  if (scope === 'comply') return V.forms.map(f => [f.id, f.title]);
+  return [];
+}
+const gTargetAr = (scope, t) => {
+  const o = gTargets(scope).find(x => x[0] === t);
+  return o ? o[1] : '—';
+};
+/* دليل هذه المهمّة: الخاصّ أوّلًا ثم دليل تصنيفها */
+function guideForTask(t) {
+  const own = V.guides.find(g => g.taskId === t.id && g.status === 'live');
+  if (own) return own;
+  return V.guides.find(g => g.scope === 'hajj' && g.target === t.kind && g.status === 'live') || null;
+}
+const guideFor = (scope, target) =>
+  V.guides.find(g => g.scope === scope && g.target === target && g.status === 'live') || null;
+
+function screenGuides() {
+  const q = qOf('gd');
+  const fs2 = fOf('gd','scope'), fst = fOf('gd','state');
+  let list = V.guides.slice().sort((a, b) => b.at - a.at);
+  if (fs2) list = list.filter(g => g.scope === fs2);
+  if (fst) list = list.filter(g => g.status === fst);
+  if (q) list = list.filter(g => (g.title + ' ' + gTargetAr(g.scope, g.target)).indexOf(q) >= 0);
+  const live = V.guides.filter(g => g.status === 'live').length;
+
+  return '<div class="grid g4">' +
+      stat({ label:'أدلة معتمدة', n:live, ic:'i-checkc', cls:'up',
+        sub:'يقرؤها الميدان الآن', series:[4,5,6,7,8,9,10,live] }) +
+      stat({ label:'مسودات', n:V.guides.filter(g => g.status === 'draft').length, ic:'i-guide',
+        cls:'warn', sub:'لا يراها أحد', series:[3,2,3,2,3,2,3,2] }) +
+      stat({ label:'مرتبطة بمهمّة بعينها', n:V.guides.filter(g => g.taskId).length, ic:'i-tasks',
+        sub:'تَغلب على دليل التصنيف', series:[0,1,1,2,2,3,3,3] }) +
+      stat({ label:'وسائط مرفوعة', n:V.guides.reduce((a, g) => a + (g.media || []).length, 0),
+        ic:'i-photo', sub:'نصّ وصور وفيديو وPDF', series:[6,9,12,15,18,20,22,24] }) +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('أدلة التنفيذ', 'الدليل يُربط بتصنيف فيسري على كل مهامه، أو بمهمّة بعينها',
+        '<button class="btn p sm" data-a="gdnew">' + icon('i-plus','s16') + 'دليل جديد</button>',
+        'i-guide') +
+      filterBar('gd', [
+        { k:'scope', label:'التصنيف', opts:Object.keys(G_SCOPE).map(k => [k, G_SCOPE[k].ar]) },
+        { k:'state', label:'الحالة',  opts:Object.keys(G_ST).map(k => [k, G_ST[k].ar]) }
+      ], list.length, V.guides.length, 'ابحث بعنوان أو هدف…') +
+
+      (list.length ? '<div class="gcards">' + list.map((g, i) => {
+        const sc = G_SCOPE[g.scope] || G_SCOPE.free, st = G_ST[g.status] || G_ST.draft;
+        const t = g.taskId ? taskById(g.taskId) : null;
+        return '<div class="gcard" style="animation-delay:' + (i * 45) + 'ms">' +
+          '<span class="gtop" style="background:' + sc.c + '"></span>' +
+          '<div class="fl" style="margin-bottom:11px">' +
+            '<span class="ico" style="color:' + sc.c + '">' + icon(sc.i,'s18') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(g.title) + '</b>' +
+            '<span>' + E(sc.ar) + ' · ' + E(t ? t.title : gTargetAr(g.scope, g.target)) +
+            ' · ن' + AR(g.ver) + '</span></span>' +
+            pill(st.ar, st.c) + '</div>' +
+          '<div class="mrow">' + (g.media || []).map(m =>
+            '<span class="mchip">' + icon(MEDIA_KIND[m.k].i,'s14') + E(m.name || MEDIA_KIND[m.k].ar) +
+            '</span>').join('') +
+            '<span class="mchip">' + icon('i-list','s14') + AR((g.steps || []).length) + ' خطوة</span>' +
+          '</div>' +
+          '<div class="pfoot">' +
+            '<span class="ok">' + ago(g.at) + '</span>' +
+            '<span class="fl" style="gap:7px">' +
+              '<button class="btn l sm" data-a="gdedit" data-id="' + g.id + '">تعديل</button>' +
+              '<button class="btn l sm" data-a="gdview" data-id="' + g.id + '">معاينة</button>' +
+              (g.status === 'live'
+                ? '<button class="btn l sm" data-a="gdunpub" data-id="' + g.id + '">سحب</button>'
+                : '<button class="btn p sm" data-a="gdpub" data-id="' + g.id + '">اعتماد ونشر</button>') +
+            '</span></div></div>';
+      }).join('') + '</div>'
+        : empty('لا دليل يطابق', 'أنشئ دليلًا أو وسّع الفلاتر', 'i-guide')) +
+    '</div>';
+}
+
+/* ---------- محرّر الدليل ---------- */
+function guideEdit(id) {
+  S.gb = S.gb || (id
+    ? Object.assign({ editing:id }, JSON.parse(JSON.stringify(V.guides.find(g => g.id === id))))
+    : { title:'', scope:'hajj', target:Object.keys(CAT)[0], taskId:null,
+        steps:[], media:[], status:'draft', ver:1, editing:null });
+  const b = S.gb;
+  const sc = G_SCOPE[b.scope] || G_SCOPE.free;
+  const targets = gTargets(b.scope);
+
+  S.drawer = { title:b.editing ? 'تعديل دليل' : 'دليل تنفيذ جديد',
+    sub:'يُربط بتصنيف فيسري على كل مهامه، أو بمهمّة بعينها', icon:'i-guide', body:
+
+    '<div class="card">' + head('١ · هويّته', 'عنوانه وما يخدمه') +
+      '<label class="fl2" style="margin-top:0">العنوان</label>' +
+      '<input class="fld" id="q-gbt" data-q="gbt" value="' + E(b.title) + '" ' +
+        'placeholder="مثال: خطوات استقبال الحجاج في صالة الحج">' +
+      '<label class="fl2">التصنيف</label>' +
+      '<div class="chips">' + Object.keys(G_SCOPE).map(k =>
+        '<button class="chip2' + (b.scope === k ? ' on' : '') + '" data-a="gbscope" data-v="' + k + '">' +
+        E(G_SCOPE[k].ar) + '</button>').join('') + '</div>' +
+      (targets.length
+        ? '<label class="fl2">يسري على</label>' +
+          '<label class="fsel wide on"><span>' + E(sc.ar) + '</span>' +
+            '<select data-f="gb" data-fk="target">' + targets.map(o =>
+              '<option value="' + E(o[0]) + '"' + (b.target === o[0] ? ' selected' : '') + '>' +
+              E(o[1]) + '</option>').join('') + '</select>' + icon('i-fwd','s14') + '</label>'
+        : '<div class="quote" style="margin-top:12px">دليل خاصّ — يُربط بمهمّة بعينها من شاشة المهمّة.</div>') +
+    '</div>' +
+
+    '<div class="card">' + head('٢ · الخطوات', AR(b.steps.length) + ' خطوة — ترتيبها هو ترتيب التنفيذ') +
+      (b.steps.length ? '<div class="steps">' + b.steps.map((s, i) =>
+        '<div class="step"><span class="sn">' + AR(i + 1) + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(s) + '</b></span>' +
+          (i > 0 ? '<button class="xbtn" data-a="gbup" data-v="' + i + '">' +
+            icon('i-back','s14') + '</button>' : '') +
+          '<button class="xbtn" data-a="gbdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا خطوة بعد.</div>') +
+      '<div class="qadd">' +
+        '<input class="fld" id="q-gbs" data-q="gbs" value="' + E(qOf('gbs')) + '" ' +
+          'placeholder="نصّ الخطوة…">' +
+        '<button class="btn l sm" style="margin-top:10px" data-a="gbadd">' +
+          icon('i-plus','s14') + 'أضف خطوة</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('٣ · الوسائط', 'فيديو قصير أو PDF أو صور — ما يُغني عن الشرح') +
+      ((b.media || []).length ? '<div class="plist">' + b.media.map((m, i) =>
+        '<div class="prow" style="padding:10px 12px">' +
+          '<span class="ico sm" style="color:var(--gold2)">' + icon(MEDIA_KIND[m.k].i,'s14') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
+          '<span>' + E(MEDIA_KIND[m.k].ar) + (m.size ? ' · ' + AR(Math.round(m.size / 1024)) + ' ك.ب' : '') +
+          '</span></span>' +
+          '<button class="xbtn" data-a="gbmdel" data-v="' + i + '">' + icon('i-x','s14') + '</button>' +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا وسائط بعد.</div>') +
+      '<div class="fl" style="gap:9px;margin-top:12px;flex-wrap:wrap">' +
+        '<label class="fsel"><span>النوع</span>' +
+          '<select data-f="gb" data-fk="mk">' + Object.keys(MEDIA_KIND).map(k =>
+            '<option value="' + k + '"' + ((fOf('gb','mk') || 'video') === k ? ' selected' : '') +
+            '>' + E(MEDIA_KIND[k].ar) + '</option>').join('') + '</select>' +
+          icon('i-fwd','s14') + '</label>' +
+        filePick('guide') +
+        '<button class="btn l sm" data-a="gbmadd">' + icon('i-plus','s14') + 'أضف الوسيط</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="fl" style="gap:10px">' +
+      '<button class="btn p" style="flex:1" data-a="gbsave">' + icon('i-checkc','s16') +
+        (b.editing ? 'حفظ التعديل' : 'حفظ الدليل') + '</button>' +
+      '<button class="btn l" data-a="gbsavepub">' + icon('i-send','s16') + 'حفظ ونشر</button>' +
+    '</div>'
+  };
+  renderDrawer();
+}
+
+/* ---------- معاينة الدليل كما يراه المحسن ---------- */
+function guideView(id) {
+  const g = V.guides.find(x => x.id === id) || S.guides.find(x => x.id === id);
+  if (!g) return;
+  const sc = G_SCOPE[g.scope] || G_SCOPE.free, st = G_ST[g.status];
+  const t = g.taskId ? taskById(g.taskId) : null;
+  S.drawer = { title:g.title, sub:sc.ar + ' · ' + (t ? t.title : gTargetAr(g.scope, g.target)),
+    icon:sc.i, body:
+    '<div class="fl" style="gap:9px;flex-wrap:wrap">' + pill(st.ar, st.c) +
+      pill('النسخة ' + AR(g.ver), 'grey') +
+      pill(AR((g.steps || []).length) + ' خطوة', 'gold') + '</div>' +
+
+    ((g.media || []).length ? '<div class="card">' + head('الوسائط', 'كما تُفتح في التطبيق') +
+      '<div class="plist">' + g.media.map(m =>
+        '<div class="prow" style="padding:11px 13px">' +
+          '<span class="ico" style="color:var(--gold2)">' + icon(MEDIA_KIND[m.k].i,'s16') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
+          '<span>' + E(MEDIA_KIND[m.k].ar) + '</span></span>' +
+          pill('يُفتح في التطبيق', 'blue') + '</div>').join('') + '</div></div>' : '') +
+
+    '<div class="card gold">' + head('الخطوات', 'كما يقرؤها المحسن') +
+      '<div class="fprev">' + (g.steps || []).map((s, i) =>
+        '<div class="fq"><b>' + AR(i + 1) + ' · ' + E(s) + '</b></div>').join('') +
+      '</div></div>'
+  };
+  renderDrawer();
+}
+
+/* ============================================================
    الخط الزمني للموسم — كل مهام كل الفرق في شاشة واحدة
    ترى التداخل والفجوة والضغط بنظرة، وتفتح أيّ مهمة بنقرة.
    ============================================================ */
@@ -5468,7 +6410,23 @@ function taskDrawer(id) {
   const team = t.assigned.map(userById).filter(Boolean);
   const sp = (V.support || []).filter(s => s.taskId === t.id);
 
+  const gd = guideForTask(t);
   openDrawer(t.title, t.kt + ' · ' + (L.name || ''), c.i || 'i-tasks',
+    /* دليل التنفيذ: الخاصّ يَغلب على دليل التصنيف */
+    '<div class="card gold">' +
+      head('دليل التنفيذ', gd ? (gd.taskId ? 'دليل خاصّ بهذه المهمّة' : 'دليل تصنيفها')
+        : 'لا دليل — تُنفَّذ بلا مرجع', '', 'i-guide') +
+      (gd ? '<div class="prow" data-a="gdview" data-id="' + gd.id + '">' +
+        '<span class="ico" style="color:var(--gold2)">' + icon('i-guide','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(gd.title) + '</b>' +
+        '<span>' + AR((gd.steps||[]).length) + ' خطوة · ' + AR((gd.media||[]).length) +
+        ' وسيطًا · ن' + AR(gd.ver) + '</span></span>' +
+        (gd.taskId ? pill('خاصّ','gold') : pill('بالتصنيف','grey')) + '</div>'
+        : '<div class="tiny faint">لا دليل لتصنيف هذه المهمّة بعد.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" ' +
+        'data-a="tguide" data-id="' + t.id + '">' + icon('i-guide','s14') +
+        (gd && gd.taskId ? 'تغيير الدليل الخاصّ' : 'ربط دليل بهذه المهمّة') + '</button>' +
+    '</div>' +
     '<div class="card" style="--kc:' + (c.c || 'var(--g)') + '">' +
       '<div class="h"><span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
         icon(c.i || 'i-tasks','s18') + '</span>' +
@@ -5704,8 +6662,9 @@ let lastDrawer = null;
 function repaintDrawer() { if (lastDrawer) lastDrawer(); }
 /* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
- 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','guideDrawer','formDash',
- 'subDrawer'].forEach(n => {
+ 'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
+ 'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
+ 'whoDrawer'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
@@ -5782,7 +6741,8 @@ document.addEventListener('change', e => {
   const gk = t.getAttribute && t.getAttribute('data-g');
   if (gk) {
     S.gate = S.gate || {};
-    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId' };
+    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId',
+      gct:'contractorId' };
     S.gate[map[gk]] = t.value || null;
     save(); renderGate(); return;
   }
@@ -5849,12 +6809,13 @@ const SCREENS = {
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline, perms: screenPerms
+  timeline: screenTimeline, perms: screenPerms,
+  afasha: screenAfasha, transport: screenTransport
 };
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
-const READ_ACTS = ['go','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gview',
+const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
+  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock'];
 
@@ -5946,6 +6907,162 @@ document.addEventListener('click', ev => {
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
     case 'seg': S.tab[b.dataset.k] = v; break;
+    /* الحاوية تُفتح وتُطوى ولا تنتقل */
+    case 'grp': {
+      const p = b.dataset.n;
+      S.open = S.open || {};
+      const item = NAV.reduce((r, g) => r || g.items.find(x => x.p === p), null);
+      S.open[p] = !grpOpen(item);
+      save(); render(); return;
+    }
+    case 'gokid': {
+      if (b.dataset.k) S.tab[b.dataset.k] = b.dataset.v;
+      S.route = { n: b.dataset.n };
+      break;
+    }
+    case 'whoami': whoDrawer(); return;
+
+    /* ─── العفاشة ─── */
+    case 'cnew': S.q.cn = ''; S.q.cc = ''; S.q.cp = ''; S.q.cw = ''; contractorNew(); return;
+    case 'copen': contractorDrawer(id); return;
+    case 'csave': {
+      const n = (S.q.cn || '').trim(), co = (S.q.cc || '').trim(), ph = (S.q.cp || '').trim();
+      if (!n || !ph) { toast('الاسم ورقم الجوال لا بدّ منهما', 'r'); return; }
+      const seq = 401 + S.contractors.length;
+      const c = { id:uid('CT'), name:n, company:co || '—',
+        workers:Number(String(S.q.cw || '').replace(/\D/g, '')) || 10, phone:ph,
+        user:'afasha' + seq, pass:'MC' + (7100 + S.contractors.length * 13),
+        sms:'queued', smsAt:now(), at:now() };
+      S.contractors.unshift(c);
+      /* الرسالة تُرسَل فورًا، وحالتها تُحدَّث بعد لحظات كما في المزوّد */
+      sendSms(c);
+      logIt('أُضيف المقاول ' + n + ' وأُرسلت بيانات دخوله', 'info');
+      S.drawer = null; toast('أُضيف — وأُرسلت رسالته');
+      break;
+    }
+    case 'csms': {
+      const c = contractorById(id); if (!c) return;
+      c.sms = 'queued'; c.smsAt = now(); sendSms(c);
+      logIt('أُعيد إرسال بيانات الدخول إلى ' + c.name, 'info');
+      toast('أُعيد الإرسال');
+      break;
+    }
+    case 'cdeal': dealNew(id); return;
+    case 'dsend': {
+      const c = contractorById(S.pendDeal); if (!c) return;
+      const d = mkDeal(c, 'sent');
+      logIt('أُرسل عقد ' + d.no + ' إلى ' + c.name, 'info');
+      S.drawer = null; S.pendDeal = null;
+      toast('أُرسل العقد — بانتظار ردّه');
+      break;
+    }
+    case 'doffline': {
+      const c = contractorById(S.pendDeal); if (!c) return;
+      const d = mkDeal(c, 'offline');
+      d.reason = 'وُقّع خارج النظام واعتمده الكنترول';
+      logIt('اعتُمد عقد ' + d.no + ' مع ' + c.name + ' — وُقّع خارج النظام', 'info');
+      S.drawer = null; S.pendDeal = null;
+      toast('اعتُمد العقد');
+      break;
+    }
+    case 'cagree': {
+      const d = dealById(id); if (!d) return;
+      const own = curPerm().scope === 'deal';
+      d.state = 'agreed';
+      d.reason = own ? 'قبله المقاول من حسابه' : 'وافق الكنترول نيابةً عنه';
+      d.actAt = now();
+      logIt('قُبل عقد ' + d.no + ' — ' + d.reason, 'info');
+      toast('قُبل العقد');
+      break;
+    }
+    case 'crefuse': {
+      const d = dealById(id); if (!d) return;
+      d.state = 'refused';
+      d.reason = curPerm().scope === 'deal' ? 'رفضه المقاول' : 'سُجّل رفضه';
+      d.actAt = now();
+      logIt('رُفض عقد ' + d.no, 'info');
+      toast('سُجّل الرفض', 'r');
+      break;
+    }
+
+    /* ─── النقل ─── */
+    case 'tropen': tripDrawer(id); return;
+    case 'trmove': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.at += Number(v) * MIN;
+      logIt('أُعيدت جدولة ' + t.no + ' ' + (Number(v) > 0 ? 'تأخيرًا' : 'تقديمًا') +
+        ' ' + AR(Math.abs(Number(v))) + ' دقيقة', 'info');
+      save(); tripDrawer(id); toast('الانطلاق ' + t12(t.at));
+      return;
+    }
+    case 'trdone': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.done = true; logIt('انتهت الرحلة ' + t.no, 'info');
+      save(); tripDrawer(id); toast('انتهت'); return;
+    }
+    case 'trbus': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      S.pendTrip = id;
+      S.drawer = { title:'باص ' + t.no, sub:'اختر باصًا آخر', icon:'i-bus',
+        body:'<div class="plist">' + S.buses.map(b => {
+          const busy = S.trips.filter(x => x.busId === b.id &&
+            Math.abs(x.at - t.at) < 60 * MIN && x.id !== t.id).length;
+          return '<button class="prow pick' + (b.id === t.busId ? ' on' : '') + '" ' +
+            'data-a="trbusset" data-id="' + b.id + '">' +
+            '<span class="ico" style="color:' + b.color + '">' + icon('i-bus','s16') + '</span>' +
+            '<span class="nm" style="flex:1"><b>' + E(b.no) + '</b>' +
+            '<span>' + LTR(b.plate) + ' · ' + E(b.driver) + ' · ' + AR(b.cap) + ' مقعدًا</span></span>' +
+            (busy ? pill('تعارض ' + AR(busy), 'no') : pill('متاح', 'live')) + '</button>';
+        }).join('') + '</div>' };
+      renderDrawer(); return;
+    }
+    case 'trbusset': {
+      const t = S.trips.find(x => x.id === S.pendTrip); if (!t) return;
+      const b2 = busById(id);
+      t.busId = id; t.driver = b2.driver; t.cap = b2.cap;
+      if (t.riders.length > b2.cap) t.riders = t.riders.slice(0, b2.cap);
+      logIt('نُقلت ' + t.no + ' إلى ' + b2.no, 'info');
+      S.pendTrip = null; S.drawer = null; toast('الباص ' + b2.no);
+      break;
+    }
+    case 'trider': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      if (t.riders.length >= t.cap) { toast('الباص مكتمل', 'r'); return; }
+      const task = t.taskId ? taskById(t.taskId) : null;
+      const cands = (task ? (task.assigned || []).map(userById).filter(Boolean)
+        : S.users.filter(u => u.role === 'muhsen' && u.groupId))
+        .filter(u => t.riders.indexOf(u.id) < 0);
+      if (!cands.length) { toast('لا مرشّح متاح', 'r'); return; }
+      openPicker('rider', t.id, { title:'راكب في ' + t.no,
+        note:'محسنو المهمّة أولى بالمقعد.', cands });
+      return;
+    }
+    case 'trrmv': {
+      const t = S.trips.find(x => x.id === id); if (!t) return;
+      t.riders = t.riders.filter(r => r !== v);
+      save(); tripDrawer(id); return;
+    }
+    case 'trnew': {
+      const day = S.tab.trday ? Number(S.tab.trday) : dayStart(now());
+      const t2 = S.tasks.filter(x => dayStart(x.start) === day)
+        .sort((a, b) => a.start - b.start)[0];
+      const bus = S.buses.reduce((best, b) => {
+        const n1 = S.trips.filter(x => x.busId === b.id && dayStart(x.at) === day).length;
+        const n2 = S.trips.filter(x => x.busId === best.id && dayStart(x.at) === day).length;
+        return n1 < n2 ? b : best;
+      }, S.buses[0]);
+      const at = t2 ? t2.start - 45 * MIN : day + 8 * HR;
+      const g = t2 ? S.groups.find(x => x.leaderId === t2.leaderId) : null;
+      const tr = { id:uid('TR'), no:'TP-' + (701 + S.trips.length), busId:bus.id,
+        taskId:t2 ? t2.id : null, kind:t2 ? 'toTask' : 'toHotel',
+        from:g ? (hotelById(g.hotelId).ar || 'نقطة التجمّع') : 'نقطة التجمّع',
+        to:t2 ? t2.place : 'الفندق', at, dur:40, cap:bus.cap,
+        riders:g ? g.members.slice(0, 4).map(m => m.id) : [], driver:bus.driver, done:false };
+      S.trips.push(tr);
+      logIt('جُدولت رحلة ' + tr.no + ' على ' + bus.no + ' — ' + t12(at), 'info');
+      toast('جُدولت على ' + bus.no + ' — الأقلّ حِملًا');
+      break;
+    }
     /* الفرز: النقرة الأولى تختار العمود، والثانية تعكس الاتجاه */
     case 'sort': {
       const k = b.dataset.k, c = Number(v);
@@ -5956,7 +7073,102 @@ document.addEventListener('click', ev => {
     }
     case 'ktopen': ktDrawer(id); return;
     case 'pilopen': pilgrimDrawer(id); return;
-    case 'gview': guideDrawer(id); return;
+    case 'gdview': guideView(id); return;
+    case 'gdnew':  S.gb = null; S.q.gbs = ''; guideEdit(null); return;
+    case 'gdedit': S.gb = null; guideEdit(id); return;
+    case 'gbscope': {
+      S.gb.scope = v;
+      const t = gTargets(v);
+      S.gb.target = t.length ? t[0][0] : null;
+      guideEdit(); return;
+    }
+    case 'gbadd': {
+      const s2 = (S.q.gbs || '').trim();
+      if (!s2) { toast('اكتب نصّ الخطوة', 'r'); return; }
+      S.gb.steps.push(s2); S.q.gbs = ''; guideEdit(); return;
+    }
+    case 'gbdel': S.gb.steps.splice(Number(v), 1); guideEdit(); return;
+    case 'gbup': {
+      const i = Number(v), a2 = S.gb.steps;
+      const tmp = a2[i - 1]; a2[i - 1] = a2[i]; a2[i] = tmp;
+      guideEdit(); return;
+    }
+    case 'gbmadd': {
+      const f = (S.files || {}).guide;
+      const k = fOf('gb','mk') || 'video';
+      if (!f && k !== 'text') { toast('اختر ملفًا أوّلًا', 'r'); return; }
+      S.gb.media.push({ k, name:f ? f.name : 'نصّ الخطوات', size:f ? f.size : 0 });
+      if (S.files) delete S.files.guide;
+      guideEdit(); return;
+    }
+    case 'gbmdel': S.gb.media.splice(Number(v), 1); guideEdit(); return;
+    case 'gbsave':
+    case 'gbsavepub': {
+      const b2 = S.gb;
+      b2.title = (S.q.gbt || b2.title || '').trim();
+      if (!b2.title) { toast('اكتب عنوان الدليل', 'r'); return; }
+      if (!b2.steps.length) { toast('أضف خطوة واحدة على الأقلّ', 'r'); return; }
+      const pub = a === 'gbsavepub';
+      if (b2.editing) {
+        const g = S.guides.find(x => x.id === b2.editing);
+        Object.assign(g, { title:b2.title, scope:b2.scope, target:b2.target,
+          taskId:b2.taskId, steps:b2.steps, media:b2.media, at:now() });
+        if (pub) { g.status = 'live'; g.ver += 1; }
+        logIt('عُدِّل دليل «' + g.title + '»' + (pub ? ' ونُشر ن' + AR(g.ver) : ''), 'guide');
+      } else {
+        S.guides.unshift({ id:uid('GD'), scope:b2.scope, target:b2.target, taskId:b2.taskId,
+          title:b2.title, ver:1, status:pub ? 'live' : 'draft',
+          media:b2.media, steps:b2.steps, by:'ctl', at:now() });
+        logIt('أُنشئ دليل «' + b2.title + '»' + (pub ? ' ونُشر' : ' كمسودة'), 'guide');
+      }
+      S.gb = null; S.q.gbt = ''; S.drawer = null;
+      toast(pub ? 'حُفظ ونُشر — يقرؤه الميدان' : 'حُفظ كمسودة');
+      break;
+    }
+    case 'gdpub': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      g.status = 'live'; g.ver += 1; g.at = now();
+      logIt('اعتُمدت النسخة ' + AR(g.ver) + ' من «' + g.title + '»', 'guide');
+      toast('نُشر — يقرؤه الميدان الآن'); break;
+    }
+    case 'gdunpub': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      g.status = 'draft';
+      logIt('سُحب دليل «' + g.title + '» من النشر', 'guide');
+      toast('سُحب — لم يعد يراه الميدان', 'r'); break;
+    }
+    /* ربط دليل بمهمّة بعينها */
+    case 'tguide': {
+      const t = taskById(id); if (!t) return;
+      S.pendTask = id;
+      const own = S.guides.filter(g => !g.taskId || g.taskId === id);
+      S.drawer = { title:'دليل ' + t.title, sub:'اختر دليلًا يَغلب على دليل التصنيف',
+        icon:'i-guide', body:
+        '<div class="quote">دليل التصنيف الآن: <b>' +
+          E((guideFor('hajj', t.kind) || {}).title || 'لا يوجد') + '</b></div>' +
+        '<div class="plist" style="margin-top:12px">' + own.map(g =>
+          '<button class="prow pick' + (g.taskId === id ? ' on' : '') + '" ' +
+          'data-a="tguideset" data-id="' + g.id + '">' +
+          '<span class="ico">' + icon((G_SCOPE[g.scope] || G_SCOPE.free).i,'s16') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(g.title) + '</b>' +
+          '<span>' + E((G_SCOPE[g.scope] || G_SCOPE.free).ar) + ' · ' +
+            AR((g.steps || []).length) + ' خطوة</span></span>' +
+          pill(G_ST[g.status].ar, G_ST[g.status].c) + '</button>').join('') + '</div>' +
+        '<button class="btn l" style="width:100%;margin-top:12px" data-a="tguideclr">' +
+          'إلغاء الربط — يعود إلى دليل التصنيف</button>' };
+      renderDrawer(); return;
+    }
+    case 'tguideset': {
+      const g = S.guides.find(x => x.id === id); if (!g) return;
+      S.guides.forEach(x => { if (x.taskId === S.pendTask) x.taskId = null; });
+      g.taskId = S.pendTask;
+      logIt('رُبط دليل «' + g.title + '» بمهمّة ' + (taskById(S.pendTask) || {}).title, 'guide');
+      S.drawer = null; toast('رُبط الدليل بالمهمّة'); break;
+    }
+    case 'tguideclr': {
+      S.guides.forEach(x => { if (x.taskId === S.pendTask) x.taskId = null; });
+      S.drawer = null; toast('عاد إلى دليل التصنيف'); break;
+    }
     case 'fdash': formDash(id); return;
     case 'fsub': subDrawer(id); return;
 
@@ -6331,7 +7543,7 @@ document.addEventListener('click', ev => {
     case 'gin': {
       const g = S.gate || { perm:'admin' };
       S.actor = { perm:g.perm, orgId:g.orgId, hotelId:g.hotelId,
-        leaderId:g.leaderId, userId:g.userId };
+        leaderId:g.leaderId, userId:g.userId, contractorId:g.contractorId };
       S.auth = true;
       const first = allowed()[0];
       S.route = { n: first || 'ops' };

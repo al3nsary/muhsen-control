@@ -1,5 +1,6 @@
 <title>مُحسن · الكنترول</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
 
 <style>
 /* ══════════════════════════════════════════════════════════════
@@ -100,7 +101,7 @@
 
 :root{
   --r:18px; --r2:24px; --r3:14px;
-  --f:"Almarai","SF Arabic","Segoe UI",system-ui,sans-serif;
+  --f:"IBM Plex Sans Arabic","SF Arabic","Segoe UI",system-ui,sans-serif;
   --rail:80px; --side:268px; --top:66px;
   --e:cubic-bezier(.22,.7,.2,1);
   --e2:cubic-bezier(.34,1.4,.44,1);
@@ -110,7 +111,8 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{height:100%; margin:0}
 body{
-  direction:rtl; font-family:var(--f); font-size:14px; line-height:1.7;
+  direction:rtl; font-family:var(--f); font-size:14px; line-height:1.75;
+  font-feature-settings:"tnum" 1;
   color:var(--ink); background:var(--void); overflow:hidden;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
@@ -195,7 +197,7 @@ a{color:inherit; text-decoration:none}
 .nav .ic{width:18px; height:18px; flex:none}
 .nav b{font-size:13px; font-weight:700; flex:1; text-align:right; overflow:hidden;
   text-overflow:ellipsis}
-.nav .n{font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:99px; flex:none;
+.nav .n{font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT); font-variant-numeric:tabular-nums}
 .nav .n.q{background:var(--pWaitB); color:var(--pWaitT)}
 
@@ -213,7 +215,7 @@ a{color:inherit; text-decoration:none}
 .kid.on{color:var(--navOnInk); background:var(--navSheen2)}
 .kid b{font-size:12px; font-weight:700; flex:1; text-align:right}
 .kid .ic{flex:none; opacity:.85}
-.kid .n{font-size:9.5px; font-weight:800; padding:1px 6px; border-radius:99px; flex:none;
+.kid .n{font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT)}
 .kid .n.q{background:var(--pWaitB); color:var(--pWaitT)}
 
@@ -259,7 +261,7 @@ a{color:inherit; text-decoration:none}
 .iconbtn:hover{color:var(--ink); background:var(--sheen2); transform:translateY(-1px)}
 .iconbtn:active{transform:scale(.93)}
 .iconbtn .bdg{position:absolute; top:-4px; inset-inline-start:-4px; min-width:18px; height:18px;
-  border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:800;
+  border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
   display:grid; place-items:center; padding:0 5px; border:2px solid var(--deep)}
 /* مفتاح الوضع */
 .themebtn{width:auto; min-width:118px; padding:0 6px 0 12px; display:flex; align-items:center;
@@ -338,7 +340,7 @@ a{color:inherit; text-decoration:none}
 .kpi{padding:17px 19px 42px; min-height:150px; cursor:default;
   display:flex; flex-direction:column; justify-content:flex-start; gap:2px}
 .kpi .lab{font-size:11.5px; color:var(--dim2); display:flex; align-items:center; gap:6px}
-.kpi b{display:block; font-size:36px; font-weight:800; line-height:1.2; letter-spacing:-1.4px;
+.kpi b{display:block; font-size:36px; font-weight:700; line-height:1.2; letter-spacing:-1.4px;
   font-variant-numeric:tabular-nums; margin-top:5px}
 .kpi .sub{font-size:11px; color:var(--dim2); position:relative; z-index:2; margin-top:auto}
 .kpi .spark{position:absolute; inset-inline:0; bottom:0; height:38px; color:var(--spark);
@@ -582,7 +584,7 @@ a{color:inherit; text-decoration:none}
 .opsbar .sp{flex:1; min-width:12px}
 .hello b{display:block; font-size:19px; letter-spacing:-.5px; line-height:1.35}
 .hello .tiny{display:block; margin-top:1px}
-.kbd2{font-size:9.5px; font-weight:800; letter-spacing:.4px; padding:2px 6px; border-radius:6px;
+.kbd2{font-size:9.5px; font-weight:700; letter-spacing:.4px; padding:2px 6px; border-radius:6px;
   background:rgba(255,255,255,.16); color:inherit; margin-inline-start:2px}
 
 /* ══ مبدّل مدى بمؤشّر ينزلق ══ */
@@ -602,7 +604,7 @@ a{color:inherit; text-decoration:none}
   transition:inset-inline-start .46s var(--e2)}
 
 /* ══ فارق عن المدة السابقة ══ */
-.delta{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800;
+.delta{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:700;
   padding:2px 8px; border-radius:99px; font-variant-numeric:tabular-nums; flex:none;
   animation:rise .5s var(--e3) .3s both}
 .delta.up{color:var(--live); background:color-mix(in srgb,var(--live) 14%,transparent)}
@@ -638,7 +640,7 @@ a{color:inherit; text-decoration:none}
 @keyframes arcin{from{opacity:0; transform:scale(.72)} to{opacity:1; transform:none}}
 .donut .dc{position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; pointer-events:none}
-.donut .dc b{font-size:32px; font-weight:800; letter-spacing:-1.2px; line-height:1.1;
+.donut .dc b{font-size:32px; font-weight:700; letter-spacing:-1.2px; line-height:1.1;
   font-variant-numeric:tabular-nums}
 .donut .dc span{font-size:11px; color:var(--dim2)}
 .legend{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 14px; width:100%}
@@ -649,7 +651,7 @@ a{color:inherit; text-decoration:none}
 /* ══ الجدول ══ */
 .tbl{margin:0 -4px}
 .tbl .th{display:grid; gap:10px; padding:0 10px 9px; border-bottom:1px solid var(--line)}
-.tbl .th button{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800;
+.tbl .th button{display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
   letter-spacing:.2px; color:var(--faint); transition:color .2s var(--e)}
 .tbl .th button:hover{color:var(--ink)}
 .tbl .th button.on{color:var(--gold2)}
@@ -704,7 +706,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ بطاقة مصغّرة ══ */
 .card.mini{padding:13px 14px; min-height:0}
-.card.mini b{display:block; font-size:23px; font-weight:800; letter-spacing:-.9px; margin-top:2px;
+.card.mini b{display:block; font-size:23px; font-weight:700; letter-spacing:-.9px; margin-top:2px;
   font-variant-numeric:tabular-nums}
 
 /* ══ نعومة: الحركة الطويلة تسير بمنحنى أسّي ══ */
@@ -769,7 +771,7 @@ a{color:inherit; text-decoration:none}
 .meta > div{flex:1; text-align:center; padding:0 5px; border-inline-start:1px solid var(--line)}
 .meta > div:first-child{border:0}
 .meta .k{display:block; font-size:10px; color:var(--dim2); margin-bottom:4px}
-.meta b{display:block; font-size:15px; font-weight:800; line-height:1.35}
+.meta b{display:block; font-size:15px; font-weight:700; line-height:1.35}
 
 /* ══ ضلع النوع على حافّة البطاقة ══ */
 .prow{position:relative; overflow:hidden}
@@ -817,7 +819,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ حقول التحرير ══ */
 .compose{display:flex; flex-direction:column}
-.fl2{display:block; font-size:11px; font-weight:800; color:var(--dim2); margin:14px 2px 7px}
+.fl2{display:block; font-size:11px; font-weight:700; color:var(--dim2); margin:14px 2px 7px}
 .fl2:first-child{margin-top:0}
 .fld{width:100%; background:var(--sheen); border:0; outline:0; color:var(--ink); font:inherit;
   font-size:13px; padding:12px 14px; border-radius:13px; resize:vertical;
@@ -841,7 +843,7 @@ a{color:inherit; text-decoration:none}
 .brow:hover{transform:translateX(-3px); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line2)}
 .brow:active{transform:scale(.985)}
 .rk{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
-  font-size:12px; font-weight:800; color:var(--dim2); background:var(--sheen2)}
+  font-size:12px; font-weight:700; color:var(--dim2); background:var(--sheen2)}
 .rk.top{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold));
   box-shadow:0 0 14px -3px var(--gold)}
 .bar2{flex:1; min-width:52px; height:6px; border-radius:99px; background:var(--sheen2); overflow:hidden}
@@ -868,7 +870,7 @@ a{color:inherit; text-decoration:none}
 .step{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:12px;
   background:var(--sheen); animation:trin .45s var(--e3) both}
 .sn{width:24px; height:24px; border-radius:8px; flex:none; display:grid; place-items:center;
-  font-size:11px; font-weight:800; color:var(--onGold);
+  font-size:11px; font-weight:700; color:var(--onGold);
   background:linear-gradient(150deg,var(--g3),var(--g2))}
 .step .nm b{font-size:12.5px; font-weight:400; line-height:1.6}
 
@@ -921,7 +923,7 @@ a{color:inherit; text-decoration:none}
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .tcard.on .tico{background:var(--sheen2)}
 .tcard .nm b{font-size:13.5px} .tcard .nm span{font-size:10.5px; line-height:1.5}
-.tn{font-size:19px; font-weight:800; letter-spacing:-.6px; flex:none;
+.tn{font-size:19px; font-weight:700; letter-spacing:-.6px; flex:none;
   font-variant-numeric:tabular-nums; color:var(--dim2)}
 .tcard.on .tn{color:var(--gold2)}
 
@@ -962,7 +964,7 @@ a{color:inherit; text-decoration:none}
 .card.src::-webkit-scrollbar{width:8px}
 .card.src::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
 .srcgrp{margin-bottom:18px}
-.slab{display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:800;
+.slab{display:flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700;
   color:var(--faint); letter-spacing:.3px; margin:0 2px 9px}
 .slab .cnt{font-style:normal; margin-inline-start:auto; font-size:10px; padding:1px 7px;
   border-radius:99px; background:var(--sheen2); color:var(--dim2)}
@@ -980,7 +982,7 @@ a{color:inherit; text-decoration:none}
 
 /* ══ الصندوق ══ */
 .buildbox{position:sticky; top:0}
-.cnt2{font-size:12px; font-weight:800; padding:4px 12px; border-radius:99px;
+.cnt2{font-size:12px; font-weight:700; padding:4px 12px; border-radius:99px;
   color:var(--dim2); background:var(--sheen2); font-variant-numeric:tabular-nums}
 .cnt2.ok{color:var(--onGold); background:linear-gradient(150deg,var(--g3),var(--g2))}
 .slot{display:flex; align-items:center; gap:11px; min-height:56px; padding:9px 12px;
@@ -989,7 +991,7 @@ a{color:inherit; text-decoration:none}
   transition:box-shadow .26s var(--e), background .26s var(--e)}
 .slot.lead{background:var(--pGoldB); box-shadow:inset 0 0 0 1px var(--gold2)}
 .slot.full{box-shadow:inset 0 0 0 1px var(--line2); background:var(--panel2)}
-.slot .sl{font-size:10.5px; font-weight:800; color:var(--dim2); min-width:56px; flex:none}
+.slot .sl{font-size:10.5px; font-weight:700; color:var(--dim2); min-width:56px; flex:none}
 .slot.lead .sl{color:var(--pGoldT)}
 .slot .ph{font-size:11.5px; color:var(--faint)}
 .slot .nm b{font-size:12.5px} .slot .nm span{font-size:10.5px}
@@ -1001,7 +1003,7 @@ a{color:inherit; text-decoration:none}
   border-radius:9px; border:0; outline:0; flex:none; max-width:104px;
   background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--line)}
 .pickrow{margin-bottom:12px}
-.pickrow .sl{display:block; font-size:10.5px; font-weight:800; color:var(--dim2); margin:0 2px 8px}
+.pickrow .sl{display:block; font-size:10.5px; font-weight:700; color:var(--dim2); margin:0 2px 8px}
 .btn[disabled]{opacity:.45; cursor:not-allowed}
 .btn[disabled]:hover{transform:none; box-shadow:0 0 0 1px var(--hair)}
 
@@ -1042,7 +1044,7 @@ a{color:inherit; text-decoration:none}
   transition:box-shadow .24s var(--e), background .24s var(--e)}
 .fsel:hover{background:var(--sheen2)}
 .fsel.on{box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
-.fsel > span{font-size:10.5px; font-weight:800; color:var(--dim2); white-space:nowrap}
+.fsel > span{font-size:10.5px; font-weight:700; color:var(--dim2); white-space:nowrap}
 .fsel.on > span{color:var(--pGoldT)}
 select{color-scheme:inherit}
 .fsel select option, .spec option{background:var(--panel); color:var(--ink)}
@@ -1059,7 +1061,7 @@ select{color-scheme:inherit}
   background:var(--line)}
 .wfs:last-child::before{display:none}
 .wfn{width:30px; height:30px; border-radius:50%; flex:none; display:grid; place-items:center;
-  font-size:11.5px; font-weight:800; z-index:2;
+  font-size:11.5px; font-weight:700; z-index:2;
   color:var(--dim2); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
 .wfs.done .wfn{color:#fff; background:linear-gradient(150deg,var(--g3),var(--g2)); box-shadow:none}
 .wfs.done::before{background:var(--g3)}
@@ -1085,7 +1087,7 @@ select{color-scheme:inherit}
 /* ══ إضافة سؤال ══ */
 .qadd{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
 .prow .sn{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
-  font-size:11px; font-weight:800; color:var(--onGold);
+  font-size:11px; font-weight:700; color:var(--onGold);
   background:linear-gradient(150deg,var(--g3),var(--g2))}
 .prow.pick{cursor:pointer; text-align:right}
 .prow.pick:hover{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
@@ -1198,7 +1200,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .astep:hover{transform:translateY(-3px); box-shadow:var(--lift); color:var(--ink)}
 .astep.on{color:var(--ink); box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
 .astep .an{width:26px; height:26px; border-radius:9px; flex:none; display:grid;
-  place-items:center; font-size:12px; font-weight:800; color:var(--dim2);
+  place-items:center; font-size:12px; font-weight:700; color:var(--dim2);
   background:var(--sheen2)}
 .astep.on .an{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold))}
 .astep .nm{flex:1} .astep .nm b{font-size:13px} .astep .nm span{font-size:10.5px}
@@ -1221,6 +1223,105 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   place-items:center; border:1.5px dashed var(--line2)}
 .seat .x{color:var(--dim2); flex:none; opacity:0; transition:opacity .2s var(--e)}
 .seat.full:hover .x{opacity:1; color:var(--red)}
+
+
+/* ═══════════════════════════════════════════════════
+   الحاويات · الهوية · العفاشة · النقل
+   ═══════════════════════════════════════════════════ */
+
+/* ══ حاوية في القائمة ══ */
+.grpnav .chev{color:var(--navFaint); flex:none; transition:transform .3s var(--e2)}
+.grpnav.open .chev{transform:rotate(90deg); color:var(--gold2)}
+.grpnav.inside:not(.on){color:var(--navInk)}
+.grpnav.inside::before{opacity:.45}
+.side.mini .grpnav .chev{display:none}
+
+/* ══ هوية الداخل في الشريط ══ */
+.who{display:flex; align-items:center; gap:9px; padding:5px 11px 5px 7px; border-radius:99px;
+  flex:none; max-width:210px; color:var(--dim);
+  background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .22s var(--e)}
+.who:hover{color:var(--ink); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--gold2)}
+.who .nm{min-width:0; text-align:right}
+.who .nm b{display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.who .nm span{display:block; font-size:10px; color:var(--dim2); white-space:nowrap}
+.who .ic{flex:none; opacity:.6}
+.who .av{width:30px; height:30px}
+@media (max-width:1180px){ .who .nm{display:none} .who{max-width:none; padding:5px} }
+
+/* ══ حالة الرسالة النصية ══ */
+.smsbox{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:500;
+  padding:4px 10px; border-radius:99px; flex:none;
+  color:var(--dim2); background:var(--sheen2)}
+.smsbox.live{color:var(--pLiveT); background:var(--pLiveB)}
+.smsbox.wait{color:var(--pWaitT); background:var(--pWaitB)}
+.smsbox.no{color:var(--pNoT); background:var(--pNoB)}
+.smsbox.grey{color:var(--dim2); background:var(--sheen2)}
+
+/* ══ شريط أيام الموسم ══ */
+.daystrip{display:flex; gap:9px; overflow-x:auto; padding-bottom:6px}
+.daystrip::-webkit-scrollbar{height:6px}
+.daystrip::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.dchip{flex:none; min-width:96px; padding:11px 13px; border-radius:14px; text-align:center;
+  color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
+  transition:all .22s var(--e)}
+.dchip:hover{color:var(--ink); background:var(--sheen2)}
+.dchip.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.dchip.today b::after{content:"•"; color:var(--live); margin-inline-start:5px}
+.dchip b{display:block; font-size:12.5px; font-weight:600}
+.dchip span{display:block; font-size:10px; color:var(--dim2); margin-top:2px}
+.dchip i{display:inline-block; margin-top:6px; font-style:normal; font-size:10px;
+  padding:1px 8px; border-radius:99px; background:var(--sheen2)}
+.dchip.on i{background:var(--panel)}
+
+/* ══ مسار الباصات ══ */
+.gantt{margin-top:4px}
+.ghead{position:relative; height:20px; margin-inline-start:74px; margin-bottom:6px}
+.ghead span{position:absolute; transform:translateX(50%); font-size:9.5px; color:var(--faint);
+  white-space:nowrap}
+.grow{display:flex; align-items:center; gap:10px; margin-bottom:7px}
+.glabel{width:64px; flex:none; display:flex; align-items:center; gap:7px;
+  padding-inline-start:8px; border-inline-start:3px solid var(--bc); border-radius:2px}
+.glabel b{font-size:11.5px; font-weight:600}
+.glabel span{font-size:9.5px; color:var(--dim2); font-variant-numeric:tabular-nums}
+.gtrack{position:relative; flex:1; height:32px; border-radius:9px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); overflow:hidden}
+.gnow{position:absolute; inset-block:0; width:2px; background:var(--red); z-index:3;
+  box-shadow:0 0 10px 1px color-mix(in srgb,var(--red) 70%,transparent)}
+.gtrip{position:absolute; inset-block:4px; border-radius:6px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; padding:0 4px;
+  font-size:9px; font-weight:600; color:#fff; white-space:nowrap;
+  background:var(--bc); opacity:.9; transition:all .2s var(--e)}
+.gtrip:hover{opacity:1; transform:scaleY(1.12); z-index:4;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.7)}
+.gtrip span{overflow:hidden; text-overflow:ellipsis}
+.gtrip.done{opacity:.42}
+.gtrip.late{box-shadow:inset 0 0 0 1.5px var(--red)}
+.gtrip.running{box-shadow:0 0 0 1.5px var(--live), 0 0 14px -2px var(--live)}
+
+/* ══ بطاقة باص ══ */
+.busbox{padding:14px; border-radius:16px; background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); border-inline-start:3px solid var(--bc)}
+
+/* ══ شبكة الصلاحيات ══ */
+.permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px}
+.pchk{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
+  text-align:right; color:var(--dim); background:var(--sheen);
+  box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
+.pchk:hover{color:var(--ink); background:var(--sheen2)}
+.pchk.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
+.pchk b{font-size:11.5px; font-weight:600; flex:1}
+.pchk .box{width:18px; height:18px; border-radius:6px; flex:none; display:grid; place-items:center;
+  box-shadow:inset 0 0 0 1.5px var(--line2)}
+.pchk.on .box{color:var(--onGold); box-shadow:none;
+  background:linear-gradient(150deg,var(--gold2),var(--gold))}
+.fsel.wide{width:100%; justify-content:space-between}
+.fsel.wide select{max-width:none; flex:1}
+.whobox{margin-top:6px}
+.gnote{display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:11px 13px;
+  border-radius:12px; font-size:11.5px; line-height:1.8;
+  color:var(--dim); background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
+.gwrap.wide{width:min(560px,100%)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
