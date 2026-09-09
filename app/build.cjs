@@ -43,6 +43,11 @@ console.log('built:', dest);
 console.log('size:', Math.round(fs.statSync(dest).size / 1024) + 'KB');
 
 /* نسخة الاستضافة */
+/* العنوان ووصلات الخطوط وحدها تنتقل إلى الرأس. أما <style> فيبقى مكانه:
+   نقلُه يجرّ معه <defs> الرسومية، و<svg> في الرأس أسوأ من <style> في الجسد. */
+const HEAD = /^(?:\s*<title>[\s\S]*?<\/title>|\s*<link\b[^>]*>)+/;
+const headOf = s => (s.match(HEAD) || [''])[0].trim() + '\n';
+const bodyOf = s => s.replace(HEAD, '').replace(/^\s*\n/, '');
 const deploy = path.join(__dirname, '..', 'docs');
 fs.mkdirSync(deploy, { recursive: true });
 const page = '<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n' +
@@ -50,7 +55,8 @@ const page = '<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
   '<meta name="theme-color" content="#060C09">\n' +
   '<meta name="description" content="مُحسن · الكنترول — غرفة عمليات موسم الحج">\n' +
-  '</head>\n<body>\n' + out + '</body>\n</html>';
+  /* العنوان والخطوط والأنماط مكانها الرأس لا الجسد — نقصّ عند آخر </style> */
+  headOf(out) + '</head>\n<body>\n' + bodyOf(out) + '</body>\n</html>';
 fs.writeFileSync(path.join(deploy, 'index.html'), page);
 console.log('docs/index.html:', Math.round(fs.statSync(path.join(deploy, 'index.html')).size / 1024) + 'KB');
 

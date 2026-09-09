@@ -2,6 +2,8 @@
 
 غرفة عمليات موسم الحج — **المصدر الأصل** الذي يقرأ منه تطبيق الميدان ويرفع إليه.
 
+**النسخة الحيّة:** <https://al3nsary.github.io/muhsen-control/>
+
 ```
 node app/build.cjs     # يبني control.html و docs/index.html ويشغّل أربعة حُرّاس
 ```
