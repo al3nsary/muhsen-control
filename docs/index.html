@@ -4767,7 +4767,8 @@ function renderGate() {
   if (S.auth) { w.innerHTML = ''; return; }
   const a = S.gate = S.gate || { perm:'admin', orgId:null, hotelId:null, leaderId:null, userId:null };
   const p = permOf(a.perm);
-  const gr = p.scope === 'all' ? navItems().length : ((S.grants || {})[p.k] || []).length;
+  /* grantsOf لا S.grants — فالافتراضيّ يسري ما لم تُخصَّص الصفة */
+  const gr = p.scope === 'all' ? navItems().length : grantsOf(p.k).length;
 
   /* من تُمثِّل؟ يُسأل عنه حسب النطاق */
   let who = '', ready = true;
@@ -4806,7 +4807,7 @@ function renderGate() {
         '<div class="gcard">' +
           '<label class="fl2" style="margin-top:0">ادخل بصفتك</label>' +
           '<div class="roles">' + PERMS.map(x => {
-            const n = x.scope === 'all' ? navItems().length : ((S.grants || {})[x.k] || []).length;
+            const n = x.scope === 'all' ? navItems().length : grantsOf(x.k).length;
             return '<button class="role' + (x.k === a.perm ? ' on' : '') + '" ' +
               'data-a="grole" data-v="' + x.k + '">' +
               '<span class="fl" style="gap:8px;width:100%">' + icon(x.i, 's18') +
