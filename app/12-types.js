@@ -27,58 +27,6 @@ function screenTasks() {
       : t === 'comply' ? tabComply() : tabHajj());
 }
 
-/* ══════════════ ١) مهام الحجّ ══════════════ */
-function taskRow(t) {
-  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
-  const running = now() >= t.start && now() < t.end && t.status !== 'done';
-  return '<div class="prow trow" data-a="tlopen" data-id="' + t.id + '">' +
-    '<span class="krail" style="background:' + (c.c || 'var(--dim)') + '"></span>' +
-    '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
-      icon(c.i || 'i-tasks', 's18') + '</span>' +
-    '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
-      '<span>' + E(t.kt) + ' · ' + E(L.name || '') + ' · ' + E(t.place) + '</span></span>' +
-    '<span class="when"><b>' + hijri(t.start) + '</b>' +
-      '<span class="num">' + t12(t.start) + ' — ' + t12(t.end) + '</span></span>' +
-    '<span class="fl" style="gap:9px">' +
-      avatar(L, 'sm') + pill(AR(t.assigned.length) + ' محسن', 'grey') + '</span>' +
-    '<span class="end">' +
-      (t.status === 'done' ? stars(t.rating || 0)
-        : running ? pill('جارية الآن', 'live') : pill(untilTxt(t.start), 'wait')) +
-      (t.autoStarted ? '<div style="margin-top:6px">' + pill('بدأها النظام', 'no') + '</div>' : '') +
-    '</span></div>';
-}
-
-function tabHajj() {
-  const f = S.tab.tf || 'today';
-  const all = V.tasks.slice().sort((a, b) => a.start - b.start);
-  const list = f === 'today' ? all.filter(t => dayStart(t.start) === dayStart(now()))
-    : f === 'live' ? all.filter(t => now() >= t.start && now() < t.end && t.status !== 'done')
-    : f === 'next' ? all.filter(t => t.start > now())
-    : f === 'done' ? all.filter(t => t.status === 'done') : all;
-  const rated = all.filter(t => t.rating);
-  const avg = rated.length ? (rated.reduce((a, t) => a + t.rating, 0) / rated.length).toFixed(1) : '0.0';
-  return '<div class="grid g4">' +
-      stat({ label:'مهام الموسم', n:all.length, ic:'i-tasks',
-        sub:'تُسكَّن تلقائيًّا على المجموعات', series:[12,24,36,44,50,55,58,all.length] }) +
-      stat({ label:'اليوم', n:todayTasks().length, ic:'i-cal', sub:dayName(now()),
-        series:[6,8,7,11,9,13,10,Math.max(1, todayTasks().length)] }) +
-      stat({ label:'جارية', n:runningTasks().length, ic:'i-play',
-        cls:runningTasks().length ? 'up' : '', sub:'الآن',
-        series:[0,1,2,1,3,2,1,Math.max(1, runningTasks().length)] }) +
-      stat({ label:'منجزة', n:all.filter(t => t.status === 'done').length, ic:'i-checkc',
-        cls:'up', sub:'بمتوسط تقييم ' + AR(avg), series:[4,9,14,19,23,26,28,30] }) +
-    '</div>' +
-    '<div class="card">' +
-      head('جدول مهام الحجّ', 'المصدر الذي يقرأ منه التطبيق',
-        pill(AR(list.length) + ' معروضة', 'gold'), 'i-kaaba') +
-      '<div class="tools">' + segmented('tf',
-        [['today','اليوم'],['live','جارية'],['next','قادمة'],['done','منجزة'],['all','الكل']], f) +
-      '</div>' +
-      (list.length ? '<div class="plist">' + list.map(taskRow).join('') + '</div>'
-        : empty('لا مهام في هذا التصنيف', 'جرّب تصنيفًا آخر', 'i-cal')) +
-    '</div>';
-}
-
 /* ══════════════ ٢) إثراء التجربة ══════════════ */
 function tabEnrich() {
   const f = S.tab.ef || 'open';

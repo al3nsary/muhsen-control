@@ -15,7 +15,7 @@ const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock'];
+  'rpopen','bedit','bclear','clock','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -104,6 +104,246 @@ document.addEventListener('click', ev => {
     case 'shortcuts': showShortcuts(); return;
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
+
+    /* ═══ المهمّة كاملةً — ما يفعله الميدان تفعله الغرفة ═══ */
+    case 'txfold': {
+      S.open = S.open || {};
+      const k = 'tx:' + id + ':' + v;
+      S.open[k] = !S.open[k];
+      save(); taskDrawer(id); return;
+    }
+    case 'txwide': S.dwide = !S.dwide; save(); taskDrawer(id); return;
+
+    case 'txsub': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const sb = t.subs.find(x => x.id === b.dataset.s); if (!sb) return;
+      sb.done = !sb.done;
+      sb.at = sb.done ? now() : null;
+      sb.by = sb.done ? null : null;
+      txLog(t, (sb.done ? 'أشّر الكنترول على إنجاز «' : 'أُلغي تأشير «') + sb.name + '»',
+        sb.done ? 'ok' : 'warn');
+      logIt('المهمة ' + t.title + ' — ' + (sb.done ? 'أُنجزت' : 'أُلغيت') + ' خطوة «' + sb.name +
+        '» من الكنترول', 'task');
+      toast(sb.done ? 'أُنجزت: ' + sb.name : 'أُلغي تأشيرها');
+      save(); taskDrawer(id); return;
+    }
+
+    case 'txreq': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const r = t.reqs.find(x => x.id === b.dataset.s); if (!r) return;
+      r.done = !r.done;
+      r.by = r.done ? actorLabel() : null;
+      r.at = r.done ? now() : null;
+      txLog(t, (r.done ? 'تحقَّق الكنترول من «' : 'رُفع التحقّق عن «') + r.text + '» — ' +
+        REQ_PH[r.ph].ar, r.done ? 'ok' : 'warn');
+      save(); taskDrawer(id); return;
+    }
+    case 'txreqdel': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const r = t.reqs.find(x => x.id === b.dataset.s); if (!r) return;
+      t.reqs = t.reqs.filter(x => x.id !== r.id);
+      txLog(t, 'حُذف المتطلّب «' + r.text + '»', 'warn');
+      toast('حُذف المتطلّب'); save(); taskDrawer(id); return;
+    }
+    case 'txreqnew': S.txq = S.txq || {}; if (v) S.txq.ph = v; S.q.txrq = ''; txReqNew(id, v); return;
+    case 'txreqph': S.txq = S.txq || {}; S.txq.ph = v; txReqNew(id, v); return;
+    case 'txreqsave': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const txt = (S.q.txrq || '').trim();
+      if (!txt) { toast('اكتب نصّ الشرط', 'r'); return; }
+      const ph = (S.txq && S.txq.ph) || 'pre';
+      t.reqs.push({ id:uid('Q'), ph, text:txt, done:false, by:null, at:null, note:'' });
+      S.open = S.open || {}; S.open['tx:' + t.id + ':req' + ph] = true;
+      txLog(t, 'أضاف الكنترول متطلّبًا في ' + REQ_PH[ph].ar + ': «' + txt + '»', 'info');
+      logIt('أُضيف متطلّب على مهمة ' + t.title + ' — ' + REQ_PH[ph].ar, 'task');
+      S.q.txrq = ''; toast('أُضيف المتطلّب'); save(); taskDrawer(id); return;
+    }
+    case 'txtpl': txTplPick(id); return;
+    case 'txtplpick': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const tp = (S.reqtpl || []).find(x => x.id === b.dataset.s); if (!tp) return;
+      let n = 0;
+      tp.items.forEach(it => {
+        if (t.reqs.some(r => r.text === it.text && r.ph === it.ph)) return;
+        t.reqs.push({ id:uid('Q'), ph:it.ph, text:it.text, done:false, by:null, at:null, note:'' });
+        n++;
+      });
+      txLog(t, 'رُبط قالب «' + tp.name + '» — أُضيف ' + AR(n) + ' شرطًا', 'info');
+      logIt('رُبط قالب متطلّبات بمهمة ' + t.title + ' — ' + AR(n) + ' شرطًا', 'task');
+      toast(n ? 'أُضيف ' + AR(n) + ' شرطًا' : 'كلّها موجودة أصلًا', n ? 'g' : 'r');
+      save(); taskDrawer(id); return;
+    }
+
+    case 'txfilenew': S.txq = S.txq || {}; S.q.txfn = ''; S.q.txfd = ''; txFileNew(id); return;
+    case 'txfk': S.txq = S.txq || {}; S.txq.fk = v; txFileNew(id); return;
+    case 'txfilesave': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const f = (S.files || {}).txf;
+      const nm = (S.q.txfn || '').trim() || (f ? f.name : '');
+      if (!nm) { toast('سمِّ الملف أو أرفقه', 'r'); return; }
+      const kind = (S.txq && S.txq.fk) || 'extra';
+      const seq = t.files.length + 1;
+      t.files.push({ id:uid('F'), kind, doc:null, name:nm,
+        ref:(kind === 'contract' ? 'CT' : 'DOC') + '-' + t.code + '-' + seq,
+        note:(S.q.txfd || '').trim() || (kind === 'contract' ? 'عقد أضافه الكنترول' : 'ملفّ مساند'),
+        size:f ? f.size : 0, type:f ? f.type : 'application/pdf', at:now(), by:actorLabel() });
+      S.open = S.open || {}; S.open['tx:' + t.id + ':files'] = true;
+      txLog(t, 'رفع الكنترول ' + (kind === 'contract' ? 'عقدًا' : 'ملفًّا') + ': «' + nm + '»', 'file');
+      logIt('رُفع ' + (kind === 'contract' ? 'عقد' : 'ملف') + ' على مهمة ' + t.title, 'task');
+      if (S.files) delete S.files.txf;
+      S.q.txfn = ''; S.q.txfd = '';
+      toast('رُفع على المهمة'); save(); taskDrawer(id); return;
+    }
+    case 'txfiledel': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const f = t.files.find(x => x.id === b.dataset.s); if (!f) return;
+      t.files = t.files.filter(x => x.id !== f.id);
+      txLog(t, 'حُذف الملف «' + f.name + '»', 'warn');
+      toast('حُذف الملف'); save(); taskDrawer(id); return;
+    }
+    case 'txfileopen': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const f = t.files.find(x => x.id === b.dataset.s); if (!f) return;
+      if (f.doc) { docView(t, f.doc); return; }
+      toast('ملفّ مرفوع: ' + f.name + ' — ' + (f.ref || ''));
+      save(); render(); return;
+    }
+
+    case 'txassign': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      openPicker('task', t.id, { title:'تسكين على ' + t.title,
+        note:'فريق ليدرها أوّلًا، ثم الاحتياط، ثم بقيّة المحسنين — والكنترول يسكّن من شاء.',
+        cands:candFor('task', t) });
+      return;
+    }
+    case 'txunassign': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      t.assigned = t.assigned.filter(x => x !== u.id);
+      t.attended = (t.attended || []).filter(x => x !== u.id);
+      txLog(t, 'سحب الكنترول ' + u.name + ' من المهمة', 'warn');
+      logIt('سُحب ' + u.name + ' من مهمة ' + t.title, 'assign');
+      toast('سُحب ' + u.name); save(); taskDrawer(id); return;
+    }
+    case 'txattend': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      t.attended = t.attended || [];
+      const on = t.attended.indexOf(u.id) >= 0;
+      t.attended = on ? t.attended.filter(x => x !== u.id) : t.attended.concat(u.id);
+      txLog(t, (on ? 'أُلغي إثبات حضور ' : 'أثبت الكنترول حضور ') + u.name, on ? 'warn' : 'ok');
+      save(); taskDrawer(id); return;
+    }
+
+    case 'txstart': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      t.status = 'running'; t.startedAt = now(); t.startedBy = 'system';
+      t.autoStarted = now() > t.start;
+      txLog(t, 'بدأ الكنترول المهمة — تُسجَّل بدايةً من النظام', 'ok');
+      logIt('بدأ الكنترول مهمة ' + t.title + ' — ' + t.kt, 'task');
+      toast('بدأت المهمة — مسجَّلة باسم النظام'); save(); taskDrawer(id); return;
+    }
+    case 'txclose': S.q.txcw = ''; txCloseAsk(id); return;
+    case 'txclosedo': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      t.status = 'done'; t.endedAt = now(); t.endedBy = 'system';
+      t.closedBy = 'system'; t.closeWhy = (S.q.txcw || '').trim() || 'أغلقها الكنترول';
+      if (!t.rating) t.rating = 0;
+      txLog(t, 'أُغلقت من قبل النظام — ' + t.closeWhy, 'warn');
+      logIt('أُغلقت مهمة ' + t.title + ' من قبل النظام', 'task');
+      S.q.txcw = ''; toast('أُغلقت — من قبل النظام'); save(); taskDrawer(id); return;
+    }
+    case 'txreopen': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      t.status = now() >= t.start ? 'running' : 'assigned';
+      t.endedAt = null; t.endedBy = null; t.closedBy = null; t.closeWhy = null;
+      txLog(t, 'أُعيد فتح المهمة من الكنترول', 'warn');
+      logIt('أُعيد فتح مهمة ' + t.title, 'task');
+      toast('أُعيد فتحها'); save(); taskDrawer(id); return;
+    }
+
+    case 'txnote': S.q.txnt = ''; txNoteNew(id); return;
+    case 'txnotesave': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const txt = (S.q.txnt || '').trim();
+      if (!txt) { toast('اكتب الملاحظة', 'r'); return; }
+      t.notes.unshift({ at:now(), by:actorLabel(), text:txt, kind:'note' });
+      S.open = S.open || {}; S.open['tx:' + t.id + ':notes'] = true;
+      txLog(t, 'أضاف الكنترول ملاحظة', 'info');
+      S.q.txnt = ''; toast('أُضيفت الملاحظة'); save(); taskDrawer(id); return;
+    }
+
+    case 'txphoto': txPhoto(id, b.dataset.s); return;
+
+    /* ═══ معاينة التطبيق والمعالجة بصفة الميدان ═══ */
+    case 'avopen': appPreview(id); return;
+    case 'avas':   S.avq = S.avq || {}; S.avq[id] = v; save(); appPreview(id); return;
+    case 'avm':    S.avq = S.avq || {}; S.avq[id + ':m'] = v; save(); appPreview(id); return;
+    case 'avlive': {
+      S.avq = S.avq || {};
+      S.avq[id + ':live'] = v === '1';
+      const t = taskById(id);
+      toast(v === '1' ? 'وضع المعالجة — ما تضغطه يقع فعلًا' : 'عادت المعاينة للقراءة');
+      save(); appPreview(id); return;
+    }
+    case 'avattend': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      if (t.attended.indexOf(u.id) < 0) t.attended.push(u.id);
+      avAct(t, 'أثبت حضوره', 'ok');
+      toast('أُثبت حضور ' + u.name); save(); appPreview(id); return;
+    }
+    case 'avstart': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      t.status = 'running'; t.startedAt = now(); t.startedBy = t.leaderId;
+      t.autoStarted = now() > t.start;
+      avAct(t, 'بدأ المهمة', 'ok');
+      toast('بدأت المهمة'); save(); appPreview(id); return;
+    }
+    case 'avsub': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const sb = t.subs.find(x => x.id === b.dataset.s); if (!sb) return;
+      sb.done = !sb.done; sb.at = sb.done ? now() : null;
+      sb.by = sb.done ? t.leaderId : null;
+      avAct(t, (sb.done ? 'أنجز «' : 'ألغى إنجاز «') + sb.name + '»', sb.done ? 'ok' : 'warn');
+      save(); appPreview(id); return;
+    }
+    case 'avend': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      t.status = 'done'; t.endedAt = now(); t.endedBy = t.leaderId;
+      if (!t.rating) t.rating = rateOf(t).stars;
+      avAct(t, 'أنهى المهمة', 'ok');
+      toast('أُنهيت المهمة'); save(); appPreview(id); return;
+    }
+
+    /* ═══ تفويض القيادة ═══ */
+    case 'avdelegopen': delegDrawer(id); return;
+    case 'avdeleg': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      t.delegate = { muhsenId:u.id, state:'pending', keepGroup:true, at:now(), by:'الكنترول' };
+      txLog(t, 'فوّض الكنترول قيادة المهمة إلى ' + u.name + ' — بانتظار قبوله', 'info');
+      logIt('فُوِّضت قيادة مهمة ' + t.title + ' إلى ' + u.name, 'assign');
+      toast('أُرسل التفويض إلى ' + u.name); save(); delegDrawer(id); return;
+    }
+    case 'avdelok': {
+      const t = ensureTask(taskById(id)); if (!t || !t.delegate) return;
+      t.delegate.state = 'accepted'; t.delegate.respAt = now();
+      const u = userById(t.delegate.muhsenId) || {};
+      txLog(t, 'قَبِل الكنترول التفويض نيابةً عن ' + (u.name || '') + ' — يملك البدء والإغلاق', 'ok');
+      toast('صار ' + (u.name || '') + ' ليدر هذه المهمة'); save(); delegDrawer(id); return;
+    }
+    case 'avdeloff': {
+      const t = ensureTask(taskById(id)); if (!t || !t.delegate) return;
+      const u = userById(t.delegate.muhsenId) || {};
+      t.delegate = null;
+      txLog(t, 'أُلغي تفويض القيادة عن ' + (u.name || ''), 'warn');
+      toast('أُلغي التفويض'); save(); delegDrawer(id); return;
+    }
+
+    case 'avrate': rateDrawer(id); return;
+
+
     case 'seg': S.tab[b.dataset.k] = v; break;
     /* الحاوية تُفتح وتُطوى ولا تنتقل */
     case 'grp': {

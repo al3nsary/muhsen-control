@@ -1414,6 +1414,240 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .hrow.today .hl{color:var(--gold2)}
 .hrow.today .hc{box-shadow:inset 0 0 0 1px var(--gold2)}
 
+/* ══ المهمّة كاملةً ══════════════════════════════════════════
+   سطر المهمة صار يحمل عدّاداته ونسبتيه، ودرجُها يُوسَّع لأن
+   بياناته لا تسع أربعمئة بكسل. */
+
+/* حلقة النسبة: القوس لونه من الحالة، والرقم في قلبه */
+.tring{position:relative; display:inline-grid; place-items:center; flex:none}
+.tring svg{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg)}
+.tring .rbg{fill:none; stroke:var(--line2); stroke-width:3}
+.tring .rfg{fill:none; stroke-width:3; stroke-linecap:round;
+  transition:stroke-dasharray .6s var(--e3)}
+.tring b{font-size:10.5px; font-weight:700; color:var(--ink); line-height:1}
+.tring b::after{content:'٪'; font-size:8px; color:var(--dim2); margin-inline-start:1px}
+
+/* عدّادات السطر: أيقونة ورقم، متساوية العرض فتُقرأ عموديًّا */
+.tcnts{display:flex; align-items:center; gap:5px; flex:none}
+.tcnt{display:inline-flex; align-items:center; gap:3px; padding:4px 7px; border-radius:9px;
+  background:var(--sheen); color:var(--dim2); min-width:44px; justify-content:center}
+.tcnt b{font-size:11.5px; font-weight:700; color:var(--ink)}
+.tcnt.ok{color:var(--live)} .tcnt.ok b{color:var(--live)}
+.tcnt.warn{background:color-mix(in srgb,var(--red) 14%,transparent); color:var(--red)}
+.tcnt.warn b{color:var(--red)}
+.tprogs{display:flex; align-items:center; gap:12px; flex:none}
+.tprogs .tp{display:flex; flex-direction:column; align-items:center; gap:4px;
+  white-space:nowrap; min-width:54px}
+.trow .krail{width:4px}
+.lgd{display:inline-block; width:8px; height:8px; border-radius:3px;
+  margin-inline-end:3px; margin-inline-start:7px; vertical-align:-1px}
+
+/* حقل تاريخ في شريط الفلاتر */
+.fsel.fdate{position:relative}
+.fsel.fdate .dv{font-size:12px; font-weight:600; color:var(--ink)}
+.fsel.fdate:not(.on) .dv{color:var(--dim2); font-weight:500}
+.fsel.fdate input{position:absolute; inset:0; width:100%; height:100%; opacity:0;
+  cursor:pointer; border:0; padding:0}
+
+/* أقسام الدرج المطويّة */
+.xfold{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--panel)}
+.xfold.on{border-color:var(--line2)}
+.xfold .xh{display:flex; align-items:center; gap:10px; width:100%; padding:13px 14px;
+  background:transparent; border:0; color:var(--ink); font:inherit; cursor:pointer; text-align:right}
+.xfold .xh:hover{background:var(--sheen)}
+.xfold .xh .sp{flex:1; min-width:0}
+.xfold .xh .sp b{display:block; font-size:13.5px}
+.xfold .xh > svg:last-child{transition:transform .25s var(--e); flex:none}
+.xfold.on .xh > svg:last-child{transform:rotate(180deg)}
+.xfold .xb{padding:0 14px 14px; border-top:1px solid var(--line);
+  animation:fade .3s var(--e3) both}
+
+/* المتطلّبات: مربّع تشييك يملؤه الكنترول بنفسه */
+.reqs{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.req{display:flex; align-items:flex-start; gap:10px; width:100%; padding:10px 11px;
+  border-radius:13px; background:var(--sheen); border:1px solid transparent; color:var(--ink);
+  font:inherit; cursor:pointer; text-align:right}
+.req:hover{border-color:var(--line2)}
+.req .tick{width:19px; height:19px; border-radius:7px; border:1.6px solid var(--line2);
+  flex:none; display:grid; place-items:center; margin-top:1px; transition:all .2s var(--e)}
+.req.on .tick{background:var(--live); border-color:var(--live); color:#062}
+.req.on{background:color-mix(in srgb,var(--live) 9%,transparent)}
+.req .sp{flex:1; min-width:0}
+.req .sp b{display:block; font-size:12.5px; font-weight:600; line-height:1.5}
+.req.on .sp b{color:var(--dim)}
+.req .rx{width:22px; height:22px; border-radius:8px; display:grid; place-items:center;
+  color:var(--dim2); flex:none; opacity:0}
+.req:hover .rx{opacity:1}
+.req .rx:hover{background:color-mix(in srgb,var(--red) 18%,transparent); color:var(--red)}
+
+/* المهام الفرعية وصورها */
+.xsubs{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.xsub{display:flex; align-items:stretch; gap:8px}
+.xsub .xt{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:9px 11px;
+  border-radius:13px; background:var(--sheen); border:0; color:var(--ink); font:inherit;
+  cursor:pointer; text-align:right}
+.xsub .xt:hover{background:var(--raise)}
+.xsub .tick{width:22px; height:22px; border-radius:8px; border:1.6px solid var(--line2);
+  flex:none; display:grid; place-items:center; font-size:10.5px; font-weight:700; color:var(--dim2)}
+.xsub.on .tick{background:var(--live); border-color:var(--live); color:#062}
+.xsub.on .xt b{color:var(--dim)}
+.xsub .xt .sp{flex:1; min-width:0}
+.xsub .xt .sp b{display:block; font-size:12.5px; line-height:1.5}
+.shot{width:74px; flex:none; border-radius:13px; border:1px solid var(--line2); cursor:pointer;
+  background-size:cover; background-position:center; position:relative; overflow:hidden; padding:0}
+.shot:hover{border-color:var(--gold2)}
+.shot .sh{position:absolute; inset-inline:0; inset-block-end:0; display:flex; align-items:center;
+  gap:3px; justify-content:center; padding:3px 0;
+  background:linear-gradient(transparent,rgba(0,0,0,.8)); color:#fff}
+.shot .sh b{font-size:8.5px; font-weight:700}
+.shotbig{height:280px; border-radius:18px; border:1px solid var(--line2);
+  background-size:cover; background-position:center}
+
+/* الملفات والعقود */
+.xfiles{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.xfile{display:flex; align-items:stretch; gap:7px}
+.xfile .fi{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:10px 11px;
+  border-radius:13px; background:var(--sheen); border:0; color:var(--ink); font:inherit;
+  cursor:pointer; text-align:right}
+.xfile .fi:hover{background:var(--raise)}
+.xfile .ft{width:34px; height:40px; border-radius:7px; flex:none; display:grid; place-items:center;
+  background:var(--panel2); border:1px solid var(--line2); color:var(--gold2)}
+.xfile .ft b{font-size:9px; font-weight:800; letter-spacing:.4px}
+.xfile .sp{flex:1; min-width:0}
+.xfile .sp b{display:block; font-size:12.5px}
+.xfile .fx{width:34px; flex:none; border-radius:11px; background:var(--sheen); border:0;
+  color:var(--dim2); cursor:pointer; display:grid; place-items:center}
+.xfile .fx:hover{background:color-mix(in srgb,var(--red) 18%,transparent); color:var(--red)}
+
+/* رقاقة فعل صغيرة */
+.chipbtn{display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border-radius:10px;
+  background:var(--sheen); border:1px solid transparent; color:var(--dim); font:inherit;
+  font-size:11.5px; font-weight:600; cursor:pointer; flex:none}
+.chipbtn:hover{border-color:var(--line2); color:var(--ink)}
+.chipbtn.on{background:color-mix(in srgb,var(--live) 14%,transparent); color:var(--live)}
+.chipbtn.bad:hover{background:color-mix(in srgb,var(--red) 16%,transparent); color:var(--red)}
+
+/* رأس الدرج: حلقتان كبيرتان تُقرآن قبل أي سطر */
+.xtop .xrings{display:flex; gap:16px; margin-top:14px; padding-top:14px;
+  border-top:1px solid var(--line)}
+.xtop .xr{display:flex; align-items:center; gap:10px; flex:1; min-width:0}
+.xtop .xr > span:last-child{min-width:0}
+.xtop .xr b{display:block; font-size:12.5px}
+
+/* العقد: وثيقة تُقرأ لا بطاقة */
+.doc{background:var(--panel); border:1px solid var(--line2); border-radius:18px;
+  padding:22px 20px; line-height:1.85}
+.doc h4{font-size:16px; margin:0 0 3px; text-align:center}
+.doc .dsub{font-size:11px; color:var(--dim2); text-align:center; padding-bottom:14px;
+  border-bottom:1px solid var(--line); margin-bottom:16px}
+.doc h5{font-size:12.5px; color:var(--gold2); margin:18px 0 8px}
+.doc p{font-size:12.5px; color:var(--dim); margin:0 0 10px}
+.doc ol{margin:0; padding-inline-start:18px}
+.doc li{font-size:12.5px; color:var(--dim); margin-bottom:6px}
+.doc .dkv{display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line)}
+.doc .dkv span{font-size:11.5px; color:var(--dim2); min-width:132px; flex:none}
+.doc .dkv b{font-size:12.5px; font-weight:600}
+.doc .dsign{display:flex; gap:22px; margin-top:26px}
+.doc .dsign span{flex:1; text-align:center}
+.doc .dsign b{display:block; font-size:11.5px; color:var(--dim2); margin-bottom:26px}
+.doc .dsign i{display:block; border-top:1px solid var(--line2)}
+
+/* الدرج الموسَّع: البيانات كثيرة فالعرض يتبعها، والأقسام عمودان */
+.drawer.xl{width:min(1020px,96vw)}
+.drawer.xl .db{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-content:start;
+  /* قِيس لا خُمِّن: صفوف auto تنهار إلى حدّ الإطار هنا، و min-content تُعيدها
+     إلى ارتفاع محتواها. و align-items:start يمنع مطّ الأقصر إلى طول الأطول. */
+  grid-auto-rows:min-content; align-items:start}
+.drawer.xl .db > .xtop, .drawer.xl .db > .doc,
+.drawer.xl .db > .shotbig{grid-column:1 / -1}
+@media (max-width:860px){ .drawer.xl{width:94vw} .drawer.xl .db{grid-template-columns:1fr} }
+
+/* ══ هاتف داخل الدرج: شاشة التطبيق كما يراها الميدان ══════════
+   ليست صورةً ولا لقطة — هي بيانات المهمّة نفسها مرسومةً بلغة التطبيق:
+   أبيضُ على أخضر، وحوافُّ أنعم، وخطٌّ أصغر. ولذلك رموزُها هنا محلّية
+   لا تتبع سمة الغرفة، فالهاتف لا يتبدّل بتبدّل وضع الشاشة. */
+.phonewrap{display:flex; justify-content:center; padding:4px 0}
+.phone{width:318px; flex:none; border-radius:34px; overflow:hidden;
+  background:#0B1712; border:7px solid #1A1A1C;
+  box-shadow:0 30px 70px -24px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.05) inset;
+  display:flex; flex-direction:column; max-height:640px;
+  --pi:#EAF3ED; --pd:#9FB6A9; --pd2:#6E8779; --pln:#1B3329; --psh:#122820; --pg:#14C273}
+.phone.live{border-color:#7A5F1E; box-shadow:0 30px 70px -24px rgba(0,0,0,.8), 0 0 0 2px var(--gold) inset}
+.phone .pbar{display:flex; align-items:center; gap:10px; padding:13px 15px 11px;
+  background:linear-gradient(180deg,#14332A,#0E241D); color:var(--pi);
+  border-bottom:1px solid var(--pln)}
+.phone .pbar b{flex:1; font-size:13.5px; text-align:center}
+.phone .pbody{flex:1; min-height:0; overflow-y:auto; padding:12px 13px 16px;
+  display:flex; flex-direction:column; gap:10px; color:var(--pi)}
+.phone .pbody::-webkit-scrollbar{width:0}
+.phone .pbody > *{flex:none}
+.phone .av{width:28px; height:28px}
+.phone .av.sm{width:28px; height:28px}
+
+.phone .pc{border-radius:18px; padding:13px; background:var(--psh); border:1px solid var(--pln)}
+.phone .pc.gold{border-color:rgba(198,168,111,.34);
+  background:linear-gradient(165deg,rgba(198,168,111,.10),var(--psh))}
+.phone .prow2{display:flex; gap:11px; align-items:flex-start}
+.phone .prow2 .sp{flex:1; min-width:0}
+.phone .prow2 b{display:block; font-size:14px; line-height:1.5}
+.phone .ps{display:block; font-size:11px; line-height:1.6; color:var(--pd)}
+.phone .ps.dim{color:var(--pd2)}
+.phone .ps.gold{color:var(--gold3)}
+.phone .pthumb{width:62px; height:62px; border-radius:14px; flex:none;
+  background-size:cover; background-position:center; border:1px solid var(--pln)}
+.phone .prow3{display:flex; align-items:center; justify-content:space-between;
+  gap:6px; flex-wrap:wrap; margin-top:10px}
+
+.phone .pmeta{display:grid; grid-template-columns:1fr 1fr; gap:1px; border-radius:16px;
+  overflow:hidden; background:var(--pln)}
+.phone .pmeta > div{background:var(--psh); padding:10px 12px}
+.phone .pmeta span{display:block; font-size:9.5px; color:var(--pd2); margin-bottom:3px}
+.phone .pmeta b{font-size:12px; font-weight:600}
+
+.phone .pn{display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:14px;
+  background:var(--psh); border:1px solid var(--pln); font-size:11px; line-height:1.65; color:var(--pd)}
+.phone .pn.ok{border-color:rgba(20,194,115,.4); color:#8FE3B8}
+.phone .pn.bad{border-color:rgba(236,79,84,.4); color:#F0A0A2}
+.phone .pn > svg{flex:none; margin-top:2px}
+
+.phone .pcta{display:flex; align-items:center; gap:11px; width:100%; padding:14px;
+  border-radius:18px; border:0; cursor:pointer; text-align:right; font:inherit;
+  background:linear-gradient(135deg,#177E52,#0E5738); color:#fff}
+.phone .pcta.sm{padding:11px 13px}
+.phone .pcta.stop{background:linear-gradient(135deg,#B3403F,#7E2A2A)}
+.phone .pcta:disabled{opacity:.5; cursor:default}
+.phone .pcta b{display:block; font-size:13.5px}
+.phone .pcta i{display:block; font-size:10.5px; font-style:normal; opacity:.85; margin-top:2px}
+
+.phone .plbl{display:flex; align-items:baseline; justify-content:space-between;
+  font-size:11px; font-weight:700; color:var(--pd); margin:4px 2px -2px}
+.phone .plbl small{font-size:10px; font-weight:500; color:var(--pd2)}
+.phone .psubs{display:flex; flex-direction:column; gap:6px}
+.phone .psub{display:flex; gap:7px; align-items:stretch}
+.phone .psub .pt{flex:1; min-width:0; display:flex; align-items:center; gap:9px;
+  padding:10px 11px; border-radius:14px; background:var(--psh); border:1px solid var(--pln);
+  color:var(--pi); font:inherit; font-size:11.5px; cursor:pointer; text-align:right}
+.phone .psub .pt:disabled{cursor:default}
+.phone .psub .pt .sp{flex:1; min-width:0; line-height:1.55}
+.phone .psub.next .pt{border-color:rgba(198,168,111,.5)}
+.phone .psub.on .pt .sp{color:var(--pd2)}
+.phone .ptick{width:19px; height:19px; border-radius:7px; flex:none; display:grid;
+  place-items:center; border:1.5px solid var(--pln); color:#062}
+.phone .psub.on .ptick{background:var(--pg); border-color:var(--pg)}
+.phone .pshot{width:46px; flex:none; border-radius:13px; background-size:cover;
+  background-position:center; border:1px solid var(--pln)}
+
+.phone .pteam{display:flex; flex-direction:column; gap:6px}
+.phone .pmate{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:14px;
+  background:var(--psh); border:1px solid var(--pln)}
+.phone .pmate .sp{flex:1; min-width:0}
+.phone .pmate b{display:block; font-size:11.5px}
+
+.phone .ptabs{display:flex; border-top:1px solid var(--pln); background:#0E241D;
+  padding:9px 0 13px}
+.phone .ptabs span{flex:1; text-align:center; font-size:10px; color:var(--pd2)}
+.phone .ptabs span.on{color:var(--gold3); font-weight:700}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;

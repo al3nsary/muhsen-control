@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 16;
-const APP_VER = 'نسخة ١٫١';
+const SCHEMA = 17;
+const APP_VER = 'نسخة ١٫٢';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -411,6 +411,8 @@ function seed() {
     id: uid('E'), kind: f[0], title: f[1], body: f[2], at: Date.now() - f[3] * MIN
   }));
 
+  seedTaskDetail(st);
+
   return st;
 }
 
@@ -426,6 +428,8 @@ function load() {
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
+  S.reqtpl = S.reqtpl || [];
+  (S.tasks || []).forEach(ensureTask);
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 /* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص

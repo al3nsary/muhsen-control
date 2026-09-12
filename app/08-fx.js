@@ -195,7 +195,7 @@ function repaintDrawer() { if (lastDrawer) lastDrawer(); }
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
- 'whoDrawer','dashEdit'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
@@ -206,12 +206,21 @@ function renderDrawer() {
   if (!S.drawer) { w.innerHTML = ''; return; }
   const d = S.drawer;
   w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
-    '<aside class="drawer" role="dialog" aria-label="' + E(d.title) + '">' +
+    '<aside class="drawer' + (d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
         '<span class="sp"><b style="font-size:15px">' + E(d.title) + '</b>' +
         '<div class="tiny faint">' + E(d.sub || '') + '</div></span>' +
+        /* التوسيع: البيانات كثيرة، فالعرض يتبعها */
+        (d.expand ? '<button class="iconbtn" data-a="txwide" data-id="' + E(d.expand) +
+          '" aria-label="' + (d.wide ? 'تضييق' : 'توسيع') + '" title="' +
+          (d.wide ? 'تضييق العرض' : 'توسيع العرض') + '">' +
+          icon(d.wide ? 'i-fwd' : 'i-back','s18') + '</button>' : '') +
         '<button class="iconbtn" data-a="closedrawer" aria-label="إغلاق">' + icon('i-x','s18') + '</button></div>' +
       '<div class="db">' + d.body + '</div></aside>';
+  /* الأشرطة تمتلئ بعد الرسم لا معه — وكانت تُملأ في المسرح وحده فتبقى
+     أشرطة الدرج فارغة مهما كانت قيمتها. */
+  const db = w.querySelector('.db');
+  if (db) { fillMeters(db); growBars(db); bindPointerLight(db); }
 }
 function openDrawer(title, sub, icon_, body) {
   S.drawer = { title, sub, icon: icon_, body };

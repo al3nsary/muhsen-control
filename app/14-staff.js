@@ -297,6 +297,14 @@ function applyPick(kind, id, u) {
     if (t.riders.indexOf(u.id) < 0) t.riders.push(u.id);
     logIt('أُضيف ' + u.name + ' راكبًا في ' + t.no, 'info');
     toast(u.name + ' → ' + t.no);
+  } else if (kind === 'task') {
+    const t = ensureTask(S.tasks.find(x => x.id === id)); if (!t) return;
+    if (t.assigned.indexOf(u.id) >= 0) { toast('هو مسكَّن عليها أصلًا', 'r'); return; }
+    t.assigned.push(u.id);
+    txLog(t, 'سكّن الكنترول ' + u.name + (u.reserve ? ' من الاحتياط' : '') + ' على المهمة', 'assign');
+    logIt('سُكِّن ' + u.name + ' على مهمة ' + t.title + ' — ' + t.kt + ' · من الكنترول', 'assign');
+    toast(u.name + ' → ' + t.title);
+    S.picker = null; taskDrawer(t.id); return;
   } else if (kind === 'mseat') {
     const g = S.groups.find(x => x.id === id); if (!g) return;
     if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
@@ -324,6 +332,14 @@ function candFor(kind, ref) {
     const g = x.leaderId ? groupsOf(x.leaderId)[0] : null;
     const inGrp = g ? g.members.map(m => userById(m.id)).filter(Boolean) : [];
     return (inGrp.length ? inGrp : all.filter(u => staffGroup(u))).concat(res);
+  }
+  /* المهمّة: فريق ليدرها أوّلًا، ثم كل محسن حرّ، ومعهم الاحتياط دائمًا */
+  if (kind === 'task') {
+    const t = ref;
+    const inTask = t.assigned || [];
+    const team = all.filter(u => u.leaderId === t.leaderId);
+    const rest = all.filter(u => u.leaderId !== t.leaderId && !u.reserve);
+    return team.concat(res).concat(rest).filter(u => inTask.indexOf(u.id) < 0);
   }
   if (kind === 'nusuk') {
     const c = ref, team = teamOf(c.leaderId);

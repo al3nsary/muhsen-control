@@ -9,13 +9,16 @@ const imgs = JSON.parse(read('assets/images.json'));
 const imgCSS = '<style>\n' +
   Object.keys(imgs).filter(k => /_t$/.test(k)).map(k =>
     '.bg-' + k.replace(/_t$/, '') + '{background-image:url(' + imgs[k] + ')}').join('\n') + '\n' +
+  /* النسخة العريضة للمعاينة الكبيرة — الصغيرة تُمطّ فتتشوّه */
+  Object.keys(imgs).filter(k => /_w$/.test(k) && !/^logo/.test(k)).map(k =>
+    '.bgw-' + k.replace(/_w$/, '') + '{background-image:url(' + imgs[k] + ')}').join('\n') + '\n' +
   '.mlogo{background-image:url(' + imgs.logo_white + ')}\n' +
   '.mlockup{background-image:url(' + imgs.logo_lockup + ')}\n' +
   '.mnozoly{background-image:url(' + imgs.nozoly_dark + ')}\n' +
   '</style>\n';
 
 const JS = ['02-data.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
-  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '18-afasha.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '09-timeline.js', '08-fx.js', '07-router.js'];
+  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '18-afasha.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '09-timeline.js', '08-fx.js', '07-router.js'];
 
 const shell =
   '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>\n' +
@@ -74,6 +77,19 @@ let m; while ((m = re.exec(js))) declared.add(m[1]);
 const clash = RESERVED.filter(r => declared.has(r));
 if (clash.length) { console.log('GLOBAL CLASH:', clash.join(', ')); process.exitCode = 1; }
 else console.log('globals: OK');
+
+/* اسمٌ يُعرَّف مرّتين: الثاني يبتلع الأول بلا خطأ — وهذا أخبث ما يقع */
+const seen = {}, dup = [];
+const re2 = /(?:^|\n)function\s+([A-Za-z_$][\w$]*)/g;
+let m2; while ((m2 = re2.exec(js))) { if (seen[m2[1]]) dup.push(m2[1]); else seen[m2[1]] = 1; }
+if (dup.length) { console.log('DUPLICATE FUNCTIONS:', [...new Set(dup)].join(', ')); process.exitCode = 1; }
+else console.log('dupes: OK');
+
+/* حالة في المُوجِّه تتكرّر: القديمة تُظلّل الجديدة */
+const cases = (js.match(/\n\s{4}case '([a-z0-9]+)':/g) || []).map(s => s.split("'")[1]);
+const dupCase = cases.filter((c, i) => cases.indexOf(c) !== i);
+if (dupCase.length) { console.log('DUPLICATE CASES:', [...new Set(dupCase)].join(', ')); process.exitCode = 1; }
+else console.log('cases: OK (' + cases.length + ')');
 
 const routed = [...new Set([...(js.match(/:\s*(screen[A-Za-z]+)/g) || [])].map(s => s.split(':')[1].trim()))];
 const defined = new Set([...(js.match(/function\s+(screen[A-Za-z]+)/g) || [])].map(s => s.split(/\s+/)[1]));

@@ -1,0 +1,729 @@
+/* ============================================================
+   المهمّة كاملةً — ما يراه المحسن في التطبيق يراه الكنترول هنا، وأكثر
+
+   القاعدة: الكنترول هو الأصل. فكلّ ما يستطيعه الليدر والمحسن في
+   الميدان يستطيعه الكنترول من هنا — يبدأ ويُغلق ويؤشّر ويسكّن ويرفع
+   الملفات — ويُسجَّل كلّ ذلك باسم «النظام» في سجلّ المهمّة، فلا يختلط
+   فعلُ الغرفة بفعل الميدان.
+   ============================================================ */
+
+/* ---------- ضمان البنية: المهمّة القديمة تُهاجَر ولا تُفقَد ---------- */
+function ensureTask(t) {
+  if (!t) return t;
+  const c = CAT[t.kind] || {};
+  if (!t.subs) t.subs = (c.subs || []).map((n, i) =>
+    ({ id: t.id + '-S' + (i + 1), no: i + 1, name: n, done: false, at: null, by: null, shot: null }));
+  if (!t.reqs)  t.reqs  = [];
+  if (!t.files) t.files = [];
+  if (!t.notes) t.notes = [];
+  if (!t.hist)  t.hist  = [];
+  if (!t.attended) t.attended = [];
+  if (!t.assigned) t.assigned = [];
+  return t;
+}
+
+/* ---------- بذر التفصيل: فرعيات وصور وعقود ومتطلّبات وسجلّ ---------- */
+function seedTaskDetail(st) {
+  st.reqtpl = REQ_PHS.length ? Object.keys(REQ_TPL).map((k, i) => ({
+    id: 'RT' + (900 + i), kind: k, name: 'متطلّبات ' + (CAT[k] ? CAT[k].ar : k),
+    items: REQ_PHS.reduce((a, ph) =>
+      a.concat((REQ_TPL[k][ph] || []).map(x => ({ ph, text: x }))), []),
+    at: Date.now() - (30 - i) * DAY
+  })) : [];
+
+  st.tasks.forEach((t, ti) => {
+    ensureTask(t);
+    const done = t.status === 'done';
+    const c = CAT[t.kind] || {};
+
+    /* المتطلّبات من قالب تصنيفها */
+    const tpl = REQ_TPL[t.kind] || {};
+    let ri = 0;
+    t.reqs = REQ_PHS.reduce((a, ph) => a.concat((tpl[ph] || []).map(x => {
+      ri++;
+      /* المنجزة مشيَّكة كاملةً · الجارية شُيِّك ما قبلها وبعضُ خلالها · القادمة بعضُ ما قبلها */
+      const live = now() >= t.start && !done;
+      const ok = done ? true
+        : live ? (ph === 'pre' || (ph === 'run' && ri % 2 === 0))
+        : (ph === 'pre' && (ri + ti) % 3 !== 0);
+      return { id: t.id + '-Q' + ri, ph, text: x, done: ok,
+        by: ok ? 'الكنترول' : null, at: ok ? t.start - (24 - ri) * HR : null, note: '' };
+    })), []);
+
+    /* الفرعيات: المنجزة كلّها · الجارية إلى منتصفها */
+    const live = now() >= t.start && now() < t.end && !done;
+    const cut = done ? t.subs.length : live ? Math.ceil(t.subs.length * 0.55) : 0;
+    t.subs.forEach((s, i) => {
+      if (i < cut) {
+        s.done = true;
+        s.at = t.start + Math.round((i + 1) * (t.durH * HR) / (t.subs.length + 1));
+        s.by = t.leaderId;
+        /* صورة توثيق على بعض الخطوات — كما يرفعها الميدان */
+        if ((i + ti) % 3 === 0) {
+          const sd = SHOT_SEED[(ti * 3 + i) % SHOT_SEED.length];
+          s.shot = { img: sd.img, at: s.at, by: t.leaderId, note: s.name };
+        }
+      }
+    });
+
+    /* العقود على مهام الاستقبال — والكنترول يزيد ما شاء */
+    if (DOC_KINDS.indexOf(t.kind) >= 0) {
+      t.files = Object.keys(DOCS).map((k, i) => ({
+        id: t.id + '-F' + (i + 1), kind: 'contract', doc: k,
+        name: DOCS[k].ar, ref: DOCS[k].ref + '-' + t.code + '-1447',
+        note: DOCS[k].sub, size: 180000 + i * 40000, type: 'application/pdf',
+        at: t.start - 6 * DAY, by: 'النظام'
+      }));
+    }
+
+    /* السجلّ: يُبنى من الوقائع نفسها لا يُخترع */
+    const h = [{ at: t.start - 12 * DAY, text: 'أُنشئت المهمة من كتالوج الأنشطة', kind: 'info' }];
+    if (t.assigned.length) h.push({ at: t.start - 10 * DAY,
+      text: 'سُكِّن ' + AR(t.assigned.length) + ' محسنًا تلقائيًّا من مجموعة ' + t.kt, kind: 'assign' });
+    if (t.reqs.length) h.push({ at: t.start - 3 * DAY,
+      text: 'رُبط قالب «متطلّبات ' + (c.ar || '') + '» — ' + AR(t.reqs.length) + ' شرطًا', kind: 'info' });
+    if (t.files.length) h.push({ at: t.start - 6 * DAY,
+      text: 'رُفع ' + AR(t.files.length) + ' عقدًا على المهمة', kind: 'file' });
+    if (done || live) h.push({ at: t.startedAt || t.start,
+      text: t.autoStarted ? 'بدأها النظام تلقائيًّا — لم يبدأها ليدرها' : 'بدأها الليدر في وقتها',
+      kind: t.autoStarted ? 'warn' : 'ok' });
+    if (done) h.push({ at: t.end, text: 'أُنهيت المهمة — ' + AR(t.subs.length) + ' خطوة منجزة', kind: 'ok' });
+    t.hist = h.sort((a, b) => b.at - a.at);
+
+    /* ملاحظات: على المهام التي بدأها النظام وعلى بعض المنجزة */
+    t.notes = [];
+    if (t.autoStarted) t.notes.push({ at: t.start + 5 * MIN, by: 'النظام',
+      text: 'حان وقت المهمة ولم يبدأها ليدرها — بدأها النظام وتُحتسب في تقييمه.', kind: 'auto' });
+    if (done && ti % 4 === 1) t.notes.push({ at: t.end - 40 * MIN, by: 'الكنترول',
+      text: 'تأخّر وصول حافلة واحدة عشرين دقيقة — عولج ميدانيًّا ولم يتأثّر الجدول.', kind: 'note' });
+  });
+
+  /* التذاكر تُربط بمهام أصحابها — فيظهر عددها على سطر المهمة */
+  st.tickets.forEach((k, i) => {
+    const pool = st.tasks.filter(t => t.leaderId === k.leaderId);
+    if (pool.length) k.taskId = pool[i % pool.length].id;
+  });
+}
+
+/* ============================================================
+   حسابات المهمّة
+   ============================================================ */
+const tPct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const subPct  = t => tPct((t.subs || []).filter(s => s.done).length, (t.subs || []).length);
+const reqIn   = (t, ph) => (t.reqs || []).filter(r => r.ph === ph);
+const reqPct  = (t, ph) => { const a = reqIn(t, ph); return tPct(a.filter(r => r.done).length, a.length); };
+const prepPct = t => reqPct(t, 'pre');
+const taskTickets = t => (V.tickets || []).filter(k => k.taskId === t.id);
+function taskPilgrims(t) {
+  const L = userById(t.leaderId);
+  if (L && L.pilgrims) return L.pilgrims;
+  return ((S.pilgrims || {})[t.kt] || []).length;
+}
+
+function tState(t) {
+  if (t.status === 'cancelled') return 'cancelled';
+  if (t.status === 'done') return 'done';
+  if (t.startedAt || t.status === 'running') return now() < t.end ? 'live' : 'live';
+  if (now() >= t.end) return 'over';
+  if (now() >= t.start) return 'late';
+  if (t.start - now() <= 2 * HR) return 'soon';
+  return 'next';
+}
+const tsOf = t => TSTATE[tState(t)] || TSTATE.next;
+
+/* ============================================================
+   قطع صغيرة تُعاد في كل مكان
+   ============================================================ */
+
+/* حلقة نسبة — تُقرأ بلمحة ولا تحتاج رقمًا بجانبها */
+function ring(pct, col, size) {
+  const r = 15.9155, c = 2 * Math.PI * r, sz = size || 34;
+  return '<span class="tring" style="width:' + sz + 'px;height:' + sz + 'px">' +
+    '<svg viewBox="0 0 36 36" aria-hidden="true">' +
+      '<circle cx="18" cy="18" r="' + r + '" class="rbg"/>' +
+      '<circle cx="18" cy="18" r="' + r + '" class="rfg" stroke="' + col + '" ' +
+        'stroke-dasharray="' + (c * pct / 100).toFixed(2) + ' ' + c.toFixed(2) + '"/>' +
+    '</svg><b class="num">' + AR(pct) + '</b></span>';
+}
+
+/* رقاقة عدّ: أيقونة ورقم — تُصفّ في سطر المهمة */
+const cnt = (ic, n, ttl, cls) =>
+  '<span class="tcnt ' + (cls || '') + '" title="' + E(ttl) + '">' + icon(ic, 's14') +
+  '<b class="num">' + AR(n) + '</b></span>';
+
+/* صورة توثيق */
+function shotTile(s, tid) {
+  if (!s || !s.shot) return '';
+  return '<button class="shot bg-' + s.shot.img + '" data-a="txphoto" data-id="' + tid +
+    '" data-s="' + s.id + '" aria-label="إثبات ' + E(s.name) + '">' +
+    '<span class="sh">' + icon('i-camera','s12') + '<b>' + t12(s.shot.at) + '</b></span></button>';
+}
+
+/* ============================================================
+   سطر المهمّة في الجدول
+   ============================================================ */
+function taskRow(t) {
+  ensureTask(t);
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, st = tsOf(t);
+  const pre = prepPct(t), don = subPct(t), tk = taskTickets(t).length;
+  return '<div class="prow trow" data-a="tlopen" data-id="' + t.id + '">' +
+    '<span class="krail" style="background:' + st.c + '"></span>' +
+    '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
+      icon(c.i || 'i-tasks', 's18') + '</span>' +
+
+    '<span class="nm" style="flex:1;min-width:150px"><b>' + E(t.title) + '</b>' +
+      '<span>' + LTR(t.kt) + ' · ' + E(L.name || '') + ' · ' + E(t.city) + '</span></span>' +
+
+    '<span class="when"><b>' + hijri(t.start) + '</b>' +
+      '<span class="num">' + t12(t.start) + ' — ' + t12(t.end) + '</span></span>' +
+
+    '<span class="tcnts">' +
+      cnt('i-users', taskPilgrims(t), 'حجاج المجموعة') +
+      cnt('i-assign', t.assigned.length, 'محسنون مسكَّنون') +
+      cnt('i-checkc', t.attended.length, 'أثبتوا حضورهم', t.attended.length ? 'ok' : '') +
+      (tk ? cnt('i-ticket', tk, 'تذاكر مرفوعة على المهمة', 'warn') : '') +
+    '</span>' +
+
+    '<span class="tprogs">' +
+      '<span class="tp"><span class="tiny faint">الاستعداد</span>' +
+        ring(pre, pre === 100 ? 'var(--ok)' : 'var(--gold2)', 30) + '</span>' +
+      '<span class="tp"><span class="tiny faint">الإنجاز</span>' +
+        ring(don, don === 100 ? 'var(--ok)' : st.c, 30) + '</span>' +
+    '</span>' +
+
+    '<span class="end">' +
+      (t.status === 'done' && t.rating ? stars(t.rating) : pill(st.ar, st.p)) +
+      (t.autoStarted ? '<div style="margin-top:6px">' + pill('بدأها النظام','no') + '</div>' : '') +
+      (t.closedBy === 'system' ? '<div style="margin-top:6px">' + pill('أُغلقت من النظام','no') + '</div>' : '') +
+    '</span></div>';
+}
+
+/* ============================================================
+   جدول مهام الحجّ — بفلاتره الكاملة
+   ============================================================ */
+const optKinds  = () => Object.keys(CAT).map(k => [k, CAT[k].ar]);
+const optStates = () => Object.keys(TSTATE).map(k => [k, TSTATE[k].ar]);
+const optTaskCities = () => [...new Set(Object.keys(CAT).map(k => CAT[k].city))].map(c => [c, c]);
+const optCountries  = () => [...new Set(V.orgs.map(o => o.country).filter(Boolean))].map(c => [c, c]);
+
+/* المدى الزمني: حقلا تاريخ يمرّان على نفس مستمع الفلاتر */
+/* قناع التاريخ يرسمه المتصفّح في ظلّ DOM لا نملكه، وبالعربية ينعكس ترتيب
+   حروفه فيُقرأ رطانةً («موي/رهش/قنس»). فنُخفي قناعه ونكتب القيمة بأنفسنا،
+   ونُبقي الحقل شفّافًا فوقها ليفتح منتقي المتصفّح عند النقر. */
+function dayField(key, k, label) {
+  const v = fOf(key, k), p = String(v || '').split('-');
+  const shown = p.length === 3 ? AR(+p[2]) + ' / ' + AR(+p[1]) + ' / ' + AR(+p[0]) : 'اختر يومًا';
+  return '<label class="fsel fdate' + (v ? ' on' : '') + '"><span>' + E(label) + '</span>' +
+    '<b class="dv">' + shown + '</b>' +
+    '<input type="date" data-f="' + key + '" data-fk="' + k + '" value="' + E(v) + '">' +
+    '</label>';
+}
+const dnum = s => { const p = String(s || '').split('-'); return p.length === 3 ? Date.UTC(+p[0], +p[1] - 1, +p[2]) : 0; };
+const dkey = ts => { const d = new Date(ts); return d.getFullYear() + '-' +
+  String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+function tabHajj() {
+  const K = 'tsk';
+  const all = V.tasks.slice().sort((a, b) => a.start - b.start);
+  all.forEach(ensureTask);
+  const q = qOf(K);
+  let list = all;
+
+  const g = k => fOf(K, k);
+  if (g('kind'))  list = list.filter(t => t.kind === g('kind'));
+  if (g('state')) list = list.filter(t => tState(t) === g('state'));
+  if (g('city'))  list = list.filter(t => t.city === g('city'));
+  if (g('kt'))    list = list.filter(t => t.kt === g('kt'));
+  if (g('org'))   list = list.filter(t => t.orgId === g('org'));
+  if (g('lead'))  list = list.filter(t => t.leaderId === g('lead'));
+  if (g('country')) list = list.filter(t => (orgById(t.orgId) || {}).country === g('country'));
+  if (g('day'))   list = list.filter(t => dkey(t.start) === g('day'));
+  if (g('from'))  list = list.filter(t => t.start >= dnum(g('from')));
+  if (g('to'))    list = list.filter(t => t.start <= dnum(g('to')) + DAY);
+  if (q) list = list.filter(t => (t.title + ' ' + t.kt + ' ' + t.place + ' ' + t.city + ' ' +
+    ((userById(t.leaderId) || {}).name || '')).indexOf(q) >= 0);
+
+  const seg = S.tab.tf || 'all';
+  if (seg === 'today') list = list.filter(t => dayStart(t.start) === dayStart(now()));
+  else if (seg === 'live') list = list.filter(t => tState(t) === 'live');
+  else if (seg === 'next') list = list.filter(t => ['next','soon'].indexOf(tState(t)) >= 0);
+  else if (seg === 'risk') list = list.filter(t => ['late','over'].indexOf(tState(t)) >= 0);
+  else if (seg === 'done') list = list.filter(t => t.status === 'done');
+
+  const rated = all.filter(t => t.rating);
+  const avg = rated.length ? (rated.reduce((a, t) => a + t.rating, 0) / rated.length).toFixed(1) : '0.0';
+  const nPrep = all.filter(t => prepPct(t) < 100 && t.status !== 'done').length;
+
+  return '<div class="grid g4">' +
+      stat({ label:'مهام الموسم', n:all.length, ic:'i-tasks',
+        sub:'المصدر الذي يقرأ منه التطبيق', series:[12,24,36,44,50,55,58,all.length] }) +
+      stat({ label:'جارية الآن', n:all.filter(t => tState(t) === 'live').length, ic:'i-play',
+        cls:'up', sub:'أخضر على الطرف', series:[0,1,2,1,3,2,1,Math.max(1, all.filter(t => tState(t) === 'live').length)] }) +
+      stat({ label:'استعدادٌ ناقص', n:nPrep, ic:'i-shield', cls:nPrep ? 'down' : 'up',
+        sub:'شروطٌ لم يُشيَّك عليها', series:[9,8,10,7,6,8,5,Math.max(1, nPrep)] }) +
+      stat({ label:'منجزة', n:all.filter(t => t.status === 'done').length, ic:'i-checkc',
+        cls:'up', sub:'بمتوسط تقييم ' + AR(avg), series:[4,9,14,19,23,26,28,30] }) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('جدول مهام الحجّ', 'كلّ ما في التطبيق — وزيادةُ ما يملكه الكنترول',
+        pill(AR(list.length) + ' معروضة', 'gold'), 'i-kaaba') +
+
+      '<div class="tools">' + segmented('tf',
+        [['all','الكل'],['today','اليوم'],['live','جارية'],['next','قادمة'],['risk','متعثّرة'],['done','منجزة']], seg) +
+      '</div>' +
+
+      filterBar(K, [
+        { k:'kind',    label:'نوع المهمة', opts:optKinds() },
+        { k:'state',   label:'الحالة',     opts:optStates() },
+        { k:'city',    label:'المدينة',    opts:optTaskCities() },
+        { k:'kt',      label:'الـKT',      opts:optKT() },
+        { k:'org',     label:'الجهة',      opts:optOrgs() },
+        { k:'country', label:'الدولة',     opts:optCountries() },
+        { k:'lead',    label:'الليدر',     opts:optLeaders() }
+      ], list.length, all.length, 'ابحث باسم المهمة أو الليدر أو المكان…') +
+
+      '<div class="fbar">' + dayField(K, 'day', 'يومٌ بعينه') +
+        dayField(K, 'from', 'من تاريخ') + dayField(K, 'to', 'إلى تاريخ') +
+        '<span class="fsp"></span>' +
+        '<span class="tiny faint">الألوان على طرف كل صفّ: ' +
+          Object.keys(TSTATE).filter(k => k !== 'cancelled').map(k =>
+            '<i class="lgd" style="background:' + TSTATE[k].c + '"></i>' + TSTATE[k].ar).join(' · ') +
+        '</span>' +
+      '</div>' +
+
+      (list.length ? '<div class="plist">' + list.map(taskRow).join('') + '</div>'
+        : empty('لا مهام بهذه الفلاتر', 'امسح الفلاتر أو غيّر التصنيف', 'i-cal')) +
+    '</div>';
+}
+
+/* ============================================================
+   درج المهمّة — كلّ عناصرها
+   ============================================================ */
+const txOpen = (t, k) => !!(S.open && S.open['tx:' + t.id + ':' + k]);
+function txFold(t, key, title, sub, body, ic, right) {
+  const on = txOpen(t, key);
+  return '<div class="xfold' + (on ? ' on' : '') + '">' +
+    '<button class="xh" data-a="txfold" data-id="' + t.id + '" data-v="' + key + '">' +
+      icon(ic || 'i-list','s16') +
+      '<span class="sp"><b>' + title + '</b>' + (sub ? '<span class="tiny faint">' + sub + '</span>' : '') + '</span>' +
+      (right || '') + icon('i-down','s16') + '</button>' +
+    (on ? '<div class="xb">' + body + '</div>' : '') + '</div>';
+}
+
+function taskDrawer(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, org = orgById(t.orgId) || {};
+  const st = tsOf(t), gd = guideForTask(t);
+  const team = t.assigned.map(userById).filter(Boolean);
+  const sp = (V.support || []).filter(s => s.taskId === t.id);
+  const tks = taskTickets(t);
+  const don = subPct(t), pre = prepPct(t);
+  const closed = ['done','cancelled'].indexOf(t.status) >= 0;
+  const live = tState(t) === 'live';
+
+  S.drawer = {
+    /* عنوان الدرج نصٌّ لا ترميز — renderDrawer يهرّبه، فالوسم يظهر حرفيًّا */
+    title: t.title, sub: t.kt + ' · ' + (L.name || '') + ' · #' + t.code,
+    icon: c.i || 'i-tasks', wide: !!S.dwide, expand: t.id,
+    body:
+
+    /* ── الرأس: الحالة والنسب والبيانات ── */
+    '<div class="card xtop" style="--kc:' + st.c + '">' +
+      '<div class="h"><span class="ico" style="color:' + st.c + '">' + icon(st.i,'s18') + '</span>' +
+        '<span class="sp"><b>' + E(st.ar) + '</b>' +
+        '<div class="tiny faint">' + E(t.desc || '') + '</div></span>' +
+        pill(untilTxt(t.start), 'grey') + '</div>' +
+
+      '<div class="xrings">' +
+        '<span class="xr">' + ring(pre, pre === 100 ? 'var(--ok)' : 'var(--gold2)', 54) +
+          '<span><b>الاستعداد المسبق</b><span class="tiny faint">' +
+          AR(reqIn(t,'pre').filter(r => r.done).length) + ' من ' + AR(reqIn(t,'pre').length) + ' شرطًا</span></span></span>' +
+        '<span class="xr">' + ring(don, don === 100 ? 'var(--ok)' : st.c, 54) +
+          '<span><b>إنجاز المهمة</b><span class="tiny faint">' +
+          AR(t.subs.filter(s => s.done).length) + ' من ' + AR(t.subs.length) + ' خطوة</span></span></span>' +
+      '</div>' +
+
+      '<div class="grid g2" style="gap:10px;margin-top:14px">' +
+        '<span><div class="tiny faint">التاريخ</div><b>' + dayName(t.start) + ' · ' + hijri(t.start) + '</b></span>' +
+        '<span><div class="tiny faint">الوقت</div><b class="num">' + t12(t.start) + ' — ' + t12(t.end) + '</b></span>' +
+        '<span><div class="tiny faint">الجهة</div><b>' + E(org.ar || '') + ' · ' + E(org.type || '') + '</b></span>' +
+        '<span><div class="tiny faint">الدولة</div><b>' + E(org.country || '—') + '</b></span>' +
+        '<span><div class="tiny faint">المكان</div><b>' + E(t.place) + '</b></span>' +
+        '<span><div class="tiny faint">المدينة</div><b>' + E(t.city) + '</b></span>' +
+        '<span><div class="tiny faint">حجاج المجموعة</div><b class="num">' + AR(taskPilgrims(t)) + '</b></span>' +
+        '<span><div class="tiny faint">المدة</div><b class="num">' + AR(t.durH) + ' ساعات</b></span>' +
+      '</div>' +
+
+      (t.rating ? '<div style="margin-top:14px"><div class="tiny faint">تقييم المهمة</div>' +
+        '<div class="meter gold" style="margin-top:6px"><i data-w="' + (t.rating / 5 * 100) + '"></i></div>' +
+        '<div class="tiny num" style="margin-top:5px">' + AR(t.rating) + ' من ٥</div></div>' : '') +
+      (t.autoStarted ? '<div class="evt bad" style="margin-top:14px"><span class="dot"></span>' +
+        '<span class="sp"><b>بدأها النظام</b><p>لم يبدأها ليدرها في وقتها — تُحتسب في تقييمه.</p></span></div>' : '') +
+      (t.closedBy === 'system' ? '<div class="evt bad" style="margin-top:10px"><span class="dot"></span>' +
+        '<span class="sp"><b>أُغلقت من قبل النظام</b><p>' + E(t.closeWhy || 'أغلقها الكنترول') + '</p></span></div>' : '') +
+    '</div>' +
+
+    /* ── تحكّم الكنترول ── */
+    '<div class="card gold">' +
+      head('تحكّم الكنترول', 'ما يفعله الميدان تفعله الغرفة — ويُسجَّل باسم النظام', '', 'i-shield') +
+      '<div class="grid g2" style="gap:8px">' +
+        (!closed && !live ? '<button class="btn p sm" data-a="txstart" data-id="' + t.id + '">' +
+          icon('i-play','s14') + 'بدء المهمة الآن</button>'
+          : '<button class="btn l sm off" disabled>' + icon('i-play','s14') +
+            (closed ? 'المهمة مغلقة' : 'المهمة جارية') + '</button>') +
+        (!closed ? '<button class="btn l sm" data-a="txclose" data-id="' + t.id + '">' +
+          icon('i-stop','s14') + 'إغلاق المهمة</button>'
+          : '<button class="btn l sm" data-a="txreopen" data-id="' + t.id + '">' +
+            icon('i-back','s14') + 'إعادة فتحها</button>') +
+        '<button class="btn l sm" data-a="txassign" data-id="' + t.id + '">' +
+          icon('i-assign','s14') + 'تسكين محسن</button>' +
+        '<button class="btn l sm" data-a="txfilenew" data-id="' + t.id + '">' +
+          icon('i-clip','s14') + 'رفع ملفّ أو عقد</button>' +
+        '<button class="btn l sm" data-a="txreqnew" data-id="' + t.id + '">' +
+          icon('i-shield','s14') + 'إضافة متطلّب</button>' +
+        '<button class="btn l sm" data-a="txnote" data-id="' + t.id + '">' +
+          icon('i-edit','s14') + 'ملاحظة</button>' +
+      '</div>' +
+      /* ثلاثة أبوابٍ إلى ما يراه الميدان: شاشته، وقيادته، وتقييمه */
+      '<div class="grid g3" style="gap:8px;margin-top:8px">' +
+        '<button class="btn p sm" data-a="avopen" data-id="' + t.id + '">' +
+          icon('i-phone','s14') + 'كما تظهر في التطبيق</button>' +
+        '<button class="btn l sm" data-a="avdelegopen" data-id="' + t.id + '">' +
+          icon('i-shield','s14') + 'تفويض القيادة</button>' +
+        '<button class="btn l sm" data-a="avrate" data-id="' + t.id + '">' +
+          icon('i-star','s14') + 'تفصيل التقييم</button>' +
+      '</div>' +
+    '</div>' +
+
+    /* ── المتطلّبات: ثلاث مراحل ── */
+    REQ_PHS.map(ph => {
+      const a = reqIn(t, ph), d = a.filter(r => r.done).length, p = tPct(d, a.length);
+      return txFold(t, 'req' + ph, REQ_PH[ph].ar, REQ_PH[ph].d,
+        (a.length ? '<div class="reqs">' + a.map(r =>
+          '<button class="req' + (r.done ? ' on' : '') + '" data-a="txreq" data-id="' + t.id +
+            '" data-s="' + r.id + '">' +
+            '<span class="tick">' + (r.done ? icon('i-check','s13') : '') + '</span>' +
+            '<span class="sp"><b>' + E(r.text) + '</b>' +
+            (r.done ? '<span class="tiny faint">شيَّك عليه ' + E(r.by || 'الكنترول') + ' · ' + t12(r.at) + '</span>'
+                    : '<span class="tiny faint">لم يُتحقَّق منه بعد</span>') + '</span>' +
+            '<span class="rx" data-a="txreqdel" data-id="' + t.id + '" data-s="' + r.id + '">' +
+              icon('i-x','s13') + '</span>' +
+          '</button>').join('') + '</div>'
+          : '<div class="tiny faint">لا متطلّبات في هذه المرحلة — أضِفها يدويًّا أو اربط قالبًا.</div>') +
+        '<div class="grid g2" style="gap:8px;margin-top:11px">' +
+          '<button class="btn l sm" data-a="txreqnew" data-id="' + t.id + '" data-v="' + ph + '">' +
+            icon('i-plus','s14') + 'إضافة شرط</button>' +
+          '<button class="btn l sm" data-a="txtpl" data-id="' + t.id + '">' +
+            icon('i-list','s14') + 'ربط قالب</button>' +
+        '</div>',
+        REQ_PH[ph].i,
+        ring(p, p === 100 ? 'var(--ok)' : REQ_PH[ph].c, 28));
+    }).join('') +
+
+    /* ── المهام الفرعية ── */
+    txFold(t, 'subs', 'المهام الفرعية',
+      AR(t.subs.filter(s => s.done).length) + ' من ' + AR(t.subs.length) + ' · وصورُ إثباتها',
+      (t.subs.length ? '<div class="xsubs">' + t.subs.map(s =>
+        '<div class="xsub' + (s.done ? ' on' : '') + '">' +
+          '<button class="xt" data-a="txsub" data-id="' + t.id + '" data-s="' + s.id + '">' +
+            '<span class="tick">' + (s.done ? icon('i-check','s13') : AR(s.no)) + '</span>' +
+            '<span class="sp"><b>' + E(s.name) + '</b>' +
+            (s.done ? '<span class="tiny faint">' + t12(s.at) + ' · ' +
+                E((userById(s.by) || {}).name || 'النظام') + '</span>' : '') + '</span>' +
+          '</button>' + shotTile(s, t.id) +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا خطوات لهذا التصنيف.</div>'),
+      'i-list', ring(don, don === 100 ? 'var(--ok)' : st.c, 28)) +
+
+    /* ── المسكَّنون ── */
+    txFold(t, 'team', 'المحسنون على المهمة',
+      AR(team.length) + ' مسكَّنًا · ' + AR(t.attended.length) + ' أثبتوا حضورهم',
+      (team.length ? '<div class="rows">' + team.map(m =>
+        '<div class="row" style="padding:9px 4px">' + avatar(m) +
+        '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b><span>' + E(m.specialty || '') +
+          (m.reserve ? ' · احتياط' : '') + '</span></span>' +
+        '<button class="chipbtn' + (t.attended.indexOf(m.id) >= 0 ? ' on' : '') + '" ' +
+          'data-a="txattend" data-id="' + t.id + '" data-s="' + m.id + '">' +
+          icon(t.attended.indexOf(m.id) >= 0 ? 'i-checkc' : 'i-target','s13') +
+          (t.attended.indexOf(m.id) >= 0 ? 'حاضر' : 'إثبات حضوره') + '</button>' +
+        '<button class="chipbtn bad" data-a="txunassign" data-id="' + t.id + '" data-s="' + m.id + '">' +
+          icon('i-x','s13') + 'سحب</button>' +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا أحد على هذه المهمة بعد.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="txassign" data-id="' + t.id + '">' +
+        icon('i-assign','s14') + 'تسكين محسن — ومعهم الاحتياط</button>',
+      'i-users', pill(AR(team.length), 'grey')) +
+
+    /* ── الملفات والعقود ── */
+    txFold(t, 'files', 'الملفات والعقود',
+      'العقود المبذورة وما يرفعه الكنترول — بلا حدّ',
+      (t.files.length ? '<div class="xfiles">' + t.files.map(f =>
+        '<div class="xfile">' +
+          '<button class="fi" data-a="txfileopen" data-id="' + t.id + '" data-s="' + f.id + '">' +
+            '<span class="ft">' + (/image/.test(f.type || '') ? icon('i-photo','s16') : '<b>PDF</b>') + '</span>' +
+            '<span class="sp"><b>' + E(f.name) + '</b>' +
+            '<span class="tiny faint">' + (f.ref ? LTR(f.ref) + ' · ' : '') + E(f.note || '') +
+            ' · ' + E(f.by || 'الكنترول') + ' · ' + hijri(f.at) + '</span></span>' +
+            (f.kind === 'contract' ? pill('عقد','gold') : pill('ملف','grey')) + '</button>' +
+          '<button class="fx" data-a="txfiledel" data-id="' + t.id + '" data-s="' + f.id + '" ' +
+            'aria-label="حذف">' + icon('i-x','s13') + '</button>' +
+        '</div>').join('') + '</div>'
+        : '<div class="tiny faint">لا ملفات على هذه المهمة.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="txfilenew" data-id="' + t.id + '">' +
+        icon('i-clip','s14') + 'رفع ملفّ أو عقد إضافي</button>',
+      'i-file', pill(AR(t.files.length), t.files.length ? 'gold' : 'grey')) +
+
+    /* ── دليل التنفيذ ── */
+    txFold(t, 'guide', 'دليل التنفيذ',
+      gd ? (gd.taskId ? 'دليل خاصّ بهذه المهمّة' : 'دليل تصنيفها') : 'لا دليل — تُنفَّذ بلا مرجع',
+      (gd ? '<div class="prow" data-a="gdview" data-id="' + gd.id + '">' +
+        '<span class="ico" style="color:var(--gold2)">' + icon('i-guide','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(gd.title) + '</b>' +
+        '<span>' + AR((gd.steps||[]).length) + ' خطوة · ' + AR((gd.media||[]).length) +
+        ' وسيطًا · ن' + AR(gd.ver) + '</span></span>' +
+        (gd.taskId ? pill('خاصّ','gold') : pill('بالتصنيف','grey')) + '</div>'
+        : '<div class="tiny faint">لا دليل لتصنيف هذه المهمّة بعد.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="tguide" data-id="' + t.id + '">' +
+        icon('i-guide','s14') + (gd && gd.taskId ? 'تغيير الدليل الخاصّ' : 'ربط دليل بهذه المهمّة') + '</button>',
+      'i-guide') +
+
+    /* ── التذاكر المرفوعة ── */
+    (tks.length ? txFold(t, 'tkt', 'التذاكر المرفوعة على المهمة',
+      AR(tks.length) + ' تذكرة من حجاج المجموعة',
+      '<div class="rows">' + tks.map(k =>
+        '<div class="row" style="padding:9px 4px;cursor:pointer" data-a="tkopen2" data-id="' + k.id + '">' +
+        '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
+        '<span>' + LTR(k.no) + ' · ' + E(k.from) + ' · ' + untilTxt(k.at) + '</span></span>' +
+        pill(k.pri, k.pri === 'حرجة' ? 'no' : 'wait') + pill(k.status, 'grey') + '</div>').join('') + '</div>',
+      'i-ticket', pill(AR(tks.length), 'no')) : '') +
+
+    /* ── طلبات الدعم ── */
+    (sp.length ? txFold(t, 'sup', 'طلبات الدعم', AR(sp.length) + ' طلبًا من ليدر المجموعة',
+      sp.map(s => '<div class="evt ' + (s.state === 'done' ? 'ok' : s.state === 'pending' ? 'warn' : 'bad') + '">' +
+        '<span class="dot"></span><span class="sp"><b>' + LTR(s.no) + ' — ' + AR(s.count) + ' محسن</b>' +
+        '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join(''),
+      'i-send') : '') +
+
+    /* ── الملاحظات ── */
+    txFold(t, 'notes', 'ملاحظات المهمة', AR(t.notes.length) + ' ملاحظة',
+      (t.notes.length ? t.notes.map(n =>
+        '<div class="evt ' + (n.kind === 'auto' ? 'warn' : 'info') + '"><span class="dot"></span>' +
+        '<span class="sp"><b>' + E(n.by || 'الكنترول') + '</b><p>' + E(n.text) + '</p>' +
+        '<span class="tiny faint">' + t12(n.at) + ' · ' + hijri(n.at) + '</span></span></div>').join('')
+        : '<div class="tiny faint">لا ملاحظات.</div>') +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="txnote" data-id="' + t.id + '">' +
+        icon('i-edit','s14') + 'إضافة ملاحظة</button>',
+      'i-edit', pill(AR(t.notes.length), 'grey')) +
+
+    /* ── السجلّ ── */
+    txFold(t, 'hist', 'سجلّ المهمة', AR(t.hist.length) + ' واقعة — من إنشائها إلى إغلاقها',
+      '<div class="tline">' + t.hist.map(h =>
+        '<div class="tl ' + (h.kind === 'warn' ? 'bad' : h.kind === 'ok' ? 'ok' : '') + '">' +
+          '<span class="d"></span>' +
+          '<span class="sp"><b>' + E(h.text) + '</b>' +
+          '<span class="tiny faint">' + t12(h.at) + ' · ' + hijri(h.at) + '</span></span></div>').join('') +
+      '</div>', 'i-hist') +
+
+    '<button class="btn l" data-a="go" data-n="tasks">' + icon('i-tasks','s16') + 'عرض في جدول المهام</button>'
+  };
+  renderDrawer();
+}
+
+/* ============================================================
+   نماذج صغيرة داخل الدرج
+   ============================================================ */
+
+/* إضافة متطلّب */
+function txReqNew(id, ph) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  S.txq = S.txq || {};
+  const cur = S.txq.ph || ph || 'pre';
+  S.drawer = { title:'إضافة متطلّب', sub:t.title, icon:'i-shield', wide:false, body:
+    '<div class="card">' + head('المرحلة', 'متى يُتحقَّق من هذا الشرط؟') +
+      '<div class="grid g3" style="gap:8px">' + REQ_PHS.map(p =>
+        '<button class="chipbtn' + (p === cur ? ' on' : '') + '" data-a="txreqph" data-id="' + id +
+          '" data-v="' + p + '">' + icon(REQ_PH[p].i,'s13') + REQ_PH[p].ar + '</button>').join('') + '</div>' +
+      '<label class="fl2">نصّ الشرط</label>' +
+      '<input class="fld" id="q-txrq" data-q="txrq" value="' + E(qOf('txrq')) +
+        '" placeholder="مثال: عقد النقل ساري والحافلات مؤكّدة">' +
+    '</div>' +
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="txreqsave" data-id="' + id + '">' + icon('i-check','s16') + 'إضافة</button>' +
+      '<button class="btn l" data-a="tlopen" data-id="' + id + '">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* ربط قالب متطلّبات */
+function txTplPick(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  const tpl = S.reqtpl || [];
+  S.drawer = { title:'ربط قالب متطلّبات', sub:t.title, icon:'i-list', wide:false, body:
+    '<div class="note b">' + icon('i-info','s16') +
+      '<span>القالب يُضيف شروطه الثلاث مراحل دفعةً واحدة. وما كان موجودًا لا يُكرَّر.</span></div>' +
+    (tpl.length ? '<div class="plist">' + tpl.map(x =>
+      '<div class="prow" data-a="txtplpick" data-id="' + id + '" data-s="' + x.id + '">' +
+        '<span class="ico" style="color:var(--gold2)">' + icon('i-list','s16') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(x.name) + '</b><span>' +
+          REQ_PHS.map(p => AR(x.items.filter(i => i.ph === p).length) + ' ' + REQ_PH[p].ar).join(' · ') +
+        '</span></span>' + (x.kind === t.kind ? pill('يطابق تصنيفها','gold') : '') + '</div>').join('') + '</div>'
+      : empty('لا قوالب بعد', 'أضِف الشروط يدويًّا', 'i-list')) +
+    '<button class="btn l" data-a="tlopen" data-id="' + id + '">رجوع</button>' };
+  renderDrawer();
+}
+
+/* رفع ملفّ أو عقد */
+function txFileNew(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  const kind = S.txq && S.txq.fk ? S.txq.fk : 'extra';
+  S.drawer = { title:'رفع ملفّ على المهمة', sub:t.title, icon:'i-clip', wide:false, body:
+    '<div class="note b">' + icon('i-info','s16') +
+      '<span>الكنترول يرفع ما شاء من الملفات والعقود على أي مهمة — بلا حدّ عدد.</span></div>' +
+    '<div class="card">' + head('النوع', 'عقدٌ إضافي أم ملفّ مساند؟') +
+      '<div class="grid g2" style="gap:8px">' +
+        '<button class="chipbtn' + (kind === 'contract' ? ' on' : '') + '" data-a="txfk" data-id="' + id +
+          '" data-v="contract">' + icon('i-file','s13') + 'عقد</button>' +
+        '<button class="chipbtn' + (kind === 'extra' ? ' on' : '') + '" data-a="txfk" data-id="' + id +
+          '" data-v="extra">' + icon('i-clip','s13') + 'ملفّ مساند</button>' +
+      '</div>' +
+      '<label class="fl2">اسم الملف</label>' +
+      '<input class="fld" id="q-txfn" data-q="txfn" value="' + E(qOf('txfn')) +
+        '" placeholder="مثال: ملحق عقد النقل — حافلة إضافية">' +
+      '<label class="fl2">وصف مختصر</label>' +
+      '<input class="fld" id="q-txfd" data-q="txfd" value="' + E(qOf('txfd')) +
+        '" placeholder="ما الذي يثبته هذا الملف؟">' +
+      '<div style="margin-top:12px">' + filePick('txf') + '</div>' +
+    '</div>' +
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="txfilesave" data-id="' + id + '">' + icon('i-check','s16') + 'رفع</button>' +
+      '<button class="btn l" data-a="tlopen" data-id="' + id + '">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* ملاحظة */
+function txNoteNew(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  S.drawer = { title:'ملاحظة على المهمة', sub:t.title, icon:'i-edit', wide:false, body:
+    '<div class="card">' + head('نصّ الملاحظة', 'تُقرأ في التطبيق كما تُقرأ هنا') +
+      '<textarea class="fld" id="q-txnt" data-q="txnt" rows="5" ' +
+        'placeholder="اكتب ما يجب أن يعرفه الليدر وفريقه…">' + E(qOf('txnt')) + '</textarea>' +
+    '</div>' +
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="txnotesave" data-id="' + id + '">' + icon('i-check','s16') + 'حفظ</button>' +
+      '<button class="btn l" data-a="tlopen" data-id="' + id + '">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* إغلاق المهمة بسبب مكتوب */
+function txCloseAsk(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  S.drawer = { title:'إغلاق المهمة', sub:t.title, icon:'i-stop', wide:false, body:
+    '<div class="note a">' + icon('i-warn','s16') +
+      '<span>ستُسجَّل <b>«مغلقة من قبل النظام»</b> لا باسم ليدرها — والسبب يظهر في سجلّها.</span></div>' +
+    '<div class="card">' + head('سبب الإغلاق', 'يُقرأ في التطبيق وفي السجلّ') +
+      '<textarea class="fld" id="q-txcw" data-q="txcw" rows="4" ' +
+        'placeholder="مثال: أُنجزت ميدانيًّا ولم يُغلقها ليدرها.">' + E(qOf('txcw')) + '</textarea>' +
+      '<div class="tiny faint" style="margin-top:9px">إنجاز الخطوات الآن: ' +
+        AR(subPct(t)) + '٪ — وما لم يُنجز يبقى مفتوحًا في التقرير.</div>' +
+    '</div>' +
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="txclosedo" data-id="' + id + '">' + icon('i-stop','s16') + 'إغلاقها</button>' +
+      '<button class="btn l" data-a="tlopen" data-id="' + id + '">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* معاينة صورة الإثبات */
+function txPhoto(tid, sid) {
+  const t = ensureTask(taskById(tid)); if (!t) return;
+  const s = t.subs.find(x => x.id === sid); if (!s || !s.shot) return;
+  S.drawer = { title:'إثبات التنفيذ', sub:s.name, icon:'i-camera', wide:!!S.dwide, expand:tid, body:
+    '<div class="shotbig bgw-' + s.shot.img + '"></div>' +
+    '<div class="card">' +
+      '<div class="grid g2" style="gap:10px">' +
+        '<span><div class="tiny faint">الخطوة</div><b>' + E(s.name) + '</b></span>' +
+        '<span><div class="tiny faint">وقت التوثيق</div><b class="num">' + t12(s.shot.at) + '</b></span>' +
+        '<span><div class="tiny faint">من رفعها</div><b>' +
+          E((userById(s.shot.by) || {}).name || 'الميدان') + '</b></span>' +
+        '<span><div class="tiny faint">المهمة</div><b>' + E(t.title) + '</b></span>' +
+      '</div></div>' +
+    '<button class="btn l" data-a="tlopen" data-id="' + tid + '">رجوع إلى المهمة</button>' };
+  renderDrawer();
+}
+
+/* ---------- تسجيل واقعة في سجلّ المهمة ---------- */
+function txLog(t, text, kind) {
+  t.hist = t.hist || [];
+  t.hist.unshift({ at: now(), text, kind: kind || 'info', by: 'النظام' });
+}
+
+/* ============================================================
+   معاينة العقد — نصّه كما يقرأه الميدان في التطبيق
+   ============================================================ */
+function docView(t, k) {
+  const d = DOCS[k]; if (!d) return;
+  const o = orgById(t.orgId) || {}, L = userById(t.leaderId) || {};
+  const n = taskPilgrims(t), buses = Math.max(1, Math.ceil(n / 45));
+  const ref = d.ref + '-' + t.code + '-1447';
+  const kv = (a, b2) => '<div class="dkv"><span>' + a + '</span><b>' + b2 + '</b></div>';
+
+  const body = k === 'naql'
+    ? '<h4>عقد نقل بري لحجاج بيت الله الحرام</h4>' +
+      '<div class="dsub">موسم حج ' + AR(1447) + 'هـ · رقم العقد ' + LTR(ref) + '</div>' +
+      '<p>إنه في يوم ' + dayName(t.start) + ' الموافق ' + hijri(t.start) +
+      'هـ، تمّ الاتفاق بين كلٍّ من:</p>' +
+      kv('الطرف الأول (الناقل)', 'شركة رواحل الحرمين للنقل البري') +
+      kv('رقم الترخيص', LTR('NT-48210')) +
+      kv('الطرف الثاني (المتعاقد)', E(o.ar || '')) +
+      kv('الدولة', E(o.country || '—')) +
+      kv('مجموعة الحجاج', LTR(t.kt) + ' · ' + AR(n) + ' حاجًّا') +
+      kv('ليدر المجموعة', E(L.name || '')) +
+      '<h5>أولًا: موضوع العقد</h5>' +
+      '<p>يلتزم الطرف الأول بنقل حجاج الطرف الثاني برًّا وفق خط السير المعتمد أدناه، ' +
+      'بحافلات مطابقة للاشتراطات الصادرة عن الهيئة العامة للنقل، وبسائقين مرخّصين لموسم الحج.</p>' +
+      '<h5>ثانيًا: خط السير</h5>' +
+      kv('نقطة الانطلاق', E(t.place)) +
+      kv('الوجهة', 'فندق منازل المقام — مكة المكرمة') +
+      kv('موعد التنفيذ', hijri(t.start) + 'هـ · ' + t12(t.start)) +
+      kv('مدة الرحلة التقديرية', AR(t.durH) + ' ساعات') +
+      kv('عدد الحافلات', AR(buses) + ' حافلة سعة ٤٥ راكبًا') +
+      '<h5>ثالثًا: التزامات الناقل</h5><ol>' +
+      '<li>حضور الحافلات إلى نقطة الانطلاق قبل الموعد بساعتين على الأقل.</li>' +
+      '<li>أن تكون الحافلات مكيّفة ونظيفة ومزوّدة بمياه شرب باردة وحقيبة إسعافات.</li>' +
+      '<li>ألّا يتجاوز عمر الحافلة خمس سنوات، وأن تحمل لوحة تعريفية بالمجموعة ورقمها.</li>' +
+      '<li>الالتزام بالمسار المعتمد من مركز التحكم، وعدم التوقّف في غير النقاط المصرّح بها.</li>' +
+      '<li>تسليم الحقائب في الوجهة وفق كشف مطابقة موقّع من مندوب الطرف الثاني.</li></ol>' +
+      '<h5>رابعًا: الجزاءات</h5>' +
+      '<p>يُخصم من قيمة العقد ما نسبته اثنان في المئة عن كل ساعة تأخير عن الموعد المحدّد، ' +
+      'ويحقّ للطرف الثاني فسخ العقد عند تكرار المخالفة ثلاث مرّات في الموسم الواحد.</p>'
+    : '<h4>عقد إيواء حجاج بيت الله الحرام</h4>' +
+      '<div class="dsub">موسم حج ' + AR(1447) + 'هـ · رقم العقد ' + LTR(ref) + '</div>' +
+      '<p>إنه في يوم ' + dayName(t.start) + ' الموافق ' + hijri(t.start) +
+      'هـ، تمّ الاتفاق بين كلٍّ من:</p>' +
+      kv('الطرف الأول (المؤجّر)', 'فندق منازل المقام — العزيزية') +
+      kv('رقم رخصة الإيواء', LTR('LIC-31744')) +
+      kv('الطرف الثاني (المستأجر)', E(o.ar || '')) +
+      kv('الدولة', E(o.country || '—')) +
+      kv('مجموعة الحجاج', LTR(t.kt) + ' · ' + AR(n) + ' حاجًّا') +
+      kv('عدد الغرف', AR(Math.ceil(n / 4)) + ' غرفة رباعية') +
+      '<h5>أولًا: مدة الإيواء</h5>' +
+      kv('من', hijri(t.start) + 'هـ') +
+      kv('إلى', hijri(t.start + 12 * DAY) + 'هـ') +
+      '<h5>ثانيًا: التزامات المؤجّر</h5><ol>' +
+      '<li>تسليم الغرف نظيفة ومجهّزة قبل وصول الحجاج بأربع ساعات.</li>' +
+      '<li>توفير التكييف والماء الساخن والمصعد على مدار الساعة.</li>' +
+      '<li>تخصيص غرفة مؤهّلة لذوي الاحتياج في الدور الأول.</li>' +
+      '<li>توفير خزنة لحفظ الجوازات بمحضر تسليم واستلام.</li>' +
+      '<li>الاستجابة لبلاغات الصيانة خلال ساعتين من رفعها.</li></ol>' +
+      '<h5>ثالثًا: الجزاءات</h5>' +
+      '<p>يُخصم من قيمة العقد ما يقابل ليلةً كاملة عن كل غرفة تُسلَّم غير مطابقة للمواصفات، ' +
+      'ويحقّ للطرف الثاني نقل حجاجه على نفقة الطرف الأول عند تكرار الإخلال.</p>';
+
+  S.drawer = { title: d.ar, sub: ref + ' · ' + t.title, icon: 'i-file', wide: !!S.dwide, expand: t.id, body:
+    '<div class="doc">' + body +
+      '<div class="dsign"><span><b>الطرف الأول</b><i></i></span>' +
+      '<span><b>الطرف الثاني</b><i></i></span></div>' +
+    '</div>' +
+    '<button class="btn l" data-a="tlopen" data-id="' + t.id + '">' +
+      icon('i-back','s16') + 'رجوع إلى المهمة</button>' };
+  renderDrawer();
+}
