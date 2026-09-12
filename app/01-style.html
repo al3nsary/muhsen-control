@@ -759,6 +759,10 @@ a{color:inherit; text-decoration:none}
 .prow .nm span{display:block; font-size:11px; color:var(--dim2); line-height:1.5}
 .prow .end{margin-inline-start:auto; text-align:left; flex:none}
 .plist{display:flex; flex-direction:column; gap:9px}
+/* حاسم — وهو الدرس نفسه الذي لدغنا في الأدراج: ابن المرن ينكمش ما لم
+   يُمنَع. وقائمةٌ في صندوقٍ محدّد الارتفاع كانت تسحق صفوفها إلى ٢٤ بكسل
+   فيفيض نصّها خارجها ويبدو الصفّ ممزّقًا. */
+.plist > *{flex:none}
 /* سطر الحصيلة أسفل الصفّ: المنجَز يمينًا والملاحظات يسارًا */
 .pfoot{display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin-top:9px; padding-top:9px; border-top:1px solid var(--line); font-size:11.5px}
@@ -1384,7 +1388,35 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .dw .gantt{flex:1; min-height:0; overflow-y:auto}
 .dw .heat{flex:1; min-height:0; overflow:auto}
 .dw .map{height:100%; min-height:230px}
-.dw .donutwrap{justify-content:center; height:100%}
+/* ما زاد عن صندوقه كان يُقطع في منتصف سطرٍ فيبدو معطوبًا. التلاشي
+   يقول «تحتَه مزيد» بدل أن يقول «انكسر هنا». */
+.dw > .card{position:relative}
+/* العريض: سقفٌ للجسد لا قالبٌ للبطاقة — فالقصير يقصر والطويل يُمرَّر */
+.band.bwide .dw{height:auto}
+.band.bwide .wbody{max-height:410px}
+.dw .wbody{-webkit-mask:linear-gradient(#000 calc(100% - 26px), #0000);
+        mask:linear-gradient(#000 calc(100% - 26px), #0000)}
+.dw .wbody.full{-webkit-mask:none; mask:none}
+.dw .donutwrap{justify-content:center; height:100%; gap:12px}
+.dw .donut{width:min(168px,80%); height:auto; aspect-ratio:1}
+/* بطاقةٌ عريضة وحلقةٌ صغيرة وسطها = فراغٌ مهيب. فإذا اتّسع الصندوق
+   اصطفّت الحلقة ومفتاحُها جنبًا إلى جنب وملآه. */
+.dw.wide2 .donutwrap{flex-direction:row; justify-content:center; gap:34px; align-items:center}
+.dw.wide2 .donut{width:min(200px,42%)}
+.dw.wide2 .donutwrap .legend{flex-direction:column; align-items:flex-start; gap:9px}
+.dw.wide2 .donutwrap .legend span{font-size:12.5px}
+
+/* شريط اليوم: قطعةٌ لكل حالة بعرض نصيبها */
+/* ما ينقص يُكتب بلونه لا بحبّةٍ مجاوِرة */
+.prow .miss{display:flex; align-items:center; gap:4px; margin-top:5px; font-size:10.5px;
+  color:var(--amber); line-height:1.5}
+.prow .miss b{font-weight:800}
+
+.dayline{display:flex; gap:3px; height:26px; border-radius:9px; overflow:hidden;
+  background:var(--sheen); margin-top:6px}
+.dseg{display:block; border-radius:4px; min-width:6px;
+  animation:growx .7s var(--e3) both; transform-origin:right}
+@keyframes growx{from{transform:scaleX(0)} to{transform:none}}
 .dw .bars{height:100%; min-height:120px}
 .dw .chart{height:100%; display:flex; flex-direction:column; justify-content:flex-end}
 @media (max-width:1500px){ .band{--cols:min(3,var(--cols))}
@@ -1420,11 +1452,15 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 /* حلقة النسبة: القوس لونه من الحالة، والرقم في قلبه */
 .tring{position:relative; display:inline-grid; place-items:center; flex:none}
-.tring svg{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg)}
-.tring .rbg{fill:none; stroke:var(--line2); stroke-width:3}
-.tring .rfg{fill:none; stroke-width:3; stroke-linecap:round;
-  transition:stroke-dasharray .6s var(--e3)}
-.tring b{font-size:10.5px; font-weight:700; color:var(--ink); line-height:1}
+/* القوس تدرّجٌ مخروطي، والقناع يثقب وسطه فيظهر ما تحته أيًّا كان لونه.
+   وهذا أرخص من SVG بأربع عقد لكل حلقة، والجدول فيه مئات. */
+.tring i{position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(var(--rc,var(--gold2)) calc(var(--p,0) * 1%), var(--line2) 0);
+  /* closest-side لازم: بدونه يقيس التدرّج إلى أبعد ركن فيصير الثقب
+     أوسع من العنصر — فتختفي الحلقة أو تمتلئ قرصًا. */
+  -webkit-mask:radial-gradient(circle closest-side, #0000 calc(100% - 3.4px), #000 calc(100% - 3px));
+          mask:radial-gradient(circle closest-side, #0000 calc(100% - 3.4px), #000 calc(100% - 3px))}
+.tring b{position:relative; z-index:1; font-size:10.5px; font-weight:700; color:var(--ink); line-height:1}
 .tring b::after{content:'٪'; font-size:8px; color:var(--dim2); margin-inline-start:1px}
 
 /* عدّادات السطر: أيقونة ورقم، متساوية العرض فتُقرأ عموديًّا */
@@ -1647,6 +1683,80 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   padding:9px 0 13px}
 .phone .ptabs span{flex:1; text-align:center; font-size:10px; color:var(--pd2)}
 .phone .ptabs span.on{color:var(--gold3); font-weight:700}
+
+/* ══ ترقيم الصفحات: القائمة الطويلة تُقطَّع فلا تُثقل كل ضغطة ══ */
+.pager{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px;
+  padding-top:14px; border-top:1px solid var(--line)}
+.pgb{display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:11px;
+  background:var(--sheen); border:1px solid transparent; color:var(--dim); font:inherit;
+  font-size:12px; font-weight:600; cursor:pointer}
+.pgb:hover:not(:disabled){border-color:var(--line2); color:var(--ink)}
+.pgb:disabled{opacity:.4; cursor:default}
+.pgn{display:flex; align-items:center; gap:4px}
+.pgi{min-width:30px; height:30px; border-radius:9px; background:transparent; border:0;
+  color:var(--dim2); font:inherit; font-size:12px; font-weight:700; cursor:pointer}
+.pgi:hover{background:var(--sheen); color:var(--ink)}
+.pgi.on{background:var(--gold); color:#1a1205}
+.pgd{color:var(--dim2); padding:0 2px}
+.pgc{margin-inline-start:auto; font-size:11px; color:var(--dim2)}
+
+/* ══ حالة المهمّة تُقرأ من الصندوق نفسه لا من حبّةٍ في طرفه ══
+   الطرف الملوّن وحده لا يكفي: نصبغ حافّة الصفّ وأرضيّته بلون حالته
+   صبغًا خفيفًا، فيُعرف من بعيدٍ أيُّ صفٍّ جارٍ وأيُّهما فات وقته. */
+.trow{--tsc:var(--dim)}
+.trow{border-color:color-mix(in srgb, var(--tsc) 26%, var(--line)) !important;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--tsc) 7%, transparent), transparent 42%)}
+.trow:hover{background:linear-gradient(90deg, color-mix(in srgb, var(--tsc) 13%, transparent), transparent 52%)}
+.trow .krail{width:5px; background:var(--tsc) !important}
+.trow .tst{display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:99px;
+  font-size:10.5px; font-weight:700; white-space:nowrap;
+  color:var(--tsc); background:color-mix(in srgb, var(--tsc) 15%, transparent);
+  border:1px solid color-mix(in srgb, var(--tsc) 34%, transparent)}
+.trow .tst i{width:6px; height:6px; border-radius:50%; background:var(--tsc); display:block}
+.trow.live .tst i{animation:pulse 1.8s var(--e3) infinite}
+@keyframes pulse{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.45; transform:scale(.72)}}
+
+/* ══ سجلّ المهمّة: يومٌ يومًا، وخطٌّ واحد يجمعها ══ */
+.hislog{position:relative; padding-inline-start:18px; margin-top:12px}
+.hislog::before{content:''; position:absolute; inset-block:6px 6px; inset-inline-start:5px;
+  width:1.5px; background:linear-gradient(var(--line2), transparent)}
+.hisday{position:relative; font-size:10.5px; font-weight:700; color:var(--gold2);
+  margin:14px 0 8px; letter-spacing:.2px}
+.hisday:first-child{margin-top:0}
+.hisday::before{content:''; position:absolute; inset-inline-start:-17px; top:5px;
+  width:9px; height:9px; border-radius:50%; background:var(--gold); border:2px solid var(--panel)}
+.hisrow{position:relative; display:flex; gap:10px; align-items:flex-start; padding:8px 0}
+.hisrow::before{content:''; position:absolute; inset-inline-start:-15px; top:14px;
+  width:5px; height:5px; border-radius:50%; background:var(--line2)}
+.hisrow.ok::before{background:var(--live)}
+.hisrow.bad::before{background:var(--red)}
+.hisrow .histm{font-size:10.5px; color:var(--dim2); min-width:58px; flex:none;
+  font-variant-numeric:tabular-nums; padding-top:1px}
+.hisrow .histx{flex:1; min-width:0; font-size:12px; line-height:1.65; color:var(--dim)}
+.hisrow.ok .histx, .hisrow.bad .histx{color:var(--ink)}
+
+/* ══ تنبيهات المهام: الجرس وقائمته ══
+   الإشعار يتبع مهمّته لا يتيه في بثٍّ عام، فعدده على الجرس وتفصيله تحته. */
+.bellbtn{position:relative; width:34px; height:34px; border-radius:11px; flex:none;
+  display:grid; place-items:center; background:var(--sheen); border:1px solid transparent;
+  color:var(--dim2); cursor:pointer}
+.bellbtn:hover{border-color:var(--line2); color:var(--ink)}
+.bellbtn.has{color:var(--gold2); border-color:color-mix(in srgb,var(--gold) 40%,transparent)}
+.bellbtn i{position:absolute; top:-5px; inset-inline-end:-5px; min-width:17px; height:17px;
+  padding:0 4px; border-radius:99px; background:var(--red); color:#fff; font-size:9.5px;
+  font-weight:800; font-style:normal; display:grid; place-items:center;
+  border:2px solid var(--panel)}
+.alist{display:flex; flex-direction:column; gap:6px; margin-top:12px}
+.alrow{display:flex; align-items:flex-start; gap:10px; padding:10px 11px; border-radius:14px;
+  background:var(--sheen); border:1px solid transparent; cursor:pointer}
+.alrow:hover{border-color:var(--line2)}
+.alrow.seen{opacity:.62}
+.alrow .ali{width:30px; height:30px; border-radius:10px; flex:none; display:grid;
+  place-items:center}
+.alrow .alx{flex:1; min-width:0}
+.alrow .alx b{display:block; font-size:12.5px; font-weight:600; line-height:1.55}
+.alrow .aldot{width:7px; height:7px; border-radius:50%; background:var(--red); flex:none;
+  margin-top:11px}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{

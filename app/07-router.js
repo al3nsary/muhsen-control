@@ -15,7 +15,7 @@ const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -100,7 +100,18 @@ document.addEventListener('click', ev => {
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
     case 'palrun': runPalette(Number(v)); return;
-    case 'closedrawer': S.drawer = null; S.picker = null; renderDrawer(); return;
+    case 'closedrawer': S.drawer = null; S.picker = null; clearDrawerStack(); renderDrawer(); return;
+    case 'dback': drawerBack(); return;
+    case 'pg': {
+      S.page = S.page || {};
+      S.page[b.dataset.k] = Math.max(0, Number(v));
+      save(); render();
+      /* الصفحة الجديدة تبدأ من أعلى الجدول لا من حيث كنت */
+      const vw = document.querySelector('.view');
+      const tb = vw && vw.querySelector('.plist');
+      if (tb) tb.scrollIntoView({ block:'start', behavior:'auto' });
+      return;
+    }
     case 'shortcuts': showShortcuts(); return;
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
@@ -274,6 +285,25 @@ document.addEventListener('click', ev => {
     }
 
     case 'txphoto': txPhoto(id, b.dataset.s); return;
+
+    /* ═══ تنبيهات المهام ═══ */
+    case 'alerts': alertsDrawer(); return;
+    case 'alopen': {
+      const t = ensureTask(taskById(id));
+      if (!t) { alertsDrawer(); return; }
+      const al = taskAlerts(t).find(x => x.id === b.dataset.s);
+      if (al) al.seen = true;
+      save(); taskDrawer(t.id); return;
+    }
+    case 'alseen': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      taskAlerts(t).forEach(x => { x.seen = true; });
+      toast('وُسمت تنبيهات المهمة مقروءة'); save(); taskDrawer(t.id); return;
+    }
+    case 'alall': {
+      (S.tasks || []).forEach(t => (t.alerts || []).forEach(x => { x.seen = true; }));
+      toast('وُسمت كل التنبيهات مقروءة'); save(); alertsDrawer(); return;
+    }
 
     /* ═══ معاينة التطبيق والمعالجة بصفة الميدان ═══ */
     case 'avopen': appPreview(id); return;

@@ -9,7 +9,9 @@
 
 const BANDS = [
   { k:'kpi',   ar:'المؤشّرات', d:'أرقام تُقرأ في لمحة',        cols:4, h:0   },
-  { k:'wide',  ar:'الصفوف العريضة', d:'ما يحتاج عرض الشاشة',   cols:1, h:472 },
+  /* العريض عمودٌ واحد، فاختلاف ارتفاعاته لا يمزّق شيئًا. وارتفاعٌ جامد
+     يترك تحت «يوم العمليات» ثلاثمئة بكسل فارغة. فليأخذ كلٌّ قدرَه. */
+  { k:'wide',  ar:'الصفوف العريضة', d:'ما يحتاج عرض الشاشة',   cols:1, h:0   },
   { k:'chart', ar:'الرسوم',    d:'توزيعات ومقارنات',           cols:3, h:352 },
   { k:'list',  ar:'القوائم',   d:'أحدث ما يخصّ كل باب',        cols:3, h:412 },
   { k:'map',   ar:'الخرائط والمسارات', d:'الموقع والزمن',      cols:2, h:452 }
@@ -39,12 +41,17 @@ const WIDGETS = [
   { k:'kpiGuides',  ar:'أدلة معتمدة',         b:'kpi', w:1, i:'i-guide',  f:wGdKpi },
   { k:'kpiHotels',  ar:'فنادق بلا مشرف',      b:'kpi', w:1, i:'i-key',    f:wHotKpi },
   { k:'kpiShifts',  ar:'طلبات الشِفتات',      b:'kpi', w:1, i:'i-swap',   f:wShfKpi },
+  /* ثلاثة تخدم عصب النظام: الاستعداد، والتنبيه، والتعثّر */
+  { k:'kpiPrep',    ar:'استعدادٌ ناقص',       b:'kpi', w:1, i:'i-shield', f:wPrepKpi },
+  { k:'kpiAlert',   ar:'تنبيهات لم تُقرأ',    b:'kpi', w:1, i:'i-bell',   f:wAlertKpi },
+  { k:'kpiStuck',   ar:'مهام متعثّرة',        b:'kpi', w:1, i:'i-warn',   f:wStuckKpi },
 
   /* ═ صفوف عريضة ═ */
   { k:'queue',      ar:'صفّ القرارات',        b:'wide', w:1, i:'i-send',  f:wQueue },
   { k:'ktTable',    ar:'جدول الفرق',          b:'wide', w:1, i:'i-users', f:wKt },
   { k:'gantt',      ar:'مسار الباصات اليوم',  b:'wide', w:1, i:'i-bus',   f:wGantt },
   { k:'heat',       ar:'كثافة الأسبوع',       b:'wide', w:1, i:'i-hist',  f:wHeat },
+  { k:'dayline',    ar:'يوم العمليات',        b:'wide', w:1, i:'i-cal',   f:wDayLine },
 
   /* ═ رسوم ═ */
   { k:'chLoad',     ar:'حِمل اليوم بالساعات', b:'chart', w:2, i:'i-hist',  f:wLoad },
@@ -80,6 +87,10 @@ const WIDGETS = [
   { k:'lsGuides',   ar:'أحدث الأدلة',         b:'list', w:1, i:'i-guide',  f:wGdList },
   { k:'lsAudit',    ar:'آخر السجل',           b:'list', w:1, i:'i-hist',   f:wAuditList },
   { k:'lsOrgs',     ar:'الجهات وحِملها',      b:'list', w:1, i:'i-flag',   f:wOrgList },
+  { k:'lsPrep',     ar:'استعدادٌ ناقص',       b:'list', w:1, i:'i-shield', f:wPrepList },
+  { k:'lsStuck',    ar:'مهام متعثّرة',        b:'list', w:1, i:'i-warn',   f:wStuckList },
+  { k:'lsAlerts',   ar:'تنبيهات لم تُقرأ',    b:'list', w:1, i:'i-bell',   f:wAlertList },
+  { k:'lsGaps',     ar:'ثغرات التشكيل',       b:'list', w:1, i:'i-shield', f:wGaps },
 
   /* ═ خرائط ═ */
   { k:'map',        ar:'خريطة العمليات',      b:'map', w:2, i:'i-pin',    f:wMap },
@@ -88,13 +99,15 @@ const WIDGETS = [
 ];
 const widgetOf = k => WIDGETS.find(w => w.k === k);
 
+/* الافتراضي ليس معرضًا للرسوم — هو إجابة أربعة أسئلة بترتيبها:
+   ماذا يحتاج تدخّلي؟ ثم هل ما هو قادمٌ مستعدّ؟ ثم أين الخلل؟ ثم كيف يسير اليوم؟ */
 const DASH_DEFAULT = [
-  'kpiTasks','kpiDecide','kpiTickets','kpiStart',
-  'queue',
-  'chLoad','chStatus','chInc',
-  'feed','nextTasks','topStaff',
-  'map','mapNow',
-  'ktTable'
+  'kpiStuck', 'kpiPrep', 'kpiDecide', 'kpiAlert',
+  'queue', 'dayline',
+  'chLoad', 'chStatus', 'chInc',
+  'lsPrep', 'lsStuck', 'lsAlerts',
+  'lsGaps', 'feed', 'nextTasks',
+  'map', 'mapNow'
 ];
 const dashKeys = () => (S.dash && S.dash.length ? S.dash : DASH_DEFAULT.slice())
   .filter(widgetOf);
@@ -122,18 +135,45 @@ function screenOps() {
   '</div>' +
 
   (bands.length ? bands.map(x =>
-    '<section class="band" style="--cols:' + x.b.cols + ';' +
+    '<section class="band b' + x.b.k + '" style="--cols:' + x.b.cols + ';' +
       (x.b.h ? '--wh:' + x.b.h + 'px' : '--wh:auto') + '">' +
       (x.b.k === 'kpi' || x.b.k === 'wide' ? '' :
         '<div class="bandhead"><span>' + E(x.b.ar) + '</span></div>') +
-      '<div class="bandgrid">' + x.items.map((k, i) => {
-        const w = widgetOf(k);
-        return '<div class="dw w' + w.w + '" style="animation-delay:' + (i * 40) + 'ms">' +
-          w.f() + '</div>';
-      }).join('') + '</div>' +
+      '<div class="bandgrid">' + packBand(x.items, x.b.cols).map((it, i) =>
+        '<div class="dw' + (it.w > 1 ? ' wide2' : '') + '" style="grid-column:span ' + it.w +
+          ';animation-delay:' + (i * 40) + 'ms">' + widgetOf(it.k).f() + '</div>').join('') +
+      '</div>' +
     '</section>').join('')
     : '<div class="card">' + empty('اللوحة فارغة',
         'اضغط «تخصيص اللوحة» واختر ما يهمّك', 'i-target') + '</div>');
+}
+
+/* ---------- ملء الصفوف ----------
+   عنصرٌ بعرض اثنين ثم اثنان بعرض واحد في شريطٍ من ثلاثة أعمدة يترك
+   الثالثَ وحيدًا في صفٍّ فارغ — وهذا ما بدا «مشوَّهًا». فنحسب الصفوف
+   بأنفسنا ونوسّع آخرَ عناصر كل صفّ حتى يملأه تمامًا. */
+function packBand(keys, cols) {
+  /* إن كانوا يسعون صفًّا واحدًا فليتقاسموه بالتساوي: ثلاثة رسوم في
+     ثلاثة أعمدة أحسنُ من اثنين في صفٍّ وواحدٍ ممدودٍ في صفّ. */
+  if (keys.length && keys.length <= cols) {
+    const base = Math.floor(cols / keys.length);
+    let extra = cols - base * keys.length;
+    return keys.map((k, i) => ({ k, w: base + (i < extra ? 1 : 0) }));
+  }
+  const rows = [];
+  let row = [], sum = 0;
+  keys.forEach(k => {
+    const w = Math.min(widgetOf(k).w || 1, cols);
+    if (sum + w > cols) { rows.push(row); row = []; sum = 0; }
+    row.push({ k, w }); sum += w;
+  });
+  if (row.length) rows.push(row);
+  rows.forEach(r => {
+    let gap = cols - r.reduce((a, x) => a + x.w, 0);
+    let i = r.length - 1;
+    while (gap > 0) { r[i].w++; gap--; i = (i - 1 + r.length) % r.length; }
+  });
+  return [].concat.apply([], rows);
 }
 
 /* ---------- محرّر اللوحة: شريط شريط ---------- */
@@ -472,7 +512,8 @@ function wKt() {
   return '<div class="card hov">' +
     head('الفرق الميدانية', 'انقر صفًّا لتفصيله · انقر عنوان عمود لتفرزه',
       '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') +
-      'كل الفرق</button>', 'i-users') + ktTable() + '</div>';
+      'كل الفرق</button>', 'i-users') +
+    '<div class="wbody">' + ktTable() + '</div></div>';
 }
 function wGantt() {
   return '<div class="card hov">' +
@@ -677,4 +718,121 @@ function wNowStrip() {
     items.map(x => rowMini(x.i, x.c, x.t, x.s,
       '<span class="tiny faint num">' + t12(x.at) + '</span>', x.a, x.id)),
     'لا شيء خلال ساعة');
+}
+
+/* ============================================================
+   ودجات تخدم غرض النظام لا تزيّن الصفحة
+
+   الغرفة تسأل أربعة أسئلة كل صباح: ما الذي يحتاج تدخّلي الآن؟
+   وهل استعداد ما هو قادمٌ مكتمل؟ وأين الخلل البنيوي؟ وكيف يسير اليوم؟
+   هذه الودجات تجيبها بأرقام قابلة للنقر لا برسومٍ تُشاهَد.
+   ============================================================ */
+
+/* ---------- الاستعداد المسبق: عصب النظام الجديد ---------- */
+const upcoming = () => (V.tasks || []).filter(t =>
+  t.status !== 'done' && t.status !== 'cancelled' && t.start > now() - 2 * HR)
+  .sort((a, b) => a.start - b.start);
+
+function wPrepKpi() {
+  const up = upcoming();
+  const bad = up.filter(t => prepPct(t) < 100);
+  return stat({ label:'استعدادٌ ناقص', n:bad.length, ic:'i-shield',
+    cls:bad.length ? 'down' : 'up',
+    sub:'من ' + AR(up.length) + ' مهمة قادمة',
+    series:[9, 11, 8, 12, 7, 9, 6, Math.max(1, bad.length)] });
+}
+function wAlertKpi() {
+  const n = (V.tasks || []).reduce((a, t) => a + unseenAlerts(t), 0);
+  return stat({ label:'تنبيهات لم تُقرأ', n, ic:'i-bell', cls:n ? 'down' : 'up',
+    sub:'واصلة من الميدان', series:[4, 7, 5, 9, 6, 8, 5, Math.max(1, n)] });
+}
+function wStuckKpi() {
+  const n = (V.tasks || []).filter(t => ['late','over'].indexOf(tState(t)) >= 0).length;
+  return stat({ label:'مهام متعثّرة', n, ic:'i-warn', cls:n ? 'down' : 'up',
+    sub:'حان وقتها أو فات', series:[2, 3, 1, 4, 2, 5, 3, Math.max(1, n)] });
+}
+
+/* قائمة الاستعداد الناقص — أهمّ قائمة في اللوحة: تُنقر فتُفتح المهمّة */
+function wPrepList() {
+  const rows = upcoming().filter(t => prepPct(t) < 100).slice(0, 10).map(t => {
+    const p = prepPct(t), miss = reqIn(t, 'pre').filter(r => !r.done);
+    return '<div class="prow" data-a="tlopen" data-id="' + t.id + '">' +
+      ring(p, p >= 60 ? 'var(--gold2)' : 'var(--red)', 34) +
+      '<span class="nm" style="flex:1;min-width:0"><b>' + E(t.title) + '</b>' +
+      '<span>' + LTR(t.kt) + ' · ' + untilTxt(t.start) + '</span>' +
+      (miss[0] ? '<span class="miss">' + icon('i-warn','s12') + E(miss[0].text) +
+        (miss.length > 1 ? ' <b>+' + AR(miss.length - 1) + '</b>' : '') + '</span>' : '') +
+      '</span></div>';
+  });
+  return listCard('استعدادٌ ناقص قبل الموعد', 'شروطٌ لم يُشيَّك عليها — وهي أوّل ما يُعالَج',
+    'i-shield', rows, 'كل ما هو قادم مستعدّ');
+}
+
+/* المتعثّرة: حان وقتها ولم تبدأ، أو فات وقتها ولم تُغلق */
+function wStuckList() {
+  const rows = (V.tasks || []).filter(t => ['late','over'].indexOf(tState(t)) >= 0)
+    .sort((a, b) => a.start - b.start).slice(0, 12).map(t => {
+      const st = tsOf(t);
+      return '<div class="prow trow ' + tState(t) + '" style="--tsc:' + st.c + '" ' +
+        'data-a="tlopen" data-id="' + t.id + '"><span class="krail"></span>' +
+        '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
+        '<span>' + LTR(t.kt) + ' · ' + E((userById(t.leaderId) || {}).name || '') + ' · ' +
+        untilTxt(t.start) + '</span></span>' +
+        '<span class="tst"><i></i>' + E(st.ar) + '</span></div>';
+    });
+  return listCard('مهام متعثّرة', 'حان وقتها ولم تبدأ، أو فات ولم تُغلق',
+    'i-warn', rows, 'لا تعثّر — الجدول ماشٍ');
+}
+
+/* التنبيهات الواصلة الآن */
+function wAlertList() {
+  const rows = allAlerts().filter(a => !a.seen).slice(0, 12)
+    .map(a => alertRow(a, a.task, true));
+  return listCard('تنبيهات لم تُقرأ', 'ما وصل من الميدان ولم يُنظر فيه',
+    'i-bell', rows, 'كل التنبيهات مقروءة',
+    '<button class="btn l sm" data-a="alerts">' + icon('i-bell','s16') + 'الكل</button>');
+}
+
+/* الخلل البنيوي: ما يُفسد الموسم قبل أن يبدأ */
+function wGaps() {
+  const noSup = HOTELS.filter(h => !(V.users || []).some(u =>
+    u.role === 'supervisor' && u.hotelId === h.id));
+  const thin = (V.groups || []).filter(g => (g.members || []).length < 5);
+  const free = (V.users || []).filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
+  const noGuide = Object.keys(CAT).filter(k =>
+    !(V.guides || []).some(g => g.kind === k && g.state === 'approved'));
+  const row = (ar, n, why, act, nav) =>
+    '<div class="prow"' + (nav ? ' data-a="go" data-n="' + nav + '"' : '') + '>' +
+      '<span class="ico" style="color:' + (n ? 'var(--red)' : 'var(--live)') + '">' +
+        icon(n ? 'i-warn' : 'i-checkc', 's16') + '</span>' +
+      '<span class="nm" style="flex:1"><b>' + ar + '</b><span>' + why + '</span></span>' +
+      '<b class="num" style="font-size:17px;color:' + (n ? 'var(--red)' : 'var(--live)') + '">' +
+        AR(n) + '</b></div>';
+  return listCard('ثغرات التشكيل', 'ما يُفسد الموسم قبل أن يبدأ', 'i-shield', [
+    row('فنادق بلا مشرف', noSup.length, 'لا أحد مسؤول عن سكنها', 0, 'assign'),
+    row('مجموعات ناقصة', thin.length, 'أقلّ من خمسة محسنين', 0, 'assign'),
+    row('محسنون بلا مجموعة', free.length, 'خارج التشكيل ولا احتياط', 0, 'staff'),
+    row('تصنيفات بلا دليل معتمد', noGuide.length, 'تُنفَّذ بلا مرجع', 0, 'guides')
+  ], '');
+}
+
+/* اليوم في سطر: أين نحن من جدول اليوم */
+function wDayLine() {
+  const day = (V.tasks || []).filter(t => dayStart(t.start) === dayStart(now()));
+  const by = k => day.filter(t => tState(t) === k).length;
+  const parts = [
+    { k:'done', ar:'منجزة' }, { k:'live', ar:'جارية' }, { k:'late', ar:'متأخّرة' },
+    { k:'soon', ar:'وشيكة' }, { k:'next', ar:'قادمة' }, { k:'over', ar:'فات وقتها' }
+  ].map(x => ({ ar:x.ar, n:by(x.k), c:TSTATE[x.k].c })).filter(x => x.n);
+  const tot = day.length || 1;
+  return card('يوم العمليات', AR(day.length) + ' مهمة اليوم — أين وصلنا منها',
+    '<div class="dayline">' + parts.map(p =>
+      '<span class="dseg" style="flex:' + p.n + ';background:' + p.c + '" ' +
+      'title="' + E(p.ar) + ' ' + AR(p.n) + '"></span>').join('') + '</div>' +
+    '<div class="legend" style="margin-top:14px">' + parts.map(p =>
+      '<span><i style="background:' + p.c + '"></i>' + E(p.ar) +
+      '<b class="num">' + AR(p.n) + '</b></span>').join('') + '</div>' +
+    '<div class="tiny faint" style="margin-top:12px">' +
+      'نسبة المنجز من مهام اليوم ' + AR(Math.round(by('done') / tot * 100)) + '٪' +
+    '</div>', 'i-cal');
 }

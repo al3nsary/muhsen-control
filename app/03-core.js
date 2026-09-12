@@ -412,6 +412,7 @@ function seed() {
   }));
 
   seedTaskDetail(st);
+  seedAlerts(st);
 
   return st;
 }
@@ -429,7 +430,7 @@ function load() {
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
   S.reqtpl = S.reqtpl || [];
-  (S.tasks || []).forEach(ensureTask);
+  (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 /* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص

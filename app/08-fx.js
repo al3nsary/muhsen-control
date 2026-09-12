@@ -39,15 +39,23 @@ function countUp(el) {
 }
 
 /* ---------- ضوء يتبع المؤشّر على البطاقات ---------- */
-function bindPointerLight(root) {
-  root.querySelectorAll('.card').forEach(c => {
-    c.addEventListener('pointermove', e => {
-      const r = c.getBoundingClientRect();
-      c.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-      c.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
-    });
+/* مستمعٌ واحد مفوَّض لا مستمعٌ لكل بطاقة، ومحبوسٌ بإطار الرسم:
+   كان كل تحريك للمؤشّر يكتب متغيّرين فيُعيد حساب الأنماط على شجرةٍ
+   فيها آلاف العقد — فيثقل الماوس. الآن كتابةٌ واحدة في الإطار الواحد. */
+let lightPend = null;
+document.addEventListener('pointermove', e => {
+  const c = e.target.closest && e.target.closest('.card');
+  if (!c) return;
+  if (lightPend) return;
+  const x = e.clientX, y = e.clientY;
+  lightPend = requestAnimationFrame(() => {
+    lightPend = null;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', ((x - r.left) / r.width * 100).toFixed(1) + '%');
+    c.style.setProperty('--my', ((y - r.top) / r.height * 100).toFixed(1) + '%');
   });
-}
+}, { passive: true });
+function bindPointerLight() { /* لم يعد يُربط شيء: المستمع أعلاه يكفي الجميع */ }
 
 /* ---------- موجة ضغط على الأزرار ---------- */
 document.addEventListener('pointerdown', e => {
@@ -101,8 +109,16 @@ function bindScrollDepth(wrap) {
   on();
 }
 
+/* التلاشي يليق بما يفيض وحده — فيُقاس بعد الرسم ويُرفع عمّا اكتمل */
+function markFull(root) {
+  (root || document).querySelectorAll('.wbody').forEach(b => {
+    b.classList.toggle('full', b.scrollHeight <= b.clientHeight + 2);
+  });
+}
+
 function afterRender() {
   const wrap = document.getElementById('stagewrap');
+  requestAnimationFrame(() => markFull(wrap));
   wrap.querySelectorAll('[data-n]').forEach(countUp);
   bindPointerLight(wrap);
   fillMeters(wrap);
@@ -191,6 +207,19 @@ function syncWall() {
 /* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
 let lastDrawer = null;
 function repaintDrawer() { if (lastDrawer) lastDrawer(); }
+
+/* مكدّس الرجوع: بعض الأدراج تفتح أدراجًا، وكان الخروج منها إغلاقًا تامًّا.
+   كل فتحٍ جديد يُدفَع، و«رجوع» يسحب ويُعيد ما قبله. وإعادة رسم الدرج نفسه
+   لا تُدفَع — وإلا امتلأ المكدّس بنسخٍ من الشيء ذاته. */
+let dStack = [];
+let dQuiet = false;
+function drawerBack() {
+  if (dStack.length < 2) { S.drawer = null; S.picker = null; renderDrawer(); return; }
+  dStack.pop();
+  const prev = dStack[dStack.length - 1];
+  dQuiet = true; try { prev.run(); } finally { dQuiet = false; }
+}
+const drawerDepth = () => dStack.length;
 /* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
@@ -198,18 +227,38 @@ function repaintDrawer() { if (lastDrawer) lastDrawer(); }
  'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
-  window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
+  window[n] = function (a) {
+    const call = () => f(a);
+    lastDrawer = call;
+    if (!dQuiet) {
+      const sig = n + ':' + a;
+      const top = dStack[dStack.length - 1];
+      if (!top || top.sig !== sig) dStack.push({ sig, run: call });
+      if (dStack.length > 12) dStack.shift();
+    }
+    return f(a);
+  };
 });
+/* إغلاق الدرج يُفرغ المكدّس — فالرحلة انتهت */
+function clearDrawerStack() { dStack = []; }
 
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
   if (!S.drawer) { w.innerHTML = ''; return; }
   const d = S.drawer;
+  /* كل طيّ أو تأشير يُعيد بناء الدرج، وكان يقذفك إلى أوّله. نحفظ الموضع
+     ونعيده — ما دام الدرج نفسه لم يتبدّل. */
+  const old = w.querySelector('.db');
+  const keep = (old && S._dkey === d.title) ? old.scrollTop : 0;
+  S._dkey = d.title;
   w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
     '<aside class="drawer' + (d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
         '<span class="sp"><b style="font-size:15px">' + E(d.title) + '</b>' +
         '<div class="tiny faint">' + E(d.sub || '') + '</div></span>' +
+        /* الرجوع: متى كان تحت هذا الدرج درجٌ فتحناه منه */
+        (drawerDepth() > 1 ? '<button class="iconbtn" data-a="dback" aria-label="رجوع" ' +
+          'title="رجوع">' + icon('i-fwd','s18') + '</button>' : '') +
         /* التوسيع: البيانات كثيرة، فالعرض يتبعها */
         (d.expand ? '<button class="iconbtn" data-a="txwide" data-id="' + E(d.expand) +
           '" aria-label="' + (d.wide ? 'تضييق' : 'توسيع') + '" title="' +
@@ -220,7 +269,7 @@ function renderDrawer() {
   /* الأشرطة تمتلئ بعد الرسم لا معه — وكانت تُملأ في المسرح وحده فتبقى
      أشرطة الدرج فارغة مهما كانت قيمتها. */
   const db = w.querySelector('.db');
-  if (db) { fillMeters(db); growBars(db); bindPointerLight(db); }
+  if (db) { if (keep) db.scrollTop = keep; fillMeters(db); growBars(db); }
 }
 function openDrawer(title, sub, icon_, body) {
   S.drawer = { title, sub, icon: icon_, body };

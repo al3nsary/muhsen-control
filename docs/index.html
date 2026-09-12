@@ -767,6 +767,10 @@ a{color:inherit; text-decoration:none}
 .prow .nm span{display:block; font-size:11px; color:var(--dim2); line-height:1.5}
 .prow .end{margin-inline-start:auto; text-align:left; flex:none}
 .plist{display:flex; flex-direction:column; gap:9px}
+/* حاسم — وهو الدرس نفسه الذي لدغنا في الأدراج: ابن المرن ينكمش ما لم
+   يُمنَع. وقائمةٌ في صندوقٍ محدّد الارتفاع كانت تسحق صفوفها إلى ٢٤ بكسل
+   فيفيض نصّها خارجها ويبدو الصفّ ممزّقًا. */
+.plist > *{flex:none}
 /* سطر الحصيلة أسفل الصفّ: المنجَز يمينًا والملاحظات يسارًا */
 .pfoot{display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin-top:9px; padding-top:9px; border-top:1px solid var(--line); font-size:11.5px}
@@ -1392,7 +1396,35 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .dw .gantt{flex:1; min-height:0; overflow-y:auto}
 .dw .heat{flex:1; min-height:0; overflow:auto}
 .dw .map{height:100%; min-height:230px}
-.dw .donutwrap{justify-content:center; height:100%}
+/* ما زاد عن صندوقه كان يُقطع في منتصف سطرٍ فيبدو معطوبًا. التلاشي
+   يقول «تحتَه مزيد» بدل أن يقول «انكسر هنا». */
+.dw > .card{position:relative}
+/* العريض: سقفٌ للجسد لا قالبٌ للبطاقة — فالقصير يقصر والطويل يُمرَّر */
+.band.bwide .dw{height:auto}
+.band.bwide .wbody{max-height:410px}
+.dw .wbody{-webkit-mask:linear-gradient(#000 calc(100% - 26px), #0000);
+        mask:linear-gradient(#000 calc(100% - 26px), #0000)}
+.dw .wbody.full{-webkit-mask:none; mask:none}
+.dw .donutwrap{justify-content:center; height:100%; gap:12px}
+.dw .donut{width:min(168px,80%); height:auto; aspect-ratio:1}
+/* بطاقةٌ عريضة وحلقةٌ صغيرة وسطها = فراغٌ مهيب. فإذا اتّسع الصندوق
+   اصطفّت الحلقة ومفتاحُها جنبًا إلى جنب وملآه. */
+.dw.wide2 .donutwrap{flex-direction:row; justify-content:center; gap:34px; align-items:center}
+.dw.wide2 .donut{width:min(200px,42%)}
+.dw.wide2 .donutwrap .legend{flex-direction:column; align-items:flex-start; gap:9px}
+.dw.wide2 .donutwrap .legend span{font-size:12.5px}
+
+/* شريط اليوم: قطعةٌ لكل حالة بعرض نصيبها */
+/* ما ينقص يُكتب بلونه لا بحبّةٍ مجاوِرة */
+.prow .miss{display:flex; align-items:center; gap:4px; margin-top:5px; font-size:10.5px;
+  color:var(--amber); line-height:1.5}
+.prow .miss b{font-weight:800}
+
+.dayline{display:flex; gap:3px; height:26px; border-radius:9px; overflow:hidden;
+  background:var(--sheen); margin-top:6px}
+.dseg{display:block; border-radius:4px; min-width:6px;
+  animation:growx .7s var(--e3) both; transform-origin:right}
+@keyframes growx{from{transform:scaleX(0)} to{transform:none}}
 .dw .bars{height:100%; min-height:120px}
 .dw .chart{height:100%; display:flex; flex-direction:column; justify-content:flex-end}
 @media (max-width:1500px){ .band{--cols:min(3,var(--cols))}
@@ -1428,11 +1460,15 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 /* حلقة النسبة: القوس لونه من الحالة، والرقم في قلبه */
 .tring{position:relative; display:inline-grid; place-items:center; flex:none}
-.tring svg{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg)}
-.tring .rbg{fill:none; stroke:var(--line2); stroke-width:3}
-.tring .rfg{fill:none; stroke-width:3; stroke-linecap:round;
-  transition:stroke-dasharray .6s var(--e3)}
-.tring b{font-size:10.5px; font-weight:700; color:var(--ink); line-height:1}
+/* القوس تدرّجٌ مخروطي، والقناع يثقب وسطه فيظهر ما تحته أيًّا كان لونه.
+   وهذا أرخص من SVG بأربع عقد لكل حلقة، والجدول فيه مئات. */
+.tring i{position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(var(--rc,var(--gold2)) calc(var(--p,0) * 1%), var(--line2) 0);
+  /* closest-side لازم: بدونه يقيس التدرّج إلى أبعد ركن فيصير الثقب
+     أوسع من العنصر — فتختفي الحلقة أو تمتلئ قرصًا. */
+  -webkit-mask:radial-gradient(circle closest-side, #0000 calc(100% - 3.4px), #000 calc(100% - 3px));
+          mask:radial-gradient(circle closest-side, #0000 calc(100% - 3.4px), #000 calc(100% - 3px))}
+.tring b{position:relative; z-index:1; font-size:10.5px; font-weight:700; color:var(--ink); line-height:1}
 .tring b::after{content:'٪'; font-size:8px; color:var(--dim2); margin-inline-start:1px}
 
 /* عدّادات السطر: أيقونة ورقم، متساوية العرض فتُقرأ عموديًّا */
@@ -1655,6 +1691,80 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   padding:9px 0 13px}
 .phone .ptabs span{flex:1; text-align:center; font-size:10px; color:var(--pd2)}
 .phone .ptabs span.on{color:var(--gold3); font-weight:700}
+
+/* ══ ترقيم الصفحات: القائمة الطويلة تُقطَّع فلا تُثقل كل ضغطة ══ */
+.pager{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px;
+  padding-top:14px; border-top:1px solid var(--line)}
+.pgb{display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:11px;
+  background:var(--sheen); border:1px solid transparent; color:var(--dim); font:inherit;
+  font-size:12px; font-weight:600; cursor:pointer}
+.pgb:hover:not(:disabled){border-color:var(--line2); color:var(--ink)}
+.pgb:disabled{opacity:.4; cursor:default}
+.pgn{display:flex; align-items:center; gap:4px}
+.pgi{min-width:30px; height:30px; border-radius:9px; background:transparent; border:0;
+  color:var(--dim2); font:inherit; font-size:12px; font-weight:700; cursor:pointer}
+.pgi:hover{background:var(--sheen); color:var(--ink)}
+.pgi.on{background:var(--gold); color:#1a1205}
+.pgd{color:var(--dim2); padding:0 2px}
+.pgc{margin-inline-start:auto; font-size:11px; color:var(--dim2)}
+
+/* ══ حالة المهمّة تُقرأ من الصندوق نفسه لا من حبّةٍ في طرفه ══
+   الطرف الملوّن وحده لا يكفي: نصبغ حافّة الصفّ وأرضيّته بلون حالته
+   صبغًا خفيفًا، فيُعرف من بعيدٍ أيُّ صفٍّ جارٍ وأيُّهما فات وقته. */
+.trow{--tsc:var(--dim)}
+.trow{border-color:color-mix(in srgb, var(--tsc) 26%, var(--line)) !important;
+  background:linear-gradient(90deg, color-mix(in srgb, var(--tsc) 7%, transparent), transparent 42%)}
+.trow:hover{background:linear-gradient(90deg, color-mix(in srgb, var(--tsc) 13%, transparent), transparent 52%)}
+.trow .krail{width:5px; background:var(--tsc) !important}
+.trow .tst{display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:99px;
+  font-size:10.5px; font-weight:700; white-space:nowrap;
+  color:var(--tsc); background:color-mix(in srgb, var(--tsc) 15%, transparent);
+  border:1px solid color-mix(in srgb, var(--tsc) 34%, transparent)}
+.trow .tst i{width:6px; height:6px; border-radius:50%; background:var(--tsc); display:block}
+.trow.live .tst i{animation:pulse 1.8s var(--e3) infinite}
+@keyframes pulse{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.45; transform:scale(.72)}}
+
+/* ══ سجلّ المهمّة: يومٌ يومًا، وخطٌّ واحد يجمعها ══ */
+.hislog{position:relative; padding-inline-start:18px; margin-top:12px}
+.hislog::before{content:''; position:absolute; inset-block:6px 6px; inset-inline-start:5px;
+  width:1.5px; background:linear-gradient(var(--line2), transparent)}
+.hisday{position:relative; font-size:10.5px; font-weight:700; color:var(--gold2);
+  margin:14px 0 8px; letter-spacing:.2px}
+.hisday:first-child{margin-top:0}
+.hisday::before{content:''; position:absolute; inset-inline-start:-17px; top:5px;
+  width:9px; height:9px; border-radius:50%; background:var(--gold); border:2px solid var(--panel)}
+.hisrow{position:relative; display:flex; gap:10px; align-items:flex-start; padding:8px 0}
+.hisrow::before{content:''; position:absolute; inset-inline-start:-15px; top:14px;
+  width:5px; height:5px; border-radius:50%; background:var(--line2)}
+.hisrow.ok::before{background:var(--live)}
+.hisrow.bad::before{background:var(--red)}
+.hisrow .histm{font-size:10.5px; color:var(--dim2); min-width:58px; flex:none;
+  font-variant-numeric:tabular-nums; padding-top:1px}
+.hisrow .histx{flex:1; min-width:0; font-size:12px; line-height:1.65; color:var(--dim)}
+.hisrow.ok .histx, .hisrow.bad .histx{color:var(--ink)}
+
+/* ══ تنبيهات المهام: الجرس وقائمته ══
+   الإشعار يتبع مهمّته لا يتيه في بثٍّ عام، فعدده على الجرس وتفصيله تحته. */
+.bellbtn{position:relative; width:34px; height:34px; border-radius:11px; flex:none;
+  display:grid; place-items:center; background:var(--sheen); border:1px solid transparent;
+  color:var(--dim2); cursor:pointer}
+.bellbtn:hover{border-color:var(--line2); color:var(--ink)}
+.bellbtn.has{color:var(--gold2); border-color:color-mix(in srgb,var(--gold) 40%,transparent)}
+.bellbtn i{position:absolute; top:-5px; inset-inline-end:-5px; min-width:17px; height:17px;
+  padding:0 4px; border-radius:99px; background:var(--red); color:#fff; font-size:9.5px;
+  font-weight:800; font-style:normal; display:grid; place-items:center;
+  border:2px solid var(--panel)}
+.alist{display:flex; flex-direction:column; gap:6px; margin-top:12px}
+.alrow{display:flex; align-items:flex-start; gap:10px; padding:10px 11px; border-radius:14px;
+  background:var(--sheen); border:1px solid transparent; cursor:pointer}
+.alrow:hover{border-color:var(--line2)}
+.alrow.seen{opacity:.62}
+.alrow .ali{width:30px; height:30px; border-radius:10px; flex:none; display:grid;
+  place-items:center}
+.alrow .alx{flex:1; min-width:0}
+.alrow .alx b{display:block; font-size:12.5px; font-weight:600; line-height:1.55}
+.alrow .aldot{width:7px; height:7px; border-radius:50%; background:var(--red); flex:none;
+  margin-top:11px}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -2741,6 +2851,7 @@ function seed() {
   }));
 
   seedTaskDetail(st);
+  seedAlerts(st);
 
   return st;
 }
@@ -2758,7 +2869,7 @@ function load() {
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
   S.reqtpl = S.reqtpl || [];
-  (S.tasks || []).forEach(ensureTask);
+  (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 /* تقييم المحسن: متوسط تقييم مهام ليدره المنجزة، بميل ثابت لكل شخص
@@ -2905,16 +3016,16 @@ const NAV = [
 
   { g:'الموظفون', items:[
     { p:'staffg', i:'i-idcard', l:'الموظفون', d:'السجلّ والتسكين والتعاقد', kids:[
-      { k:'staff',                     i:'i-idcard', l:'سجلّ الموظفين' },
-      { k:'assign', t:['asg','sup'],   i:'i-key',    l:'المشرفون على الفنادق' },
-      { k:'assign', t:['asg','lead'],  i:'i-star',   l:'الليدرز على المجموعات' },
-      { k:'assign', t:['asg','muh'],   i:'i-users',  l:'المحسنون على الليدرز' },
-      { k:'teams',                     i:'i-flag',   l:'الفرق والمجموعات' },
-      { k:'reserve',                   i:'i-shield', l:'الفريق الاحتياطي' },
-      { k:'shifts',                    i:'i-swap',   l:'تبديل الشِفتات' },
-      { k:'afasha',                    i:'i-truck',  l:'العفاشة' }
+      { k:'staff',   i:'i-idcard', l:'سجلّ الموظفين' },
+      { k:'teams',   i:'i-flag',   l:'الفرق والمجموعات' },
+      { k:'reserve', i:'i-shield', l:'الفريق الاحتياطي' },
+      { k:'shifts',  i:'i-swap',   l:'تبديل الشِفتات' },
+      { k:'afasha',  i:'i-truck',  l:'العفاشة' }
     ]},
-    { k:'build', i:'i-users', l:'التشكيل السريع', d:'مجموعة كاملة في صندوق واحد' }
+    /* التشكيل بابٌ واحد وخطواته الثلاث من داخله — لا ثلاثة أبواب لشيء واحد.
+       ويقع أسفل مع التشكيل السريع، فالبابان لعملٍ واحد. */
+    { k:'assign', i:'i-users', l:'التشكيل',       d:'مشرفون وليدرز ومحسنون — ثلاث خطوات' },
+    { k:'build',  i:'i-swap',  l:'التشكيل السريع', d:'مجموعة كاملة في صندوق واحد' }
   ]},
 
   { g:'المتابعة', items:[
@@ -4032,6 +4143,8 @@ const fOf = (key, k) => ((S.flt && S.flt[key]) || {})[k] || '';
 function fltSet(key, k, v) {
   S.flt = S.flt || {}; S.flt[key] = S.flt[key] || {};
   if (v) S.flt[key][k] = v; else delete S.flt[key][k];
+  /* فلترةٌ جديدة ونحن في الصفحة السابعة تُري قائمةً فارغة — فنعود للأولى */
+  if (S.page) S.page[key] = 0;
 }
 const fltCount = key => Object.keys((S.flt && S.flt[key]) || {}).length;
 
@@ -6834,7 +6947,9 @@ const storeKb = () => {
 
 const BANDS = [
   { k:'kpi',   ar:'المؤشّرات', d:'أرقام تُقرأ في لمحة',        cols:4, h:0   },
-  { k:'wide',  ar:'الصفوف العريضة', d:'ما يحتاج عرض الشاشة',   cols:1, h:472 },
+  /* العريض عمودٌ واحد، فاختلاف ارتفاعاته لا يمزّق شيئًا. وارتفاعٌ جامد
+     يترك تحت «يوم العمليات» ثلاثمئة بكسل فارغة. فليأخذ كلٌّ قدرَه. */
+  { k:'wide',  ar:'الصفوف العريضة', d:'ما يحتاج عرض الشاشة',   cols:1, h:0   },
   { k:'chart', ar:'الرسوم',    d:'توزيعات ومقارنات',           cols:3, h:352 },
   { k:'list',  ar:'القوائم',   d:'أحدث ما يخصّ كل باب',        cols:3, h:412 },
   { k:'map',   ar:'الخرائط والمسارات', d:'الموقع والزمن',      cols:2, h:452 }
@@ -6864,12 +6979,17 @@ const WIDGETS = [
   { k:'kpiGuides',  ar:'أدلة معتمدة',         b:'kpi', w:1, i:'i-guide',  f:wGdKpi },
   { k:'kpiHotels',  ar:'فنادق بلا مشرف',      b:'kpi', w:1, i:'i-key',    f:wHotKpi },
   { k:'kpiShifts',  ar:'طلبات الشِفتات',      b:'kpi', w:1, i:'i-swap',   f:wShfKpi },
+  /* ثلاثة تخدم عصب النظام: الاستعداد، والتنبيه، والتعثّر */
+  { k:'kpiPrep',    ar:'استعدادٌ ناقص',       b:'kpi', w:1, i:'i-shield', f:wPrepKpi },
+  { k:'kpiAlert',   ar:'تنبيهات لم تُقرأ',    b:'kpi', w:1, i:'i-bell',   f:wAlertKpi },
+  { k:'kpiStuck',   ar:'مهام متعثّرة',        b:'kpi', w:1, i:'i-warn',   f:wStuckKpi },
 
   /* ═ صفوف عريضة ═ */
   { k:'queue',      ar:'صفّ القرارات',        b:'wide', w:1, i:'i-send',  f:wQueue },
   { k:'ktTable',    ar:'جدول الفرق',          b:'wide', w:1, i:'i-users', f:wKt },
   { k:'gantt',      ar:'مسار الباصات اليوم',  b:'wide', w:1, i:'i-bus',   f:wGantt },
   { k:'heat',       ar:'كثافة الأسبوع',       b:'wide', w:1, i:'i-hist',  f:wHeat },
+  { k:'dayline',    ar:'يوم العمليات',        b:'wide', w:1, i:'i-cal',   f:wDayLine },
 
   /* ═ رسوم ═ */
   { k:'chLoad',     ar:'حِمل اليوم بالساعات', b:'chart', w:2, i:'i-hist',  f:wLoad },
@@ -6905,6 +7025,10 @@ const WIDGETS = [
   { k:'lsGuides',   ar:'أحدث الأدلة',         b:'list', w:1, i:'i-guide',  f:wGdList },
   { k:'lsAudit',    ar:'آخر السجل',           b:'list', w:1, i:'i-hist',   f:wAuditList },
   { k:'lsOrgs',     ar:'الجهات وحِملها',      b:'list', w:1, i:'i-flag',   f:wOrgList },
+  { k:'lsPrep',     ar:'استعدادٌ ناقص',       b:'list', w:1, i:'i-shield', f:wPrepList },
+  { k:'lsStuck',    ar:'مهام متعثّرة',        b:'list', w:1, i:'i-warn',   f:wStuckList },
+  { k:'lsAlerts',   ar:'تنبيهات لم تُقرأ',    b:'list', w:1, i:'i-bell',   f:wAlertList },
+  { k:'lsGaps',     ar:'ثغرات التشكيل',       b:'list', w:1, i:'i-shield', f:wGaps },
 
   /* ═ خرائط ═ */
   { k:'map',        ar:'خريطة العمليات',      b:'map', w:2, i:'i-pin',    f:wMap },
@@ -6913,13 +7037,15 @@ const WIDGETS = [
 ];
 const widgetOf = k => WIDGETS.find(w => w.k === k);
 
+/* الافتراضي ليس معرضًا للرسوم — هو إجابة أربعة أسئلة بترتيبها:
+   ماذا يحتاج تدخّلي؟ ثم هل ما هو قادمٌ مستعدّ؟ ثم أين الخلل؟ ثم كيف يسير اليوم؟ */
 const DASH_DEFAULT = [
-  'kpiTasks','kpiDecide','kpiTickets','kpiStart',
-  'queue',
-  'chLoad','chStatus','chInc',
-  'feed','nextTasks','topStaff',
-  'map','mapNow',
-  'ktTable'
+  'kpiStuck', 'kpiPrep', 'kpiDecide', 'kpiAlert',
+  'queue', 'dayline',
+  'chLoad', 'chStatus', 'chInc',
+  'lsPrep', 'lsStuck', 'lsAlerts',
+  'lsGaps', 'feed', 'nextTasks',
+  'map', 'mapNow'
 ];
 const dashKeys = () => (S.dash && S.dash.length ? S.dash : DASH_DEFAULT.slice())
   .filter(widgetOf);
@@ -6947,18 +7073,45 @@ function screenOps() {
   '</div>' +
 
   (bands.length ? bands.map(x =>
-    '<section class="band" style="--cols:' + x.b.cols + ';' +
+    '<section class="band b' + x.b.k + '" style="--cols:' + x.b.cols + ';' +
       (x.b.h ? '--wh:' + x.b.h + 'px' : '--wh:auto') + '">' +
       (x.b.k === 'kpi' || x.b.k === 'wide' ? '' :
         '<div class="bandhead"><span>' + E(x.b.ar) + '</span></div>') +
-      '<div class="bandgrid">' + x.items.map((k, i) => {
-        const w = widgetOf(k);
-        return '<div class="dw w' + w.w + '" style="animation-delay:' + (i * 40) + 'ms">' +
-          w.f() + '</div>';
-      }).join('') + '</div>' +
+      '<div class="bandgrid">' + packBand(x.items, x.b.cols).map((it, i) =>
+        '<div class="dw' + (it.w > 1 ? ' wide2' : '') + '" style="grid-column:span ' + it.w +
+          ';animation-delay:' + (i * 40) + 'ms">' + widgetOf(it.k).f() + '</div>').join('') +
+      '</div>' +
     '</section>').join('')
     : '<div class="card">' + empty('اللوحة فارغة',
         'اضغط «تخصيص اللوحة» واختر ما يهمّك', 'i-target') + '</div>');
+}
+
+/* ---------- ملء الصفوف ----------
+   عنصرٌ بعرض اثنين ثم اثنان بعرض واحد في شريطٍ من ثلاثة أعمدة يترك
+   الثالثَ وحيدًا في صفٍّ فارغ — وهذا ما بدا «مشوَّهًا». فنحسب الصفوف
+   بأنفسنا ونوسّع آخرَ عناصر كل صفّ حتى يملأه تمامًا. */
+function packBand(keys, cols) {
+  /* إن كانوا يسعون صفًّا واحدًا فليتقاسموه بالتساوي: ثلاثة رسوم في
+     ثلاثة أعمدة أحسنُ من اثنين في صفٍّ وواحدٍ ممدودٍ في صفّ. */
+  if (keys.length && keys.length <= cols) {
+    const base = Math.floor(cols / keys.length);
+    let extra = cols - base * keys.length;
+    return keys.map((k, i) => ({ k, w: base + (i < extra ? 1 : 0) }));
+  }
+  const rows = [];
+  let row = [], sum = 0;
+  keys.forEach(k => {
+    const w = Math.min(widgetOf(k).w || 1, cols);
+    if (sum + w > cols) { rows.push(row); row = []; sum = 0; }
+    row.push({ k, w }); sum += w;
+  });
+  if (row.length) rows.push(row);
+  rows.forEach(r => {
+    let gap = cols - r.reduce((a, x) => a + x.w, 0);
+    let i = r.length - 1;
+    while (gap > 0) { r[i].w++; gap--; i = (i - 1 + r.length) % r.length; }
+  });
+  return [].concat.apply([], rows);
 }
 
 /* ---------- محرّر اللوحة: شريط شريط ---------- */
@@ -7297,7 +7450,8 @@ function wKt() {
   return '<div class="card hov">' +
     head('الفرق الميدانية', 'انقر صفًّا لتفصيله · انقر عنوان عمود لتفرزه',
       '<button class="btn l sm" data-a="go" data-n="teams">' + icon('i-users','s16') +
-      'كل الفرق</button>', 'i-users') + ktTable() + '</div>';
+      'كل الفرق</button>', 'i-users') +
+    '<div class="wbody">' + ktTable() + '</div></div>';
 }
 function wGantt() {
   return '<div class="card hov">' +
@@ -7505,6 +7659,123 @@ function wNowStrip() {
 }
 
 /* ============================================================
+   ودجات تخدم غرض النظام لا تزيّن الصفحة
+
+   الغرفة تسأل أربعة أسئلة كل صباح: ما الذي يحتاج تدخّلي الآن؟
+   وهل استعداد ما هو قادمٌ مكتمل؟ وأين الخلل البنيوي؟ وكيف يسير اليوم؟
+   هذه الودجات تجيبها بأرقام قابلة للنقر لا برسومٍ تُشاهَد.
+   ============================================================ */
+
+/* ---------- الاستعداد المسبق: عصب النظام الجديد ---------- */
+const upcoming = () => (V.tasks || []).filter(t =>
+  t.status !== 'done' && t.status !== 'cancelled' && t.start > now() - 2 * HR)
+  .sort((a, b) => a.start - b.start);
+
+function wPrepKpi() {
+  const up = upcoming();
+  const bad = up.filter(t => prepPct(t) < 100);
+  return stat({ label:'استعدادٌ ناقص', n:bad.length, ic:'i-shield',
+    cls:bad.length ? 'down' : 'up',
+    sub:'من ' + AR(up.length) + ' مهمة قادمة',
+    series:[9, 11, 8, 12, 7, 9, 6, Math.max(1, bad.length)] });
+}
+function wAlertKpi() {
+  const n = (V.tasks || []).reduce((a, t) => a + unseenAlerts(t), 0);
+  return stat({ label:'تنبيهات لم تُقرأ', n, ic:'i-bell', cls:n ? 'down' : 'up',
+    sub:'واصلة من الميدان', series:[4, 7, 5, 9, 6, 8, 5, Math.max(1, n)] });
+}
+function wStuckKpi() {
+  const n = (V.tasks || []).filter(t => ['late','over'].indexOf(tState(t)) >= 0).length;
+  return stat({ label:'مهام متعثّرة', n, ic:'i-warn', cls:n ? 'down' : 'up',
+    sub:'حان وقتها أو فات', series:[2, 3, 1, 4, 2, 5, 3, Math.max(1, n)] });
+}
+
+/* قائمة الاستعداد الناقص — أهمّ قائمة في اللوحة: تُنقر فتُفتح المهمّة */
+function wPrepList() {
+  const rows = upcoming().filter(t => prepPct(t) < 100).slice(0, 10).map(t => {
+    const p = prepPct(t), miss = reqIn(t, 'pre').filter(r => !r.done);
+    return '<div class="prow" data-a="tlopen" data-id="' + t.id + '">' +
+      ring(p, p >= 60 ? 'var(--gold2)' : 'var(--red)', 34) +
+      '<span class="nm" style="flex:1;min-width:0"><b>' + E(t.title) + '</b>' +
+      '<span>' + LTR(t.kt) + ' · ' + untilTxt(t.start) + '</span>' +
+      (miss[0] ? '<span class="miss">' + icon('i-warn','s12') + E(miss[0].text) +
+        (miss.length > 1 ? ' <b>+' + AR(miss.length - 1) + '</b>' : '') + '</span>' : '') +
+      '</span></div>';
+  });
+  return listCard('استعدادٌ ناقص قبل الموعد', 'شروطٌ لم يُشيَّك عليها — وهي أوّل ما يُعالَج',
+    'i-shield', rows, 'كل ما هو قادم مستعدّ');
+}
+
+/* المتعثّرة: حان وقتها ولم تبدأ، أو فات وقتها ولم تُغلق */
+function wStuckList() {
+  const rows = (V.tasks || []).filter(t => ['late','over'].indexOf(tState(t)) >= 0)
+    .sort((a, b) => a.start - b.start).slice(0, 12).map(t => {
+      const st = tsOf(t);
+      return '<div class="prow trow ' + tState(t) + '" style="--tsc:' + st.c + '" ' +
+        'data-a="tlopen" data-id="' + t.id + '"><span class="krail"></span>' +
+        '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
+        '<span>' + LTR(t.kt) + ' · ' + E((userById(t.leaderId) || {}).name || '') + ' · ' +
+        untilTxt(t.start) + '</span></span>' +
+        '<span class="tst"><i></i>' + E(st.ar) + '</span></div>';
+    });
+  return listCard('مهام متعثّرة', 'حان وقتها ولم تبدأ، أو فات ولم تُغلق',
+    'i-warn', rows, 'لا تعثّر — الجدول ماشٍ');
+}
+
+/* التنبيهات الواصلة الآن */
+function wAlertList() {
+  const rows = allAlerts().filter(a => !a.seen).slice(0, 12)
+    .map(a => alertRow(a, a.task, true));
+  return listCard('تنبيهات لم تُقرأ', 'ما وصل من الميدان ولم يُنظر فيه',
+    'i-bell', rows, 'كل التنبيهات مقروءة',
+    '<button class="btn l sm" data-a="alerts">' + icon('i-bell','s16') + 'الكل</button>');
+}
+
+/* الخلل البنيوي: ما يُفسد الموسم قبل أن يبدأ */
+function wGaps() {
+  const noSup = HOTELS.filter(h => !(V.users || []).some(u =>
+    u.role === 'supervisor' && u.hotelId === h.id));
+  const thin = (V.groups || []).filter(g => (g.members || []).length < 5);
+  const free = (V.users || []).filter(u => u.role === 'muhsen' && !u.reserve && !u.groupId);
+  const noGuide = Object.keys(CAT).filter(k =>
+    !(V.guides || []).some(g => g.kind === k && g.state === 'approved'));
+  const row = (ar, n, why, act, nav) =>
+    '<div class="prow"' + (nav ? ' data-a="go" data-n="' + nav + '"' : '') + '>' +
+      '<span class="ico" style="color:' + (n ? 'var(--red)' : 'var(--live)') + '">' +
+        icon(n ? 'i-warn' : 'i-checkc', 's16') + '</span>' +
+      '<span class="nm" style="flex:1"><b>' + ar + '</b><span>' + why + '</span></span>' +
+      '<b class="num" style="font-size:17px;color:' + (n ? 'var(--red)' : 'var(--live)') + '">' +
+        AR(n) + '</b></div>';
+  return listCard('ثغرات التشكيل', 'ما يُفسد الموسم قبل أن يبدأ', 'i-shield', [
+    row('فنادق بلا مشرف', noSup.length, 'لا أحد مسؤول عن سكنها', 0, 'assign'),
+    row('مجموعات ناقصة', thin.length, 'أقلّ من خمسة محسنين', 0, 'assign'),
+    row('محسنون بلا مجموعة', free.length, 'خارج التشكيل ولا احتياط', 0, 'staff'),
+    row('تصنيفات بلا دليل معتمد', noGuide.length, 'تُنفَّذ بلا مرجع', 0, 'guides')
+  ], '');
+}
+
+/* اليوم في سطر: أين نحن من جدول اليوم */
+function wDayLine() {
+  const day = (V.tasks || []).filter(t => dayStart(t.start) === dayStart(now()));
+  const by = k => day.filter(t => tState(t) === k).length;
+  const parts = [
+    { k:'done', ar:'منجزة' }, { k:'live', ar:'جارية' }, { k:'late', ar:'متأخّرة' },
+    { k:'soon', ar:'وشيكة' }, { k:'next', ar:'قادمة' }, { k:'over', ar:'فات وقتها' }
+  ].map(x => ({ ar:x.ar, n:by(x.k), c:TSTATE[x.k].c })).filter(x => x.n);
+  const tot = day.length || 1;
+  return card('يوم العمليات', AR(day.length) + ' مهمة اليوم — أين وصلنا منها',
+    '<div class="dayline">' + parts.map(p =>
+      '<span class="dseg" style="flex:' + p.n + ';background:' + p.c + '" ' +
+      'title="' + E(p.ar) + ' ' + AR(p.n) + '"></span>').join('') + '</div>' +
+    '<div class="legend" style="margin-top:14px">' + parts.map(p =>
+      '<span><i style="background:' + p.c + '"></i>' + E(p.ar) +
+      '<b class="num">' + AR(p.n) + '</b></span>').join('') + '</div>' +
+    '<div class="tiny faint" style="margin-top:12px">' +
+      'نسبة المنجز من مهام اليوم ' + AR(Math.round(by('done') / tot * 100)) + '٪' +
+    '</div>', 'i-cal');
+}
+
+/* ============================================================
    المهمّة كاملةً — ما يراه المحسن في التطبيق يراه الكنترول هنا، وأكثر
 
    القاعدة: الكنترول هو الأصل. فكلّ ما يستطيعه الليدر والمحسن في
@@ -7641,15 +7912,13 @@ const tsOf = t => TSTATE[tState(t)] || TSTATE.next;
    قطع صغيرة تُعاد في كل مكان
    ============================================================ */
 
-/* حلقة نسبة — تُقرأ بلمحة ولا تحتاج رقمًا بجانبها */
+/* حلقة نسبة — تُقرأ بلمحة ولا تحتاج رقمًا بجانبها.
+   بُنيت بـ conic-gradient لا بـ SVG: الجدول فيه مئات الحلقات، وكل رسمٍ
+   متّجه فيه أربع عقد وتخطيطٌ مستقلّ. هذه ثلاث عقد وطلاءٌ واحد. */
 function ring(pct, col, size) {
-  const r = 15.9155, c = 2 * Math.PI * r, sz = size || 34;
-  return '<span class="tring" style="width:' + sz + 'px;height:' + sz + 'px">' +
-    '<svg viewBox="0 0 36 36" aria-hidden="true">' +
-      '<circle cx="18" cy="18" r="' + r + '" class="rbg"/>' +
-      '<circle cx="18" cy="18" r="' + r + '" class="rfg" stroke="' + col + '" ' +
-        'stroke-dasharray="' + (c * pct / 100).toFixed(2) + ' ' + c.toFixed(2) + '"/>' +
-    '</svg><b class="num">' + AR(pct) + '</b></span>';
+  const sz = size || 34;
+  return '<span class="tring" style="width:' + sz + 'px;height:' + sz + 'px;' +
+    '--p:' + pct + ';--rc:' + col + '"><i></i><b class="num">' + AR(pct) + '</b></span>';
 }
 
 /* رقاقة عدّ: أيقونة ورقم — تُصفّ في سطر المهمة */
@@ -7670,15 +7939,21 @@ function shotTile(s, tid) {
    ============================================================ */
 function taskRow(t) {
   ensureTask(t);
-  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, st = tsOf(t);
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
+  const k = tState(t), st = TSTATE[k] || TSTATE.next;
   const pre = prepPct(t), don = subPct(t), tk = taskTickets(t).length;
-  return '<div class="prow trow" data-a="tlopen" data-id="' + t.id + '">' +
-    '<span class="krail" style="background:' + st.c + '"></span>' +
+  const h = taskHotel(t);
+  const un = taskAlerts(t).filter(a => !a.seen).length;
+  /* لون الحالة متغيّرٌ واحد يصبغ الطرف والحافّة والأرضيّة والحبّة معًا */
+  return '<div class="prow trow ' + k + '" style="--tsc:' + st.c + '" ' +
+      'data-a="tlopen" data-id="' + t.id + '">' +
+    '<span class="krail"></span>' +
     '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
       icon(c.i || 'i-tasks', 's18') + '</span>' +
 
-    '<span class="nm" style="flex:1;min-width:150px"><b>' + E(t.title) + '</b>' +
-      '<span>' + LTR(t.kt) + ' · ' + E(L.name || '') + ' · ' + E(t.city) + '</span></span>' +
+    '<span class="nm" style="flex:1;min-width:160px"><b>' + E(t.title) + '</b>' +
+      '<span>' + LTR(t.kt) + ' · ' + E(L.name || '') + ' · ' +
+      E(h ? h.ar : t.city) + '</span></span>' +
 
     '<span class="when"><b>' + hijri(t.start) + '</b>' +
       '<span class="num">' + t12(t.start) + ' — ' + t12(t.end) + '</span></span>' +
@@ -7688,20 +7963,29 @@ function taskRow(t) {
       cnt('i-assign', t.assigned.length, 'محسنون مسكَّنون') +
       cnt('i-checkc', t.attended.length, 'أثبتوا حضورهم', t.attended.length ? 'ok' : '') +
       (tk ? cnt('i-ticket', tk, 'تذاكر مرفوعة على المهمة', 'warn') : '') +
+      (un ? cnt('i-bell', un, 'تنبيهات لم تُقرأ', 'warn') : '') +
     '</span>' +
 
     '<span class="tprogs">' +
       '<span class="tp"><span class="tiny faint">الاستعداد</span>' +
-        ring(pre, pre === 100 ? 'var(--ok)' : 'var(--gold2)', 30) + '</span>' +
+        ring(pre, pre === 100 ? 'var(--live)' : 'var(--gold2)', 30) + '</span>' +
       '<span class="tp"><span class="tiny faint">الإنجاز</span>' +
-        ring(don, don === 100 ? 'var(--ok)' : st.c, 30) + '</span>' +
+        ring(don, don === 100 ? 'var(--live)' : st.c, 30) + '</span>' +
     '</span>' +
 
     '<span class="end">' +
-      (t.status === 'done' && t.rating ? stars(t.rating) : pill(st.ar, st.p)) +
-      (t.autoStarted ? '<div style="margin-top:6px">' + pill('بدأها النظام','no') + '</div>' : '') +
-      (t.closedBy === 'system' ? '<div style="margin-top:6px">' + pill('أُغلقت من النظام','no') + '</div>' : '') +
+      '<span class="tst"><i></i>' + E(st.ar) + '</span>' +
+      (t.status === 'done' && t.rating
+        ? '<div style="margin-top:6px">' + stars(t.rating) + '</div>' : '') +
+      (t.autoStarted ? '<div style="margin-top:5px">' + pill('بدأها النظام','no') + '</div>' : '') +
+      (t.closedBy === 'system' ? '<div style="margin-top:5px">' + pill('أُغلقها النظام','no') + '</div>' : '') +
     '</span></div>';
+}
+
+/* فندق المهمّة: من مجموعة ليدرها — وهو بيانٌ كان ناقصًا */
+function taskHotel(t) {
+  const g = (S.groups || []).find(x => x.leaderId === t.leaderId);
+  return g ? (HOTELS.find(h => h.id === g.hotelId) || null) : null;
 }
 
 /* ============================================================
@@ -7759,6 +8043,7 @@ function tabHajj() {
   const rated = all.filter(t => t.rating);
   const avg = rated.length ? (rated.reduce((a, t) => a + t.rating, 0) / rated.length).toFixed(1) : '0.0';
   const nPrep = all.filter(t => prepPct(t) < 100 && t.status !== 'done').length;
+  const unAll = all.reduce((n, t) => n + unseenAlerts(t), 0);
 
   return '<div class="grid g4">' +
       stat({ label:'مهام الموسم', n:all.length, ic:'i-tasks',
@@ -7773,6 +8058,9 @@ function tabHajj() {
 
     '<div class="card">' +
       head('جدول مهام الحجّ', 'كلّ ما في التطبيق — وزيادةُ ما يملكه الكنترول',
+        '<button class="bellbtn' + (unAll ? ' has' : '') + '" data-a="alerts" ' +
+          'aria-label="تنبيهات المهام">' + icon('i-bell','s16') +
+          (unAll ? '<i>' + AR(unAll) + '</i>' : '') + '</button>' +
         pill(AR(list.length) + ' معروضة', 'gold'), 'i-kaaba') +
 
       '<div class="tools">' + segmented('tf',
@@ -7798,9 +8086,33 @@ function tabHajj() {
         '</span>' +
       '</div>' +
 
-      (list.length ? '<div class="plist">' + list.map(taskRow).join('') + '</div>'
+      (list.length ? pagedList(list, 'tsk', taskRow)
         : empty('لا مهام بهذه الفلاتر', 'امسح الفلاتر أو غيّر التصنيف', 'i-cal')) +
     '</div>';
+}
+
+/* ---------- قائمة مرقّمة: ثمانية وثمانون ومئتان في صفحة واحدة تُثقل كل ضغطة ----------
+   الصفحة تُعيد رسم ما تراه فقط. والعدّاد يقول أين أنت من الكلّ. */
+const PAGE = 40;
+const pageOf = key => Math.max(0, (S.page && S.page[key]) || 0);
+function pagedList(list, key, rowFn) {
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  const p = Math.min(pageOf(key), pages - 1);
+  const slice = list.slice(p * PAGE, p * PAGE + PAGE);
+  return '<div class="plist">' + slice.map(rowFn).join('') + '</div>' +
+    (pages > 1 ? '<div class="pager">' +
+      '<button class="pgb" data-a="pg" data-k="' + key + '" data-v="' + (p - 1) +
+        '"' + (p === 0 ? ' disabled' : '') + '>' + icon('i-fwd','s14') + 'السابق</button>' +
+      '<span class="pgn">' + Array.from({ length: pages }, (_, i) => i)
+        .filter(i => i === 0 || i === pages - 1 || Math.abs(i - p) <= 2)
+        .map((i, k, a) => (k && i - a[k - 1] > 1 ? '<span class="pgd">…</span>' : '') +
+          '<button class="pgi' + (i === p ? ' on' : '') + '" data-a="pg" data-k="' + key +
+          '" data-v="' + i + '">' + AR(i + 1) + '</button>').join('') + '</span>' +
+      '<button class="pgb" data-a="pg" data-k="' + key + '" data-v="' + (p + 1) +
+        '"' + (p >= pages - 1 ? ' disabled' : '') + '>التالي' + icon('i-back','s14') + '</button>' +
+      '<span class="pgc">' + AR(p * PAGE + 1) + '–' + AR(Math.min(list.length, (p + 1) * PAGE)) +
+        ' من ' + AR(list.length) + '</span>' +
+    '</div>' : '');
 }
 
 /* ============================================================
@@ -7857,6 +8169,10 @@ function taskDrawer(id) {
         '<span><div class="tiny faint">الدولة</div><b>' + E(org.country || '—') + '</b></span>' +
         '<span><div class="tiny faint">المكان</div><b>' + E(t.place) + '</b></span>' +
         '<span><div class="tiny faint">المدينة</div><b>' + E(t.city) + '</b></span>' +
+        '<span><div class="tiny faint">الفندق</div><b>' +
+          E(taskHotel(t) ? taskHotel(t).ar : 'لم تُسكَّن مجموعته') + '</b></span>' +
+        '<span><div class="tiny faint">مشرف الفندق</div><b>' +
+          E(taskSup(t) ? taskSup(t).name : '—') + '</b></span>' +
         '<span><div class="tiny faint">حجاج المجموعة</div><b class="num">' + AR(taskPilgrims(t)) + '</b></span>' +
         '<span><div class="tiny faint">المدة</div><b class="num">' + AR(t.durH) + ' ساعات</b></span>' +
       '</div>' +
@@ -8011,6 +8327,15 @@ function taskDrawer(id) {
         '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join(''),
       'i-send') : '') +
 
+    /* ── التنبيهات الواصلة من التطبيق ── */
+    (taskAlerts(t).length ? txFold(t, 'alerts', 'تنبيهات المهمة',
+      'ما وصل من الميدان على هذه المهمة تحديدًا',
+      '<div class="alist">' + taskAlerts(t).map(a => alertRow(a, t, false)).join('') + '</div>' +
+      (unseenAlerts(t) ? '<button class="btn l sm" style="width:100%;margin-top:11px" ' +
+        'data-a="alseen" data-id="' + t.id + '">' + icon('i-checkc','s14') +
+        'وسمُ تنبيهات هذه المهمة مقروءةً</button>' : ''),
+      'i-bell', unseenAlerts(t) ? pill(AR(unseenAlerts(t)), 'no') : pill(AR(taskAlerts(t).length), 'grey')) : '') +
+
     /* ── الملاحظات ── */
     txFold(t, 'notes', 'ملاحظات المهمة', AR(t.notes.length) + ' ملاحظة',
       (t.notes.length ? t.notes.map(n =>
@@ -8024,12 +8349,7 @@ function taskDrawer(id) {
 
     /* ── السجلّ ── */
     txFold(t, 'hist', 'سجلّ المهمة', AR(t.hist.length) + ' واقعة — من إنشائها إلى إغلاقها',
-      '<div class="tline">' + t.hist.map(h =>
-        '<div class="tl ' + (h.kind === 'warn' ? 'bad' : h.kind === 'ok' ? 'ok' : '') + '">' +
-          '<span class="d"></span>' +
-          '<span class="sp"><b>' + E(h.text) + '</b>' +
-          '<span class="tiny faint">' + t12(h.at) + ' · ' + hijri(h.at) + '</span></span></div>').join('') +
-      '</div>', 'i-hist') +
+      histLog(t.hist), 'i-hist') +
 
     '<button class="btn l" data-a="go" data-n="tasks">' + icon('i-tasks','s16') + 'عرض في جدول المهام</button>'
   };
@@ -8156,6 +8476,23 @@ function txPhoto(tid, sid) {
   renderDrawer();
 }
 
+/* ---------- السجلّ: الأحدث أوّلًا، مجموعًا بأيّامه ----------
+   كان صفًّا واحدًا طويلًا بلا ترتيبٍ ظاهر، فلم يُقرأ. الآن: يومٌ عنوانًا،
+   وتحته وقائعه بأوقاتها في عمودٍ ثابت العرض فتصطفّ الأرقام. */
+function histLog(list) {
+  const rows = (list || []).slice().sort((a, b) => b.at - a.at);
+  if (!rows.length) return '<div class="tiny faint">لا وقائع بعد.</div>';
+  let out = '<div class="hislog">', day = null;
+  rows.forEach(h => {
+    const d = hijri(h.at);
+    if (d !== day) { day = d; out += '<div class="hisday">' + dayName(h.at) + ' · ' + d + '</div>'; }
+    out += '<div class="hisrow ' + (h.kind === 'warn' ? 'bad' : h.kind === 'ok' ? 'ok' : '') + '">' +
+      '<span class="histm num">' + t12(h.at) + '</span>' +
+      '<span class="histx">' + E(h.text) + '</span></div>';
+  });
+  return out + '</div>';
+}
+
 /* ---------- تسجيل واقعة في سجلّ المهمة ---------- */
 function txLog(t, text, kind) {
   t.hist = t.hist || [];
@@ -8231,6 +8568,89 @@ function docView(t, k) {
     '</div>' +
     '<button class="btn l" data-a="tlopen" data-id="' + t.id + '">' +
       icon('i-back','s16') + 'رجوع إلى المهمة</button>' };
+  renderDrawer();
+}
+
+/* ============================================================
+   تنبيهات المهمّة — ما يصل من التطبيق فيتبع مهمّته لا يتيه في بثٍّ عام
+
+   الإشعار الذي يرسله المحسن أو يولّده النظام (تأخّر · إغلاق · تغيير ·
+   انسحاب · دعم) كان يذهب إلى شاشة الإشعارات العامّة فينفصل عن سياقه.
+   صار يتبع مهمّته: عدَدُه غير المقروء على صفّها، وتفصيله في درجها.
+   ============================================================ */
+const ALERT_KIND = {
+  late:    { ar:'تأخّر',        i:'i-clock',  c:'#E67E22' },
+  close:   { ar:'إغلاق',        i:'i-stop',   c:'#2E86C1' },
+  change:  { ar:'تغيير',        i:'i-swap',   c:'#B8791A' },
+  withdraw:{ ar:'انسحاب',       i:'i-out',    c:'#C0392B' },
+  support: { ar:'طلب دعم',      i:'i-send',   c:'#6B4E9E' },
+  attend:  { ar:'إثبات حضور',   i:'i-target', c:'#0B7A4B' },
+  photo:   { ar:'توثيق',        i:'i-camera', c:'#1B6E9C' }
+};
+const taskAlerts = t => (t && t.alerts) || [];
+const unseenAlerts = t => taskAlerts(t).filter(a => !a.seen).length;
+const allAlerts = () => (V.tasks || []).reduce((a, t) =>
+  a.concat(taskAlerts(t).map(x => Object.assign({ task: t }, x))), [])
+  .sort((a, b) => b.at - a.at);
+
+/* مشرف الفندق الذي تسكنه مجموعة المهمّة */
+function taskSup(t) {
+  const h = taskHotel(t); if (!h) return null;
+  return (S.users || []).find(u => u.role === 'supervisor' && u.hotelId === h.id) || null;
+}
+
+/* بذر التنبيهات: تُبنى من وقائع المهمّة نفسها لا تُخترع */
+function seedAlerts(st) {
+  st.tasks.forEach((t, i) => {
+    const a = [];
+    const add = (kind, text, atOff, seen) => a.push({ id: uid('AL'), kind, text,
+      at: t.start + atOff, by: t.leaderId, seen: !!seen });
+    if (t.autoStarted) add('late', 'لم يبدأ الليدر المهمة في وقتها — بدأها النظام', 5 * MIN, false);
+    if (t.attended.length) add('attend', AR(t.attended.length) + ' محسنين أثبتوا حضورهم',
+      -40 * MIN, true);
+    if (t.status === 'done') add('close', 'أُنهيت المهمة وأُغلق ملفّها', t.durH * HR, true);
+    if (i % 5 === 2) add('change', 'غُيّر موعد التفويج ثلاثين دقيقة — أُبلغ الفريق', -2 * HR, false);
+    if (i % 7 === 3) add('withdraw', 'طلب محسن الانسحاب لارتباطٍ بمهمة أخرى', -20 * HR, false);
+    if (i % 11 === 4) add('support', 'طلب الليدر محسنين اثنين من الاحتياط', -26 * HR, false);
+    if (i % 4 === 1 && t.subs.some(s => s.shot))
+      add('photo', 'رُفعت صورة إثبات على خطوةٍ من خطوات المهمة', 90 * MIN, true);
+    t.alerts = a.sort((x, y) => y.at - x.at);
+  });
+}
+
+/* صفٌّ واحد من التنبيه */
+function alertRow(al, t, withTask) {
+  const k = ALERT_KIND[al.kind] || ALERT_KIND.change;
+  return '<div class="alrow' + (al.seen ? ' seen' : '') + '" data-a="alopen" data-id="' +
+      (t ? t.id : '') + '" data-s="' + al.id + '">' +
+    '<span class="ali" style="color:' + k.c + ';background:color-mix(in srgb,' + k.c +
+      ' 15%,transparent)">' + icon(k.i, 's15') + '</span>' +
+    '<span class="alx"><b>' + E(al.text) + '</b>' +
+      '<span class="tiny faint">' + E(k.ar) + ' · ' + t12(al.at) + ' · ' + untilTxt(al.at) +
+      (withTask && t ? ' · ' + E(t.title) + ' — ' + LTR(t.kt) : '') + '</span></span>' +
+    (al.seen ? '' : '<span class="aldot"></span>') + '</div>';
+}
+
+/* درج التنبيهات الواصلة — من أيقونة الجرس فوق جدول المهام */
+function alertsDrawer() {
+  const list = allAlerts();
+  const un = list.filter(a => !a.seen);
+  S.drawer = { title:'تنبيهات المهام', sub:'ما وصل من الميدان — كلٌّ تحت مهمّته',
+    icon:'i-bell', wide:false, body:
+    '<div class="card gold">' +
+      head('الواصل الآن', un.length ? AR(un.length) + ' تنبيهًا لم يُقرأ بعد' : 'كلّها مقروءة',
+        pill(AR(list.length) + ' إجمالًا', 'grey'), 'i-bell') +
+      (un.length ? '<button class="btn l sm" style="width:100%;margin-top:6px" data-a="alall">' +
+        icon('i-checkc','s14') + 'وسمُ الكلّ مقروءًا</button>' : '') +
+    '</div>' +
+    (un.length ? '<div class="card">' + head('لم يُقرأ', 'يحتاج نظرك', '', 'i-warn') +
+      '<div class="alist">' + un.slice(0, 30).map(a => alertRow(a, a.task, true)).join('') +
+      '</div></div>' : '') +
+    '<div class="card">' + head('كلّ التنبيهات', 'الأحدث أوّلًا', '', 'i-hist') +
+      (list.length ? '<div class="alist">' +
+        list.slice(0, 60).map(a => alertRow(a, a.task, true)).join('') + '</div>'
+        : empty('لا تنبيهات', 'الميدان هادئ', 'i-bell')) +
+    '</div>' };
   renderDrawer();
 }
 
@@ -8671,15 +9091,23 @@ function countUp(el) {
 }
 
 /* ---------- ضوء يتبع المؤشّر على البطاقات ---------- */
-function bindPointerLight(root) {
-  root.querySelectorAll('.card').forEach(c => {
-    c.addEventListener('pointermove', e => {
-      const r = c.getBoundingClientRect();
-      c.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-      c.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
-    });
+/* مستمعٌ واحد مفوَّض لا مستمعٌ لكل بطاقة، ومحبوسٌ بإطار الرسم:
+   كان كل تحريك للمؤشّر يكتب متغيّرين فيُعيد حساب الأنماط على شجرةٍ
+   فيها آلاف العقد — فيثقل الماوس. الآن كتابةٌ واحدة في الإطار الواحد. */
+let lightPend = null;
+document.addEventListener('pointermove', e => {
+  const c = e.target.closest && e.target.closest('.card');
+  if (!c) return;
+  if (lightPend) return;
+  const x = e.clientX, y = e.clientY;
+  lightPend = requestAnimationFrame(() => {
+    lightPend = null;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', ((x - r.left) / r.width * 100).toFixed(1) + '%');
+    c.style.setProperty('--my', ((y - r.top) / r.height * 100).toFixed(1) + '%');
   });
-}
+}, { passive: true });
+function bindPointerLight() { /* لم يعد يُربط شيء: المستمع أعلاه يكفي الجميع */ }
 
 /* ---------- موجة ضغط على الأزرار ---------- */
 document.addEventListener('pointerdown', e => {
@@ -8733,8 +9161,16 @@ function bindScrollDepth(wrap) {
   on();
 }
 
+/* التلاشي يليق بما يفيض وحده — فيُقاس بعد الرسم ويُرفع عمّا اكتمل */
+function markFull(root) {
+  (root || document).querySelectorAll('.wbody').forEach(b => {
+    b.classList.toggle('full', b.scrollHeight <= b.clientHeight + 2);
+  });
+}
+
 function afterRender() {
   const wrap = document.getElementById('stagewrap');
+  requestAnimationFrame(() => markFull(wrap));
   wrap.querySelectorAll('[data-n]').forEach(countUp);
   bindPointerLight(wrap);
   fillMeters(wrap);
@@ -8823,6 +9259,19 @@ function syncWall() {
 /* إعادة رسم الدرج المفتوح أيًّا كان — تُستدعى بعد تغيّر حالته */
 let lastDrawer = null;
 function repaintDrawer() { if (lastDrawer) lastDrawer(); }
+
+/* مكدّس الرجوع: بعض الأدراج تفتح أدراجًا، وكان الخروج منها إغلاقًا تامًّا.
+   كل فتحٍ جديد يُدفَع، و«رجوع» يسحب ويُعيد ما قبله. وإعادة رسم الدرج نفسه
+   لا تُدفَع — وإلا امتلأ المكدّس بنسخٍ من الشيء ذاته. */
+let dStack = [];
+let dQuiet = false;
+function drawerBack() {
+  if (dStack.length < 2) { S.drawer = null; S.picker = null; renderDrawer(); return; }
+  dStack.pop();
+  const prev = dStack[dStack.length - 1];
+  dQuiet = true; try { prev.run(); } finally { dQuiet = false; }
+}
+const drawerDepth = () => dStack.length;
 /* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
@@ -8830,18 +9279,38 @@ function repaintDrawer() { if (lastDrawer) lastDrawer(); }
  'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
-  window[n] = function (a) { lastDrawer = () => f(a); return f(a); };
+  window[n] = function (a) {
+    const call = () => f(a);
+    lastDrawer = call;
+    if (!dQuiet) {
+      const sig = n + ':' + a;
+      const top = dStack[dStack.length - 1];
+      if (!top || top.sig !== sig) dStack.push({ sig, run: call });
+      if (dStack.length > 12) dStack.shift();
+    }
+    return f(a);
+  };
 });
+/* إغلاق الدرج يُفرغ المكدّس — فالرحلة انتهت */
+function clearDrawerStack() { dStack = []; }
 
 function renderDrawer() {
   const w = document.getElementById('drawerwrap');
   if (!S.drawer) { w.innerHTML = ''; return; }
   const d = S.drawer;
+  /* كل طيّ أو تأشير يُعيد بناء الدرج، وكان يقذفك إلى أوّله. نحفظ الموضع
+     ونعيده — ما دام الدرج نفسه لم يتبدّل. */
+  const old = w.querySelector('.db');
+  const keep = (old && S._dkey === d.title) ? old.scrollTop : 0;
+  S._dkey = d.title;
   w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
     '<aside class="drawer' + (d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
         '<span class="sp"><b style="font-size:15px">' + E(d.title) + '</b>' +
         '<div class="tiny faint">' + E(d.sub || '') + '</div></span>' +
+        /* الرجوع: متى كان تحت هذا الدرج درجٌ فتحناه منه */
+        (drawerDepth() > 1 ? '<button class="iconbtn" data-a="dback" aria-label="رجوع" ' +
+          'title="رجوع">' + icon('i-fwd','s18') + '</button>' : '') +
         /* التوسيع: البيانات كثيرة، فالعرض يتبعها */
         (d.expand ? '<button class="iconbtn" data-a="txwide" data-id="' + E(d.expand) +
           '" aria-label="' + (d.wide ? 'تضييق' : 'توسيع') + '" title="' +
@@ -8852,7 +9321,7 @@ function renderDrawer() {
   /* الأشرطة تمتلئ بعد الرسم لا معه — وكانت تُملأ في المسرح وحده فتبقى
      أشرطة الدرج فارغة مهما كانت قيمتها. */
   const db = w.querySelector('.db');
-  if (db) { fillMeters(db); growBars(db); bindPointerLight(db); }
+  if (db) { if (keep) db.scrollTop = keep; fillMeters(db); growBars(db); }
 }
 function openDrawer(title, sub, icon_, body) {
   S.drawer = { title, sub, icon: icon_, body };
@@ -8990,7 +9459,7 @@ const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -9075,7 +9544,18 @@ document.addEventListener('click', ev => {
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
     case 'palrun': runPalette(Number(v)); return;
-    case 'closedrawer': S.drawer = null; S.picker = null; renderDrawer(); return;
+    case 'closedrawer': S.drawer = null; S.picker = null; clearDrawerStack(); renderDrawer(); return;
+    case 'dback': drawerBack(); return;
+    case 'pg': {
+      S.page = S.page || {};
+      S.page[b.dataset.k] = Math.max(0, Number(v));
+      save(); render();
+      /* الصفحة الجديدة تبدأ من أعلى الجدول لا من حيث كنت */
+      const vw = document.querySelector('.view');
+      const tb = vw && vw.querySelector('.plist');
+      if (tb) tb.scrollIntoView({ block:'start', behavior:'auto' });
+      return;
+    }
     case 'shortcuts': showShortcuts(); return;
     case 'timeline': S.route = { n: 'timeline' }; break;
     case 'tlopen': taskDrawer(id); return;
@@ -9249,6 +9729,25 @@ document.addEventListener('click', ev => {
     }
 
     case 'txphoto': txPhoto(id, b.dataset.s); return;
+
+    /* ═══ تنبيهات المهام ═══ */
+    case 'alerts': alertsDrawer(); return;
+    case 'alopen': {
+      const t = ensureTask(taskById(id));
+      if (!t) { alertsDrawer(); return; }
+      const al = taskAlerts(t).find(x => x.id === b.dataset.s);
+      if (al) al.seen = true;
+      save(); taskDrawer(t.id); return;
+    }
+    case 'alseen': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      taskAlerts(t).forEach(x => { x.seen = true; });
+      toast('وُسمت تنبيهات المهمة مقروءة'); save(); taskDrawer(t.id); return;
+    }
+    case 'alall': {
+      (S.tasks || []).forEach(t => (t.alerts || []).forEach(x => { x.seen = true; }));
+      toast('وُسمت كل التنبيهات مقروءة'); save(); alertsDrawer(); return;
+    }
 
     /* ═══ معاينة التطبيق والمعالجة بصفة الميدان ═══ */
     case 'avopen': appPreview(id); return;

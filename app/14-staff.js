@@ -7,6 +7,8 @@ const fOf = (key, k) => ((S.flt && S.flt[key]) || {})[k] || '';
 function fltSet(key, k, v) {
   S.flt = S.flt || {}; S.flt[key] = S.flt[key] || {};
   if (v) S.flt[key][k] = v; else delete S.flt[key][k];
+  /* فلترةٌ جديدة ونحن في الصفحة السابعة تُري قائمةً فارغة — فنعود للأولى */
+  if (S.page) S.page[key] = 0;
 }
 const fltCount = key => Object.keys((S.flt && S.flt[key]) || {}).length;
 

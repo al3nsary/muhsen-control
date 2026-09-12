@@ -135,15 +135,13 @@ const tsOf = t => TSTATE[tState(t)] || TSTATE.next;
    قطع صغيرة تُعاد في كل مكان
    ============================================================ */
 
-/* حلقة نسبة — تُقرأ بلمحة ولا تحتاج رقمًا بجانبها */
+/* حلقة نسبة — تُقرأ بلمحة ولا تحتاج رقمًا بجانبها.
+   بُنيت بـ conic-gradient لا بـ SVG: الجدول فيه مئات الحلقات، وكل رسمٍ
+   متّجه فيه أربع عقد وتخطيطٌ مستقلّ. هذه ثلاث عقد وطلاءٌ واحد. */
 function ring(pct, col, size) {
-  const r = 15.9155, c = 2 * Math.PI * r, sz = size || 34;
-  return '<span class="tring" style="width:' + sz + 'px;height:' + sz + 'px">' +
-    '<svg viewBox="0 0 36 36" aria-hidden="true">' +
-      '<circle cx="18" cy="18" r="' + r + '" class="rbg"/>' +
-      '<circle cx="18" cy="18" r="' + r + '" class="rfg" stroke="' + col + '" ' +
-        'stroke-dasharray="' + (c * pct / 100).toFixed(2) + ' ' + c.toFixed(2) + '"/>' +
-    '</svg><b class="num">' + AR(pct) + '</b></span>';
+  const sz = size || 34;
+  return '<span class="tring" style="width:' + sz + 'px;height:' + sz + 'px;' +
+    '--p:' + pct + ';--rc:' + col + '"><i></i><b class="num">' + AR(pct) + '</b></span>';
 }
 
 /* رقاقة عدّ: أيقونة ورقم — تُصفّ في سطر المهمة */
@@ -164,15 +162,21 @@ function shotTile(s, tid) {
    ============================================================ */
 function taskRow(t) {
   ensureTask(t);
-  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {}, st = tsOf(t);
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
+  const k = tState(t), st = TSTATE[k] || TSTATE.next;
   const pre = prepPct(t), don = subPct(t), tk = taskTickets(t).length;
-  return '<div class="prow trow" data-a="tlopen" data-id="' + t.id + '">' +
-    '<span class="krail" style="background:' + st.c + '"></span>' +
+  const h = taskHotel(t);
+  const un = taskAlerts(t).filter(a => !a.seen).length;
+  /* لون الحالة متغيّرٌ واحد يصبغ الطرف والحافّة والأرضيّة والحبّة معًا */
+  return '<div class="prow trow ' + k + '" style="--tsc:' + st.c + '" ' +
+      'data-a="tlopen" data-id="' + t.id + '">' +
+    '<span class="krail"></span>' +
     '<span class="ico" style="color:' + (c.c || 'var(--dim)') + '">' +
       icon(c.i || 'i-tasks', 's18') + '</span>' +
 
-    '<span class="nm" style="flex:1;min-width:150px"><b>' + E(t.title) + '</b>' +
-      '<span>' + LTR(t.kt) + ' · ' + E(L.name || '') + ' · ' + E(t.city) + '</span></span>' +
+    '<span class="nm" style="flex:1;min-width:160px"><b>' + E(t.title) + '</b>' +
+      '<span>' + LTR(t.kt) + ' · ' + E(L.name || '') + ' · ' +
+      E(h ? h.ar : t.city) + '</span></span>' +
 
     '<span class="when"><b>' + hijri(t.start) + '</b>' +
       '<span class="num">' + t12(t.start) + ' — ' + t12(t.end) + '</span></span>' +
@@ -182,20 +186,29 @@ function taskRow(t) {
       cnt('i-assign', t.assigned.length, 'محسنون مسكَّنون') +
       cnt('i-checkc', t.attended.length, 'أثبتوا حضورهم', t.attended.length ? 'ok' : '') +
       (tk ? cnt('i-ticket', tk, 'تذاكر مرفوعة على المهمة', 'warn') : '') +
+      (un ? cnt('i-bell', un, 'تنبيهات لم تُقرأ', 'warn') : '') +
     '</span>' +
 
     '<span class="tprogs">' +
       '<span class="tp"><span class="tiny faint">الاستعداد</span>' +
-        ring(pre, pre === 100 ? 'var(--ok)' : 'var(--gold2)', 30) + '</span>' +
+        ring(pre, pre === 100 ? 'var(--live)' : 'var(--gold2)', 30) + '</span>' +
       '<span class="tp"><span class="tiny faint">الإنجاز</span>' +
-        ring(don, don === 100 ? 'var(--ok)' : st.c, 30) + '</span>' +
+        ring(don, don === 100 ? 'var(--live)' : st.c, 30) + '</span>' +
     '</span>' +
 
     '<span class="end">' +
-      (t.status === 'done' && t.rating ? stars(t.rating) : pill(st.ar, st.p)) +
-      (t.autoStarted ? '<div style="margin-top:6px">' + pill('بدأها النظام','no') + '</div>' : '') +
-      (t.closedBy === 'system' ? '<div style="margin-top:6px">' + pill('أُغلقت من النظام','no') + '</div>' : '') +
+      '<span class="tst"><i></i>' + E(st.ar) + '</span>' +
+      (t.status === 'done' && t.rating
+        ? '<div style="margin-top:6px">' + stars(t.rating) + '</div>' : '') +
+      (t.autoStarted ? '<div style="margin-top:5px">' + pill('بدأها النظام','no') + '</div>' : '') +
+      (t.closedBy === 'system' ? '<div style="margin-top:5px">' + pill('أُغلقها النظام','no') + '</div>' : '') +
     '</span></div>';
+}
+
+/* فندق المهمّة: من مجموعة ليدرها — وهو بيانٌ كان ناقصًا */
+function taskHotel(t) {
+  const g = (S.groups || []).find(x => x.leaderId === t.leaderId);
+  return g ? (HOTELS.find(h => h.id === g.hotelId) || null) : null;
 }
 
 /* ============================================================
@@ -253,6 +266,7 @@ function tabHajj() {
   const rated = all.filter(t => t.rating);
   const avg = rated.length ? (rated.reduce((a, t) => a + t.rating, 0) / rated.length).toFixed(1) : '0.0';
   const nPrep = all.filter(t => prepPct(t) < 100 && t.status !== 'done').length;
+  const unAll = all.reduce((n, t) => n + unseenAlerts(t), 0);
 
   return '<div class="grid g4">' +
       stat({ label:'مهام الموسم', n:all.length, ic:'i-tasks',
@@ -267,6 +281,9 @@ function tabHajj() {
 
     '<div class="card">' +
       head('جدول مهام الحجّ', 'كلّ ما في التطبيق — وزيادةُ ما يملكه الكنترول',
+        '<button class="bellbtn' + (unAll ? ' has' : '') + '" data-a="alerts" ' +
+          'aria-label="تنبيهات المهام">' + icon('i-bell','s16') +
+          (unAll ? '<i>' + AR(unAll) + '</i>' : '') + '</button>' +
         pill(AR(list.length) + ' معروضة', 'gold'), 'i-kaaba') +
 
       '<div class="tools">' + segmented('tf',
@@ -292,9 +309,33 @@ function tabHajj() {
         '</span>' +
       '</div>' +
 
-      (list.length ? '<div class="plist">' + list.map(taskRow).join('') + '</div>'
+      (list.length ? pagedList(list, 'tsk', taskRow)
         : empty('لا مهام بهذه الفلاتر', 'امسح الفلاتر أو غيّر التصنيف', 'i-cal')) +
     '</div>';
+}
+
+/* ---------- قائمة مرقّمة: ثمانية وثمانون ومئتان في صفحة واحدة تُثقل كل ضغطة ----------
+   الصفحة تُعيد رسم ما تراه فقط. والعدّاد يقول أين أنت من الكلّ. */
+const PAGE = 40;
+const pageOf = key => Math.max(0, (S.page && S.page[key]) || 0);
+function pagedList(list, key, rowFn) {
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  const p = Math.min(pageOf(key), pages - 1);
+  const slice = list.slice(p * PAGE, p * PAGE + PAGE);
+  return '<div class="plist">' + slice.map(rowFn).join('') + '</div>' +
+    (pages > 1 ? '<div class="pager">' +
+      '<button class="pgb" data-a="pg" data-k="' + key + '" data-v="' + (p - 1) +
+        '"' + (p === 0 ? ' disabled' : '') + '>' + icon('i-fwd','s14') + 'السابق</button>' +
+      '<span class="pgn">' + Array.from({ length: pages }, (_, i) => i)
+        .filter(i => i === 0 || i === pages - 1 || Math.abs(i - p) <= 2)
+        .map((i, k, a) => (k && i - a[k - 1] > 1 ? '<span class="pgd">…</span>' : '') +
+          '<button class="pgi' + (i === p ? ' on' : '') + '" data-a="pg" data-k="' + key +
+          '" data-v="' + i + '">' + AR(i + 1) + '</button>').join('') + '</span>' +
+      '<button class="pgb" data-a="pg" data-k="' + key + '" data-v="' + (p + 1) +
+        '"' + (p >= pages - 1 ? ' disabled' : '') + '>التالي' + icon('i-back','s14') + '</button>' +
+      '<span class="pgc">' + AR(p * PAGE + 1) + '–' + AR(Math.min(list.length, (p + 1) * PAGE)) +
+        ' من ' + AR(list.length) + '</span>' +
+    '</div>' : '');
 }
 
 /* ============================================================
@@ -351,6 +392,10 @@ function taskDrawer(id) {
         '<span><div class="tiny faint">الدولة</div><b>' + E(org.country || '—') + '</b></span>' +
         '<span><div class="tiny faint">المكان</div><b>' + E(t.place) + '</b></span>' +
         '<span><div class="tiny faint">المدينة</div><b>' + E(t.city) + '</b></span>' +
+        '<span><div class="tiny faint">الفندق</div><b>' +
+          E(taskHotel(t) ? taskHotel(t).ar : 'لم تُسكَّن مجموعته') + '</b></span>' +
+        '<span><div class="tiny faint">مشرف الفندق</div><b>' +
+          E(taskSup(t) ? taskSup(t).name : '—') + '</b></span>' +
         '<span><div class="tiny faint">حجاج المجموعة</div><b class="num">' + AR(taskPilgrims(t)) + '</b></span>' +
         '<span><div class="tiny faint">المدة</div><b class="num">' + AR(t.durH) + ' ساعات</b></span>' +
       '</div>' +
@@ -505,6 +550,15 @@ function taskDrawer(id) {
         '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join(''),
       'i-send') : '') +
 
+    /* ── التنبيهات الواصلة من التطبيق ── */
+    (taskAlerts(t).length ? txFold(t, 'alerts', 'تنبيهات المهمة',
+      'ما وصل من الميدان على هذه المهمة تحديدًا',
+      '<div class="alist">' + taskAlerts(t).map(a => alertRow(a, t, false)).join('') + '</div>' +
+      (unseenAlerts(t) ? '<button class="btn l sm" style="width:100%;margin-top:11px" ' +
+        'data-a="alseen" data-id="' + t.id + '">' + icon('i-checkc','s14') +
+        'وسمُ تنبيهات هذه المهمة مقروءةً</button>' : ''),
+      'i-bell', unseenAlerts(t) ? pill(AR(unseenAlerts(t)), 'no') : pill(AR(taskAlerts(t).length), 'grey')) : '') +
+
     /* ── الملاحظات ── */
     txFold(t, 'notes', 'ملاحظات المهمة', AR(t.notes.length) + ' ملاحظة',
       (t.notes.length ? t.notes.map(n =>
@@ -518,12 +572,7 @@ function taskDrawer(id) {
 
     /* ── السجلّ ── */
     txFold(t, 'hist', 'سجلّ المهمة', AR(t.hist.length) + ' واقعة — من إنشائها إلى إغلاقها',
-      '<div class="tline">' + t.hist.map(h =>
-        '<div class="tl ' + (h.kind === 'warn' ? 'bad' : h.kind === 'ok' ? 'ok' : '') + '">' +
-          '<span class="d"></span>' +
-          '<span class="sp"><b>' + E(h.text) + '</b>' +
-          '<span class="tiny faint">' + t12(h.at) + ' · ' + hijri(h.at) + '</span></span></div>').join('') +
-      '</div>', 'i-hist') +
+      histLog(t.hist), 'i-hist') +
 
     '<button class="btn l" data-a="go" data-n="tasks">' + icon('i-tasks','s16') + 'عرض في جدول المهام</button>'
   };
@@ -650,6 +699,23 @@ function txPhoto(tid, sid) {
   renderDrawer();
 }
 
+/* ---------- السجلّ: الأحدث أوّلًا، مجموعًا بأيّامه ----------
+   كان صفًّا واحدًا طويلًا بلا ترتيبٍ ظاهر، فلم يُقرأ. الآن: يومٌ عنوانًا،
+   وتحته وقائعه بأوقاتها في عمودٍ ثابت العرض فتصطفّ الأرقام. */
+function histLog(list) {
+  const rows = (list || []).slice().sort((a, b) => b.at - a.at);
+  if (!rows.length) return '<div class="tiny faint">لا وقائع بعد.</div>';
+  let out = '<div class="hislog">', day = null;
+  rows.forEach(h => {
+    const d = hijri(h.at);
+    if (d !== day) { day = d; out += '<div class="hisday">' + dayName(h.at) + ' · ' + d + '</div>'; }
+    out += '<div class="hisrow ' + (h.kind === 'warn' ? 'bad' : h.kind === 'ok' ? 'ok' : '') + '">' +
+      '<span class="histm num">' + t12(h.at) + '</span>' +
+      '<span class="histx">' + E(h.text) + '</span></div>';
+  });
+  return out + '</div>';
+}
+
 /* ---------- تسجيل واقعة في سجلّ المهمة ---------- */
 function txLog(t, text, kind) {
   t.hist = t.hist || [];
@@ -725,5 +791,88 @@ function docView(t, k) {
     '</div>' +
     '<button class="btn l" data-a="tlopen" data-id="' + t.id + '">' +
       icon('i-back','s16') + 'رجوع إلى المهمة</button>' };
+  renderDrawer();
+}
+
+/* ============================================================
+   تنبيهات المهمّة — ما يصل من التطبيق فيتبع مهمّته لا يتيه في بثٍّ عام
+
+   الإشعار الذي يرسله المحسن أو يولّده النظام (تأخّر · إغلاق · تغيير ·
+   انسحاب · دعم) كان يذهب إلى شاشة الإشعارات العامّة فينفصل عن سياقه.
+   صار يتبع مهمّته: عدَدُه غير المقروء على صفّها، وتفصيله في درجها.
+   ============================================================ */
+const ALERT_KIND = {
+  late:    { ar:'تأخّر',        i:'i-clock',  c:'#E67E22' },
+  close:   { ar:'إغلاق',        i:'i-stop',   c:'#2E86C1' },
+  change:  { ar:'تغيير',        i:'i-swap',   c:'#B8791A' },
+  withdraw:{ ar:'انسحاب',       i:'i-out',    c:'#C0392B' },
+  support: { ar:'طلب دعم',      i:'i-send',   c:'#6B4E9E' },
+  attend:  { ar:'إثبات حضور',   i:'i-target', c:'#0B7A4B' },
+  photo:   { ar:'توثيق',        i:'i-camera', c:'#1B6E9C' }
+};
+const taskAlerts = t => (t && t.alerts) || [];
+const unseenAlerts = t => taskAlerts(t).filter(a => !a.seen).length;
+const allAlerts = () => (V.tasks || []).reduce((a, t) =>
+  a.concat(taskAlerts(t).map(x => Object.assign({ task: t }, x))), [])
+  .sort((a, b) => b.at - a.at);
+
+/* مشرف الفندق الذي تسكنه مجموعة المهمّة */
+function taskSup(t) {
+  const h = taskHotel(t); if (!h) return null;
+  return (S.users || []).find(u => u.role === 'supervisor' && u.hotelId === h.id) || null;
+}
+
+/* بذر التنبيهات: تُبنى من وقائع المهمّة نفسها لا تُخترع */
+function seedAlerts(st) {
+  st.tasks.forEach((t, i) => {
+    const a = [];
+    const add = (kind, text, atOff, seen) => a.push({ id: uid('AL'), kind, text,
+      at: t.start + atOff, by: t.leaderId, seen: !!seen });
+    if (t.autoStarted) add('late', 'لم يبدأ الليدر المهمة في وقتها — بدأها النظام', 5 * MIN, false);
+    if (t.attended.length) add('attend', AR(t.attended.length) + ' محسنين أثبتوا حضورهم',
+      -40 * MIN, true);
+    if (t.status === 'done') add('close', 'أُنهيت المهمة وأُغلق ملفّها', t.durH * HR, true);
+    if (i % 5 === 2) add('change', 'غُيّر موعد التفويج ثلاثين دقيقة — أُبلغ الفريق', -2 * HR, false);
+    if (i % 7 === 3) add('withdraw', 'طلب محسن الانسحاب لارتباطٍ بمهمة أخرى', -20 * HR, false);
+    if (i % 11 === 4) add('support', 'طلب الليدر محسنين اثنين من الاحتياط', -26 * HR, false);
+    if (i % 4 === 1 && t.subs.some(s => s.shot))
+      add('photo', 'رُفعت صورة إثبات على خطوةٍ من خطوات المهمة', 90 * MIN, true);
+    t.alerts = a.sort((x, y) => y.at - x.at);
+  });
+}
+
+/* صفٌّ واحد من التنبيه */
+function alertRow(al, t, withTask) {
+  const k = ALERT_KIND[al.kind] || ALERT_KIND.change;
+  return '<div class="alrow' + (al.seen ? ' seen' : '') + '" data-a="alopen" data-id="' +
+      (t ? t.id : '') + '" data-s="' + al.id + '">' +
+    '<span class="ali" style="color:' + k.c + ';background:color-mix(in srgb,' + k.c +
+      ' 15%,transparent)">' + icon(k.i, 's15') + '</span>' +
+    '<span class="alx"><b>' + E(al.text) + '</b>' +
+      '<span class="tiny faint">' + E(k.ar) + ' · ' + t12(al.at) + ' · ' + untilTxt(al.at) +
+      (withTask && t ? ' · ' + E(t.title) + ' — ' + LTR(t.kt) : '') + '</span></span>' +
+    (al.seen ? '' : '<span class="aldot"></span>') + '</div>';
+}
+
+/* درج التنبيهات الواصلة — من أيقونة الجرس فوق جدول المهام */
+function alertsDrawer() {
+  const list = allAlerts();
+  const un = list.filter(a => !a.seen);
+  S.drawer = { title:'تنبيهات المهام', sub:'ما وصل من الميدان — كلٌّ تحت مهمّته',
+    icon:'i-bell', wide:false, body:
+    '<div class="card gold">' +
+      head('الواصل الآن', un.length ? AR(un.length) + ' تنبيهًا لم يُقرأ بعد' : 'كلّها مقروءة',
+        pill(AR(list.length) + ' إجمالًا', 'grey'), 'i-bell') +
+      (un.length ? '<button class="btn l sm" style="width:100%;margin-top:6px" data-a="alall">' +
+        icon('i-checkc','s14') + 'وسمُ الكلّ مقروءًا</button>' : '') +
+    '</div>' +
+    (un.length ? '<div class="card">' + head('لم يُقرأ', 'يحتاج نظرك', '', 'i-warn') +
+      '<div class="alist">' + un.slice(0, 30).map(a => alertRow(a, a.task, true)).join('') +
+      '</div></div>' : '') +
+    '<div class="card">' + head('كلّ التنبيهات', 'الأحدث أوّلًا', '', 'i-hist') +
+      (list.length ? '<div class="alist">' +
+        list.slice(0, 60).map(a => alertRow(a, a.task, true)).join('') + '</div>'
+        : empty('لا تنبيهات', 'الميدان هادئ', 'i-bell')) +
+    '</div>' };
   renderDrawer();
 }
