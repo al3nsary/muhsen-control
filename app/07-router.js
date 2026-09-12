@@ -15,7 +15,7 @@ const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -288,6 +288,62 @@ document.addEventListener('click', ev => {
 
     /* ═══ تنبيهات المهام ═══ */
     case 'alerts': alertsDrawer(); return;
+
+    /* ═══ الامتثال: ملفّ الجهة · الجدولة · الإسناد ═══ */
+    case 'hprof': hotelProfile(id); return;
+    case 'hsched': {
+      S.sched = { formId:(V.forms[0] || {}).id || null, hotels:[id], slots:[], prio:'mid',
+        mode:'auto', people:[] };
+      formSchedule(S.sched.formId); return;
+    }
+    case 'fsched': S.sched = null; formSchedule(id); return;
+    case 'schoteb': {
+      const d = schedDraft(), k = d.hotels.indexOf(v);
+      if (k >= 0) d.hotels.splice(k, 1); else d.hotels.push(v);
+      save(); formSchedule(d.formId); return;
+    }
+    case 'schall':  { const d = schedDraft(); d.hotels = HOTELS.map(h => h.id);
+      save(); formSchedule(d.formId); return; }
+    case 'schnone': { const d = schedDraft(); d.hotels = []; save(); formSchedule(d.formId); return; }
+    case 'schslot': {
+      const d = schedDraft(), k = d.slots.indexOf(v);
+      if (k >= 0) d.slots.splice(k, 1); else d.slots.push(v);
+      save(); formSchedule(d.formId); return;
+    }
+    case 'schprio': { const d = schedDraft(); d.prio = v; save(); formSchedule(d.formId); return; }
+    case 'schmode': { const d = schedDraft(); d.mode = v; save(); formSchedule(d.formId); return; }
+    case 'schwho': {
+      const d = schedDraft(), k = d.people.indexOf(v);
+      if (k >= 0) d.people.splice(k, 1); else d.people.push(v);
+      save(); formSchedule(d.formId); return;
+    }
+    case 'schsave': schedRun(); return;
+
+    case 'caopen': cmpAsgDrawer(id); return;
+    case 'caprio': {
+      const a2 = S.assigns.find(x => x.id === id); if (!a2) return;
+      a2.prio = v;
+      a2.trail = a2.trail || [];
+      a2.trail.unshift({ at:now(), by:'الكنترول', text:'صارت أولويّتها ' + prioOf(v).ar });
+      toast('الأولوية: ' + prioOf(v).ar); save(); cmpAsgDrawer(id); return;
+    }
+    case 'careassign': {
+      const a2 = S.assigns.find(x => x.id === id); if (!a2) return;
+      const pick = reassignComply(a2, isAbsent(a2.to, a2.at) ? 'غياب المُسنَد إليه' : 'قرار الكنترول');
+      if (pick) toast('أُعيد الإسناد إلى ' + pick.name);
+      save(); cmpAsgDrawer(id); return;
+    }
+    case 'caswap': {
+      const a2 = S.assigns.find(x => x.id === id); if (!a2) return;
+      const cands = shiftCands(a2.at).filter(u => u.id !== a2.to);
+      if (!cands.length) { toast('لا بديل في هذا الشِفت', 'r'); return; }
+      S.swapAsg = a2.id;
+      openPicker('caswap', a2.id, { title:'تبديل من يُعبّئ ' + a2.no,
+        note:'المعروضون يغطّي شِفتُهم موعد المهمّة (' + a2.shift + ')' +
+          (Math.abs(a2.at - now()) < 4 * HR ? '، ومن أثبت حضوره وحده' : '') + '.',
+        cands });
+      return;
+    }
     case 'alopen': {
       const t = ensureTask(taskById(id));
       if (!t) { alertsDrawer(); return; }

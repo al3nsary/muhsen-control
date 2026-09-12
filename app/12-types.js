@@ -166,65 +166,6 @@ function tabNusuk() {
 }
 
 /* ══════════════ ٤) الامتثال ══════════════ */
-function tabComply() {
-  return '<div class="grid g3">' +
-      stat({ label:'قوالب منشورة', n:V.forms.length, ic:'i-clip',
-        sub:'تُبنى مرّة وتُسنَد مرارًا', series:[1,1,2,2,3,3,3,V.forms.length] }) +
-      stat({ label:'إدخالات', n:V.subs.length, ic:'i-checkc', cls:'up',
-        sub:'زيارات مسجّلة بإجاباتها', series:[3,6,9,12,14,16,18,V.subs.length] }) +
-      stat({ label:'دون الحدّ', n:V.subs.filter(b => b.score < 70).length, ic:'i-flag',
-        cls:'warn', sub:'تستدعي زيارة أخرى', series:[4,4,5,4,3,3,2,V.subs.filter(b => b.score < 70).length] }) +
-    '</div>' +
-
-    '<div class="card gold">' +
-      head('قوالب الامتثال', 'القالب يُبنى مرّة، ويُسنَد لكل مجموعة، ويُعبَّأ كلّما لزم',
-        '<button class="btn p sm" data-a="fnew">' + icon('i-plus','s16') + 'قالب جديد</button>', 'i-clip') +
-      '<div class="gcards">' + V.forms.map((f, i) => {
-        const bs = subsOf(f.id);
-        const avg = bs.length ? Math.round(bs.reduce((a, b) => a + b.score, 0) / bs.length) : 0;
-        const targets = [...new Set(bs.map(b => b.target))];
-        return '<div class="gcard" style="animation-delay:' + (i * 60) + 'ms">' +
-          '<span class="gtop" style="background:' + f.color + '"></span>' +
-          '<div class="fl" style="margin-bottom:11px">' +
-            '<span class="ico" style="color:' + f.color + '">' + icon(f.icon,'s18') + '</span>' +
-            '<span class="nm" style="flex:1"><b>' + E(f.title) + '</b>' +
-            '<span>' + LTR(f.no) + ' · ' + AR(f.qs.length) + ' أسئلة · ' + E(f.scope) + '</span></span>' +
-            pill(AR(avg) + '٪', avg >= 85 ? 'live' : avg >= 70 ? 'wait' : 'no') + '</div>' +
-          '<div class="mrow">' +
-            '<span class="mchip">' + icon('i-users','s14') + AR(targets.length) + ' جهة</span>' +
-            '<span class="mchip">' + icon('i-hist','s14') + AR(bs.length) + ' زيارة</span>' +
-            '<span class="mchip">' + icon('i-checkc','s14') + AR(f.qs.filter(q => q.w).length) + ' سؤالًا محتسبًا</span>' +
-          '</div>' +
-          '<div class="pfoot">' +
-            '<span class="ok">آخر زيارة ' + (bs.length ? ago(Math.max.apply(null, bs.map(b => b.at))) : '—') + '</span>' +
-            '<span class="fl" style="gap:7px">' +
-              '<button class="btn l sm" data-a="fedit" data-id="' + f.id + '">تعديل</button>' +
-              '<button class="btn l sm" data-a="fassign" data-id="' + f.id + '">إسناد</button>' +
-              '<button class="btn p sm" data-a="fdash" data-id="' + f.id + '">اللوحة</button></span>' +
-          '</div></div>';
-      }).join('') + '</div>' +
-    '</div>' +
-
-    '<div class="card">' +
-      head('آخر الإدخالات', 'كل إدخال زيارة لها رقمها — والتحسّن يُقرأ بين الزيارتين', '', 'i-hist') +
-      '<div class="plist">' + V.subs.slice().sort((a, b) => b.at - a.at).slice(0, 8).map((b, i) => {
-        const f = formById(b.formId) || {}, by = userById(b.by) || {};
-        return '<div class="prow" data-a="fsub" data-id="' + b.id + '" ' +
-          'style="animation-delay:' + (i * 45) + 'ms">' +
-          '<span class="krail" style="background:' + (f.color || 'var(--dim)') + '"></span>' +
-          avatar(by, 'sm') +
-          '<span class="nm" style="flex:1"><b>' + E(b.target) + '</b>' +
-          '<span>' + E(f.title || '') + ' · ' + E(by.name || '') + ' · ' + E(b.kt) + '</span></span>' +
-          pill('الزيارة ' + AR(b.visit) + ' من ' + AR(b.of), 'grey') +
-          '<span class="fl" style="gap:9px;min-width:150px">' +
-            '<span class="meter' + (b.score < 70 ? ' red' : b.score < 85 ? ' gold' : '') +
-              '" style="flex:1"><i data-w="' + b.score + '"></i></span>' +
-            '<b class="num" style="min-width:34px">' + AR(b.score) + '٪</b></span>' +
-          '<span class="tiny faint">' + ago(b.at) + '</span></div>';
-      }).join('') + '</div>' +
-    '</div>';
-}
-
 /* ---------- لوحة القالب ---------- */
 function formDash(id) {
   const f = formById(id); if (!f) return;

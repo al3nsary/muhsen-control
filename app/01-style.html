@@ -1758,6 +1758,33 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .alrow .aldot{width:7px; height:7px; border-radius:50%; background:var(--red); flex:none;
   margin-top:11px}
 
+/* ══ تقويم الجدولة: أربعة عشر يومًا × ثلاث نوافذ ══
+   الخانة تقول شِفتها وعدد من يغطّيه، فيُختار الوقت وأنت تعرف من فيه. */
+.calgrid{margin-top:12px; border:1px solid var(--line); border-radius:16px; overflow:hidden}
+.calhead{display:grid; grid-template-columns:62px repeat(3,1fr); gap:1px;
+  background:var(--line); border-bottom:1px solid var(--line)}
+.calhead span{background:var(--panel2); padding:8px 6px; font-size:10.5px; font-weight:700;
+  color:var(--dim2); text-align:center}
+.calrow{display:grid; grid-template-columns:62px repeat(3,1fr); gap:1px; background:var(--line)}
+.cald{background:var(--panel2); display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:7px 4px; gap:2px}
+.cald b{font-size:10.5px; color:var(--ink)}
+.cald span{font-size:12px; font-weight:700; color:var(--gold2);
+  font-variant-numeric:tabular-nums}
+.calc{background:var(--panel); border:0; cursor:pointer; padding:8px 4px;
+  display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--dim2);
+  font:inherit; transition:background .18s var(--e)}
+.calc b{font-size:10px; font-weight:600}
+.calc span{font-size:11px; font-weight:700; color:var(--dim)}
+.calc:hover:not(.off){background:var(--raise); color:var(--ink)}
+.calc.on{background:linear-gradient(160deg,var(--g3),var(--g)); color:#fff}
+.calc.on b, .calc.on span{color:#fff}
+.calc.off{opacity:.28; cursor:default}
+
+/* صفّ رقاقات يلتفّ */
+.chipwrap{display:flex; flex-wrap:wrap; gap:7px; margin-top:11px}
+.chipwrap .chipbtn i{display:inline-block; flex:none}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;

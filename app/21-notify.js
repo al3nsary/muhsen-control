@@ -224,7 +224,10 @@ function cfgRow(k, label, note) {
   return '<div class="kv2"><span class="ico sm">' + icon(on ? 'i-checkc' : 'i-x','s14') + '</span>' +
     '<span class="k" style="flex:1;min-width:0"><b style="display:block;font-size:12.5px;' +
       'color:var(--ink)">' + E(label) + '</b>' + E(note) + '</span>' +
-    '<button class="tgl' + (on ? ' on' : '') + '" data-a="cfgtog" data-v="' + k + '">' +
+    /* مفتاحٌ بلا نصّ يحتاج وصفًا، وإلا كان أخرس لقارئ الشاشة */
+    '<button class="tgl' + (on ? ' on' : '') + '" data-a="cfgtog" data-v="' + k + '" ' +
+      'role="switch" aria-checked="' + (on ? 'true' : 'false') + '" ' +
+      'aria-label="' + E(label) + ' — ' + (on ? 'مشغّل' : 'مطفأ') + '">' +
       '<i></i></button></div>';
 }
 const storeKb = () => {

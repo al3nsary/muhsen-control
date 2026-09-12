@@ -224,7 +224,7 @@ const drawerDepth = () => dStack.length;
 ['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) {

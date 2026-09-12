@@ -3,7 +3,7 @@
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 17;
-const APP_VER = 'نسخة ١٫٢';
+const APP_VER = 'نسخة ١٫٣';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -413,6 +413,8 @@ function seed() {
 
   seedTaskDetail(st);
   seedAlerts(st);
+  seedShifts(st);
+  seedComply(st);
 
   return st;
 }
@@ -429,7 +431,7 @@ function load() {
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
-  S.reqtpl = S.reqtpl || [];
+  S.reqtpl = S.reqtpl || []; S.attend = S.attend || {}; S.sched = S.sched || null;
   (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }

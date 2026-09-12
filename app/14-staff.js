@@ -299,6 +299,15 @@ function applyPick(kind, id, u) {
     if (t.riders.indexOf(u.id) < 0) t.riders.push(u.id);
     logIt('أُضيف ' + u.name + ' راكبًا في ' + t.no, 'info');
     toast(u.name + ' → ' + t.no);
+  } else if (kind === 'caswap') {
+    const a = S.assigns.find(x => x.id === id); if (!a) return;
+    const old = userById(a.to) || {};
+    a.to = u.id; a.trail = a.trail || [];
+    a.trail.unshift({ at:now(), by:'الكنترول',
+      text:'بدّل الكنترول من يُعبّئها: ' + (old.name || '') + ' ← ' + u.name });
+    logIt('بُدِّل مُنفّذ ' + a.no + ' إلى ' + u.name, 'assign');
+    toast('صارت إلى ' + u.name);
+    S.picker = null; cmpAsgDrawer(a.id); return;
   } else if (kind === 'task') {
     const t = ensureTask(S.tasks.find(x => x.id === id)); if (!t) return;
     if (t.assigned.indexOf(u.id) >= 0) { toast('هو مسكَّن عليها أصلًا', 'r'); return; }
@@ -346,16 +355,23 @@ function candFor(kind, ref) {
   if (kind === 'nusuk') {
     const c = ref, team = teamOf(c.leaderId);
     const L = userById(c.leaderId);
-    return team.concat(L ? [L] : []).concat(reserveTeam());
+    const pool = team.concat(L ? [L] : []).concat(reserveTeam());
+    /* حالة نُسك تُعالَج الآن — فمن ليس في شِفت هذه الساعة لا يُعرض */
+    const fit = shiftCands(now(), pool);
+    return fit.length ? fit : pool;
   }
   if (kind === 'comply') {
-    /* المحسن يُختار حسب الفندق الذي تسكن فيه مجموعته */
+    /* الفندق يحدّد الدائرة، والشِفت يحدّد من فيها صالحٌ لهذا الوقت.
+       فمن ليس في شِفته لا يُعرض — والإسناد إليه إسنادٌ على الورق لا في الميدان. */
     const hid = ref;
     const gs = V.groups.filter(g => g.hotelId === hid);
     const ids = [];
     gs.forEach(g => { ids.push(g.leaderId); g.members.forEach(m => ids.push(m.id)); });
     const sup = supervisors().filter(u => u.hotelId === hid);
-    return [...new Set(ids)].map(userById).filter(Boolean).concat(sup).concat(res);
+    const pool = [...new Set(ids)].map(userById).filter(Boolean).concat(sup).concat(res);
+    const when = (S.pendForm && S.pendForm.at) || now();
+    const fit = shiftCands(when, pool);
+    return fit.length ? fit : pool;
   }
   if (kind === 'ticket' || kind === 'report') {
     const t = ref, team = teamOf(t.leaderId), L = userById(t.leaderId);
