@@ -2,7 +2,7 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, actions: screenActions, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, actions: screenActions, orgs: screenOrgs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -14,8 +14,8 @@ const SCREENS = {
 const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
-  'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -295,6 +295,120 @@ document.addEventListener('click', ev => {
 
     /* ═══ تنبيهات المهام ═══ */
     case 'alerts': alertsDrawer(); return;
+    case 'tlmove': {
+      const d = Number(v);
+      S.tab.tlo = d === 0 ? 0 : (Number(S.tab.tlo || 0) + d);
+      break;
+    }
+
+    /* ═══ التشكيل: حالة · سجلّ · تراجع · سبب ═══ */
+    case 'gstate': {
+      const g = (S.groups || []).find(x => x.id === id); if (!g) return;
+      snapForm('تغيير حالة ' + g.no);
+      g.state = gState(g) === 'approved' ? 'draft' : 'approved';
+      formLog(g, g.state === 'approved' ? 'اعتُمدت المجموعة — صارت تُقرأ في التطبيق'
+        : 'أُرجعت مسودّةً — لا يقرؤها التطبيق');
+      logIt(g.no + ': ' + GST[g.state].ar, 'assign');
+      toast(GST[g.state].ar); save();
+      if (S.drawer) groupLog(g.id); else render();
+      return;
+    }
+    case 'fapproveall': {
+      snapForm('اعتماد كل المسودّات');
+      let n = 0;
+      (S.groups || []).forEach(g => {
+        if (gState(g) !== 'approved') { g.state = 'approved'; formLog(g, 'اعتُمدت ضمن اعتمادٍ جماعي'); n++; }
+      });
+      logIt('اعتُمدت ' + AR(n) + ' مجموعة دفعةً واحدة', 'assign');
+      toast('اعتُمدت ' + AR(n) + ' مجموعة'); break;
+    }
+    case 'glog': groupLog(id); return;
+    case 'funfo': { if (undoForm()) { save(); render(); } return; }
+    case 'soutr': S.q.soutr = v; S.q.sout = v; repaintDrawer(); return;
+    case 'soutdo': {
+      const g = (S.groups || []).find(x => x.id === id); if (!g) return;
+      const u = userById(v); if (!u) return;
+      const why = (S.q.sout || S.q.soutr || '').trim();
+      if (!why) { toast('اكتب السبب أو اخترْه', 'r'); return; }
+      snapForm('إخراج ' + u.name + ' من ' + g.no);
+      g.members = g.members.filter(m => m.id !== v);
+      u.groupId = null; u.leaderId = null; u.kt = '—';
+      (S.tasks || []).forEach(t => {
+        if (t.leaderId === g.leaderId) t.assigned = (t.assigned || []).filter(x => x !== v); });
+      formLog(g, 'أُخرج ' + u.name + ' — السبب: ' + why);
+      if (gState(g) === 'approved') { g.state = 'draft'; formLog(g, 'عادت مسودّةً بعد التعديل'); }
+      logIt('أُخرج ' + u.name + ' من ' + g.no + ' — ' + why, 'assign');
+      S.q.sout = ''; S.q.soutr = '';
+      S.drawer = null; clearDrawerStack();
+      toast('أُخرج ' + u.name); save(); render(); return;
+    }
+    case 'seatdrop': {
+      const g = (S.groups || []).find(x => x.id === b.dataset.g); if (!g) return;
+      const u = userById(b.dataset.u); if (!u) return;
+      if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
+      if (g.members.some(m => m.id === u.id)) { toast('هو فيها أصلًا', 'r'); return; }
+      snapForm('إدخال ' + u.name + ' إلى ' + g.no);
+      const cf = seatConflicts(g, u);
+      const org = orgById(g.orgId) || {};
+      g.members.push({ id:u.id, spec:u.specialty || SPECS[0] });
+      u.groupId = g.id; u.leaderId = g.leaderId; u.kt = org.kt;
+      if (u.reserve) u.reserve = false;
+      let n = 0;
+      (S.tasks || []).forEach(t => { if (t.leaderId === g.leaderId) {
+        t.assigned = t.assigned || [];
+        if (t.assigned.indexOf(u.id) < 0) { t.assigned.push(u.id); n++; } } });
+      formLog(g, 'دخل ' + u.name + ' المجموعة وسُكِّن على ' + AR(n) + ' مهمة' +
+        (cf.length ? ' — مع ' + AR(cf.length) + ' تعارض: ' + cf.map(x => x.ar).join('، ') : ''));
+      if (gState(g) === 'approved') { g.state = 'draft'; formLog(g, 'عادت مسودّةً بعد التعديل'); }
+      logIt('دخل ' + u.name + ' ' + g.no + ' — ' + AR(n) + ' مهمة', 'assign');
+      toast(cf.length ? u.name + ' → ' + g.no + ' · ' + AR(cf.length) + ' تعارض'
+        : u.name + ' → ' + g.no, cf.length ? 'r' : 'g');
+      save(); render(); return;
+    }
+
+    /* ═══ الجهات والفنادق ═══ */
+    case 'orgnew':  S.oform = null; ['ar','name','kt','country','pilgrims','type']
+      .forEach(k => { S.q['o_' + k] = ''; }); orgEdit(null); return;
+    case 'orgedit': S.oform = null; ['ar','name','kt','country','pilgrims','type']
+      .forEach(k => { S.q['o_' + k] = ''; }); orgEdit(id); return;
+    case 'otype':   S.q.o_type = v; repaintDrawer(); return;
+    case 'orgsave': {
+      const get = k => (S.q['o_' + k] || '').trim();
+      const o = id ? (S.orgs || []).find(x => x.id === id) : null;
+      const ar = get('ar') || (o ? o.ar : '');
+      const kt = get('kt') || (o ? o.kt : '');
+      if (!ar || !kt) { toast('الاسم والرمز لا بدّ منهما', 'r'); return; }
+      const rec = { ar, kt, name:get('name') || (o ? o.name : ar),
+        country:get('country') || (o ? o.country : '—'),
+        type:S.q.o_type || (o ? o.type : 'بعثة'),
+        pilgrims:Number(String(get('pilgrims')).replace(/\D/g, '')) || (o ? o.pilgrims : 0) };
+      if (o) { Object.assign(o, rec); logIt('عُدِّلت الجهة ' + ar, 'info'); toast('حُفظت'); }
+      else {
+        S.orgs.push(Object.assign({ id:'o' + (S.orgs.length + 1) }, rec));
+        logIt('أُضيفت الجهة ' + ar + ' (' + kt + ')', 'info'); toast('أُضيفت الجهة');
+      }
+      S.oform = null; S.drawer = null; clearDrawerStack(); save(); render(); return;
+    }
+    case 'hotnew':  S.hform = null; ['ar','rooms','dist','city']
+      .forEach(k => { S.q['h_' + k] = ''; }); hotelEdit(null); return;
+    case 'hotedit': S.hform = null; ['ar','rooms','dist','city']
+      .forEach(k => { S.q['h_' + k] = ''; }); hotelEdit(id); return;
+    case 'hcity':   S.q.h_city = v; repaintDrawer(); return;
+    case 'hotsave': {
+      const get = k => (S.q['h_' + k] || '').trim();
+      const h = id ? HOTELS.find(x => x.id === id) : null;
+      const ar = get('ar') || (h ? h.ar : '');
+      if (!ar) { toast('اسم الفندق لا بدّ منه', 'r'); return; }
+      const rec = { ar, city:S.q.h_city || (h ? h.city : 'مكة المكرمة'),
+        rooms:Number(String(get('rooms')).replace(/\D/g, '')) || (h ? h.rooms : 0),
+        dist:get('dist') || (h ? h.dist : '—') };
+      if (h) { Object.assign(h, rec); logIt('عُدِّل الفندق ' + ar, 'info'); toast('حُفظ'); }
+      else {
+        HOTELS.push(Object.assign({ id:'h' + (HOTELS.length + 1) }, rec));
+        logIt('أُضيف الفندق ' + ar, 'info'); toast('أُضيف الفندق');
+      }
+      S.hform = null; S.drawer = null; clearDrawerStack(); save(); render(); return;
+    }
 
     /* ═══ الإجراءات والجزاءات ═══ */
     case 'staffpage': S.route = { n:'staffone', id }; break;
@@ -1015,6 +1129,8 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'qclear': S.q[b.dataset.k] = ''; break;
+    case 'fmore': { S.open = S.open || {}; const k2 = 'flt:' + b.dataset.k;
+      S.open[k2] = !S.open[k2]; save(); render(); return; }
     case 'fclear': { const k = b.dataset.k; S.flt[k] = {}; S.q[k] = ''; break; }
 
     /* ─── نُسك: فتح حالة ─── */
@@ -1209,17 +1325,7 @@ document.addEventListener('click', ev => {
         cands:freeMuhsens().concat(reserveTeam()) });
       return;
     }
-    case 'mseatout': {
-      const g = groupById(id); if (!g) return;
-      const u = userById(v);
-      g.members = g.members.filter(m => m.id !== v);
-      if (u) { u.groupId = null; u.leaderId = null; u.kt = '—'; }
-      S.tasks.forEach(t => { if (t.leaderId === g.leaderId)
-        t.assigned = (t.assigned || []).filter(x => x !== v); });
-      logIt('أُخرج ' + ((u || {}).name || '') + ' من ' + g.no, 'assign');
-      toast(((u || {}).name || '') + ' عاد إلى المتاحين', 'r');
-      break;
-    }
+    case 'mseatout': S.q.sout = ''; S.q.soutr = ''; seatOutAsk(id, v); return;
     case 'staffopen': staffDrawer(id); return;
     case 'logout': S.auth = false; S.drawer = null; save(); render();
       toast('خرجتَ من الغرفة'); return;

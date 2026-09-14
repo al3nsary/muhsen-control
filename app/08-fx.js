@@ -224,19 +224,22 @@ const drawerDepth = () => dStack.length;
 ['formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
-  window[n] = function (a) {
-    const call = () => f(a);
+  /* كل الوسائط تُمرَّر لا الأوّل وحده: فاتحٌ بوسيطين (txPhoto, docView,
+     seatOutAsk, pilFind…) كان يفقد ثانيه فيصمت ولا يفتح شيئًا — ولا يُبلغ. */
+  window[n] = function () {
+    const args = [].slice.call(arguments);
+    const call = () => f.apply(null, args);
     lastDrawer = call;
     if (!dQuiet) {
-      const sig = n + ':' + a;
+      const sig = n + ':' + args.join('|');
       const top = dStack[dStack.length - 1];
       if (!top || top.sig !== sig) dStack.push({ sig, run: call });
       if (dStack.length > 12) dStack.shift();
     }
-    return f(a);
+    return call();
   };
 });
 /* إغلاق الدرج يُفرغ المكدّس — فالرحلة انتهت */
@@ -420,3 +423,61 @@ function showShortcuts() {
       'padding:5px 9px;border-radius:8px;box-shadow:inset 0 0 0 1px var(--line2);font-size:11px">' +
       x[0] + '</span><span class="nm"><b>' + x[1] + '</b></span></div>').join('') + '</div>');
 }
+
+/* ============================================================
+   السحب والإفلات في التشكيل
+
+   مستمعٌ واحد مفوَّض على المستند — لا مستمعٌ لكل بطاقة، فالقائمة
+   تُعاد رسمًا مع كل تغيير. والمقعد يُضيء حين يمرّ فوقه ما يقبله،
+   ويُطفأ حين يبتعد، فالمستخدم يرى أين يستقرّ ما في يده.
+   ============================================================ */
+let dragId = null;
+document.addEventListener('dragstart', e => {
+  const c = e.target.closest && e.target.closest('[data-drag]');
+  if (!c) return;
+  dragId = c.getAttribute('data-drag');
+  c.classList.add('dragging');
+  document.body.classList.add('dragmode');
+  try { e.dataTransfer.setData('text/plain', dragId); e.dataTransfer.effectAllowed = 'move'; }
+  catch (err) {}
+});
+document.addEventListener('dragend', () => {
+  dragId = null;
+  document.body.classList.remove('dragmode');
+  document.querySelectorAll('.dragging').forEach(x => x.classList.remove('dragging'));
+  document.querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover'));
+});
+document.addEventListener('dragover', e => {
+  const z = e.target.closest && e.target.closest('[data-drop]');
+  if (!z || !dragId) return;
+  e.preventDefault();
+  try { e.dataTransfer.dropEffect = 'move'; } catch (err) {}
+  if (!z.classList.contains('dragover')) {
+    document.querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover'));
+    z.classList.add('dragover');
+  }
+});
+document.addEventListener('dragleave', e => {
+  const z = e.target.closest && e.target.closest('[data-drop]');
+  if (z) z.classList.remove('dragover');
+});
+document.addEventListener('drop', e => {
+  const z = e.target.closest && e.target.closest('[data-drop]');
+  if (!z) return;
+  e.preventDefault();
+  const uid_ = dragId || (() => { try { return e.dataTransfer.getData('text/plain'); }
+    catch (err) { return null; } })();
+  dragId = null;
+  document.body.classList.remove('dragmode');
+  z.classList.remove('dragover');
+  if (!uid_) return;
+  /* يُنفَّذ عبر المُوجِّه نفسه ليمرّ بحارس الصلاحيات ويُسجَّل */
+  const btn = document.createElement('button');
+  btn.dataset.a = 'seatdrop';
+  btn.dataset.g = z.getAttribute('data-drop');
+  btn.dataset.u = uid_;
+  btn.style.display = 'none';
+  document.body.appendChild(btn);
+  btn.click();
+  btn.remove();
+});

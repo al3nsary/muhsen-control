@@ -13,21 +13,39 @@ function fltSet(key, k, v) {
 const fltCount = key => Object.keys((S.flt && S.flt[key]) || {}).length;
 
 /* defs: [{ k, label, opts:[[value,label],…] }] */
+/* شريط الفلاتر: ثلاثةٌ ظاهرة والبقيّة تُطوى.
+   سبعةُ فلاتر في صفّ تلتفّ على ثلاثة أسطر مقصوصة الأطراف، فتبدو
+   الشاشة مزدحمة بلا فائدة. والمشغّل يستعمل ثلاثةً غالبًا. فالظاهر
+   ثلاثة، والباقي خلف زرٍّ يقول عددها — وما كان مفعّلًا يظهر دائمًا. */
+const FLT_SHOW = 3;
+function fselOne(key, d) {
+  return '<label class="fsel' + (fOf(key, d.k) ? ' on' : '') + '">' +
+    '<span>' + E(d.label) + '</span>' +
+    '<select data-f="' + key + '" data-fk="' + d.k + '">' +
+      '<option value="">الكل</option>' +
+      d.opts.map(o => '<option value="' + E(o[0]) + '"' +
+        (fOf(key, d.k) === String(o[0]) ? ' selected' : '') + '>' + E(o[1]) + '</option>').join('') +
+    '</select>' + icon('i-fwd', 's14') + '</label>';
+}
 function filterBar(key, defs, n, total, ph) {
   const active = fltCount(key) + (qOf(key) ? 1 : 0);
+  const open = !!(S.open && S.open['flt:' + key]);
+  const head = [], rest = [];
+  defs.forEach((d, i) => {
+    if (i < FLT_SHOW || fOf(key, d.k)) head.push(d); else rest.push(d);
+  });
   return '<div class="fbar">' +
     (ph === false ? '' : search(key, ph || 'ابحث…', total)) +
-    defs.map(d => '<label class="fsel' + (fOf(key, d.k) ? ' on' : '') + '">' +
-      '<span>' + E(d.label) + '</span>' +
-      '<select data-f="' + key + '" data-fk="' + d.k + '">' +
-        '<option value="">الكل</option>' +
-        d.opts.map(o => '<option value="' + E(o[0]) + '"' +
-          (fOf(key, d.k) === String(o[0]) ? ' selected' : '') + '>' + E(o[1]) + '</option>').join('') +
-      '</select>' + icon('i-fwd', 's14') + '</label>').join('') +
+    head.map(d => fselOne(key, d)).join('') +
+    (rest.length ? '<button class="fmore' + (open ? ' on' : '') + '" data-a="fmore" ' +
+      'data-k="' + key + '">' + icon('i-filter','s14') +
+      (open ? 'أقلّ' : AR(rest.length) + ' فلاتر أخرى') + '</button>' : '') +
     '<span class="fsp"></span>' +
     (n != null ? '<span class="fcount"><b class="num">' + AR(n) + '</b> من ' + AR(total) + '</span>' : '') +
     (active ? '<button class="btn l sm" data-a="fclear" data-k="' + key + '">' +
       icon('i-x','s14') + 'مسح الفلاتر' + '</button>' : '') +
+    (open && rest.length ? '<div class="fmorebox">' +
+      rest.map(d => fselOne(key, d)).join('') + '</div>' : '') +
   '</div>';
 }
 

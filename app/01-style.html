@@ -1214,7 +1214,9 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 /* ══ مقاعد المجموعة ══ */
 .gseat{padding:14px; border-radius:16px; margin-bottom:11px; background:var(--sheen);
   box-shadow:inset 0 0 0 1px var(--line)}
-.seats{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px}
+/* المقعد يحمل اسمًا وتخصّصًا وشِفتًا — و١٦٨ بكسلًا تقصّ الاسم.
+   خمسةٌ في صفٍّ من ثلاثة أوضح من خمسةٍ مقصوصة في أربعة. */
+.seats{display:grid; grid-template-columns:repeat(auto-fill,minmax(216px,1fr)); gap:8px}
 .seat{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
   text-align:right; color:var(--dim2); background:var(--panel2);
   box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
@@ -1222,7 +1224,9 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .seat.full{color:var(--ink)}
 .seat .nm{flex:1; min-width:0}
 .seat .nm b{display:block; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.seat .nm span{display:block; font-size:10px; color:var(--dim2)}
+.seat .nm span{display:block; font-size:10px; color:var(--dim2);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.seat .x{background:transparent; border:0; cursor:pointer; padding:0}
 .seat .plus{width:32px; height:32px; border-radius:11px; flex:none; display:grid;
   place-items:center; border:1.5px dashed var(--line2)}
 .seat .x{color:var(--dim2); flex:none; opacity:0; transition:opacity .2s var(--e)}
@@ -2024,6 +2028,86 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   opacity:0; transform:translateX(4px); transition:all .22s var(--e)}
 .kpi.clik:hover .kgoi{opacity:1; transform:none; color:var(--gold2)}
 .kpi.clik:focus-visible{outline:2px solid var(--gold2); outline-offset:2px}
+
+/* ══ السحب والإفلات في التشكيل ══
+   الممسوك يخفت، والمقعد الذي يقبله يُضيء — فاليد ترى أين تستقرّ. */
+.dragcol{display:flex; flex-direction:column; gap:7px; max-height:620px; overflow-y:auto;
+  padding-inline-end:4px}
+.dragcol > *{flex:none}
+.dragcol::-webkit-scrollbar{width:7px}
+.dragcol::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.pcard.drag{cursor:grab; user-select:none}
+.pcard.drag:active{cursor:grabbing}
+.pcard.drag .grip{color:var(--dim2); flex:none}
+.pcard.dragging{opacity:.4; transform:scale(.97)}
+body.dragmode .seat.empty{border-style:solid; border-color:var(--gold2);
+  background:color-mix(in srgb,var(--gold) 9%,transparent)}
+.seat.dragover{border-color:var(--live) !important;
+  background:color-mix(in srgb,var(--live) 16%,transparent) !important;
+  transform:scale(1.02)}
+.seat.warn{border-color:color-mix(in srgb,var(--amber) 48%,transparent)}
+.seat .cfl{color:var(--amber); flex:none; cursor:help}
+.gseat{border-inline-start:3px solid var(--gsc,var(--line2))}
+.gseat.draft{background:linear-gradient(90deg,color-mix(in srgb,var(--amber) 6%,transparent),transparent 40%)}
+
+/* ══ الخطّ الزمني معادًا: يُقرأ لغير المختصّ ══
+   المهمّة فيه بعنوانها ووقتها لا بلونٍ وحده، والساعات مكتوبة فوقها،
+   وخطُّ الآن يقطعها رأسيًّا فيُعرف أين نحن. */
+.tl2{margin-top:14px; border:1px solid var(--line); border-radius:16px; overflow:hidden}
+.tl2head{display:flex; background:var(--panel2); border-bottom:1px solid var(--line2)}
+.tl2nm{width:132px; flex:none; padding:9px 12px; border-inline-end:1px solid var(--line)}
+.tl2head .tl2nm{border-inline-end-color:var(--line2)}
+.tl2ax{position:relative; flex:1; min-width:0; height:34px}
+.tl2head .tl2ax i{position:absolute; top:9px; font-style:normal; font-size:9.5px;
+  color:var(--dim2); transform:translateX(50%); white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.tl2row{display:flex; border-bottom:1px solid var(--line); min-height:52px}
+.tl2row:last-child{border-bottom:0}
+.tl2row:hover{background:var(--sheen)}
+.tl2row .tl2nm{display:flex; flex-direction:column; justify-content:center; gap:1px;
+  cursor:pointer}
+.tl2row .tl2nm b{font-size:12px; color:var(--ink)}
+.tl2row .tl2nm span{font-size:10px; color:var(--dim2)}
+.tl2row .tl2nm i{font-size:9.5px; color:var(--gold2); font-style:normal}
+.tl2row .tl2ax{height:auto; min-height:52px; padding:7px 0}
+.tl2ax u{position:absolute; inset-block:0; width:1px; background:var(--line);
+  text-decoration:none}
+.tl2now{position:absolute; inset-block:0; width:2px; background:var(--red);
+  box-shadow:0 0 10px var(--red); z-index:3}
+.tl2seg{position:absolute; top:7px; bottom:7px; border-radius:9px; cursor:pointer;
+  display:flex; align-items:center; gap:5px; padding:0 7px; overflow:hidden;
+  background:color-mix(in srgb,var(--tsc) 22%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--tsc) 55%,transparent);
+  color:var(--ink); min-width:0; z-index:2; transition:all .18s var(--e)}
+.tl2seg:hover{background:color-mix(in srgb,var(--tsc) 34%,var(--panel)); z-index:4;
+  box-shadow:var(--lift)}
+.tl2seg i{color:var(--tsc); flex:none; display:flex}
+.tl2seg b{font-size:10.5px; font-weight:600; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; min-width:0}
+.tl2seg u{position:static; inset:auto; width:auto; background:none; font-size:9px;
+  color:var(--dim2); text-decoration:none; flex:none; font-variant-numeric:tabular-nums}
+.tl2seg.live{animation:pulse 2.4s var(--e3) infinite}
+.tl2seg.done{opacity:.62}
+.tl2key{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:12px;
+  font-size:10.5px; color:var(--dim2)}
+.tl2key span{display:inline-flex; align-items:center; gap:5px}
+.tl2key i{width:9px; height:9px; border-radius:3px; display:block}
+.tl2key i.nowk{width:2px; height:12px; background:var(--red); border-radius:0}
+.tlwin{display:flex; align-items:center; gap:9px; margin-top:12px; padding:9px 12px;
+  border-radius:12px; background:var(--sheen); font-size:12px}
+.tlwin b{color:var(--ink)}
+.tlwin > span:not(.fsp){color:var(--dim2)}
+@media (max-width:900px){ .tl2nm{width:96px} }
+
+/* زرّ الفلاتر الأخرى، وصندوقها حين يُفتح */
+.fmore{display:inline-flex; align-items:center; gap:6px; padding:8px 13px; border-radius:12px;
+  background:var(--sheen); border:1px solid transparent; color:var(--dim); font:inherit;
+  font-size:12px; font-weight:600; cursor:pointer; flex:none}
+.fmore:hover{border-color:var(--line2); color:var(--ink)}
+.fmore.on{background:color-mix(in srgb,var(--gold) 14%,transparent); color:var(--gold3);
+  border-color:color-mix(in srgb,var(--gold) 34%,transparent)}
+.fmorebox{width:100%; display:flex; gap:10px; flex-wrap:wrap; padding-top:11px; margin-top:2px;
+  border-top:1px dashed var(--line); animation:fade .25s var(--e3) both}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
