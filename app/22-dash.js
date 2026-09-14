@@ -28,9 +28,7 @@ const WIDGETS = [
   { k:'kpiStaff',   ar:'المحسنون',            b:'kpi', w:1, i:'i-idcard', f:wStaffKpi },
   { k:'kpiPil',     ar:'الحجاج',              b:'kpi', w:1, i:'i-users',  f:wPilKpi },
   { k:'kpiBus',     ar:'رحلات اليوم',         b:'kpi', w:1, i:'i-bus',    f:wBusKpi },
-  { k:'kpiNusuk',   ar:'حالات نُسك',          b:'kpi', w:1, i:'i-idcard', f:wNusukKpi },
   { k:'kpiQuality', ar:'متوسط التقييم',       b:'kpi', w:1, i:'i-star',   f:wQualityKpi },
-  { k:'kpiAfasha',  ar:'مقاولو العفاشة',      b:'kpi', w:1, i:'i-truck',  f:wAfashaKpi },
   { k:'kpiInc',     ar:'حوادث حرجة',          b:'kpi', w:1, i:'i-warn',   f:wIncKpi },
   { k:'kpiSupport', ar:'طلبات الدعم',         b:'kpi', w:1, i:'i-send',   f:wSupKpi },
   { k:'kpiReports', ar:'تقارير مصعَّدة',      b:'kpi', w:1, i:'i-flag',   f:wRepKpi },
@@ -66,9 +64,6 @@ const WIDGETS = [
   { k:'chSpec',     ar:'توزيع التخصّصات',     b:'chart', w:2, i:'i-idcard',f:wSpec },
   { k:'chWeek',     ar:'حِمل الأسبوع',        b:'chart', w:2, i:'i-cal',   f:wWeek },
   { k:'chCountry',  ar:'الحجاج حسب الدولة',   b:'chart', w:1, i:'i-flag',  f:wCountry },
-  { k:'chSms',      ar:'حالة الرسائل',        b:'chart', w:1, i:'i-send',  f:wSms },
-  { k:'chDeals',    ar:'حالات العقود',        b:'chart', w:1, i:'i-doc',   f:wDeals },
-  { k:'chNusuk',    ar:'خدمات نُسك',          b:'chart', w:1, i:'i-idcard',f:wNusukCh },
   { k:'gauge',      ar:'مقياس الالتزام',      b:'chart', w:1, i:'i-target',f:wGauge },
 
   /* ═ قوائم ═ */
@@ -77,13 +72,11 @@ const WIDGETS = [
   { k:'liveTasks',  ar:'الجارية الآن',        b:'list', w:1, i:'i-play',   f:wLive },
   { k:'topStaff',   ar:'أعلى المحسنين',       b:'list', w:1, i:'i-star',   f:wTop },
   { k:'busNext',    ar:'الرحلات القادمة',     b:'list', w:1, i:'i-bus',    f:wBusNext },
-  { k:'nusukOpen',  ar:'حالات نُسك المفتوحة', b:'list', w:1, i:'i-idcard', f:wNusukList },
   { k:'lsSupport',  ar:'طلبات الدعم',         b:'list', w:1, i:'i-send',   f:wSupList },
   { k:'lsTickets',  ar:'آخر التذاكر',         b:'list', w:1, i:'i-ticket', f:wTktList },
   { k:'lsReports',  ar:'آخر التقارير',        b:'list', w:1, i:'i-flag',   f:wRepList },
   { k:'lsShifts',   ar:'طلبات الشِفتات',      b:'list', w:1, i:'i-swap',   f:wShfList },
   { k:'lsCare',     ar:'حجاج يحتاجون رعاية',  b:'list', w:1, i:'i-user',   f:wCareList },
-  { k:'lsDeals',    ar:'عقود بانتظار الردّ',  b:'list', w:1, i:'i-truck',  f:wDealList },
   { k:'lsGuides',   ar:'أحدث الأدلة',         b:'list', w:1, i:'i-guide',  f:wGdList },
   { k:'lsAudit',    ar:'آخر السجل',           b:'list', w:1, i:'i-hist',   f:wAuditList },
   { k:'lsOrgs',     ar:'الجهات وحِملها',      b:'list', w:1, i:'i-flag',   f:wOrgList },
@@ -301,22 +294,11 @@ function wBusKpi() {
     sub:AR(V.buses.length) + ' باصات · ' + AR(t.filter(x => x.done).length) + ' انتهت',
     series:[12,18,24,30,36,42,48,Math.max(1, t.length)] });
 }
-function wNusukKpi() {
-  return stat({ label:'حالات نُسك', n:openNusuk().length, ic:'i-idcard',
-    cls:openNusuk().length ? 'warn' : 'up', sub:'مفتوحة تنتظر إجراءً',
-    series:[2,3,4,3,5,4,6,Math.max(1, openNusuk().length)] });
-}
 function wQualityKpi() {
   const d = V.tasks.filter(t => t.status === 'done' && t.rating);
   const avg = d.length ? (d.reduce((a, t) => a + t.rating, 0) / d.length).toFixed(1) : '0.0';
   return stat({ label:'متوسط التقييم', n:avg, ic:'i-star', cls:'up',
     sub:'من ' + AR(d.length) + ' مهمة مقيَّمة', series:[3.6,3.7,3.9,4,4.1,4,4.2,Number(avg)] });
-}
-function wAfashaKpi() {
-  const ag = V.contractors.filter(c => {
-    const d = lastDeal(c.id); return d && (d.state === 'agreed' || d.state === 'offline'); }).length;
-  return stat({ label:'مقاولو العفاشة', n:V.contractors.length, ic:'i-truck',
-    sub:AR(ag) + ' متعاقَد معهم', series:[2,4,6,8,9,10,10,V.contractors.length] });
 }
 function wIncKpi() {
   const bad = V.feed.filter(f => f.kind === 'bad').length;
@@ -388,7 +370,6 @@ function wTypes() {
   const d = [
     { l:'حجّ', v:V.tasks.length, c:TASKTYPE.hajj.c },
     { l:'إثراء', v:V.enrich.length, c:TASKTYPE.enrich.c },
-    { l:'نُسك', v:V.nusuk.length, c:TASKTYPE.nusuk.c },
     { l:'امتثال', v:V.subs.length, c:TASKTYPE.comply.c }
   ].filter(x => x.v);
   return card('أنواع العمل', 'أين يتوزّع الجهد',
@@ -455,33 +436,6 @@ function wCountry() {
   const d = Object.keys(by).map((k, i) => ({ l:k, v:by[k], c:cs[i % cs.length] }));
   return card('الحجاج حسب الدولة', 'من أين جاؤوا',
     '<div class="donutwrap">' + donut({ data:d, center:'حاجّ' }) + '</div>', 'i-flag');
-}
-function wSms() {
-  const d = Object.keys(SMS_ST).map(k => ({ l:SMS_ST[k].ar,
-    v:V.contractors.filter(c => c.sms === k).length,
-    c:k === 'delivered' ? 'var(--live)' : k === 'failed' ? 'var(--red)'
-      : k === 'sent' ? 'var(--amber)' : 'var(--line2)' })).filter(x => x.v);
-  return card('حالة الرسائل', 'بيانات دخول المقاولين',
-    d.length ? '<div class="donutwrap">' + donut({ data:d, center:'رسالة' }) + '</div>'
-      : empty('لا رسائل', '', 'i-send'), 'i-send');
-}
-function wDeals() {
-  const d = Object.keys(DEAL_ST).map(k => ({ l:DEAL_ST[k].ar,
-    v:V.deals.filter(x => x.state === k).length,
-    c:k === 'agreed' || k === 'offline' ? 'var(--live)' : k === 'refused' ? 'var(--red)'
-      : k === 'sent' ? 'var(--amber)' : 'var(--line2)' })).filter(x => x.v);
-  return card('حالات العقود', 'مع مقاولي العفاشة',
-    d.length ? '<div class="donutwrap">' + donut({ data:d, center:'عقد' }) + '</div>'
-      : empty('لا عقود', '', 'i-doc'), 'i-doc');
-}
-function wNusukCh() {
-  const d = Object.keys(NUSUK_SVC).map(k => ({ l:NUSUK_SVC[k].ar,
-    v:V.nusuk.filter(c => c.svc === k).length,
-    c:k === 'lost' ? 'var(--red)' : k === 'issue' ? 'var(--blue)' : 'var(--live)' }))
-    .filter(x => x.v);
-  return card('خدمات نُسك', 'أيّها أكثر طلبًا',
-    d.length ? '<div class="donutwrap">' + donut({ data:d, center:'حالة' }) + '</div>'
-      : empty('لا حالات', '', 'i-idcard'), 'i-idcard');
 }
 /* مقياس نصف دائري — التزام البدء */
 function wGauge() {
@@ -594,14 +548,6 @@ function wBusNext() {
         '<span class="tiny faint num">' + t12(t.at) + '</span>', 'tropen', t.id); }),
     'لا رحلة قادمة');
 }
-function wNusukList() {
-  const n = openNusuk().slice(0, 12);
-  return listCard('حالات نُسك المفتوحة', AR(n.length) + ' حالة', 'i-idcard',
-    n.map(c => rowMini(NUSUK_SVC[c.svc].i, TASKTYPE.nusuk.c, c.pilgrim,
-      NUSUK_SVC[c.svc].ar + ' · ' + c.kt,
-      pill(NUSUK_STATE[c.state].ar, NUSUK_STATE[c.state].c), 'nopen', c.id)),
-    'لا حالة مفتوحة');
-}
 function wSupList() {
   const n = V.support.filter(s => s.state === 'pending').slice(0, 12);
   return listCard('طلبات الدعم', AR(n.length) + ' بانتظار قرارك', 'i-send',
@@ -641,14 +587,6 @@ function wCareList() {
     n.map(p => rowMini('i-user', 'var(--red)', p.name,
       p.kt + ' · ' + p.floor + ' · غرفة ' + AR(p.room),
       pill(p.flag, 'no'), 'pilopen', p.id)), 'لا حالات رعاية');
-}
-function wDealList() {
-  const n = V.deals.filter(d => d.state === 'sent').slice(0, 12);
-  return listCard('عقود بانتظار الردّ', AR(n.length) + ' عقدًا', 'i-truck',
-    n.map(d => { const c = contractorById(d.contractorId) || {};
-      return rowMini('i-truck', 'var(--amber)', c.name || '', (c.company || '') + ' · ' + d.no,
-        pill(DEAL_ST[d.state].ar, DEAL_ST[d.state].c), 'copen', c.id); }),
-    'لا عقود معلّقة', '<button class="btn l sm" data-a="go" data-n="afasha">الكل</button>');
 }
 function wGdList() {
   const n = V.guides.slice().sort((a, b) => b.at - a.at).slice(0, 12);

@@ -8,7 +8,7 @@ function typeSwitch() {
   const n = {
     hajj: V.tasks.length,
     enrich: V.enrich.length,
-    nusuk: openNusuk().length,
+    
     comply: V.forms.length
   };
   return '<div class="tswitch">' + Object.keys(TASKTYPE).map(k => {
@@ -23,7 +23,7 @@ function typeSwitch() {
 function screenTasks() {
   const t = S.tab.tt || 'hajj';
   /* النوع يُختار من القائمة الجانبية — فلا يُكرَّر هنا */
-  return (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabNusuk()
+  return (t === 'enrich' ? tabEnrich() : t === 'nusuk' ? tabPilgrims()
       : t === 'comply' ? tabComply() : tabHajj());
 }
 
@@ -95,73 +95,6 @@ function tabEnrich() {
                   x.id + '">' + (M ? 'تغيير المحسن' : 'إسناد لمحسن') + '</button>') +
             '</div></div></div>';
       }).join('') + '</div>' : empty('لا رحلات في هذا التصنيف', '', 'i-bus')) +
-    '</div>';
-}
-
-/* ══════════════ ٣) نُسك ══════════════ */
-function tabNusuk() {
-  const f = S.tab.nf || 'open';
-  const q = qOf('nsk');
-  let list = V.nusuk.slice().sort((a, b) => b.at - a.at);
-  if (f !== 'all') list = list.filter(c => f === 'open' ? c.state !== 'delivered' : c.state === f);
-  if (q) list = list.filter(c => (c.pilgrim + ' ' + c.passport + ' ' + c.kt + ' ' + c.no).indexOf(q) >= 0);
-  const nk = fOf('nsk','kt'), ns = fOf('nsk','svc'), nb = fOf('nsk','by');
-  if (nk) list = list.filter(c => c.kt === nk);
-  if (ns) list = list.filter(c => c.svc === ns);
-  if (nb) list = list.filter(c => c.openedBy === nb);
-  const svcN = k => V.nusuk.filter(c => c.svc === k && c.state !== 'delivered').length;
-
-  return '<div class="grid g4">' +
-      stat({ label:'حالات مفتوحة', n:openNusuk().length, ic:'i-idcard',
-        cls:openNusuk().length ? 'warn' : 'up', sub:'تنتظر إجراءً منك',
-        series:[2,3,4,3,5,4,6,Math.max(1, openNusuk().length)] }) +
-      stat({ label:'بدل فاقد', n:svcN('lost'), ic:'i-idcard', cls:svcN('lost') ? 'bad' : '',
-        sub:'مهلة ' + AR(NUSUK_SVC.lost.sla) + ' ساعة', series:[1,1,2,1,2,2,3,Math.max(1, svcN('lost'))] }) +
-      stat({ label:'إصدار جديد', n:svcN('issue'), ic:'i-plus',
-        sub:'مهلة ' + AR(NUSUK_SVC.issue.sla) + ' ساعة', series:[0,1,1,2,1,2,2,Math.max(1, svcN('issue'))] }) +
-      stat({ label:'تفعيل بطاقة', n:svcN('enable'), ic:'i-checkc',
-        sub:'مهلة ' + AR(NUSUK_SVC.enable.sla) + ' ساعات', series:[1,2,1,2,2,3,2,Math.max(1, svcN('enable'))] }) +
-    '</div>' +
-
-    '<div class="card gold">' +
-      head('خدمات بطاقة نُسك', 'ابحث عن الحاجّ ثم افتح له حالة — والكنترول من يُسندها',
-        '<button class="btn p sm" data-a="nnew">' + icon('i-plus','s16') + 'فتح حالة جديدة</button>',
-        'i-idcard') +
-      '<div class="tools">' + segmented('nf', [['open','مفتوحة'],['new','جديدة'],
-        ['processing','قيد الإصدار'],['issued','تنتظر التسليم'],['delivered','سُلّمت'],['all','الكل']], f) +
-      '</div>' +
-      filterBar('nsk', [
-        { k:'kt',  label:'الـKT',   opts:optKT() },
-        { k:'svc', label:'الخدمة', opts:Object.keys(NUSUK_SVC).map(k => [k, NUSUK_SVC[k].ar]) },
-        { k:'by',  label:'فتحها',  opts:[['محسن','محسن'],['ليدر','ليدر'],['مشرف','مشرف'],['الكنترول','الكنترول']] }
-      ], list.length, V.nusuk.length, 'ابحث باسم الحاجّ أو رقم جوازه…') +
-      (list.length ? '<div class="plist">' + list.map((c, i) => {
-        const SV = NUSUK_SVC[c.svc], ST = NUSUK_STATE[c.state];
-        const to = c.assignedTo ? userById(c.assignedTo) : null;
-        const pct = Math.round(c.step / SV.steps.length * 100);
-        return '<div class="prow trow" data-a="nopen" data-id="' + c.id + '" ' +
-          'style="flex-wrap:wrap;animation-delay:' + (i * 45) + 'ms">' +
-          '<span class="krail ' + (c.svc === 'lost' ? 'r' : c.svc === 'issue' ? 'a' : '') + '"></span>' +
-          '<span class="ico" style="color:' + TASKTYPE.nusuk.c + '">' + icon(SV.i,'s18') + '</span>' +
-          '<span class="nm" style="flex:1"><b>' + E(c.pilgrim) + '</b>' +
-          '<span>' + LTR(c.no) + ' · جواز ' + LTR(c.passport) + ' · ' + E(c.kt) + '</span></span>' +
-          '<span class="fl" style="gap:7px">' + pill(SV.ar, SV.c) + pill(ST.ar, ST.c) + '</span>' +
-          '<span class="tiny faint">' + ago(c.at) + '</span>' +
-          '<div style="width:100%;margin-top:10px">' +
-            '<div class="quote">' + E(c.note) + ' — فتحها ' + E(c.openedBy) + '</div>' +
-            '<div class="steps2">' + SV.steps.map((s, k) =>
-              '<span class="st2' + (k < c.step ? ' done' : k === c.step ? ' now' : '') + '">' +
-              '<i></i>' + E(s) + '</span>').join('') + '</div>' +
-            '<div class="fl" style="gap:11px;margin-top:11px;flex-wrap:wrap">' +
-              '<span class="meter" style="flex:1;min-width:120px"><i data-w="' + pct + '"></i></span>' +
-              (to ? '<span class="fl" style="gap:8px">' + avatar(to, 'sm') +
-                  '<span class="tiny"><b>' + E(to.name) + '</b><br>' +
-                  '<span class="faint">' + E(to.role === 'leader' ? 'ليدر' : 'محسن') + ' — مُسنَدة إليه</span></span></span>'
-                : '<button class="btn p sm" data-a="nassign" data-id="' + c.id + '">إسناد لمحسن أو ليدر</button>') +
-              (c.state !== 'delivered'
-                ? '<button class="btn l sm" data-a="nstep" data-id="' + c.id + '">تقديم الخطوة</button>' : '') +
-            '</div></div></div>';
-      }).join('') + '</div>' : empty('لا حالات في هذا التصنيف', 'افتح حالة جديدة من الأعلى', 'i-idcard')) +
     '</div>';
 }
 

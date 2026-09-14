@@ -221,10 +221,10 @@ function drawerBack() {
 }
 const drawerDepth = () => dStack.length;
 /* كل فاتح درج يُلفّ مرّة: يحفظ نداءه ليُعاد بحرفه عند تغيّر الحالة */
-['nusukNew','nusukDrawer','formBuilder','formAssign','ticketDrawer','reportDrawer',
+['formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
- 'guideEdit','guideView','contractorNew','contractorDrawer','dealNew','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer'].forEach(n => {
+ 'guideEdit','guideView','tripDrawer',
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   window[n] = function (a) {
@@ -252,10 +252,18 @@ function renderDrawer() {
   const keep = (old && S._dkey === d.title) ? old.scrollTop : 0;
   S._dkey = d.title;
   w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
-    '<aside class="drawer' + (d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
+    '<aside class="drawer' + (d.paper ? ' paper' : d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
-        '<span class="sp"><b style="font-size:15px">' + E(d.title) + '</b>' +
-        '<div class="tiny faint">' + E(d.sub || '') + '</div></span>' +
+        '<span class="sp"><b style="font-size:15px">' +
+          E(String(d.title || '').replace(/<[^>]*>/g, '')) + '</b>' +
+        /* العنوان نصّ: نُجرّده من أي وسمٍ قبل تهريبه، فلو مرّر أحدهم
+           LTR() أو pill() ظهر نصًّا نظيفًا لا ترميزًا حرفيًّا. */
+        '<div class="tiny faint">' + E(String(d.sub || '').replace(/<[^>]*>/g, '')) +
+        '</div></span>' +
+        /* التقرير: يُفتح من رأس الدرج مباشرةً — فهو أكثر ما يُطلب */
+        (d.report ? '<button class="iconbtn" data-a="trep" data-id="' + E(d.report) +
+          '" aria-label="تقرير المهمة" title="تقرير المهمة">' + icon('i-report','s18') +
+          '</button>' : '') +
         /* الرجوع: متى كان تحت هذا الدرج درجٌ فتحناه منه */
         (drawerDepth() > 1 ? '<button class="iconbtn" data-a="dback" aria-label="رجوع" ' +
           'title="رجوع">' + icon('i-fwd','s18') + '</button>' : '') +
@@ -317,6 +325,26 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (!t) return;
   /* مرفق: نحفظ وصفه لا محتواه — الاسم والحجم والنوع */
+  /* ملفّ إكسل: يُقرأ محتواه فعلًا لا وصفُه — فالبيانات هي المقصودة */
+  const xk = t.getAttribute && t.getAttribute('data-xl');
+  if (xk) {
+    const f = t.files && t.files[0];
+    if (!f) return;
+    S.files = S.files || {};
+    S.files[xk] = { name:f.name, size:f.size, type:f.type };
+    const rd2 = new FileReader();
+    rd2.onload = () => {
+      try {
+        const rows = parseCsv(rd2.result);
+        S.qform = S.qform || { orgId:(ORGS[0] || {}).id, rows:[] };
+        S.qform.rows = rows;
+        toast('قُرئ ' + AR(rows.length) + ' صفًّا');
+      } catch (e2) { toast('تعذّرت قراءة الملف', 'r'); }
+      save(); if (S.drawer) repaintDrawer(); else render();
+    };
+    rd2.readAsText(f, 'utf-8');
+    return;
+  }
   const fk = t.getAttribute && t.getAttribute('data-file');
   if (fk) {
     const f = t.files && t.files[0];
@@ -330,11 +358,14 @@ document.addEventListener('change', e => {
   const gk = t.getAttribute && t.getAttribute('data-g');
   if (gk) {
     S.gate = S.gate || {};
-    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId',
-      gct:'contractorId' };
+    const map = { gorg:'orgId', ghotel:'hotelId', glead:'leaderId', guser:'userId' };
     S.gate[map[gk]] = t.value || null;
     save(); renderGate(); return;
   }
+  const q2 = t.getAttribute && t.getAttribute('data-q2');
+  if (q2) { S.q = S.q || {}; S.q[q2] = t.value;
+    if (q2 === 'qorg' && S.qform) S.qform.orgId = t.value;
+    save(); if (S.drawer) repaintDrawer(); return; }
   const fsel = t.getAttribute && t.getAttribute('data-f');
   if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
   if (!t.classList || !t.classList.contains('spec')) return;

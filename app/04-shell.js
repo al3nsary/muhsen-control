@@ -6,7 +6,10 @@ const E = s => String(s == null ? '' : s).replace(/[&<>"']/g,
 const icon = (n, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#' + n + '"/></svg>';
 /* معرّف مختلط: لاتيني وأرقام وشرطة — يُعزَل وإلا انقلب ترتيبه في العربية */
 const LTR = t => '<bdi class="ltr">' + E(t == null ? '' : t) + '</bdi>';
-const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' + E(t) + '</span>';
+/* الحبّة نصّ: تُجرَّد من أي وسمٍ قبل التهريب، فلو مُرِّر LTR() أو icon()
+   ظهر نصًّا نظيفًا لا ترميزًا حرفيًّا. وهو الدرس نفسه من عنوان الدرج. */
+const pill = (t, c) => '<span class="pill ' + (c || 'grey') + '">' +
+  E(String(t == null ? '' : t).replace(/<[^>]*>/g, '')) + '</span>';
 const IMG = window.IMG || {};
 
 /* ============================================================
@@ -23,13 +26,13 @@ const NAV = [
     { p:'tasksg',   i:'i-tasks',  l:'المهام', d:'أربعة أنواع وأدلّتها', kids:[
       { k:'tasks', t:['tt','hajj'],   i:'i-kaaba',  l:'مهام الحجّ' },
       { k:'tasks', t:['tt','enrich'], i:'i-pin',    l:'إثراء التجربة' },
-      { k:'tasks', t:['tt','nusuk'],  i:'i-idcard', l:'نُسك' },
+      { k:'tasks', t:['tt','nusuk'],  i:'i-idcard', l:'بيانات الحجاج' },
       { k:'tasks', t:['tt','comply'], i:'i-clip',   l:'الامتثال' },
       { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
     ]},
     { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
     { k:'transport', i:'i-bus',  l:'النقل',       d:'جدولة عشرة باصات على الموسم' },
-    { k:'incidents', i:'i-warn', l:'الحوادث',     d:'ما يحتاج تدخّلًا الآن' }
+    { k:'incidents', i:'i-warn', l:'البلاغات والحوادث', d:'دورةٌ من إحدى عشرة مرحلة' }
   ]},
 
   { g:'الموظفون', items:[
@@ -38,7 +41,7 @@ const NAV = [
       { k:'teams',   i:'i-flag',   l:'الفرق والمجموعات' },
       { k:'reserve', i:'i-shield', l:'الفريق الاحتياطي' },
       { k:'shifts',  i:'i-swap',   l:'تبديل الشِفتات' },
-      { k:'afasha',  i:'i-truck',  l:'العفاشة' }
+      { k:'actions', i:'i-shield', l:'الإجراءات' },
     ]},
     /* التشكيل بابٌ واحد وخطواته الثلاث من داخله — لا ثلاثة أبواب لشيء واحد.
        ويقع أسفل مع التشكيل السريع، فالبابان لعملٍ واحد. */
@@ -79,19 +82,19 @@ function grpOpen(x) {
 /* عدّادات تُعلَّق على الأقسام */
 function navCount(k, t) {
   if (t && t[0] === 'tt') {
-    if (t[1] === 'nusuk')  return openNusuk().length;
     if (t[1] === 'enrich') return freeEnrich().length;
+    if (t[1] === 'nusuk')  return quotaPending();
     return 0;
   }
   if (k === 'support')   return openSupport().length;
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
-  if (k === 'incidents') return V.feed.filter(f => f.kind === 'bad').length;
+  if (k === 'incidents') return sigOpen().filter(s => s.risk === 'high').length;
   if (k === 'shifts')    return openSwaps().length;
-  if (k === 'afasha')    return openDeals().length;
+  if (k === 'actions')   return actOpen().length;
   return 0;
 }
-const navUrgent = k => ['support', 'incidents', 'afasha'].indexOf(k) >= 0;
+const navUrgent = k => ['support', 'incidents'].indexOf(k) >= 0;
 /* عدّاد الحاوية: مجموع أبنائها */
 const grpCount = x => x.kids.reduce((a, c) => a + navCount(c.k, c.t), 0);
 

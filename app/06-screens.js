@@ -48,67 +48,52 @@ function screenSupport() {
 }
 
 /* ---------- الحوادث ---------- */
-function screenIncidents() {
-  const f = S.tab.inc || 'all';
-  const q = qOf('inc');
-  let list = V.feed.filter(x => f === 'all' ? true : x.kind === f);
-  const ic = fOf('inc','cat'), ik = fOf('inc','kt'), ist = fOf('inc','state');
-  if (ic) list = list.filter(x => x.cat === ic);
-  if (ik) list = list.filter(x => x.kt === ik);
-  if (ist) list = list.filter(x => (x.state || 'مفتوح') === ist);
-  if (q) list = list.filter(x => (x.title + ' ' + x.body + ' ' + (x.no || '')).indexOf(q) >= 0);
-  return '<div class="grid g3">' +
-      stat({ label:'حرجة', n:V.feed.filter(x => x.kind === 'bad').length, ic:'i-flag',
-        cls:'bad', sub:'تحتاج تدخّلًا الآن', series:[2,3,2,4,3,5,4,3] }) +
-      stat({ label:'تحتاج انتباهًا', n:V.feed.filter(x => x.kind === 'warn').length, ic:'i-info',
-        cls:'warn', sub:'تُراقَب ولا تُهمَل', series:[4,5,4,6,5,7,6,5] }) +
-      stat({ label:'مكتملة', n:V.feed.filter(x => x.kind === 'ok').length, ic:'i-checkc',
-        cls:'up', sub:'أُغلقت في الميدان', series:[6,7,8,9,10,11,12,13] }) +
-    '</div>' +
-    '<div class="card">' +
-      head('تدفّق الحوادث', 'كل ما يجري في الميدان — مرتّبًا بوقته', '', 'i-flag') +
-      '<div class="tools">' + segmented('inc',
-        [['all','الكل'],['bad','حرجة'],['warn','تحتاج انتباهًا'],['ok','مكتملة']], f) + '</div>' +
-      filterBar('inc', [
-        { k:'cat',   label:'النوع',  opts:INC_CATS.map(c => [c.k, c.ar]) },
-        { k:'kt',    label:'الـKT',  opts:optKT() },
-        { k:'state', label:'الحالة', opts:[['مفتوح','مفتوح'],['قيد المعالجة','قيد المعالجة'],['مغلق','مغلق']] }
-      ], list.length, V.feed.length, 'ابحث بعنوان أو رقم حادثة…') +
-      (list.length ? '<div class="plist">' + list.map((x, i) => {
-        const C = INC_CATS.find(c => c.k === x.cat) || INC_CATS[0];
-        const st = x.state || 'مفتوح';
-        return '<div class="prow" style="flex-wrap:wrap;animation-delay:' +
-          Math.min(i * 40, 320) + 'ms">' +
-          '<span class="krail ' + (x.kind === 'bad' ? 'r' : x.kind === 'warn' ? 'a' : '') + '"></span>' +
-          '<span class="ico" style="color:' + C.c + '">' + icon(C.i, 's18') + '</span>' +
-          '<span class="nm" style="flex:1"><b>' + E(x.title) + '</b>' +
-          '<span>' + LTR(x.no || '') + ' · ' + E(C.ar) + (x.kt ? ' · ' + E(x.kt) : '') +
-          (x.hotel ? ' · ' + E(x.hotel) : '') + '</span></span>' +
-          pill(x.kind === 'bad' ? 'حرجة' : x.kind === 'warn' ? 'تحتاج انتباهًا' : 'مكتملة',
-            x.kind === 'bad' ? 'no' : x.kind === 'warn' ? 'wait' : 'live') +
-          pill(st, st === 'مغلق' ? 'live' : st === 'قيد المعالجة' ? 'wait' : 'no') +
-          '<span class="tiny faint">' + ago(x.at) +
-          (x.resp ? '<br>استجابة ' + AR(x.resp) + ' د' : '') + '</span>' +
-          '<div class="quote" style="width:100%">' + E(x.body) + '</div></div>';
-      }).join('') + '</div>'
-        : empty('لا حوادث في هذا التصنيف', 'وهذا خبر جيّد', 'i-checkc')) + '</div>';
-}
+
 
 /* ---------- الفرق ---------- */
 /* صفّ محسن — نفس بطاقة التطبيق: وجه · اسم ورمز وتخصّص · نجوم · حصيلة */
 function muhsenRow(m, doneN) {
   const notes = muhsenNotes(m.id);
+  const open = !!(S.open && S.open['mn:' + m.id]);
   return '<div class="prow" style="flex-wrap:wrap">' +
-    '<span class="fl" style="flex:1;min-width:0">' + avatar(m) +
+    '<span class="fl" style="flex:1;min-width:0;cursor:pointer" ' +
+      'data-a="staffpage" data-id="' + m.id + '">' + avatar(m) +
       '<span class="nm"><b>' + E(m.name) + '</b>' +
       '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span></span>' +
     '<span class="end">' + stars(muhsenRating(m.id)) + '</span>' +
     '<div class="pfoot" style="width:100%">' +
       '<span class="ok">' + AR(doneN) + ' مهمة مُتقنة</span>' +
-      (notes ? '<span class="no">' + AR(notes) + ' ملاحظة</span>'
+      /* الملاحظة تُفتح لا تُعدّ فقط */
+      (notes ? '<button class="notebtn' + (open ? ' on' : '') + '" data-a="mnote" ' +
+        'data-id="' + m.id + '">' + icon('i-edit','s12') + AR(notes) + ' ملاحظة' +
+        icon(open ? 'i-down' : 'i-fwd','s12') + '</button>'
              : '<span class="ok">بلا ملاحظات</span>') +
-    '</div></div>';
+    '</div>' +
+    (open ? '<div class="mnotes">' + muhsenNoteList(m.id) + '</div>' : '') +
+  '</div>';
 }
+
+/* ملاحظات المحسن: من مهامّه ومن إجراءاته */
+function muhsenNoteList(id) {
+  const out = [];
+  (V.tasks || []).forEach(t => {
+    if ((t.assigned || []).indexOf(id) < 0) return;
+    (t.notes || []).forEach(n => out.push({ at:n.at, by:n.by || 'الكنترول',
+      text:n.text, src:t.title }));
+  });
+  (V.acts || []).filter(a => a.userId === id).forEach(a => out.push({
+    at:a.at, by:'الإجراءات', text:a.title + (a.why ? ' — السبب: ' + a.why : ''),
+    src:ACT_KIND[a.kind].ar }));
+  if (!out.length) return '<div class="tiny faint">لا ملاحظات مكتوبة.</div>';
+  return out.sort((a, b) => b.at - a.at).slice(0, 6).map(n =>
+    '<div class="mnote"><span class="mn1">' + E(n.by) + ' · ' + E(n.src) + '</span>' +
+    '<b>' + E(n.text) + '</b>' +
+    '<span class="tiny faint">' + hijri(n.at) + ' · ' + t12(n.at) + '</span></div>').join('');
+}
+
+/* مشرف المجموعة: من فندقها — كان ناقصًا في البطاقة */
+const supOfGroup = g => g && g.hotelId
+  ? (V.users || []).find(u => u.role === 'supervisor' && u.hotelId === g.hotelId) : null;
 
 function screenTeams() {
   const q = qOf('tm');
@@ -140,7 +125,9 @@ function screenTeams() {
         (isOpen ? '' : L.id) + '">' + avatar(L, 'lg') +
         '<span class="nm" style="flex:1"><b style="font-size:15px">' + E(L.kt) + ' · ' + E(L.name) + '</b>' +
         '<span>' + E(org.ar) + ' · ' + E(org.type) + ' · ' + E(org.country) +
-        (g0 ? ' · ' + E(hotelById(g0.hotelId).ar || '') : '') + '</span></span>' +
+        (g0 ? ' · ' + E(hotelById(g0.hotelId).ar || '') : '') +
+        (supOfGroup(g0) ? ' · المشرف ' + E(supOfGroup(g0).name) : ' · بلا مشرف') +
+        '</span></span>' +
         pill(E(org.type), org.type === 'بعثة' ? 'blue' : 'gold') +
         pill(AR(L.pilgrims) + ' حاج', 'grey') +
         '<span class="chev">' + icon('i-fwd','s16') + '</span></button>' +
@@ -160,7 +147,21 @@ function screenTeams() {
 /* ---------- الاحتياط ---------- */
 function screenReserve() {
   const res = reserveTeam();
-  return '<div class="card gold">' +
+  /* من نزل الميدان: من أُسند إلى مهمّة أو إجراءٍ جارٍ */
+  const busy = res.filter(m => (V.tasks || []).some(t =>
+    (t.assigned || []).indexOf(m.id) >= 0 && t.status !== 'done'));
+  const free = res.filter(m => busy.indexOf(m) < 0);
+  return '<div class="grid g3">' +
+      stat({ label:'عدد الاحتياط', n:res.length, ic:'i-shield',
+        sub:'مشتركٌ بين كل الفرق', series:[22,24,26,28,29,30,30,Math.max(1, res.length)] }) +
+      stat({ label:'نزلوا الميدان', n:busy.length, ic:'i-play', cls:'up',
+        sub:'مُسنَدون على مهامّ جارية',
+        series:[2,4,6,8,9,11,12,Math.max(1, busy.length)] }) +
+      stat({ label:'بانتظار مهمّة', n:free.length, ic:'i-clock',
+        sub:'متاحون الآن للإسناد',
+        series:[20,20,20,20,20,19,18,Math.max(1, free.length)] }) +
+    '</div>' +
+    '<div class="card gold">' +
       head('الفريق الاحتياطي', 'يديره الكنترول وحده — لا يراه ليدر ولا يختار منه',
         pill(AR(res.length) + ' متاح', 'live'), 'i-shield') +
       '<div class="tiny muted" style="margin-bottom:14px">' +
@@ -169,7 +170,11 @@ function screenReserve() {
         '<div class="prow">' + avatar(m) +
         '<span class="nm" style="flex:1"><b>' + E(m.name) + '</b>' +
         '<span>' + LTR(m.code) + ' · ' + E(m.specialty) + '</span></span>' +
-        '<span class="fl" style="gap:9px">' + pill('متاح', 'live') +
+        '<span class="fl" style="gap:9px">' +
+        ((V.tasks || []).some(t => (t.assigned || []).indexOf(m.id) >= 0 && t.status !== 'done')
+          ? pill('في الميدان', 'wait') : pill('متاح', 'live')) +
+        pill('شِفت ' + E(shiftOf(m)), 'grey') +
+        '<button class="btn l sm" data-a="staffpage" data-id="' + m.id + '">الملفّ</button>' +
         '<button class="btn l sm" data-a="go" data-n="support">إسناد لطلب</button></span></div>').join('') +
       '</div></div>';
 }

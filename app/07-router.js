@@ -2,20 +2,20 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, actions: screenActions, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
   timeline: screenTimeline, perms: screenPerms,
-  afasha: screenAfasha, transport: screenTransport
+  transport: screenTransport
 };
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
-const READ_ACTS = ['go','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
+const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -91,6 +91,11 @@ document.addEventListener('click', ev => {
 
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
+    case 'kgo': {
+      if (b.dataset.k) S.tab[b.dataset.k] = b.dataset.v;
+      S.route = { n: b.dataset.n };
+      break;
+    }
     case 'wide': S.wide = !S.wide; break;
     case 'wall': S.wall = !S.wall; if (!S.wall) S.wallAuto = false;
       toast(S.wall ? 'جدار العرض — Esc أو F للخروج' : 'عاد العرض العادي'); break;
@@ -185,7 +190,8 @@ document.addEventListener('click', ev => {
       save(); taskDrawer(id); return;
     }
 
-    case 'txfilenew': S.txq = S.txq || {}; S.q.txfn = ''; S.q.txfd = ''; txFileNew(id); return;
+    case 'txfilenew': S.txq = S.txq || {}; S.txq.req = b.dataset.s || null;
+      S.q.txfn = ''; S.q.txfd = ''; txFileNew(id); return;
     case 'txfk': S.txq = S.txq || {}; S.txq.fk = v; txFileNew(id); return;
     case 'txfilesave': {
       const t = ensureTask(taskById(id)); if (!t) return;
@@ -197,7 +203,8 @@ document.addEventListener('click', ev => {
       t.files.push({ id:uid('F'), kind, doc:null, name:nm,
         ref:(kind === 'contract' ? 'CT' : 'DOC') + '-' + t.code + '-' + seq,
         note:(S.q.txfd || '').trim() || (kind === 'contract' ? 'عقد أضافه الكنترول' : 'ملفّ مساند'),
-        size:f ? f.size : 0, type:f ? f.type : 'application/pdf', at:now(), by:actorLabel() });
+        size:f ? f.size : 0, type:f ? f.type : 'application/pdf', at:now(), by:actorLabel(),
+        reqId:(S.txq && S.txq.req) || null });
       S.open = S.open || {}; S.open['tx:' + t.id + ':files'] = true;
       txLog(t, 'رفع الكنترول ' + (kind === 'contract' ? 'عقدًا' : 'ملفًّا') + ': «' + nm + '»', 'file');
       logIt('رُفع ' + (kind === 'contract' ? 'عقد' : 'ملف') + ' على مهمة ' + t.title, 'task');
@@ -288,6 +295,301 @@ document.addEventListener('click', ev => {
 
     /* ═══ تنبيهات المهام ═══ */
     case 'alerts': alertsDrawer(); return;
+
+    /* ═══ الإجراءات والجزاءات ═══ */
+    case 'staffpage': S.route = { n:'staffone', id }; break;
+    case 'actopen':   actDrawer(id); return;
+    case 'mnote': { S.open = S.open || {}; const k2 = 'mn:' + id;
+      S.open[k2] = !S.open[k2]; save(); render(); return; }
+    case 'acwhy': {
+      const a2 = (S.acts || []).find(x => x.id === id); if (!a2) return;
+      const t2 = (S.q.acwhy || '').trim();
+      if (!t2) { toast('اكتب السبب', 'r'); return; }
+      a2.why = t2; a2.state = a2.state === 'closed' ? 'closed' : 'answered';
+      a2.trail.unshift({ at:now(), by:actorLabel(), text:'سُجّل السبب: ' + t2 });
+      S.q.acwhy = ''; toast('سُجّل السبب'); save(); actDrawer(id); return;
+    }
+    case 'acsms': {
+      const a2 = (S.acts || []).find(x => x.id === id); if (!a2) return;
+      const u2 = userById(a2.userId) || {};
+      const t2 = a2.taskId ? taskById(a2.taskId) : null;
+      a2.smsText = smsText(a2.kind, { task:t2 ? t2.title : 'مهمّة',
+        date:hijri(a2.at), n:a2.n || actsOf(a2.userId).length });
+      a2.to = u2.name;
+      a2.trail.unshift({ at:now(), by:actorLabel(), text:'أُرسل إنذار SMS إلى ' + u2.name });
+      sendSms(a2, u2.phone, id2 => (S.acts || []).find(x => x.id === id2));
+      logIt('أُرسل إنذار SMS إلى ' + u2.name + ' — ' + ACT_KIND[a2.kind].ar, 'info');
+      toast('أُرسلت الرسالة — تصل الحالة بعد لحظات');
+      save(); actDrawer(id); return;
+    }
+    case 'acpen': {
+      const a2 = (S.acts || []).find(x => x.id === id); if (!a2) return;
+      a2.penalty = v;
+      a2.trail.unshift({ at:now(), by:actorLabel(), text:'الجزاء: ' + PENALTY[v].ar });
+      logIt('جزاءُ ' + a2.no + ': ' + PENALTY[v].ar, 'info');
+      toast(PENALTY[v].ar); save(); actDrawer(id); return;
+    }
+    case 'acclose': {
+      const a2 = (S.acts || []).find(x => x.id === id); if (!a2) return;
+      a2.state = 'closed';
+      a2.trail.unshift({ at:now(), by:actorLabel(), text:'أُغلق الإجراء' });
+      toast('أُغلق الإجراء'); save(); actDrawer(id); return;
+    }
+    case 'acopen2': {
+      const a2 = (S.acts || []).find(x => x.id === id); if (!a2) return;
+      a2.state = 'open';
+      a2.trail.unshift({ at:now(), by:actorLabel(), text:'أُعيد فتح الإجراء' });
+      save(); actDrawer(id); return;
+    }
+    case 'acperf': S.drawer = null; S.route = { n:'staffone', id }; break;
+
+    /* ═══ البلاغات: دورةٌ من اثنتي عشرة محطّة ═══ */
+    case 'sigopen': sigDrawer(id); return;
+    case 'signew':  S.sform = null; S.q.sg_t = ''; S.q.sg_b = ''; sigNew(); return;
+    case 'sgcat':   { const d = S.sform || {}; d.cat = v; S.sform = d; sigNew(); return; }
+    case 'sgkt':    { const d = S.sform || {}; d.kt = v; S.sform = d; sigNew(); return; }
+    case 'sgsrc':   { const d = S.sform || {}; d.source = v; S.sform = d; sigNew(); return; }
+    case 'sgch':    { const d = S.sform || {}; d.channel = v; S.sform = d; sigNew(); return; }
+    case 'sgcls':   { const d = S.sform || {}; d.cls = v; S.sform = d; sigNew(); return; }
+    case 'sgrisk':  { const d = S.sform || {}; d.risk = v; S.sform = d; sigNew(); return; }
+    case 'sgsave': {
+      const d = S.sform || {};
+      const t2 = (S.q.sg_t || '').trim();
+      if (!t2) { toast('اكتب عنوان البلاغ', 'r'); return; }
+      const cat = INC_CATS.find(c => c.k === d.cat) || INC_CATS[0];
+      const s2 = { id:uid('SG'), no:'SG-' + (8100 + (S.signals || []).length),
+        title:t2, text:(S.q.sg_b || '').trim(), cat:cat.k, catAr:cat.ar,
+        source:d.source || SIG_SOURCE[0], channel:d.channel || SIG_CHANNEL[1],
+        outside:true, verify:'pending', wrongNote:'',
+        cls:d.cls || 'complaint', risk:d.risk || 'mid', rule:null, owner:null,
+        followed:false, confirm:false, state:'open',
+        kt:d.kt || (ORGS[0] || {}).kt, hotel:'', at:now(), resp:0, closedAt:null,
+        trail:[{ at:now(), by:actorLabel(),
+          text:'سُجِّل بلاغٌ وصل خارج النظام عبر ' + (d.channel || '') }] };
+      S.signals.unshift(s2);
+      logIt('سُجّل بلاغ ' + s2.no + ' — ' + t2, 'info');
+      S.sform = null; S.q.sg_t = ''; S.q.sg_b = '';
+      toast('سُجّل البلاغ — ادخل عليه لإكمال دورته');
+      save(); sigDrawer(s2.id); return;
+    }
+    case 'sigver': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.verify = v;
+      s2.trail.unshift({ at:now(), by:actorLabel(), text:'التحقّق: ' + SIG_VERIFY[v].ar });
+      if (v !== 'pending' && s2.state === 'open') s2.state = 'working';
+      save(); sigDrawer(id); return;
+    }
+    case 'sigfix': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      const t2 = (S.q.sigfix || '').trim();
+      if (!t2) { toast('اكتب المعلومة الصحيحة', 'r'); return; }
+      s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:'أُعيد التسجيل بالمعلومة الصحيحة: ' + t2 });
+      s2.text = t2; s2.verify = 'confirmed'; s2.wrongNote = '';
+      S.q.sigfix = '';
+      toast('سُجّلت المعلومة الصحيحة'); save(); sigDrawer(id); return;
+    }
+    case 'sigcls': { const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.cls = v; s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:'التصنيف: ' + SIG_CLASS[v].ar }); save(); sigDrawer(id); return; }
+    case 'sigrisk': { const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.risk = v; s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:'درجة الخطورة: ' + SIG_RISK[v].ar }); save(); sigDrawer(id); return; }
+    case 'sigrule': { const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.rule = v; s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:'قاعدة المعالجة: ' + SIG_RULE[v].ar });
+      if (v === 'notify') { S.casts = S.casts || [];
+        S.casts.unshift({ id:uid('C'), dest:'muhsen', cat:'بلاغ', at:now(),
+          title:s2.title, body:s2.text }); }
+      toast(SIG_RULE[v].ar); save(); sigDrawer(id); return; }
+    case 'sigown': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      openPicker('signal', s2.id, { title:'إسناد ' + s2.no,
+        note:'من يغطّي شِفته الآن — فالبلاغ يُعالَج الآن لا غدًا.',
+        cands:shiftCands(now()) });
+      return;
+    }
+    case 'sigfollow': { const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.followed = !s2.followed;
+      s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:s2.followed ? 'تأكّد تنفيذ المطلوب' : 'أُلغي تأكيد التنفيذ' });
+      save(); sigDrawer(id); return; }
+    case 'sigconfirm': { const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.confirm = !s2.confirm;
+      s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:s2.confirm ? 'تأكّد تحقّق الهدف' : 'أُلغي تأكيد الهدف' });
+      save(); sigDrawer(id); return; }
+    case 'sigclose': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      if (!(s2.followed && s2.confirm)) {
+        toast('لا يُغلق قبل تأكيد التنفيذ وتحقّق الهدف', 'r'); return; }
+      s2.state = 'closed'; s2.closedAt = now();
+      s2.resp = Math.max(1, Math.round((s2.closedAt - s2.at) / MIN));
+      s2.trail.unshift({ at:now(), by:actorLabel(), text:'أُغلقت الحالة وأُرشفت' });
+      logIt('أُغلق بلاغ ' + s2.no, 'info');
+      toast('أُغلق وأُرشف'); save(); sigDrawer(id); return;
+    }
+    case 'sigreopen': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      s2.state = 'working'; s2.closedAt = null; s2.confirm = false;
+      s2.trail.unshift({ at:now(), by:actorLabel(), text:'أُعيد فتح الحالة' });
+      save(); sigDrawer(id); return;
+    }
+    case 'sigreply': {
+      const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+      const t2 = (S.q.sigrep || '').trim();
+      if (!t2) { toast('اكتب الردّ', 'r'); return; }
+      const f = (S.files || {}).sigRep;
+      s2.trail.unshift({ at:now(), by:actorLabel(),
+        text:'ردّ: ' + t2 + (f ? ' (مرفق: ' + f.name + ')' : '') });
+      if (s2.state === 'open') s2.state = 'working';
+      S.q.sigrep = ''; if (S.files) delete S.files.sigRep;
+      toast('أُرسل الردّ'); save(); sigDrawer(id); return;
+    }
+    case 'trep': taskReport(id); return;
+    case 'rpprint': { const t = taskById(id); if (t) reportPrint(t); return; }
+    case 'rpxl':    { const t = taskById(id); if (t) reportXl(t); return; }
+    case 'rppng':   { const t = taskById(id); if (t) reportPng(t); return; }
+    case 'alseen1': {
+      (S.tasks || []).forEach(t => (t.alerts || []).forEach(x => {
+        if (x.id === b.dataset.s) x.seen = true; }));
+      save(); repaintDrawer(); return;
+    }
+    case 'txreqneed': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const q = t.reqs.find(x => x.id === b.dataset.s); if (!q) return;
+      q.needFile = !q.needFile;
+      txLog(t, (q.needFile ? 'اشترط الكنترول ملفًّا لـ«' : 'رفع اشتراط الملفّ عن «') +
+        q.text + '»', 'info');
+      save(); taskDrawer(id); return;
+    }
+
+    /* ═══ بيانات الحجاج · المجموعات · الاكسترا كوتا ═══ */
+    case 'pilopen2': pilgrimFull(id); return;
+    case 'pcard':    cardStates(id); return;
+    case 'vgopen':   vgDrawer(id); return;
+    case 'pcstep': {
+      const p = pilFind(id); if (!p) return;
+      p.cardStep = v;
+      p.cardLog = CARD_FLOW.slice(0, CARD_IDX(v) + 1).map((c, i) => {
+        const old = (p.cardLog || []).find(x => x.k === c.k);
+        return { k:c.k, at: old ? old.at : now() - (CARD_IDX(v) - i) * HR };
+      });
+      logIt('حُدّثت بطاقة ' + p.name + ' إلى «' + CARD_FLOW[CARD_IDX(v)].ar + '»', 'info');
+      toast(CARD_FLOW[CARD_IDX(v)].ar); save(); cardStates(id); return;
+    }
+    case 'phealth': {
+      const p = pilFind(id); if (!p) return;
+      const was = p.health; p.health = v;
+      p.healthLog = p.healthLog || [];
+      p.healthLog.unshift({ at:now(), by:actorLabel(),
+        text:'غُيّرت الحالة من «' + HEALTH[was].ar + '» إلى «' + HEALTH[v].ar + '»' });
+      p.flag = v === 'none' ? null : HEALTH[v].ar;
+      logIt('حالة ' + p.name + ' الصحّية: ' + HEALTH[v].ar, 'info');
+      save(); pilgrimFull(id); return;
+    }
+    case 'phnote': {
+      const p = pilFind(id); if (!p) return;
+      const t2 = (S.q.phn || '').trim();
+      if (!t2) { S.q.phn = ''; S.drawer = { title:'قيدٌ صحّي', sub:p.name, icon:'i-med', body:
+        '<div class="card">' + head('نصّ القيد', 'يُقرأ في السجلّ الصحّي') +
+        '<textarea class="fld" id="q-phn" data-q="phn" rows="4" ' +
+        'placeholder="ما الذي حدث؟ ومتى؟ وما الإجراء؟"></textarea></div>' +
+        '<div class="grid g2" style="gap:8px">' +
+        '<button class="btn p" data-a="phnsave" data-id="' + id + '">حفظ</button>' +
+        '<button class="btn l" data-a="pilopen2" data-id="' + id + '">إلغاء</button></div>' };
+        renderDrawer(); return; }
+      return;
+    }
+    case 'phnsave': {
+      const p = pilFind(id); if (!p) return;
+      const t2 = (S.q.phn || '').trim();
+      if (!t2) { toast('اكتب القيد', 'r'); return; }
+      p.healthLog = p.healthLog || [];
+      p.healthLog.unshift({ at:now(), by:actorLabel(), text:t2 });
+      S.q.phn = ''; toast('أُضيف القيد'); save(); pilgrimFull(id); return;
+    }
+
+    /* الإكسل: تصديرٌ واستيراد بالبنية نفسها */
+    case 'pxlall': {
+      const cols = XL_COLS.concat(XL_MORE);
+      download('muhsen-pilgrims-' + dkey(now()) + '.csv', toCsv(cols, allPil()));
+      toast('نُزِّل سجلّ ' + AR(allPil().length) + ' حاجًّا'); return;
+    }
+    case 'vgxl': {
+      const v2 = vgById(id); if (!v2) return;
+      const rows = allPil().filter(p => p.visaGroup === id);
+      download('group-' + id + '.csv', toCsv(XL_COLS.concat(XL_MORE), rows));
+      toast('نُزِّل ' + AR(rows.length) + ' حاجًّا'); return;
+    }
+    case 'qtxl': {
+      download('extra-quota-template.csv', toCsv(XL_COLS, [{
+        permit:'44705010578xxxx', firstEn:'AIDILAZMAN', fatherEn:'BIN NASIRON', grandEn:'—',
+        familyEn:'BIN NASIRON', firstAr:'عبدالله', fatherAr:'محمد', grandAr:'—',
+        familyAr:'القحطاني', passport:'A12345678', nationality:'ماليزيا',
+        patCat:PAT_CAT[1], patKind:PAT_KIND[0], dob:'1974-01-19', g:'m', pkg:'PKG-620000'
+      }]));
+      toast('نُزِّل القالب — عبّئه ثم ارفعه'); return;
+    }
+    case 'qtnew': S.qform = { orgId:(ORGS[0] || {}).id, rows:[], mode:'xl' };
+      if (S.files) delete S.files.qtxl; quotaNew(); return;
+    case 'qtopen': quotaDrawer(id); return;
+    case 'qtdl': {
+      const x = (S.quota || []).find(v2 => v2.id === id); if (!x) return;
+      download(x.no + '.csv', toCsv(XL_COLS, x.rows || []));
+      toast('نُزِّلت ' + AR((x.rows || []).length) + ' صفًّا'); return;
+    }
+    case 'qpcat':  S.q.qp_cat = v;  quotaNew(); return;
+    case 'qpkind': S.q.qp_kind = v; quotaNew(); return;
+    case 'qpg':    S.q.qp_g = v;    quotaNew(); return;
+    case 'qprow': {
+      const d = S.qform = S.qform || { orgId:(ORGS[0] || {}).id, rows:[] };
+      const row = {
+        permit:qOf('qp_permit'), passport:qOf('qp_pass'),
+        firstEn:qOf('qp_fe'), fatherEn:qOf('qp_ae'), grandEn:qOf('qp_ge') || '—',
+        familyEn:qOf('qp_le'), firstAr:qOf('qp_fa'), fatherAr:qOf('qp_aa'),
+        grandAr:qOf('qp_ga') || '—', familyAr:qOf('qp_la'),
+        nationality:qOf('qp_nat') || 'ماليزيا', dob:qOf('qp_dob'),
+        patCat:S.q.qp_cat || PAT_CAT[0], patKind:S.q.qp_kind || PAT_KIND[0],
+        g:S.q.qp_g || 'm', pkg:'PKG-' + (700000 + Math.floor(Math.random() * 99999))
+      };
+      row.ok = !!(row.permit && row.passport && row.firstEn && row.familyEn && row.dob);
+      if (!row.ok) { toast('التصريح والجواز والاسم والميلاد لا بدّ منها', 'r'); return; }
+      d.rows = (d.rows || []).concat(row);
+      ['qp_permit','qp_pass','qp_fe','qp_ae','qp_ge','qp_le','qp_fa','qp_aa','qp_ga','qp_la','qp_dob']
+        .forEach(k => { S.q[k] = ''; });
+      toast('أُضيف — الدفعة ' + AR(d.rows.length) + ' حاجًّا');
+      save(); quotaNew(); return;
+    }
+    case 'qtsave': {
+      const d = S.qform || {};
+      if (!(d.rows || []).length) { toast('لا صفوف', 'r'); return; }
+      const o = orgById(d.orgId) || ORGS[0];
+      const L = leaders().find(x => x.orgId === o.id) || leaders()[0];
+      const bad2 = d.rows.filter(x => !x.ok).length;
+      const q = { id:uid('QT'), no:'EQ-' + (7300 + (S.quota || []).length),
+        orgId:o.id, kt:o.kt, leaderId:L ? L.id : null, count:d.rows.length,
+        state: bad2 ? 'incomplete' : 'pending', at:now(), by:o.ar,
+        note: bad2 ? 'ينقص بيانٌ في ' + AR(bad2) + ' صفًّا.' : '', rows:d.rows };
+      S.quota.unshift(q);
+      logIt('وردت دفعة اكسترا كوتا ' + q.no + ' — ' + AR(q.count) + ' حاجًّا من ' + o.ar, 'info');
+      S.qform = null; if (S.files) delete S.files.qtxl;
+      toast('أُنشئت الدفعة — ' + (bad2 ? 'وفيها نقص' : 'تنتظر موافقتك'), bad2 ? 'r' : 'g');
+      save(); S.tab.pil = 'quota'; quotaDrawer(q.id); return;
+    }
+    case 'qtok': {
+      const x = (S.quota || []).find(v2 => v2.id === id); if (!x) return;
+      if ((x.rows || []).some(z => !z.ok)) { toast('أكمِل البيانات أوّلًا', 'r'); return; }
+      const n = quotaApprove(x);
+      toast('اعتُمدت — أُضيف ' + AR(n) + ' حاجًّا ووُزِّعوا');
+      save(); quotaDrawer(id); return;
+    }
+    case 'qtno': {
+      const x = (S.quota || []).find(v2 => v2.id === id); if (!x) return;
+      x.state = 'rejected';
+      logIt('رُدَّت دفعة ' + x.no, 'deny');
+      toast('رُدَّت الدفعة'); save(); quotaDrawer(id); return;
+    }
 
     /* ═══ الامتثال: ملفّ الجهة · الجدولة · الإسناد ═══ */
     case 'hprof': hotelProfile(id); return;
@@ -445,69 +747,6 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'whoami': whoDrawer(); return;
-
-    /* ─── العفاشة ─── */
-    case 'cnew': S.q.cn = ''; S.q.cc = ''; S.q.cp = ''; S.q.cw = ''; contractorNew(); return;
-    case 'copen': contractorDrawer(id); return;
-    case 'csave': {
-      const n = (S.q.cn || '').trim(), co = (S.q.cc || '').trim(), ph = (S.q.cp || '').trim();
-      if (!n || !ph) { toast('الاسم ورقم الجوال لا بدّ منهما', 'r'); return; }
-      const seq = 401 + S.contractors.length;
-      const c = { id:uid('CT'), name:n, company:co || '—',
-        workers:Number(String(S.q.cw || '').replace(/\D/g, '')) || 10, phone:ph,
-        user:'afasha' + seq, pass:'MC' + (7100 + S.contractors.length * 13),
-        sms:'queued', smsAt:now(), at:now() };
-      S.contractors.unshift(c);
-      /* الرسالة تُرسَل فورًا، وحالتها تُحدَّث بعد لحظات كما في المزوّد */
-      sendSms(c);
-      logIt('أُضيف المقاول ' + n + ' وأُرسلت بيانات دخوله', 'info');
-      S.drawer = null; toast('أُضيف — وأُرسلت رسالته');
-      break;
-    }
-    case 'csms': {
-      const c = contractorById(id); if (!c) return;
-      c.sms = 'queued'; c.smsAt = now(); sendSms(c);
-      logIt('أُعيد إرسال بيانات الدخول إلى ' + c.name, 'info');
-      toast('أُعيد الإرسال');
-      break;
-    }
-    case 'cdeal': dealNew(id); return;
-    case 'dsend': {
-      const c = contractorById(S.pendDeal); if (!c) return;
-      const d = mkDeal(c, 'sent');
-      logIt('أُرسل عقد ' + d.no + ' إلى ' + c.name, 'info');
-      S.drawer = null; S.pendDeal = null;
-      toast('أُرسل العقد — بانتظار ردّه');
-      break;
-    }
-    case 'doffline': {
-      const c = contractorById(S.pendDeal); if (!c) return;
-      const d = mkDeal(c, 'offline');
-      d.reason = 'وُقّع خارج النظام واعتمده الكنترول';
-      logIt('اعتُمد عقد ' + d.no + ' مع ' + c.name + ' — وُقّع خارج النظام', 'info');
-      S.drawer = null; S.pendDeal = null;
-      toast('اعتُمد العقد');
-      break;
-    }
-    case 'cagree': {
-      const d = dealById(id); if (!d) return;
-      const own = curPerm().scope === 'deal';
-      d.state = 'agreed';
-      d.reason = own ? 'قبله المقاول من حسابه' : 'وافق الكنترول نيابةً عنه';
-      d.actAt = now();
-      logIt('قُبل عقد ' + d.no + ' — ' + d.reason, 'info');
-      toast('قُبل العقد');
-      break;
-    }
-    case 'crefuse': {
-      const d = dealById(id); if (!d) return;
-      d.state = 'refused';
-      d.reason = curPerm().scope === 'deal' ? 'رفضه المقاول' : 'سُجّل رفضه';
-      d.actAt = now();
-      logIt('رُفض عقد ' + d.no, 'info');
-      toast('سُجّل الرفض', 'r');
-      break;
-    }
 
     /* ─── النقل ─── */
     case 'tropen': tripDrawer(id); return;
@@ -779,62 +1018,7 @@ document.addEventListener('click', ev => {
     case 'fclear': { const k = b.dataset.k; S.flt[k] = {}; S.q[k] = ''; break; }
 
     /* ─── نُسك: فتح حالة ─── */
-    case 'nfsvc':  S.nform = S.nform || {}; S.nform.svc = v; nusukNew(); return;
-    case 'nfpil':  S.nform = S.nform || {}; S.nform.pid = id; nusukNew(); return;
-    case 'nfclr':  S.nform.pid = ''; S.q.npil = ''; nusukNew(); return;
-    case 'nfsave': {
-      const d = S.nform || {};
-      if (!d.pid) { toast('اختر الحاجّ أوّلًا — ابحث باسمه أو رقم جوازه', 'r'); return; }
-      const p = allPilgrimRows().find(x => x.id === d.pid); if (!p) return;
-      const L = leaders().find(l => l.kt === p.kt) || {};
-      const f = (S.files || {}).nusukNew || null;
-      const c = { id:uid('N'), no:'NS-' + (4400 + S.nusuk.length), svc:d.svc || 'lost',
-        pilgrimId:p.id, pilgrim:p.name, passport:p.no, kt:p.kt, leaderId:L.id || null,
-        openedBy:'الكنترول', state:'new', step:1, assignedTo:null, at:now(),
-        note:(S.q.nnote || '').trim() || 'حالة فُتحت من غرفة العمليات',
-        trail:[{ at:now(), by:'الكنترول', text:'فُتحت الحالة', file:f }] };
-      S.nusuk.unshift(c);
-      logIt('فُتحت حالة ' + NUSUK_SVC[c.svc].ar + ' للحاجّ ' + p.name + ' — ' + p.kt, 'info');
-      S.nform = null; S.q.nnote = ''; S.q.npil = '';
-      if (S.files) delete S.files.nusukNew;
-      S.drawer = null; save(); render(); nusukDrawer(c.id);
-      toast('فُتحت ' + c.no + ' — أسندها الآن');
-      return;
-    }
-    case 'nopen': nusukDrawer(id); return;
-    case 'nnew':  S.nform = { svc:'lost', pid:'', note:'' }; nusukNew(); return;
-    case 'nassign': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      openPicker('nusuk', c.id, { title:'إسناد ' + c.no,
-        note:'المرشّحون: فريق ' + c.kt + ' وليدره والاحتياط.',
-        cands:candFor('nusuk', c) });
-      return;
-    }
-    case 'nstep': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      const SV = NUSUK_SVC[c.svc];
-      if (c.step >= SV.steps.length) { toast('بلغت آخر خطوة — أنهِ الحالة', 'r'); return; }
-      const note = (S.q.nstepnote || '').trim();
-      const f = (S.files || {}).nusukStep || null;
-      c.trail = c.trail || [];
-      c.trail.push({ at:now(), by:'الكنترول',
-        text:SV.steps[c.step] + (note ? ' — ' + note : ''), file:f });
-      c.step += 1;
-      c.state = c.step >= SV.steps.length ? 'issued'
-        : c.step >= 2 ? 'processing' : 'new';
-      S.q.nstepnote = ''; if (S.files) delete S.files.nusukStep;
-      logIt(c.no + ' — ' + SV.steps[c.step - 1], 'info');
-      save(); nusukDrawer(c.id); toast(NUSUK_STATE[c.state].ar);
-      return;
-    }
     case 'nclose': {
-      const c = S.nusuk.find(x => x.id === id); if (!c) return;
-      c.state = 'delivered'; c.step = NUSUK_SVC[c.svc].steps.length;
-      c.trail = c.trail || [];
-      c.trail.push({ at:now(), by:'الكنترول', text:'أُنهيت الحالة وسُلّمت', file:null });
-      logIt('أُنهيت ' + c.no + ' — ' + NUSUK_SVC[c.svc].ar, 'info');
-      save(); nusukDrawer(c.id); toast('أُنهيت الحالة');
-      return;
     }
 
     /* ─── إثراء: إسناد لمحسن ─── */
@@ -1067,7 +1251,7 @@ document.addEventListener('click', ev => {
     case 'gin': {
       const g = S.gate || { perm:'admin' };
       S.actor = { perm:g.perm, orgId:g.orgId, hotelId:g.hotelId,
-        leaderId:g.leaderId, userId:g.userId, contractorId:g.contractorId };
+        leaderId:g.leaderId, userId:g.userId };
       S.auth = true;
       const first = allowed()[0];
       S.route = { n: first || 'ops' };

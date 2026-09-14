@@ -69,10 +69,6 @@ function staffTasks(id) {
     out.push({ type:'enrich', at:x.start, title:si.ar, sub:x.ref + ' · ' + si.city,
       state:x.status === 'done' ? 'منتهية' : 'مسكَّنة', id:x.id });
   }});
-  V.nusuk.forEach(c => { if (c.assignedTo === id) {
-    out.push({ type:'nusuk', at:c.at, title:NUSUK_SVC[c.svc].ar + ' — ' + c.pilgrim,
-      sub:c.no + ' · ' + c.kt, state:NUSUK_STATE[c.state].ar, id:c.id });
-  }});
   V.subs.forEach(b => { if (b.by === id) {
     const f = formById(b.formId) || {};
     out.push({ type:'comply', at:b.at, title:f.title + ' — ' + b.target,
@@ -130,14 +126,15 @@ function screenStaff() {
       (list.length ? dataTable({
         key:'stf', defaultCol:0,
         cols:[{ t:'الموظف', w:'1.8fr' }, { t:'الصفة', w:'.7fr' }, { t:'المجموعة', w:'1fr' },
+              { t:'رقم المركز', w:'.9fr' },
               { t:'الجهة', w:'1.1fr' }, { t:'السكن', w:'1fr' }, { t:'المهام', w:'.6fr' },
               { t:'التقييم', w:'1fr' }],
         rows:list.slice(0, 60).map(u => {
           const g = staffGroup(u), o = staffOrg(u), h = staffHotel(u);
           const tn = staffTasks(u.id).length;
           const rt = u.role === 'leader' ? ktRating(u.id) : muhsenRating(u.id);
-          return { id:u.id, act:'staffopen',
-            sort:[u.name, ROLE_AR[u.role] || '', g ? g.no : 'ـ', o ? o.kt : 'ـ',
+          return { id:u.id, act:'staffpage',
+            sort:[u.name, ROLE_AR[u.role] || '', g ? g.no : 'ـ', centerNo(u), o ? o.kt : 'ـ',
                   h && h.ar ? h.ar : 'ـ', tn, rt],
             cells:[
               '<span class="fl">' + avatar(u, 'sm') +
@@ -146,6 +143,7 @@ function screenStaff() {
               u.reserve ? pill('احتياط','gold') : pill(ROLE_AR[u.role] || '—',
                 u.role === 'supervisor' ? 'blue' : u.role === 'leader' ? 'live' : 'grey'),
               g ? '<b>' + LTR(g.no) + '</b>' : '<span class="faint">—</span>',
+              '<b class="num">' + LTR(centerNo(u)) + '</b>',
               o ? '<span class="tiny"><b>' + E(o.kt) + '</b><br>' +
                 '<span class="faint">' + E(o.type) + '</span></span>' : '<span class="faint">—</span>',
               h && h.ar ? '<span class="tiny">' + E(h.ar) + '</span>' : '<span class="faint">—</span>',
@@ -243,13 +241,6 @@ function applyPick(kind, id, u) {
     logIt('سُكِّنت رحلة ' + x.ref + ' — ' + siteById(x.siteId).ar + ' على ' + u.name +
       (L ? ' · ' + L.kt : ''), 'assign');
     toast('أُسندت إلى ' + u.name);
-  } else if (kind === 'nusuk') {
-    const c = V.nusuk.find(x => x.id === id); if (!c) return;
-    c.assignedTo = u.id;
-    c.trail = c.trail || [];
-    c.trail.push({ at:now(), by:'الكنترول', text:'أُسندت إلى ' + u.name, file:null });
-    logIt('أُسندت ' + c.no + ' (' + NUSUK_SVC[c.svc].ar + ') إلى ' + u.name, 'assign');
-    toast('أُسندت إلى ' + u.name);
   } else if (kind === 'comply') {
     const a = S.pendForm; if (!a) return;
     const f = formById(a.formId) || {};
@@ -299,6 +290,14 @@ function applyPick(kind, id, u) {
     if (t.riders.indexOf(u.id) < 0) t.riders.push(u.id);
     logIt('أُضيف ' + u.name + ' راكبًا في ' + t.no, 'info');
     toast(u.name + ' → ' + t.no);
+  } else if (kind === 'signal') {
+    const s2 = S.signals.find(x => x.id === id); if (!s2) return;
+    s2.owner = u.id;
+    if (s2.state === 'open') s2.state = 'working';
+    s2.trail.unshift({ at:now(), by:'الكنترول', text:'أُسندت المسؤولية إلى ' + u.name });
+    logIt('أُسند بلاغ ' + s2.no + ' إلى ' + u.name, 'assign');
+    toast('أُسند إلى ' + u.name);
+    S.picker = null; sigDrawer(s2.id); return;
   } else if (kind === 'caswap') {
     const a = S.assigns.find(x => x.id === id); if (!a) return;
     const old = userById(a.to) || {};
@@ -351,14 +350,6 @@ function candFor(kind, ref) {
     const team = all.filter(u => u.leaderId === t.leaderId);
     const rest = all.filter(u => u.leaderId !== t.leaderId && !u.reserve);
     return team.concat(res).concat(rest).filter(u => inTask.indexOf(u.id) < 0);
-  }
-  if (kind === 'nusuk') {
-    const c = ref, team = teamOf(c.leaderId);
-    const L = userById(c.leaderId);
-    const pool = team.concat(L ? [L] : []).concat(reserveTeam());
-    /* حالة نُسك تُعالَج الآن — فمن ليس في شِفت هذه الساعة لا يُعرض */
-    const fit = shiftCands(now(), pool);
-    return fit.length ? fit : pool;
   }
   if (kind === 'comply') {
     /* الفندق يحدّد الدائرة، والشِفت يحدّد من فيها صالحٌ لهذا الوقت.

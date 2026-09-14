@@ -17,12 +17,6 @@ const PERMS = [
     d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
   { k:'sup',     ar:'مشرف',            i:'i-key',    scope:'hotel', edit:false,
     d:'يرى كل من تحته في الفندق' },
-  { k:'leader',  ar:'ليدر',            i:'i-star',   scope:'team',  edit:false,
-    d:'يرى فريقه ومهامه' },
-  { k:'muh_mk',  ar:'محسن مكة',        i:'i-user',   scope:'self',  edit:false,
-    d:'يرى بياناته ومهامه وحدها' },
-  { k:'muh_md',  ar:'محسن المدينة',    i:'i-user',   scope:'self',  edit:false,
-    d:'يرى بياناته ومهامه وحدها' },
   { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'domain', edit:false, prov:true,
     d:'مهام منى وعرفة والجمرات وحوادث التفويج' },
   { k:'food',    ar:'إعاشة',           i:'i-food',   scope:'domain', edit:false, prov:true,
@@ -32,9 +26,7 @@ const PERMS = [
   { k:'centers', ar:'مراكز',           i:'i-target', scope:'domain', edit:false, prov:true,
     d:'كل الحوادث والتذاكر والتقارير — بلا بيانات أشخاص' },
   { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'domain', edit:false, prov:true,
-    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' },
-  { k:'afasha',  ar:'مقاول عفاشة',     i:'i-truck',  scope:'deal',   edit:false,
-    d:'يرى عقده وحده — وصلاحيته الموافقة عليه' }
+    d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' }
 ];
 const permOf = k => PERMS.find(p => p.k === k) || PERMS[0];
 const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'فندقه ومن فيه',
@@ -76,12 +68,8 @@ const DEFAULT_GRANTS = {
             'incidents','quality','guides'],
 
   /* الليدر: فريقه ومهامه — ولا يرى الاحتياط ولا يختار منه */
-  leader:  ['ops','tasks','timeline','staff','teams','pilgrims','tickets','reports',
-            'incidents','guides','shifts'],
 
   /* المحسن: نفسه ومهامه ودليل تنفيذها */
-  muh_mk:  ['tasks','staff','guides'],
-  muh_md:  ['tasks','staff','guides'],
 
   /* الخمس المؤجَّلة: نطاقها وظيفي مؤقّت حتى تُوصَف */
   mashaer: ['ops','tasks','timeline','incidents','guides'],
@@ -90,7 +78,6 @@ const DEFAULT_GRANTS = {
   centers: ['ops','incidents','tickets','reports','timeline'],
   medina:  ['ops','tasks','staff','teams','pilgrims','incidents'],
   /* المقاول: شاشة واحدة — عقده */
-  afasha:  ['afasha']
 };
 
 /* ============================================================
@@ -142,9 +129,7 @@ function buildView() {
   } else if (p.scope === 'deal') {
     /* المقاول لا يرى إلا نفسه وعقده */
     V = Object.create(S);
-    V.contractors = S.contractors.filter(c => c.id === a.contractorId);
-    V.deals = S.deals.filter(d => d.contractorId === a.contractorId);
-    ['users','groups','orgs','tasks','tickets','reports','support','nusuk','enrich',
+            ['users','groups','orgs','tasks','tickets','reports','support','enrich',
      'subs','assigns','swaps','feed','log','buses','trips'].forEach(k => { V[k] = []; });
     V.pilgrims = {};
     return;
@@ -182,22 +167,20 @@ function buildView() {
   V.tickets  = S.tickets.filter(k => has(kts, k.kt));
   V.reports  = S.reports.filter(r => has(kts, r.kt));
   V.support  = S.support.filter(s => has(leaderIds, (taskById(s.taskId) || {}).leaderId));
-  V.nusuk    = S.nusuk.filter(c => p.scope === 'self'
-    ? c.assignedTo === a.userId : has(kts, c.kt));
   V.enrich   = S.enrich.filter(x => p.scope === 'self'
     ? x.muhsenId === a.userId : has(kts, x.kt));
   V.subs     = S.subs.filter(b => has(userIds, b.by));
   V.assigns  = S.assigns.filter(x => has(userIds, x.to));
   V.swaps    = S.swaps.filter(w => has(userIds, w.from) || has(userIds, w.to));
+  V.signals  = S.signals || [];
+  V.acts     = (S.acts || []).filter(a => has(userIds, a.userId));
   V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));
   V.log      = p.scope === 'self' ? [] : S.log;
   V.forms    = S.forms;
   V.guides   = S.guides;
   V.casts    = S.casts;
   /* العفاشة والنقل: الكنترول وحده يديرهما، وغيره يرى رحلاته */
-  V.contractors = p.scope === 'all' ? S.contractors : [];
-  V.deals    = p.scope === 'all' ? S.deals : [];
-  V.buses    = S.buses;
+      V.buses    = S.buses;
   V.trips    = p.scope === 'self'
     ? S.trips.filter(t => t.riders.indexOf(a.userId) >= 0)
     : S.trips.filter(t => !t.taskId || V.tasks.some(x => x.id === t.taskId));
@@ -217,7 +200,6 @@ function buildDomainView(p) {
   V.reports  = d.all ? S.reports : [];
   V.forms    = S.forms.filter(f => (d.form || []).indexOf(f.scope) >= 0);
   V.subs     = S.subs.filter(b => V.forms.some(f => f.id === b.formId));
-  V.nusuk    = [];
   /* لا بيانات أشخاص لهذه الصفات */
   V.users    = [];
   V.groups   = [];
@@ -227,9 +209,7 @@ function buildDomainView(p) {
   V.swaps    = [];
   V.assigns  = [];
   V.log      = [];
-  V.contractors = [];
-  V.deals = [];
-  V.buses = d.enrich || d.all ? S.buses : [];
+      V.buses = d.enrich || d.all ? S.buses : [];
   V.trips = d.enrich || d.all ? S.trips : [];
 }
 

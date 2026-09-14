@@ -366,7 +366,7 @@ function taskDrawer(id) {
   S.drawer = {
     /* عنوان الدرج نصٌّ لا ترميز — renderDrawer يهرّبه، فالوسم يظهر حرفيًّا */
     title: t.title, sub: t.kt + ' · ' + (L.name || '') + ' · #' + t.code,
-    icon: c.i || 'i-tasks', wide: !!S.dwide, expand: t.id,
+    icon: c.i || 'i-tasks', wide: !!S.dwide, expand: t.id, report: t.id,
     body:
 
     /* ── الرأس: الحالة والنسب والبيانات ── */
@@ -432,7 +432,9 @@ function taskDrawer(id) {
       '</div>' +
       /* ثلاثة أبوابٍ إلى ما يراه الميدان: شاشته، وقيادته، وتقييمه */
       '<div class="grid g3" style="gap:8px;margin-top:8px">' +
-        '<button class="btn p sm" data-a="avopen" data-id="' + t.id + '">' +
+        '<button class="btn p sm" data-a="trep" data-id="' + t.id + '">' +
+          icon('i-report','s14') + 'تقرير المهمة</button>' +
+        '<button class="btn l sm" data-a="avopen" data-id="' + t.id + '">' +
           icon('i-phone','s14') + 'كما تظهر في التطبيق</button>' +
         '<button class="btn l sm" data-a="avdelegopen" data-id="' + t.id + '">' +
           icon('i-shield','s14') + 'تفويض القيادة</button>' +
@@ -441,30 +443,10 @@ function taskDrawer(id) {
       '</div>' +
     '</div>' +
 
-    /* ── المتطلّبات: ثلاث مراحل ── */
-    REQ_PHS.map(ph => {
-      const a = reqIn(t, ph), d = a.filter(r => r.done).length, p = tPct(d, a.length);
-      return txFold(t, 'req' + ph, REQ_PH[ph].ar, REQ_PH[ph].d,
-        (a.length ? '<div class="reqs">' + a.map(r =>
-          '<button class="req' + (r.done ? ' on' : '') + '" data-a="txreq" data-id="' + t.id +
-            '" data-s="' + r.id + '">' +
-            '<span class="tick">' + (r.done ? icon('i-check','s13') : '') + '</span>' +
-            '<span class="sp"><b>' + E(r.text) + '</b>' +
-            (r.done ? '<span class="tiny faint">شيَّك عليه ' + E(r.by || 'الكنترول') + ' · ' + t12(r.at) + '</span>'
-                    : '<span class="tiny faint">لم يُتحقَّق منه بعد</span>') + '</span>' +
-            '<span class="rx" data-a="txreqdel" data-id="' + t.id + '" data-s="' + r.id + '">' +
-              icon('i-x','s13') + '</span>' +
-          '</button>').join('') + '</div>'
-          : '<div class="tiny faint">لا متطلّبات في هذه المرحلة — أضِفها يدويًّا أو اربط قالبًا.</div>') +
-        '<div class="grid g2" style="gap:8px;margin-top:11px">' +
-          '<button class="btn l sm" data-a="txreqnew" data-id="' + t.id + '" data-v="' + ph + '">' +
-            icon('i-plus','s14') + 'إضافة شرط</button>' +
-          '<button class="btn l sm" data-a="txtpl" data-id="' + t.id + '">' +
-            icon('i-list','s14') + 'ربط قالب</button>' +
-        '</div>',
-        REQ_PH[ph].i,
-        ring(p, p === 100 ? 'var(--ok)' : REQ_PH[ph].c, 28));
-    }).join('') +
+    /* ── ما قبل المهمّة: شروطٌ وملفّات في مكانٍ واحد ── */
+    txFold(t, 'reqpre', REQ_PH.pre.ar, REQ_PH.pre.d,
+      preBlock(t), REQ_PH.pre.i,
+      ring(prepPct(t), prepPct(t) === 100 ? 'var(--live)' : REQ_PH.pre.c, 28)) +
 
     /* ── المهام الفرعية ── */
     txFold(t, 'subs', 'المهام الفرعية',
@@ -500,24 +482,6 @@ function taskDrawer(id) {
         icon('i-assign','s14') + 'تسكين محسن — ومعهم الاحتياط</button>',
       'i-users', pill(AR(team.length), 'grey')) +
 
-    /* ── الملفات والعقود ── */
-    txFold(t, 'files', 'الملفات والعقود',
-      'العقود المبذورة وما يرفعه الكنترول — بلا حدّ',
-      (t.files.length ? '<div class="xfiles">' + t.files.map(f =>
-        '<div class="xfile">' +
-          '<button class="fi" data-a="txfileopen" data-id="' + t.id + '" data-s="' + f.id + '">' +
-            '<span class="ft">' + (/image/.test(f.type || '') ? icon('i-photo','s16') : '<b>PDF</b>') + '</span>' +
-            '<span class="sp"><b>' + E(f.name) + '</b>' +
-            '<span class="tiny faint">' + (f.ref ? LTR(f.ref) + ' · ' : '') + E(f.note || '') +
-            ' · ' + E(f.by || 'الكنترول') + ' · ' + hijri(f.at) + '</span></span>' +
-            (f.kind === 'contract' ? pill('عقد','gold') : pill('ملف','grey')) + '</button>' +
-          '<button class="fx" data-a="txfiledel" data-id="' + t.id + '" data-s="' + f.id + '" ' +
-            'aria-label="حذف">' + icon('i-x','s13') + '</button>' +
-        '</div>').join('') + '</div>'
-        : '<div class="tiny faint">لا ملفات على هذه المهمة.</div>') +
-      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="txfilenew" data-id="' + t.id + '">' +
-        icon('i-clip','s14') + 'رفع ملفّ أو عقد إضافي</button>',
-      'i-file', pill(AR(t.files.length), t.files.length ? 'gold' : 'grey')) +
 
     /* ── دليل التنفيذ ── */
     txFold(t, 'guide', 'دليل التنفيذ',
@@ -533,15 +497,6 @@ function taskDrawer(id) {
         icon('i-guide','s14') + (gd && gd.taskId ? 'تغيير الدليل الخاصّ' : 'ربط دليل بهذه المهمّة') + '</button>',
       'i-guide') +
 
-    /* ── التذاكر المرفوعة ── */
-    (tks.length ? txFold(t, 'tkt', 'التذاكر المرفوعة على المهمة',
-      AR(tks.length) + ' تذكرة من حجاج المجموعة',
-      '<div class="rows">' + tks.map(k =>
-        '<div class="row" style="padding:9px 4px;cursor:pointer" data-a="tkopen2" data-id="' + k.id + '">' +
-        '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
-        '<span>' + LTR(k.no) + ' · ' + E(k.from) + ' · ' + untilTxt(k.at) + '</span></span>' +
-        pill(k.pri, k.pri === 'حرجة' ? 'no' : 'wait') + pill(k.status, 'grey') + '</div>').join('') + '</div>',
-      'i-ticket', pill(AR(tks.length), 'no')) : '') +
 
     /* ── طلبات الدعم ── */
     (sp.length ? txFold(t, 'sup', 'طلبات الدعم', AR(sp.length) + ' طلبًا من ليدر المجموعة',
@@ -550,14 +505,17 @@ function taskDrawer(id) {
         '<p>' + E(s.why) + (s.reason ? '<br>ردّك: ' + E(s.reason) : '') + '</p></span></div>').join(''),
       'i-send') : '') +
 
-    /* ── التنبيهات الواصلة من التطبيق ── */
-    (taskAlerts(t).length ? txFold(t, 'alerts', 'تنبيهات المهمة',
-      'ما وصل من الميدان على هذه المهمة تحديدًا',
-      '<div class="alist">' + taskAlerts(t).map(a => alertRow(a, t, false)).join('') + '</div>' +
+    /* ── الوارد: التذاكر والتنبيهات سواء ──
+       كلاهما رسالةٌ وصلت من الميدان على هذه المهمّة، ففصلُهما في
+       صندوقين كان يجعلك تفتح اثنين لتعرف ما جدّ. */
+    (inbox(t).length ? txFold(t, 'inbox', 'الوارد على المهمة',
+      AR(tks.length) + ' تذكرة · ' + AR(taskAlerts(t).length) + ' تنبيهًا',
+      '<div class="alist">' + inbox(t).map(inRow).join('') + '</div>' +
       (unseenAlerts(t) ? '<button class="btn l sm" style="width:100%;margin-top:11px" ' +
         'data-a="alseen" data-id="' + t.id + '">' + icon('i-checkc','s14') +
-        'وسمُ تنبيهات هذه المهمة مقروءةً</button>' : ''),
-      'i-bell', unseenAlerts(t) ? pill(AR(unseenAlerts(t)), 'no') : pill(AR(taskAlerts(t).length), 'grey')) : '') +
+        'وسمُ الكلّ مقروءًا</button>' : ''),
+      'i-bell', inboxNew(t) ? pill(AR(inboxNew(t)), 'no')
+        : pill(AR(inbox(t).length), 'grey')) : '') +
 
     /* ── الملاحظات ── */
     txFold(t, 'notes', 'ملاحظات المهمة', AR(t.notes.length) + ' ملاحظة',
@@ -875,4 +833,386 @@ function alertsDrawer() {
         : empty('لا تنبيهات', 'الميدان هادئ', 'i-bell')) +
     '</div>' };
   renderDrawer();
+}
+
+/* ============================================================
+   ما قبل المهمّة: الشرط والملفّ في مكانٍ واحد
+
+   كان الشرط في مكان والعقد في مكان، فيُشيَّك على «عقد النقل ساري»
+   ولا يُعرف أين العقد. صار كلّ شرطٍ يقبل الاثنين: علامةً تُرفع،
+   وملفًّا يُرفَق، أو كليهما — ولا يُعدّ مستوفًى إلا بما اشتُرط فيه.
+   ============================================================ */
+function preBlock(t) {
+  const reqs = reqIn(t, 'pre');
+  const files = t.files || [];
+  const loose = files.filter(f => !f.reqId);   /* ملفّاتٌ عامّة بلا شرط */
+  return (reqs.length ? '<div class="reqs">' + reqs.map(r => {
+    const rf = files.filter(f => f.reqId === r.id);
+    const needF = r.needFile;
+    const ok = r.done && (!needF || rf.length);
+    return '<div class="req2' + (ok ? ' on' : '') + '">' +
+      '<div class="rtop">' +
+        '<button class="rtick' + (r.done ? ' on' : '') + '" data-a="txreq" data-id="' + t.id +
+          '" data-s="' + r.id + '" aria-label="تحقّق">' +
+          (r.done ? icon('i-check','s13') : '') + '</button>' +
+        '<span class="sp"><b>' + E(r.text) + '</b>' +
+          '<span class="tiny faint">' +
+            (r.done ? 'شيَّك عليه ' + E(r.by || 'الكنترول') + ' · ' + t12(r.at)
+                    : 'لم يُتحقَّق منه بعد') +
+            (needF ? ' · <b style="color:var(--amber)">يلزمه ملفّ</b>' : '') +
+          '</span></span>' +
+        '<button class="rclip" data-a="txfilenew" data-id="' + t.id + '" data-s="' + r.id + '" ' +
+          'aria-label="إرفاق ملفّ لهذا الشرط" title="إرفاق ملفّ">' + icon('i-clip','s14') +
+          (rf.length ? '<i>' + AR(rf.length) + '</i>' : '') + '</button>' +
+        '<button class="rneed' + (needF ? ' on' : '') + '" data-a="txreqneed" data-id="' + t.id +
+          '" data-s="' + r.id + '" aria-label="اشتراط ملفّ" ' +
+          'title="' + (needF ? 'لا يلزمه ملفّ' : 'اشترط ملفًّا') + '">' +
+          icon('i-file','s13') + '</button>' +
+        '<button class="rx2" data-a="txreqdel" data-id="' + t.id + '" data-s="' + r.id + '" ' +
+          'aria-label="حذف">' + icon('i-x','s13') + '</button>' +
+      '</div>' +
+      (rf.length ? '<div class="rfiles">' + rf.map(f => fileRow(t, f)).join('') + '</div>' : '') +
+      (needF && !rf.length ? '<div class="rwarn">' + icon('i-warn','s12') +
+        'هذا الشرط لا يكتمل بالعلامة وحدها — أرفِق ملفّه.</div>' : '') +
+    '</div>';
+  }).join('') + '</div>'
+    : '<div class="tiny faint" style="margin-top:12px">لا شروط بعد — أضِفها أو اربط قالبًا.</div>') +
+
+  (loose.length ? '<div class="lbl2">ملفّاتٌ وعقودٌ عامّة على المهمّة</div>' +
+    '<div class="rfiles">' + loose.map(f => fileRow(t, f)).join('') + '</div>' : '') +
+
+  '<div class="grid g3" style="gap:8px;margin-top:13px">' +
+    '<button class="btn l sm" data-a="txreqnew" data-id="' + t.id + '" data-v="pre">' +
+      icon('i-plus','s14') + 'شرط جديد</button>' +
+    '<button class="btn l sm" data-a="txtpl" data-id="' + t.id + '">' +
+      icon('i-list','s14') + 'ربط قالب</button>' +
+    '<button class="btn l sm" data-a="txfilenew" data-id="' + t.id + '">' +
+      icon('i-clip','s14') + 'ملفّ أو عقد</button>' +
+  '</div>';
+}
+
+function fileRow(t, f) {
+  return '<div class="xfile">' +
+    '<button class="fi" data-a="txfileopen" data-id="' + t.id + '" data-s="' + f.id + '">' +
+      '<span class="ft">' + (/image/.test(f.type || '') ? icon('i-photo','s16') : '<b>PDF</b>') + '</span>' +
+      '<span class="sp"><b>' + E(f.name) + '</b>' +
+      '<span class="tiny faint">' + (f.ref ? LTR(f.ref) + ' · ' : '') + E(f.note || '') +
+      ' · ' + E(f.by || 'الكنترول') + ' · ' + hijri(f.at) + '</span></span>' +
+      (f.kind === 'contract' ? pill('عقد','gold') : pill('ملف','grey')) + '</button>' +
+    '<button class="fx" data-a="txfiledel" data-id="' + t.id + '" data-s="' + f.id + '" ' +
+      'aria-label="حذف">' + icon('i-x','s13') + '</button></div>';
+}
+
+/* الشرط لا يُعدّ مستوفًى إن اشتُرط فيه ملفٌّ ولم يُرفَق */
+function prepDone(t) {
+  const reqs = reqIn(t, 'pre');
+  const files = t.files || [];
+  return reqs.filter(r => r.done &&
+    (!r.needFile || files.some(f => f.reqId === r.id))).length;
+}
+
+/* ---------- الوارد: تذكرةٌ وتنبيهٌ في صفٍّ واحد ---------- */
+function inbox(t) {
+  const tk = taskTickets(t).map(k => ({
+    kind:'ticket', id:k.id, at:k.at, seen:k.status !== 'مفتوحة',
+    text:k.title, from:k.from, no:k.no, pri:k.pri, st:k.status, ref:k
+  }));
+  const al = taskAlerts(t).map(a => ({
+    kind:a.kind, id:a.id, at:a.at, seen:a.seen, text:a.text, alert:true
+  }));
+  return tk.concat(al).sort((a, b) => b.at - a.at);
+}
+const inboxNew = t => inbox(t).filter(x => !x.seen).length;
+
+function inRow(x) {
+  if (x.kind === 'ticket') {
+    return '<div class="alrow' + (x.seen ? ' seen' : '') + '" data-a="tkopen2" data-id="' + x.id + '">' +
+      '<span class="ali" style="color:#C0392B;background:color-mix(in srgb,#C0392B 15%,transparent)">' +
+        icon('i-ticket','s15') + '</span>' +
+      '<span class="alx"><b>' + E(x.text) + '</b>' +
+        '<span class="tiny faint">تذكرة · ' + LTR(x.no) + ' · ' + E(x.from) + ' · ' +
+        untilTxt(x.at) + '</span></span>' +
+      pill(x.pri, x.pri === 'حرجة' ? 'no' : 'wait') +
+      (x.seen ? '' : '<span class="aldot"></span>') + '</div>';
+  }
+  const k = ALERT_KIND[x.kind] || ALERT_KIND.change;
+  return '<div class="alrow' + (x.seen ? ' seen' : '') + '" data-a="alseen1" data-s="' + x.id + '">' +
+    '<span class="ali" style="color:' + k.c + ';background:color-mix(in srgb,' + k.c +
+      ' 15%,transparent)">' + icon(k.i,'s15') + '</span>' +
+    '<span class="alx"><b>' + E(x.text) + '</b>' +
+      '<span class="tiny faint">' + E(k.ar) + ' · ' + t12(x.at) + ' · ' + untilTxt(x.at) +
+      '</span></span>' +
+    (x.seen ? '' : '<span class="aldot"></span>') + '</div>';
+}
+
+/* ============================================================
+   تقرير تنفيذ المهمّة الآليّ — قبليّ وبعديّ
+
+   يُبنى من وقائع المهمّة نفسها لا يُكتب يدويًّا: التوقيت والأداء،
+   وتفصيل الفرعيّات، والحضور الميداني، والتذاكر المرتبطة، وطلبات
+   الحجّاج، والتقييمات، وسجلّ تحديثات الكنترول.
+   ويُصدَّر PDF (بالطباعة) أو إكسل أو صورة.
+   ============================================================ */
+const dmin = ms => (ms == null ? '—'
+  : (ms < 0 ? '−' : '+') + AR(Math.abs(Math.round(ms / MIN))) + ' د');
+const hm = ts => ts ? t12(ts) : '—';
+const durTxt = ms => ms == null ? '—'
+  : AR(Math.floor(ms / HR)) + ' س ' + AR(Math.round((ms % HR) / MIN)) + ' د';
+
+function taskReport(id) {
+  const t = ensureTask(taskById(id)); if (!t) return;
+  const c = CAT[t.kind] || {}, L = userById(t.leaderId) || {};
+  const sup = taskSup(t), h = taskHotel(t);
+  const st = tsOf(t), r = rateOf(t);
+  const team = t.assigned.map(userById).filter(Boolean);
+  const tks = taskTickets(t);
+  const subsDone = t.subs.filter(s => s.done).length;
+  const shots = t.subs.filter(s => s.shot);
+  const startAct = t.startedAt, endAct = t.endedAt;
+
+  const row = cells => '<div class="rprow">' + cells.map(x =>
+    '<span>' + x + '</span>').join('') + '</div>';
+  const hrow = cells => '<div class="rphead">' + cells.map(x =>
+    '<span>' + x + '</span>').join('') + '</div>';
+  const sect = (title, sub2, body, cls) =>
+    '<section class="rpsec' + (cls ? ' ' + cls : '') + '">' +
+      '<h3>' + E(title) + (sub2 ? '<small>' + E(sub2) + '</small>' : '') + '</h3>' +
+      body + '</section>';
+
+  S.drawer = { title:'تقرير تنفيذ المهمة', sub:t.title + ' · ' + t.kt,
+    icon:'i-report', paper:true, expand:t.id, body:
+
+    '<div class="rpbar">' +
+      '<button class="btn p sm" data-a="rpprint" data-id="' + t.id + '">' +
+        icon('i-print','s14') + 'PDF / طباعة</button>' +
+      '<button class="btn l sm" data-a="rpxl" data-id="' + t.id + '">' +
+        icon('i-doc','s14') + 'إكسل</button>' +
+      '<button class="btn l sm" data-a="rppng" data-id="' + t.id + '">' +
+        icon('i-photo','s14') + 'صورة</button>' +
+      '<span class="sp"></span>' +
+      '<button class="btn l sm" data-a="tlopen" data-id="' + t.id + '">' +
+        icon('i-back','s14') + 'رجوع</button>' +
+    '</div>' +
+
+    '<div class="report" id="rpdoc">' +
+      '<header class="rphd">' +
+        '<div><h2>تقرير تنفيذ المهمة الآلي</h2>' +
+        '<div class="rpsub">' + E(t.title) + ' — ' + LTR(t.kt) + '</div></div>' +
+        '<div class="rpst"><span class="tst" style="--tsc:' + st.c + '"><i></i>' +
+          E(st.ar) + '</span>' +
+          '<b class="num">' + AR(subPct(t)) + '٪</b>' +
+          '<span class="tiny">نسبة الإنجاز</span></div>' +
+      '</header>' +
+
+      '<div class="rpmeta">' +
+        '<span><i>وقت إصدار التقرير</i><b>' + hijri(now()) + ' · ' + t12(now()) + '</b></span>' +
+        '<span><i>وقت آخر تحديث</i><b>' +
+          ((t.hist || [])[0] ? hijri(t.hist[0].at) + ' · ' + t12(t.hist[0].at) : '—') + '</b></span>' +
+        '<span><i>رقم المهمة</i><b>' + LTR('#' + t.code) + '</b></span>' +
+        '<span><i>نافذة التقييم</i><b>' + hijri(t.end) + ' — ' + hijri(t.end + 3 * DAY) + '</b></span>' +
+        '<span><i>الجهة</i><b>' + E((orgById(t.orgId) || {}).ar || '') + '</b></span>' +
+        '<span><i>المكان</i><b>' + E(t.place) + '</b></span>' +
+        '<span><i>الفندق</i><b>' + E(h ? h.ar : '—') + '</b></span>' +
+        '<span><i>حجاج المجموعة</i><b class="num">' + AR(taskPilgrims(t)) + '</b></span>' +
+      '</div>' +
+
+      sect('فريق المهمة', '',
+        '<div class="rptbl t3">' + hrow(['الدور','الاسم','الملاحظة']) +
+        row(['المشرف', E(sup ? sup.name : '—'), E(h ? h.ar : '—')]) +
+        row(['القائد', E(L.name || '—'), LTR(L.code || '')]) +
+        row(['المحسنون', team.map(m => E(m.name)).join('، ') || '—',
+             AR(team.length) + ' محسنًا']) + '</div>') +
+
+      sect('التوقيت والأداء', 'الفرق بين المخطّط والواقع',
+        '<div class="rptbl t6">' +
+        hrow(['البيان','الوقت الأصلي','بعد التعديل','الوقت الفعلي','الفرق','المدة']) +
+        row(['بدء المهمة', hm(t.start), hm(t.start), hm(startAct),
+             dmin(startAct ? startAct - t.start : null),
+             startAct && endAct ? durTxt(endAct - startAct) : '—']) +
+        row(['انتهاء المهمة', hm(t.end), hm(t.end), hm(endAct),
+             dmin(endAct ? endAct - t.end : null), durTxt(t.durH * HR)]) +
+        '</div>') +
+
+      sect('تفاصيل تنفيذ المهام الفرعية', AR(subsDone) + ' من ' + AR(t.subs.length) + ' منجزة',
+        '<div class="rptbl t7">' +
+        hrow(['المهمة الفرعية','الحالة','البدء الفعلي','وقت الإتمام','مدة التنفيذ',
+              'الصورة المطلوبة','دليل التنفيذ']) +
+        t.subs.map((s, i) => {
+          const prev = i ? t.subs[i - 1] : null;
+          const from = s.done ? (prev && prev.at ? prev.at : startAct || t.start) : null;
+          return row([
+            E(s.name),
+            s.done ? '<b style="color:var(--live)">مكتملة</b>'
+              : (i === t.subs.findIndex(x => !x.done) && tState(t) === 'live'
+                 ? '<b style="color:var(--gold2)">جاري التنفيذ</b>'
+                 : '<span style="color:var(--dim2)">لم تبدأ</span>'),
+            s.done ? hm(from) : '—',
+            s.done ? hm(s.at) : '—',
+            s.done && from ? durTxt(s.at - from) : '—',
+            s.shot ? '<b style="color:var(--live)">نعم — مرفوعة</b>'
+              : (i % 3 === 0 ? '<span style="color:var(--red)">نعم — لم تُرفع</span>' : 'لا'),
+            s.shot ? '<span style="color:var(--live)">' + t12(s.shot.at) + '</span>'
+              : (i % 3 === 0 ? 'مطلوبة للإكمال' : '—')
+          ]);
+        }).join('') + '</div>' +
+        '<div class="rpnote">ملاحظة: إذا كانت الصورة مطلوبة، لا يسمح النظام بإكمال المهمة ' +
+        'الفرعية قبل رفع صورة واحدة.</div>') +
+
+      '<div class="rp3">' +
+      sect('الحضور الميداني', '',
+        '<div class="rptbl t5">' +
+        hrow(['الاسم','الدور','الوقت المطلوب','الحضور الفعلي','الفرق']) +
+        row([E(L.name || '—'), 'قائد', hm(t.start - 2 * HR),
+             t.leaderAttendedAt ? hm(t.leaderAttendedAt) : hm(t.start - 105 * MIN),
+             dmin(-15 * MIN)]) +
+        team.slice(0, 8).map((m, i) => {
+          const was = t.attended.indexOf(m.id) >= 0;
+          const act = was ? t.start - (90 - i * 9) * MIN : null;
+          return row([E(m.name), 'محسن', hm(t.start - 2 * HR),
+            was ? hm(act) : '<span style="color:var(--red)">لم يحضر</span>',
+            was ? dmin(act - (t.start - 2 * HR)) : '—']);
+        }).join('') + '</div>') +
+
+      sect('التذاكر التشغيلية', 'مرتبطة بالمهمة الأساسية · العدد ' + AR(tks.length),
+        '<div class="rptbl t5">' +
+        hrow(['رقم التذكرة','المشكلة','وقت الفتح','وقت الإغلاق','الحالة']) +
+        (tks.length ? tks.map(k => row([LTR(k.no), E(k.title), hm(k.at),
+          k.status === 'مغلقة' ? hm(k.at + 3 * HR) : '—',
+          E(k.status)])).join('')
+          : row(['—','لم تُرفع تذاكر','—','—','—'])) + '</div>') +
+
+      sect('طلبات الحجاج أثناء المهمة', 'العدد ' + AR(Math.max(0, tks.length - 1)),
+        '<div class="rptbl t5">' +
+        hrow(['رقم الطلب','اسم الحاج','الطلب','الإغلاق','الحالة']) +
+        (tks.length > 1 ? tks.slice(1).map(k => row([LTR(k.no), E(k.from), E(k.cat),
+          k.status === 'مغلقة' ? hm(k.at + 2 * HR) : '—', E(k.status)])).join('')
+          : row(['—','لم ترد طلبات','—','—','—'])) + '</div>') +
+      '</div>' +
+
+      '<div class="rp2">' +
+      sect('التقييمات', 'تُعرض منفصلة',
+        '<div class="rptbl t2">' +
+        row(['تقييم النظام', '<b class="num">' + AR(r.stars) + '</b> من ٥']) +
+        row(['تقييم المشرف', '<b class="num">' + AR(Math.max(1, Math.min(5,
+          Math.round((r.stars + 0.5) * 2) / 2))) + '</b> من ٥']) +
+        row(['متوسط تقييم الحجاج', '<b class="num">' +
+          AR(Math.max(1, Math.min(5, Math.round((r.stars - 0.5) * 2) / 2))) + '</b> من ٥']) +
+        row(['عدد الحجاج المقيمين', '<b class="num">' +
+          AR(Math.round(taskPilgrims(t) * 0.42)) + '</b>']) +
+        row(['نسبة المشاركة', '<b class="num">٤٢٪</b>']) +
+        '</div>') +
+
+      sect('سجل تحديثات الكنترول', AR((t.hist || []).length) + ' قيدًا',
+        '<div class="rptbl t5">' +
+        hrow(['وقت التعديل','الحالة','القيمة السابقة','القيمة الجديدة','سبب التعديل']) +
+        (t.hist || []).slice(0, 8).map(x => row([hm(x.at),
+          x.kind === 'ok' ? 'إنجاز' : x.kind === 'warn' ? 'تنبيه' : 'تحديث',
+          '—', E(x.text.slice(0, 40)), E(x.by || 'النظام')])).join('') + '</div>') +
+      '</div>' +
+
+      (shots.length ? sect('الصور المرفقة مع المهمة', AR(shots.length) + ' صورة',
+        '<div class="rpshots">' + shots.map(s =>
+          '<figure class="rpshot"><span class="bg-' + s.shot.img + '"></span>' +
+          '<figcaption>' + E(s.name) + ' · ' + t12(s.shot.at) + '</figcaption></figure>').join('') +
+        '</div>') : '') +
+
+      sect('ملاحظات الكنترول والأرشفة', '',
+        '<div class="rpfree">' +
+          (t.notes.length ? t.notes.map(n => '<p><b>' + E(n.by || 'الكنترول') + ':</b> ' +
+            E(n.text) + '</p>').join('') : '<p class="faint">لا ملاحظات مسجّلة على المهمة.</p>') +
+          '<p class="rparch"><b>الأرشفة النهائية:</b> بعد مغادرة الحجاج وانتهاء نافذة التقييم — ' +
+          hijri(t.end + 3 * DAY) + 'هـ.</p>' +
+        '</div>') +
+
+      '<footer class="rpft">' +
+        '<span>نظام مُحسن · الكنترول — تقرير آليّ لا يحتاج توقيعًا</span>' +
+        '<span>' + LTR('#' + t.code) + ' · ' + hijri(now()) + '</span>' +
+      '</footer>' +
+    '</div>' };
+  renderDrawer();
+}
+
+/* ---------- تصدير التقرير ---------- */
+function reportXl(t) {
+  const L = userById(t.leaderId) || {}, sup = taskSup(t), h = taskHotel(t);
+  const r = rateOf(t);
+  const lines = [];
+  const push = (a, b, c2, d2, e2, f2, g2) =>
+    lines.push([a, b, c2, d2, e2, f2, g2].map(x => x == null ? '' : x));
+  push('تقرير تنفيذ المهمة الآلي');
+  push('المهمة', t.title); push('رقم المهمة', '#' + t.code); push('الـKT', t.kt);
+  push('الحالة', tsOf(t).ar); push('نسبة الإنجاز', subPct(t) + '%');
+  push('الفندق', h ? h.ar : '—'); push('المشرف', sup ? sup.name : '—');
+  push('القائد', L.name || '—'); push('حجاج المجموعة', taskPilgrims(t));
+  push('');
+  push('التوقيت','البيان','الأصلي','بعد التعديل','الفعلي','الفرق (د)');
+  push('', 'بدء المهمة', t12(t.start), t12(t.start), t.startedAt ? t12(t.startedAt) : '—',
+    t.startedAt ? Math.round((t.startedAt - t.start) / MIN) : '');
+  push('', 'انتهاء المهمة', t12(t.end), t12(t.end), t.endedAt ? t12(t.endedAt) : '—',
+    t.endedAt ? Math.round((t.endedAt - t.end) / MIN) : '');
+  push('');
+  push('المهام الفرعية','الاسم','الحالة','وقت الإتمام','صورة');
+  t.subs.forEach(s => push('', s.name, s.done ? 'مكتملة' : 'لم تبدأ',
+    s.done ? t12(s.at) : '—', s.shot ? 'مرفوعة' : '—'));
+  push('');
+  push('الحضور','الاسم','الدور','المطلوب','الفعلي');
+  t.assigned.map(userById).filter(Boolean).forEach(m =>
+    push('', m.name, 'محسن', t12(t.start - 2 * HR),
+      t.attended.indexOf(m.id) >= 0 ? 'حضر' : 'لم يحضر'));
+  push('');
+  push('التقييم','النظام', r.stars, 'التحضير', r.prep + '%', 'الخطوات', r.subs + '%');
+  const csv = '﻿' + lines.map(l => l.map(csvCell).join(';')).join('\n');
+  download('report-' + t.code + '.csv', csv);
+}
+
+/* صورة: نرسم الورقة داخل SVG بخاصيّة foreignObject ثم نحوّلها canvas */
+function reportPng(t) {
+  const el = document.getElementById('rpdoc');
+  if (!el) { toast('افتح التقرير أوّلًا', 'r'); return; }
+  const w = el.scrollWidth, h = el.scrollHeight;
+  const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  const html = '<div xmlns="http://www.w3.org/1999/xhtml" dir="rtl">' +
+    '<style>' + styles + '</style>' +
+    '<div style="width:' + w + 'px;background:#fff">' + el.outerHTML + '</div></div>';
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
+    '<foreignObject width="100%" height="100%">' + html + '</foreignObject></svg>';
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
+    cx.drawImage(img, 0, 0);
+    cv.toBlob(b => {
+      if (!b) { toast('تعذّر توليد الصورة — استخدم الطباعة', 'r'); return; }
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u; a.download = 'report-' + t.code + '.png';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { a.remove(); URL.revokeObjectURL(u); }, 400);
+      toast('نُزِّلت صورة التقرير');
+    }, 'image/png');
+  };
+  img.onerror = () => toast('تعذّر توليد الصورة — استخدم الطباعة', 'r');
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+/* PDF: نافذة طباعة تحمل الورقة وحدها بأنماطها */
+function reportPrint(t) {
+  const el = document.getElementById('rpdoc');
+  if (!el) { toast('افتح التقرير أوّلًا', 'r'); return; }
+  const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  const w = window.open('', '_blank');
+  if (!w) { toast('اسمح بالنوافذ المنبثقة للطباعة', 'r'); return; }
+  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
+    '<title>تقرير ' + E(t.title) + '</title>' +
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">' +
+    '<style>' + styles + '</style>' +
+    '<style>html[data-theme]{--x:0}body{background:#fff;padding:22px;font-family:' +
+    '"IBM Plex Sans Arabic",system-ui,sans-serif}' +
+    '@page{size:A4;margin:12mm}.report{border:0!important;box-shadow:none!important}' +
+    '.rpsec{break-inside:avoid}</style></head><body data-print="1">' +
+    el.outerHTML + '</body></html>');
+  w.document.close();
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700);
 }

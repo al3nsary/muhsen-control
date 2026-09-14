@@ -24,8 +24,15 @@ function delta(v) {
 }
 
 /* ---------- بطاقة مؤشّر كاملة ---------- */
+/* الخانة تُنقر فتنقل — لا تُقرأ وحدها.
+   كل مؤشّرٍ يعرف الشاشة التي يقود إليها، فمن رأى رقمًا أراد مصدره. */
 function stat(o) {
-  return '<div class="card kpi hov ' + (o.cls || '') + '">' +
+  const to = o.go || KPI_GO[o.label] || null;
+  return '<div class="card kpi hov' + (o.cls ? ' ' + o.cls : '') + (to ? ' clik' : '') + '"' +
+    (to ? ' data-a="kgo" data-n="' + to.n + '"' +
+      (to.k ? ' data-k="' + to.k + '" data-v="' + to.v + '"' : '') +
+      ' role="button" tabindex="0" title="افتح ' + E(o.label) + '"' : '') + '>' +
+    (to ? '<span class="kgoi">' + icon('i-fwd','s13') + '</span>' : '') +
     '<span class="lab">' + icon(o.ic || 'i-hash','s14') + E(o.label) + '</span>' +
     '<div class="kv"><b class="num" data-n="' + o.n + '"' +
       (o.suffix ? ' data-suffix="' + o.suffix + '"' : '') + '>' + AR(0) + '</b>' +
@@ -35,6 +42,33 @@ function stat(o) {
       '<path d="' + sparkPath(o.series || [4, 7, 5, 9, 6, 11, 8, 13]) + '" fill="none" ' +
       'stroke="currentColor" stroke-width="1.8"/></svg></div>';
 }
+/* خريطة المؤشّر إلى شاشته — بالاسم، فالمؤشّرات تُنشأ في أماكن شتّى */
+const KPI_GO = {
+  'مهام الموسم':{n:'tasks',k:'tt',v:'hajj'}, 'جارية الآن':{n:'tasks',k:'tt',v:'hajj'},
+  'مهام متعثّرة':{n:'tasks',k:'tt',v:'hajj'}, 'استعدادٌ ناقص':{n:'tasks',k:'tt',v:'hajj'},
+  'منجزة':{n:'tasks',k:'tt',v:'hajj'}, 'اليوم':{n:'tasks',k:'tt',v:'hajj'},
+  'مهام المدة':{n:'tasks',k:'tt',v:'hajj'},
+  'تنبيهات لم تُقرأ':{n:'tasks',k:'tt',v:'hajj'},
+  'قرارات تنتظرك':{n:'support'}, 'طلبات الدعم':{n:'support'},
+  'تذاكر مفتوحة':{n:'tickets'}, 'تقارير مصعَّدة':{n:'reports'},
+  'حوادث حرجة':{n:'incidents'}, 'مفتوحة':{n:'incidents'},
+  'قيد المعالجة':{n:'incidents'}, 'مغلقة':{n:'incidents'}, 'متوسط الحلّ':{n:'incidents'},
+  'المحسنون':{n:'staff'}, 'إجمالي الموظفين':{n:'staff'}, 'مسكَّن':{n:'staff'},
+  'إجمالي الموظفين النشطين':{n:'staff'},
+  'محسنون بلا مجموعة':{n:'staff'}, 'مجموعات مشكَّلة':{n:'teams'},
+  'طلبات قيد المراجعة':{n:'actions'}, 'متوسط أداء الفريق':{n:'actions'},
+  'الحجاج':{n:'pilgrims'}, 'إجمالي الحجاج':{n:'tasks',k:'tt',v:'nusuk'},
+  'وصلوا':{n:'tasks',k:'tt',v:'nusuk'}, 'بطاقات سُلِّمت':{n:'tasks',k:'tt',v:'nusuk'},
+  'حالات تحتاج رعاية':{n:'tasks',k:'tt',v:'nusuk'},
+  'رحلات اليوم':{n:'transport'}, 'حِمل الأسطول':{n:'transport'},
+  'قوالب منشورة':{n:'tasks',k:'tt',v:'comply'}, 'مهام مُسنَدة':{n:'tasks',k:'tt',v:'comply'},
+  'متأخّرة':{n:'tasks',k:'tt',v:'comply'}, 'إدخالات الامتثال':{n:'tasks',k:'tt',v:'comply'},
+  'رحلات المزارات':{n:'tasks',k:'tt',v:'enrich'},
+  'متوسط التقييم':{n:'quality'}, 'أدلة معتمدة':{n:'guides'},
+  'فنادق بلا مشرف':{n:'assign'}, 'طلبات الشِفتات':{n:'shifts'},
+  'التزام البدء':{n:'tasks',k:'tt',v:'hajj'}
+};
+
 function sparkPath(a) {
   const mx = Math.max.apply(null, a) || 1, n = a.length;
   return a.map((v, i) => (i ? 'L' : 'M') + (i / (n - 1) * 200).toFixed(1) + ' ' +

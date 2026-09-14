@@ -1590,6 +1590,9 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 /* الدرج الموسَّع: البيانات كثيرة فالعرض يتبعها، والأقسام عمودان */
 .drawer.xl{width:min(1020px,96vw)}
+/* التقرير ورقةٌ لا بطاقة: جداولُه سبعة أعمدة، فيحتاج عرض ورقةٍ لا عرض درج */
+.drawer.paper{width:min(1340px,98vw)}
+.drawer.paper .db{display:block}
 .drawer.xl .db{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-content:start;
   /* قِيس لا خُمِّن: صفوف auto تنهار إلى حدّ الإطار هنا، و min-content تُعيدها
      إلى ارتفاع محتواها. و align-items:start يمنع مطّ الأقصر إلى طول الأطول. */
@@ -1784,6 +1787,243 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 /* صفّ رقاقات يلتفّ */
 .chipwrap{display:flex; flex-wrap:wrap; gap:7px; margin-top:11px}
 .chipwrap .chipbtn i{display:inline-block; flex:none}
+
+/* ══ جدول التأشيرة: ثلاثة عشر عمودًا تُقرأ ولا تتزاحم ══
+   لا يُطوى ولا يُقصّ — يُمرَّر أفقيًّا داخل وعائه وحده، ويبقى الصفّ
+   كاملًا بأعمدته لأن كل عمود هنا يقابل عمودًا في الكشف الرسمي. */
+.xtwrap{margin-top:14px; overflow-x:auto; border-radius:16px;
+  border:1px solid var(--line); background:var(--panel)}
+.xtwrap::-webkit-scrollbar{height:9px}
+.xtwrap::-webkit-scrollbar-thumb{background:var(--line2); border-radius:99px}
+.xtbl{min-width:1580px; display:flex; flex-direction:column}
+.xtbl > *{flex:none}
+.xhead{display:grid; grid-template-columns:230px 120px 170px 130px 66px 190px 74px 170px 120px 130px 94px 120px 150px;
+  gap:0; position:sticky; top:0; z-index:2; background:var(--panel2);
+  border-bottom:1px solid var(--line2)}
+.xth{padding:11px 12px; font-size:10.5px; font-weight:700; color:var(--dim2);
+  white-space:nowrap; border-inline-start:1px solid var(--line)}
+.xth:first-child{border-inline-start:0}
+.xrow{display:grid; grid-template-columns:230px 120px 170px 130px 66px 190px 74px 170px 120px 130px 94px 120px 150px;
+  border-bottom:1px solid var(--line); cursor:pointer; transition:background .16s var(--e)}
+.xrow:hover{background:var(--sheen)}
+.xrow:last-child{border-bottom:0}
+.xc{padding:10px 12px; font-size:11.5px; color:var(--dim); display:flex; align-items:center;
+  gap:7px; min-width:0; border-inline-start:1px solid var(--line)}
+.xc:first-child{border-inline-start:0}
+/* رقمٌ لاتينيّ في خليّة عربية: يُقصّ من رأسه إن لم يُعطَ اتجاهه.
+   والقصّ عند الطرف الصحيح بـ ellipsis لا بلا أثر. */
+.xc.num{font-variant-numeric:tabular-nums; color:var(--ink); direction:ltr;
+  justify-content:flex-end; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.xc.num > *{overflow:hidden; text-overflow:ellipsis}
+.xc.ltr{direction:ltr; justify-content:flex-end}
+.xc > b{font-size:11.5px; color:var(--ink)}
+.xc .tiny{display:block}
+.xc.nmc{position:relative}
+.xc.nmc .nm{flex:1; min-width:0}
+.xc.nmc .nm b{display:block; font-size:12px; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis}
+.xc.nmc .nm span{display:block; font-size:10px; color:var(--dim2)}
+.hdot{width:8px; height:8px; border-radius:50%; flex:none}
+.xc.act{gap:8px}
+.wchip{display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700;
+  white-space:nowrap}
+.eyebtn{width:30px; height:30px; border-radius:10px; flex:none; display:grid;
+  place-items:center; background:var(--sheen); border:1px solid transparent;
+  color:var(--gold2); cursor:pointer}
+.eyebtn:hover{border-color:var(--gold2); background:var(--raise)}
+.eyebtn.big{width:40px; height:40px; border-radius:13px}
+
+/* جدول الاكسترا كوتا: ثمانية أعمدة */
+.xtbl.qtbl{min-width:1080px}
+.xtbl.qtbl .xhead, .xtbl.qtbl .xrow{grid-template-columns:repeat(8,minmax(120px,1fr))}
+.xtbl.qtbl .xrow.bad{background:color-mix(in srgb,var(--red) 10%,transparent)}
+.xtbl.qtbl .xrow.bad .xc{color:var(--red)}
+
+/* ══ مسار إصدار البطاقة: عشر محطّات، المقطوعة منها مضيئة ══ */
+.cflow{position:relative; padding-inline-start:22px; margin-top:14px}
+.cflow::before{content:''; position:absolute; inset-block:10px 10px; inset-inline-start:7px;
+  width:2px; background:var(--line2)}
+.cstep{position:relative; display:flex; align-items:flex-start; gap:11px; padding:9px 0}
+.cstep .cdot{position:absolute; inset-inline-start:-21px; top:11px; width:16px; height:16px;
+  border-radius:50%; background:var(--panel); border:2px solid var(--line2);
+  display:grid; place-items:center; color:#062}
+.cstep.on .cdot{background:var(--live); border-color:var(--live)}
+.cstep.now .cdot{box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 30%,transparent)}
+.cstep .cx{flex:1; min-width:0}
+.cstep .cx b{display:block; font-size:12.5px; color:var(--dim2); line-height:1.5}
+.cstep.on .cx b{color:var(--ink)}
+.cstep.now .cx b{color:var(--gold3); font-weight:700}
+
+/* شارة الدفعات المنتظِرة */
+.qbadge{display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:99px;
+  font-size:11px; font-weight:700; color:var(--amber);
+  background:color-mix(in srgb,var(--amber) 15%,transparent);
+  border:1px solid color-mix(in srgb,var(--amber) 36%,transparent)}
+
+/* ══ شرطٌ يقبل علامةً وملفًّا معًا ══
+   العلامة وحدها تكفي لبعض الشروط، وبعضها لا يكتمل إلا بورقة.
+   فالصفّ يحمل الاثنين ويقول أيّهما ينقص. */
+.req2{border:1px solid var(--line); border-radius:14px; background:var(--sheen);
+  overflow:hidden; transition:border-color .2s var(--e)}
+.req2.on{border-color:color-mix(in srgb,var(--live) 38%,transparent);
+  background:color-mix(in srgb,var(--live) 8%,transparent)}
+.req2 .rtop{display:flex; align-items:flex-start; gap:9px; padding:10px 11px}
+.req2 .rtop .sp{flex:1; min-width:0}
+.req2 .rtop .sp b{display:block; font-size:12.5px; font-weight:600; line-height:1.55}
+.rtick{width:20px; height:20px; border-radius:7px; flex:none; margin-top:1px;
+  border:1.6px solid var(--line2); background:transparent; display:grid; place-items:center;
+  cursor:pointer; color:#062; transition:all .2s var(--e)}
+.rtick.on{background:var(--live); border-color:var(--live)}
+.rclip,.rneed,.rx2{width:26px; height:26px; border-radius:9px; flex:none; display:grid;
+  place-items:center; background:transparent; border:0; color:var(--dim2); cursor:pointer;
+  position:relative}
+.rclip:hover,.rneed:hover{background:var(--raise); color:var(--ink)}
+.rneed.on{color:var(--amber); background:color-mix(in srgb,var(--amber) 16%,transparent)}
+.rclip i{position:absolute; top:-2px; inset-inline-end:-2px; min-width:14px; height:14px;
+  border-radius:99px; background:var(--gold); color:#1a1205; font-size:8.5px; font-weight:800;
+  font-style:normal; display:grid; place-items:center}
+.rx2{opacity:0}
+.req2:hover .rx2{opacity:1}
+.rx2:hover{background:color-mix(in srgb,var(--red) 18%,transparent); color:var(--red)}
+.rfiles{display:flex; flex-direction:column; gap:6px; padding:0 11px 11px}
+.rfiles > *{flex:none}
+.rwarn{display:flex; align-items:center; gap:5px; padding:7px 11px 10px; font-size:10.5px;
+  color:var(--amber)}
+.lbl2{font-size:11px; font-weight:700; color:var(--dim2); margin:16px 2px 8px}
+
+/* ══ ورقة التقرير: تُقرأ على الشاشة وتُطبع كما هي ══
+   أبيضُ على أبيض ولو كانت الغرفة ليلية — فالتقرير يُطبع ويُرسل،
+   ولا يُطبع الأسود على الورق. */
+.rpbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.report{background:#fff; color:#12201A; border-radius:16px; padding:26px 24px;
+  border:1px solid #DCE5DE; line-height:1.75;
+  font-variant-numeric:tabular-nums; box-shadow:0 20px 50px -28px rgba(0,0,0,.5)}
+.report *{border-color:#E3EAE4}
+.rphd{display:flex; align-items:flex-start; gap:18px; padding-bottom:16px;
+  border-bottom:2px solid #16483A; margin-bottom:16px}
+.rphd h2{margin:0; font-size:19px; color:#0E3A2C}
+.rphd .rpsub{font-size:12.5px; color:#5A6C63; margin-top:4px}
+.rphd .rpst{margin-inline-start:auto; text-align:center; flex:none}
+.rphd .rpst .tst{display:inline-flex; align-items:center; gap:5px; padding:4px 10px;
+  border-radius:99px; font-size:11px; font-weight:700; color:var(--tsc);
+  background:color-mix(in srgb,var(--tsc) 14%,#fff);
+  border:1px solid color-mix(in srgb,var(--tsc) 40%,#fff)}
+.rphd .rpst .tst i{width:6px; height:6px; border-radius:50%; background:var(--tsc)}
+.rphd .rpst b{display:block; font-size:26px; color:#0E3A2C; margin-top:7px; line-height:1}
+.rphd .rpst .tiny{font-size:10px; color:#7C8C84}
+.rpmeta{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px;
+  background:#E3EAE4; border:1px solid #E3EAE4; border-radius:10px; overflow:hidden;
+  margin-bottom:20px}
+.rpmeta span{background:#F6F9F7; padding:9px 11px}
+.rpmeta i{display:block; font-style:normal; font-size:9.5px; color:#7C8C84; margin-bottom:2px}
+.rpmeta b{font-size:12px; color:#12201A; font-weight:600}
+.rpsec{margin-bottom:20px}
+.rpsec h3{margin:0 0 9px; font-size:13.5px; color:#0E3A2C;
+  display:flex; align-items:baseline; gap:9px}
+.rpsec h3 small{font-size:10.5px; color:#7C8C84; font-weight:500}
+.rptbl{border:1px solid #E3EAE4; border-radius:10px; overflow:hidden; font-size:11.5px}
+.rphead,.rprow{display:grid; gap:1px; background:#E3EAE4}
+.rphead{background:#E9F0EB}
+.rphead span{background:#E9F0EB; padding:8px 10px; font-weight:700; color:#3C4F47;
+  font-size:10.5px}
+.rprow span{background:#fff; padding:8px 10px; color:#2A3A33}
+.rprow:nth-child(even) span{background:#FAFCFB}
+.rptbl.t2 .rphead,.rptbl.t2 .rprow{grid-template-columns:1fr 1fr}
+.rptbl.t3 .rphead,.rptbl.t3 .rprow{grid-template-columns:110px 1fr 180px}
+.rptbl.t5 .rphead,.rptbl.t5 .rprow{grid-template-columns:repeat(5,minmax(0,1fr))}
+.rptbl.t6 .rphead,.rptbl.t6 .rprow{grid-template-columns:repeat(6,minmax(0,1fr))}
+.rptbl.t7 .rphead,.rptbl.t7 .rprow{grid-template-columns:1.6fr repeat(6,minmax(0,1fr))}
+.rpnote{font-size:10.5px; color:#7C8C84; margin-top:8px}
+.rp2{display:grid; grid-template-columns:1fr 1.4fr; gap:20px}
+.rp3{display:grid; grid-template-columns:1fr; gap:0}
+.rpshots{display:flex; gap:12px; flex-wrap:wrap}
+.rpshot{margin:0; width:150px}
+.rpshot span{display:block; height:96px; border-radius:8px; background-size:cover;
+  background-position:center; border:1px solid #E3EAE4}
+.rpshot figcaption{font-size:9.5px; color:#7C8C84; margin-top:5px; line-height:1.5}
+.rpfree p{margin:0 0 7px; font-size:12px; color:#2A3A33}
+.rpfree .faint{color:#9AA8A1}
+.rparch{padding-top:9px; border-top:1px dashed #E3EAE4; margin-top:9px!important}
+.rpft{display:flex; justify-content:space-between; gap:12px; padding-top:14px;
+  border-top:2px solid #16483A; font-size:10px; color:#7C8C84}
+@media (max-width:900px){ .rpmeta{grid-template-columns:repeat(2,1fr)} .rp2{grid-template-columns:1fr} }
+
+/* ══ دورة البلاغ: اثنتا عشرة محطّة تُقرأ كشريطٍ واحد ══ */
+.sigsteps{display:flex; gap:4px; margin-top:12px; flex-wrap:wrap}
+.sigs{width:24px; height:24px; border-radius:8px; display:grid; place-items:center;
+  font-size:10.5px; font-weight:700; background:var(--sheen); color:var(--dim2);
+  border:1px solid transparent; cursor:default}
+.sigs.on{background:color-mix(in srgb,var(--live) 18%,transparent); color:var(--live);
+  border-color:color-mix(in srgb,var(--live) 40%,transparent)}
+.sigs.now{background:var(--gold); color:#1a1205; border-color:var(--gold3)}
+.sigq{display:flex; flex-direction:column; align-items:center; gap:3px; flex:none;
+  min-width:64px}
+.sigq b{font-size:13px; color:var(--ink)}
+.sigq b i{font-size:9.5px; color:var(--dim2); font-style:normal}
+.sigbar{display:block; width:56px; height:4px; border-radius:99px; background:var(--line2);
+  overflow:hidden}
+.sigbar i{display:block; height:100%; background:linear-gradient(90deg,var(--gold),var(--gold3));
+  border-radius:99px}
+.sigrow{border-color:color-mix(in srgb, var(--tsc) 26%, var(--line)) !important}
+.sigrow .krail{width:5px; background:var(--tsc) !important}
+
+/* قاعدة المعالجة: ثلاثة خيارات تُقرأ لا ثلاث كلمات */
+.rules{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.rules > *{flex:none}
+.rulebtn{display:flex; align-items:center; gap:11px; width:100%; padding:11px 12px;
+  border-radius:13px; background:var(--sheen); border:1px solid transparent;
+  color:var(--ink); font:inherit; cursor:pointer; text-align:right}
+.rulebtn:hover{border-color:var(--line2)}
+.rulebtn.on{background:color-mix(in srgb,var(--live) 11%,transparent);
+  border-color:color-mix(in srgb,var(--live) 40%,transparent)}
+.rulebtn > span{flex:1; min-width:0}
+.rulebtn b{display:block; font-size:12.5px}
+
+/* ══ ملفّ الموظّف: شاشةٌ كاملة ══ */
+.pfhead{position:relative; padding:24px}
+.pfback{position:absolute; top:18px; inset-inline-start:18px}
+.pfstats{display:flex; gap:22px; flex:none; margin-inline-start:auto; text-align:center}
+.pfstats span{display:block}
+.pfstats b{display:block; font-size:22px; color:var(--ink); line-height:1}
+.pfstats i{display:block; font-size:10px; color:var(--dim2); font-style:normal; margin-top:5px}
+.pfkv{display:flex; flex-direction:column; gap:1px; margin-top:12px;
+  border-radius:13px; overflow:hidden; background:var(--line)}
+.pfkv > *{flex:none}
+.pfrow{display:flex; align-items:center; gap:10px; padding:11px 13px; background:var(--panel)}
+.pfrow .ico{color:var(--gold2); flex:none}
+.pfrow .k{font-size:11.5px; color:var(--dim2); min-width:96px; flex:none}
+.pfrow b{font-size:12.5px; flex:1; min-width:0}
+
+/* رقاقة نوع الإجراء */
+.actk{display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:99px;
+  font-size:10.5px; font-weight:700; white-space:nowrap; flex:none}
+
+/* صندوق الرسالة: يُقرأ كما يصل الجوّال
+   (smsbox كان مأخوذًا لحبّة حالة الرسالة في العفاشة — فاختير اسمٌ يصف موضعه) */
+.smscard{margin-top:12px; border:1px solid var(--line2); border-radius:14px; overflow:hidden}
+.smsline{display:flex; align-items:center; gap:6px; padding:8px 12px; background:var(--panel2);
+  font-size:11px; color:var(--dim2); border-bottom:1px solid var(--line)}
+.smsbody{padding:13px; font-size:12.5px; line-height:1.85; color:var(--ink)}
+
+/* ملاحظات المحسن: تُفتح لا تُعدّ */
+.notebtn{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px;
+  font-size:10.5px; font-weight:700; color:var(--red); border:0; cursor:pointer;
+  background:color-mix(in srgb,var(--red) 13%,transparent)}
+.notebtn.on{background:color-mix(in srgb,var(--red) 22%,transparent)}
+.mnotes{width:100%; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:8px}
+.mnotes > *{flex:none}
+.mnote{padding:9px 11px; border-radius:11px; background:var(--sheen)}
+.mnote .mn1{display:block; font-size:10px; color:var(--gold2); margin-bottom:3px}
+.mnote b{display:block; font-size:12px; font-weight:600; line-height:1.6}
+
+/* خانة تُنقر: سهمٌ يظهر عند المرور، وحافّةٌ تُضيء */
+.kpi.clik{cursor:pointer; position:relative}
+.kpi.clik:hover{border-color:var(--gold2)}
+.kpi .kgoi{position:absolute; top:14px; inset-inline-start:14px; color:var(--dim2);
+  opacity:0; transform:translateX(4px); transition:all .22s var(--e)}
+.kpi.clik:hover .kgoi{opacity:1; transform:none; color:var(--gold2)}
+.kpi.clik:focus-visible{outline:2px solid var(--gold2); outline-offset:2px}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{

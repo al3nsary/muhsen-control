@@ -3,7 +3,7 @@
    ============================================================ */
 const KEY = 'muhsen_control_v1';
 const SCHEMA = 17;
-const APP_VER = 'نسخة ١٫٣';
+const APP_VER = 'نسخة ١٫٤';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -223,26 +223,6 @@ function seed() {
   });
   st.enrichSync = Date.now() - 7 * MIN;
 
-  /* ---------- نُسك: حالات البطاقات ---------- */
-  st.nusuk = NUSUK_SEED.map((c, i) => {
-    const L = LEADERS[i % LEADERS.length];
-    const arr = st.pilgrims[L.kt];
-    const p = arr[c.pi % arr.length];
-    const team = st.users.filter(u => u.role === 'muhsen' && u.leaderId === L.id);
-    const done = c.st === 'delivered' || c.st === 'issued';
-    return {
-      id: uid('N'), no: 'NS-' + (4400 + i), svc: c.svc, pilgrimId: p.id,
-      pilgrim: p.name, passport: p.no, kt: L.kt, leaderId: L.id,
-      openedBy: c.by, state: c.st, step: NUSUK_SVC[c.svc].steps.length - (c.st === 'new' ? 4
-        : c.st === 'processing' ? 2 : c.st === 'issued' ? 1 : 0),
-      assignedTo: done ? (team[i % team.length] || {}).id || null : null,
-      at: Date.now() - c.ago * MIN,
-      note: c.svc === 'lost' ? 'فقد البطاقة في الحرم — أبلغ ليدره'
-        : c.svc === 'enable' ? 'البطاقة صدرت ولم تُفعَّل عند البوّابة'
-        : 'حاجّ مستجدّ في الكشف — بلا بطاقة'
-    };
-  });
-
   /* ---------- الامتثال: قوالب وإدخالات ---------- */
   st.forms = FORM_SEED.map((f, i) => ({
     id: 'F' + (201 + i), no: 'FM-' + (201 + i), title: f.title, scope: f.scope,
@@ -284,121 +264,6 @@ function seed() {
   });
 
 
-  /* ---------- العفاشة ---------- */
-  st.contractors = CONTRACTOR_SEED.map((c, i) => ({
-    id: 'CT' + (401 + i), name: c[0], company: c[1], workers: c[2],
-    phone: '+96650' + (3110000 + i * 4177),
-    user: 'afasha' + (401 + i), pass: 'MC' + (7100 + i * 13),
-    sms: c[3], smsAt: Date.now() - (40 + i * 90) * MIN,
-    at: Date.now() - (3 + i) * DAY
-  }));
-  st.deals = [];
-  CONTRACTOR_SEED.forEach((c, i) => {
-    if (c[4] === 'draft') return;
-    const ct = st.contractors[i];
-    st.deals.push({
-      id: 'DL' + (601 + i), no: 'CN-' + (601 + i), contractorId: ct.id,
-      title: 'تعاقد نقل عفش الحجاج — موسم ١٤٤٨ هـ',
-      body: 'نقل عفش الحجاج بين الفنادق والمشاعر طوال الموسم، بعدد عمّال لا يقلّ عن ' +
-        AR(ct.workers) + ' عاملًا، وبإشراف مشرف السكن في كل فندق.',
-      value: 32000 + i * 4500, hours: 48, state: c[4],
-      file: i % 3 === 0 ? { name:'عرض-' + (601 + i) + '.pdf', size:284000 + i * 9000,
-        type:'application/pdf' } : null,
-      reason: c[4] === 'refused' ? 'اعتذر — ارتباط بموسم آخر' :
-        c[4] === 'offline' ? 'وُقّع ورقيًّا في المكتب، واعتمده الكنترول' : null,
-      at: Date.now() - (2 + i) * DAY + 3 * HR
-    });
-  });
-
-  /* ---------- النقل: عشرة باصات ورحلاتها ---------- */
-  st.buses = BUS_SEED.map((b, i) => ({
-    id: 'BS' + (501 + i), no: b[0], plate: b[1], cap: b[2], driver: b[3],
-    color: b[4], phone: '+96653' + (2200000 + i * 3313)
-  }));
-
-  st.trips = [];
-  let tn = 0;
-  /* رحلة لكل مهمة قريبة: ذهاب وعودة، مع توزيع على الباصات */
-  const soon = st.tasks
-    .filter(t => t.start > Date.now() - 3 * DAY && t.start < Date.now() + 5 * DAY)
-    .sort((a, b) => a.start - b.start);
-  soon.forEach((t, i) => {
-    const bus = st.buses[i % st.buses.length];
-    const kind = t.kind === 'airport' ? 'airport'
-      : t.kind === 'checkin' || t.kind === 'checkout' ? 'toHotel' : 'toTask';
-    const g = st.groups.find(x => x.leaderId === t.leaderId);
-    const hotel = g ? HOTEL_SEED[(st.groups.indexOf(g)) % HOTEL_SEED.length][0] : 'نقطة التجمّع';
-    const riders = g ? g.members.slice(0, 3 + (i % 3)).map(m => m.id) : [];
-    const dep = t.start - (45 + (i % 4) * 15) * MIN;
-    st.trips.push({
-      id: 'TR' + (701 + tn), no: 'TP-' + (701 + tn), busId: bus.id, taskId: t.id,
-      kind, from: hotel, to: t.place, at: dep, dur: 35 + (i % 5) * 10,
-      cap: bus.cap, riders, driver: bus.driver,
-      done: t.start < Date.now()
-    });
-    tn++;
-    /* عودة بعد انتهاء المهمّة */
-    if (i % 2 === 0) {
-      st.trips.push({
-        id: 'TR' + (701 + tn), no: 'TP-' + (701 + tn), busId: bus.id, taskId: t.id,
-        kind: 'back', from: t.place, to: hotel, at: t.end + 20 * MIN,
-        dur: 35 + (i % 4) * 10, cap: bus.cap, riders, driver: bus.driver,
-        done: t.end < Date.now()
-      });
-      tn++;
-    }
-  });
-
-  /* أدلة التنفيذ — نسخة معتمدة لكل نشاط */
-  /* الأدلة: لكل نشاط حجّ دليله، ولبعض الخدمات والمزارات كذلك */
-  const MK = { 'نص':'text', 'صور':'photo', 'فيديو':'video', 'PDF':'pdf' };
-  st.guides = GUIDE_SEED.map((g, i) => {
-    const steps = [];
-    for (let s2 = 1; s2 <= g.steps; s2++) steps.push(GUIDE_STEP(g.k, s2));
-    return {
-      id: 'GD' + (801 + i), scope: 'hajj', target: g.k, taskId: null,
-      title: 'دليل ' + (CAT[g.k] || {}).ar, ver: g.v,
-      status: g.st === 'معتمد' ? 'live' : g.st === 'مسودة' ? 'draft' : 'review',
-      media: g.media.map(m => ({ k: MK[m] || 'text',
-        name: m === 'فيديو' ? 'شرح-' + g.k + '.mp4' : m === 'PDF' ? 'دليل-' + g.k + '.pdf'
-          : m === 'صور' ? 'صور-' + g.k + '.zip' : 'نصّ الخطوات',
-        size: 240000 + i * 31000 })),
-      steps, by: g.by, at: Date.now() - g.ago * MIN
-    };
-  });
-  /* دليلان خارج نشاط الحجّ ليُرى الربط بالأنواع الأخرى */
-  st.guides.push({ id:'GD820', scope:'nusuk', target:'lost', taskId:null,
-    title:'دليل إصدار بدل فاقد', ver:2, status:'live',
-    media:[{ k:'video', name:'خطوات-بدل-فاقد.mp4', size:412000 },
-           { k:'pdf', name:'نموذج-الإقرار.pdf', size:186000 }],
-    steps:NUSUK_SVC.lost.steps.slice(), by:'L1', at:Date.now() - 900 * MIN });
-  st.guides.push({ id:'GD821', scope:'enrich', target:'s1', taskId:null,
-    title:'دليل زيارة جبل النور', ver:1, status:'live',
-    media:[{ k:'photo', name:'مسار-الصعود.jpg', size:520000 }],
-    steps:['التجمّع عند المدخل وعدّ المجموعة','التنبيه على كبار السنّ بعدم الصعود',
-      'شرح تاريخ الغار من الأسفل','وقت حرّ ثلاثون دقيقة','العدّ قبل الركوب'],
-    by:'L2', at:Date.now() - 600 * MIN });
-
-  /* البثّ — ما أُرسل */
-  const CDEST = ['muhsen','muhsen','hajj','muhsen','ctl','hajj'];
-  st.casts = CAST_SEED.map((c, i) => ({
-    id: uid('C'), no: 'BR-' + (9100 + i), dest: CDEST[i % CDEST.length], aud: 'all',
-    to: c.to, title: c.t, body: c.b,
-    kind: c.kind, seen: c.seen, of: c.of, at: Date.now() - c.ago * MIN
-  }));
-
-  /* الشِفتات — طلبات التبديل */
-  st.swaps = SHIFT_SEED.map((x, i) => ({
-    id: uid('W'), no: 'SW-' + (6300 + i), from: x.from, to: x.to,
-    day: x.day, slot: x.slot, why: x.why, state: x.st, reason: null,
-    at: Date.now() - x.ago * MIN
-  }));
-
-  /* السجل — ما وقع قبل هذه الجلسة */
-  st.log = LOG_SEED.map(l => ({
-    id: uid('G'), at: Date.now() - l.ago * MIN, text: l.t, kind: l.kind, by: 'الكنترول'
-  }));
-
   /* الحوادث تُصنَّف: نوع وحالة وجهة وزمن استجابة */
   const INC_ST = ['مفتوح', 'قيد المعالجة', 'مغلق'];
   FEED_SEED.forEach((f, fi) => st.feed.push({
@@ -414,6 +279,9 @@ function seed() {
   seedTaskDetail(st);
   seedAlerts(st);
   seedShifts(st);
+  seedPilgrimData(st);
+  seedSignals(st);
+  seedActions(st);
   seedComply(st);
 
   return st;
@@ -424,14 +292,13 @@ function load() {
   catch (e) { S = seed(); }
   S.feed = S.feed || []; S.support = S.support || []; S.log = S.log || [];
   S.guides = S.guides || []; S.casts = S.casts || []; S.swaps = S.swaps || [];
-  S.groups = S.groups || []; S.enrich = S.enrich || []; S.nusuk = S.nusuk || [];
+  S.groups = S.groups || []; S.enrich = S.enrich || [];
   S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
-  S.contractors = S.contractors || []; S.deals = S.deals || [];
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
-  S.reqtpl = S.reqtpl || []; S.attend = S.attend || {}; S.sched = S.sched || null;
+  S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.groupsV = S.groupsV || []; S.attend = S.attend || {}; S.sched = S.sched || null;
   (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -482,7 +349,6 @@ function formScore(f, answers) {
   return max ? Math.round(got / max * 100) : 0;
 }
 const subsOf = fid => VV().subs.filter(b => b.formId === fid);
-const openNusuk = () => VV().nusuk.filter(c => c.state !== 'delivered');
 const freeEnrich = () => VV().enrich.filter(x => x.status === 'unassigned');
 
 /* ---- أدوات الشاشات الجديدة ---- */
