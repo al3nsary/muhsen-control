@@ -179,9 +179,14 @@ function renderGate() {
               'data-a="grole" data-v="' + x.k + '">' +
               '<span class="fl" style="gap:8px;width:100%">' + icon(x.i, 's18') +
                 '<b style="flex:1">' + E(x.ar) + '</b>' +
-                (x.edit ? pill('تعديل','gold') : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
+                (x.scope === 'all' ? pill('بلا قيد','gold')
+                  : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
               '</span>' +
-              '<span>' + E(SCOPE_AR[x.scope]) + '</span></button>';
+              /* المجموعة هي ما يُفعل، والنطاق هو ما يُرى — فيُذكران معًا */
+              '<span>' + E(SCOPE_AR[x.scope]) +
+              (x.scope === 'all' ? ''
+                : ' · ' + E((roleSetOf(x.k) || {}).name || 'بلا مجموعة')) +
+              '</span></button>';
           }).join('') + '</div>' +
 
           (who ? '<div class="whobox">' + who + '</div>' : '') +
@@ -189,7 +194,11 @@ function renderGate() {
           '<div class="gnote">' + icon(gr ? 'i-checkc' : 'i-warn','s16') +
             '<span>' + (p.scope === 'all'
               ? 'الإدارة العليا ترى كل شيء وتعدّل كل شيء.'
-              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. اطّلاع بلا تعديل.'
+              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. ' +
+                (roleSetOf(p.k)
+                  ? 'وتفعل ما تُجيزه مجموعة «' + E(roleSetOf(p.k).name) + '» — ' +
+                    AR(setCount(roleSetOf(p.k))) + ' فعلًا.'
+                  : 'ولم تُمنح مجموعة أفعال — اطّلاع بلا تعديل.')
                    : 'لم تُسنَد لهذه الصفة أي شاشة — ستدخل ولا ترى شيئًا. هذا هو السلوك المقصود.') +
             '</span></div>' +
 

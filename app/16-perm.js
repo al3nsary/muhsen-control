@@ -12,9 +12,9 @@ const PERMS = [
   { k:'admin',   ar:'إدارة عليا',      i:'i-shield', scope:'all',   edit:true,
     d:'ترى كل شيء وتعدّل كل شيء — وهي وحدها كذلك' },
   { k:'mission', ar:'بعثة',            i:'i-flag',   scope:'org',   edit:false,
-    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+    d:'ترى محسنيها وحجاجها ومهامها — وما تفعله تقوله مجموعتها' },
   { k:'company', ar:'شركة',            i:'i-flag',   scope:'org',   edit:false,
-    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+    d:'ترى محسنيها وحجاجها ومهامها — وما تفعله تقوله مجموعتها' },
   { k:'sup',     ar:'مشرف',            i:'i-key',    scope:'hotel', edit:false,
     d:'يرى كل من تحته في الفندق' },
   { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'domain', edit:false, prov:true,
@@ -35,7 +35,16 @@ const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'ف
 
 /* الصفة الفاعلة الآن، ومن تُمثِّله */
 const curPerm = () => permOf(S.actor && S.actor.perm);
-const canEdit = () => !!curPerm().edit;
+/* التعديل لم يعد صفةً ثابتة في الجدول: مجموعتها هي التي تقول.
+   فمن مُنح فعلًا واحدًا غير الاطّلاع فهو مُعدِّل — ثم يفصل الحارس
+   الدقيق أيَّ فعلٍ على أيِّ مورد. والإدارة العليا لا تُقيَّد. */
+const canEdit = () => {
+  const p = curPerm();
+  if (p.scope === 'all') return true;
+  const rs = roleSetOf(p.k);
+  return !!(rs && Object.keys(rs.m || {}).some(k =>
+    (rs.m[k] || []).some(x => x !== 'view')));
+};
 /* الشاشات المسموحة لهذه الصفة — والافتراض لا شيء */
 function allowed() {
   const p = curPerm();
@@ -173,6 +182,9 @@ function buildView() {
   V.assigns  = S.assigns.filter(x => has(userIds, x.to));
   V.swaps    = S.swaps.filter(w => has(userIds, w.from) || has(userIds, w.to));
   V.signals  = S.signals || [];
+  V.warns    = (S.warns || []).filter(w => has(userIds, w.userId));
+  V.ctrs     = (S.ctrs || []).filter(c => p.scope === 'org' ? c.orgId === a.orgId : true);
+  V.roleSets = S.roleSets || [];
   V.acts     = (S.acts || []).filter(a => has(userIds, a.userId));
   V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));
   V.log      = p.scope === 'self' ? [] : S.log;

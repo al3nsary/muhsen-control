@@ -224,7 +224,7 @@ const drawerDepth = () => dStack.length;
 ['formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit','askWhy','warnDrawer','warnUser','warnNew','ctrDrawer','ctrFile','ctrNew','roleEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   /* كل الوسائط تُمرَّر لا الأوّل وحده: فاتحٌ بوسيطين (txPhoto, docView,
@@ -329,6 +329,30 @@ document.addEventListener('change', e => {
   if (!t) return;
   /* مرفق: نحفظ وصفه لا محتواه — الاسم والحجم والنوع */
   /* ملفّ إكسل: يُقرأ محتواه فعلًا لا وصفُه — فالبيانات هي المقصودة */
+  /* ملفّ المرشدين المعبّأ يعود إلى عقده — تُقرأ العناوين لا المواضع */
+  const gx = t.getAttribute && t.getAttribute('data-gx');
+  if (gx) {
+    const gf = t.files && t.files[0];
+    if (!gf) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      const c = ctrsAll().find(x => x.id === gx);
+      let rows = [];
+      try { rows = parseGuides(fr.result); } catch (e3) { rows = []; }
+      if (!c) return;
+      if (!rows.length) { toast('الملفّ فارغ أو عناوينه غير مطابقة', 'r'); return; }
+      c.guides = rows;
+      c.log = c.log || [];
+      c.log.unshift({ at:now(), by:actorLabel(),
+        text:'رُفع ملفّ المرشدين — ' + AR(rows.length) + ' مرشدًا' });
+      logIt('عقد ' + c.no + ': رُفع ' + AR(rows.length) + ' مرشدًا', 'info');
+      toast('قُرئ ' + AR(rows.length) + ' مرشدًا');
+      save(); ctrDrawer(c.id);
+    };
+    fr.readAsText(gf, 'utf-8');
+    t.value = '';
+    return;
+  }
   const xk = t.getAttribute && t.getAttribute('data-xl');
   if (xk) {
     const f = t.files && t.files[0];
@@ -368,6 +392,18 @@ document.addEventListener('change', e => {
   const q2 = t.getAttribute && t.getAttribute('data-q2');
   if (q2) { S.q = S.q || {}; S.q[q2] = t.value;
     if (q2 === 'qorg' && S.qform) S.qform.orgId = t.value;
+    if (q2 === 'cOrg' && S.cform) S.cform.orgId = t.value;
+    /* منح مجموعة صلاحيات لصفة: الفراغ نزعٌ لا خطأ */
+    if (q2.indexOf('rg_') === 0) {
+      const pk = q2.slice(3);
+      S.roleOf = S.roleOf || {};
+      S.roleOf[pk] = t.value || null;
+      const rs = (S.roleSets || []).find(x => x.id === t.value);
+      logIt('صفة ' + permOf(pk).ar + ': ' +
+        (rs ? 'مُنحت مجموعة «' + rs.name + '»' : 'نُزعت مجموعتها — اطّلاع فقط'), 'info');
+      toast(rs ? permOf(pk).ar + ' → ' + rs.name : 'نُزعت المجموعة');
+      save(); render(); return;
+    }
     save(); if (S.drawer) repaintDrawer(); return; }
   const fsel = t.getAttribute && t.getAttribute('data-f');
   if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }

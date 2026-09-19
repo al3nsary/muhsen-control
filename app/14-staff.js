@@ -333,6 +333,10 @@ function applyPick(kind, id, u) {
     logIt('سُكِّن ' + u.name + ' على مهمة ' + t.title + ' — ' + t.kt + ' · من الكنترول', 'assign');
     toast(u.name + ' → ' + t.title);
     S.picker = null; taskDrawer(t.id); return;
+  } else if (kind === 'warn') {
+    S.wform = S.wform || { kind:'dress', lvl:null };
+    S.wform.userId = u.id;
+    S.picker = null; warnNew(u.id); return;
   } else if (kind === 'mseat') {
     const g = S.groups.find(x => x.id === id); if (!g) return;
     if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }

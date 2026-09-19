@@ -2,11 +2,12 @@
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, actions: screenActions, orgs: screenOrgs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, actions: screenActions, orgs: screenOrgs,
+  warns: screenWarns, gmv: screenGuidesMv, ctrs: screenCtrs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline, perms: screenPerms,
+  timeline: screenTimeline, perms: screenRoles,
   transport: screenTransport
 };
 
@@ -15,7 +16,7 @@ const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','t
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -88,6 +89,9 @@ document.addEventListener('click', ev => {
     toast('صفتك للاطّلاع لا للتعديل — ' + curPerm().ar, 'r');
     return;
   }
+  /* الصلاحية الدقيقة: المورد والفعل معًا — لا الشاشة وحدها */
+  const gb = gateBlock(a);
+  if (gb) { toast(gb, 'r'); return; }
 
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
@@ -237,10 +241,19 @@ document.addEventListener('click', ev => {
     case 'txunassign': {
       const t = ensureTask(taskById(id)); if (!t) return;
       const u = userById(b.dataset.s); if (!u) return;
+      const why = b.dataset.why;
+      /* بلا سببٍ لا يقع السحب — يُسأل أوّلًا */
+      if (!why) { askWhy({ kind:'pullTask', act:'txunassign', id, v:u.id,
+        title:'سحب ' + u.name + ' من المهمّة', sub:t.title,
+        note:'السبب يُحفظ في سجلّ المهمّة وسجلّ النظام وملفّ المحسن.',
+        warn:(t.attended || []).indexOf(u.id) >= 0
+          ? 'هذا المحسن أثبت حضوره — سحبُه بعد الحضور يُسجَّل بوضوح.' : '' }); return; }
       t.assigned = t.assigned.filter(x => x !== u.id);
       t.attended = (t.attended || []).filter(x => x !== u.id);
-      txLog(t, 'سحب الكنترول ' + u.name + ' من المهمة', 'warn');
-      logIt('سُحب ' + u.name + ' من مهمة ' + t.title, 'assign');
+      txLog(t, 'سحب الكنترول ' + u.name + ' من المهمة — السبب: ' + why, 'warn');
+      whyOnUser(u.id, 'سُحب من «' + t.title + '» — ' + why, 'pullTask');
+      logIt('سُحب ' + u.name + ' من مهمة ' + t.title + ' — ' + why, 'assign');
+      S.drawer = null; clearDrawerStack();
       toast('سُحب ' + u.name); save(); taskDrawer(id); return;
     }
     case 'txattend': {
@@ -295,6 +308,268 @@ document.addEventListener('click', ev => {
 
     /* ═══ تنبيهات المهام ═══ */
     case 'alerts': alertsDrawer(); return;
+
+    /* ═══ السبب الإجباري ═══ */
+    case 'whypick':  S.q.whyPick = v; S.q.whyTxt = ''; repaintDrawer(); return;
+    case 'whycancel': S.why = null; S.drawer = null; clearDrawerStack(); renderDrawer(); return;
+    case 'whygo': {
+      const w = S.why || {};
+      const why = whyText();
+      if (!why) { toast('اكتب السبب أو اخترْه', 'r'); return; }
+      S.why = null;
+      const btn = document.createElement('button');
+      btn.dataset.a = w.act; btn.dataset.id = w.id || '';
+      btn.dataset.s = w.v || ''; btn.dataset.why = why;
+      btn.style.display = 'none';
+      document.body.appendChild(btn); btn.click(); btn.remove();
+      return;
+    }
+
+    /* السحب من مهمّة: يُسأل عن السبب أوّلًا */
+    case 'txpull': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      askWhy({ kind:'pullTask', act:'txunassign', id, v:u.id,
+        title:'سحب ' + u.name + ' من المهمّة', sub:t.title,
+        note:'السبب يُحفظ في سجلّ المهمّة وسجلّ النظام وملفّ المحسن.',
+        warn:(t.attended || []).indexOf(u.id) >= 0
+          ? 'هذا المحسن أثبت حضوره على المهمّة — سحبُه بعد الحضور يُسجَّل بوضوح.' : '' });
+      return;
+    }
+    /* إدخالٌ من الاحتياط: يُسأل عن السبب أوّلًا */
+    case 'txaddres': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      askWhy({ kind:'addRes', act:'txaddresdo', id, v:u.id,
+        title:'تسكين ' + u.name + ' من الاحتياط', sub:t.title,
+        note:'الاحتياط مشتركٌ بين كل الفرق — فسحبُه إلى مهمّةٍ ينقصه من غيرها.',
+        warn:shiftOf(u) !== shiftAt(t.start)
+          ? 'شِفتُه ' + shiftOf(u) + ' وموعد المهمّة في شِفت ' + shiftAt(t.start) + '.' : '' });
+      return;
+    }
+    case 'txaddresdo': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      const why = b.dataset.why || 'بلا سبب';
+      if (t.assigned.indexOf(u.id) < 0) t.assigned.push(u.id);
+      txLog(t, 'سكّن الكنترول ' + u.name + ' من الاحتياط — السبب: ' + why, 'assign');
+      whyOnUser(u.id, 'سُكِّن من الاحتياط على «' + t.title + '» — ' + why, 'addRes');
+      logIt('سُكِّن ' + u.name + ' من الاحتياط على ' + t.title + ' — ' + why, 'assign');
+      toast(u.name + ' → ' + t.title);
+      S.drawer = null; clearDrawerStack(); save(); taskDrawer(t.id); return;
+    }
+
+    /* ═══ الإنذارات ═══ */
+    case 'wopen': warnDrawer(id); return;
+    case 'wuser': warnUser(id); return;
+    case 'wnew':  S.wform = { userId:id || null, kind:'dress', lvl:null };
+      S.q.wtxt = ''; warnNew(id); return;
+    case 'wkind': { const d = S.wform || {}; d.kind = v; S.wform = d; warnNew(d.userId); return; }
+    case 'wnlvl': { const d = S.wform || {}; d.lvl = v; S.wform = d; warnNew(d.userId); return; }
+    case 'wpick': {
+      openPicker('warn', 'new', { title:'اختيار المحسن',
+        note:'من يُسجَّل عليه الإنذار — والرقم بجانب الاسم حِمله الحالي.',
+        cands:(V.users || []).filter(u => u.role === 'muhsen') });
+      return;
+    }
+    case 'wsave': {
+      const d = S.wform || {};
+      const u = d.userId ? userById(d.userId) : null;
+      const txt = (S.q.wtxt || '').trim();
+      if (!u) { toast('اختر المحسن', 'r'); return; }
+      if (!txt) { toast('اكتب وصف الواقعة', 'r'); return; }
+      const lvl = d.lvl || nextLvl(u.id);
+      const w = { id:uid('WN'), no:'WN-' + (9600 + (S.warns || []).length + 1),
+        userId:u.id, kind:d.kind || 'other', lvl, text:txt,
+        at:now(), by:actorLabel(), state:'open', sms:null, smsAt:null, note:'', taskId:null };
+      S.warns.unshift(w);
+      logIt('سُجّل إنذار ' + WARN_KIND[w.kind].ar + ' على ' + u.name + ' — ' + WARN_LVL[lvl].ar, 'info');
+      S.wform = null; S.q.wtxt = '';
+      toast('سُجّل الإنذار'); save(); warnDrawer(w.id); return;
+    }
+    case 'wlvl': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      w.lvl = v; toast(WARN_LVL[v].ar); save(); warnDrawer(id); return;
+    }
+    case 'wstate': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      w.state = v;
+      if (v === 'cleared') logIt('أُسقط إنذار ' + w.no, 'info');
+      toast(WARN_ST[v].ar); save(); warnDrawer(id); return;
+    }
+    case 'wnote': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      const t2 = (S.q.wnote || '').trim();
+      if (!t2) { toast('اكتب الملاحظة', 'r'); return; }
+      w.note = t2;
+      if (w.state === 'open') w.state = 'explained';
+      S.q.wnote = ''; toast('حُفظت'); save(); warnDrawer(id); return;
+    }
+    case 'wsms': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      const u = userById(w.userId) || {};
+      const okNum = /^\+?9665\d{8}$/.test(String(u.phone || '').replace(/\s/g, ''));
+      w.sms = 'sent'; w.smsAt = now();
+      setTimeout(() => {
+        const ww = (S.warns || []).find(x => x.id === w.id); if (!ww) return;
+        ww.sms = okNum ? 'delivered' : 'failed'; ww.smsAt = now();
+        logIt('إنذار ' + ww.no + ': ' + (okNum ? 'وصل' : 'لم يصل — الرقم غير صالح'), 'info');
+        save(); if (S.route.n === 'warns') render();
+      }, 1800);
+      if (w.state === 'open') w.state = 'ack';
+      logIt('أُرسل إنذار ' + WARN_LVL[w.lvl].ar + ' إلى ' + u.name, 'info');
+      toast('أُرسل — تصل الحالة بعد لحظات'); save(); warnDrawer(id); return;
+    }
+
+    /* ═══ إدارة الحركة ═══ */
+    case 'ctropen': ctrDrawer(id); return;
+    case 'ctrfile': ctrFile(id, v || 'pdf'); return;
+    case 'ctrprint': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      const el = document.getElementById('ctrdoc');
+      if (!el) { toast('افتح المعاينة أوّلًا', 'r'); return; }
+      const styles = [].slice.call(document.querySelectorAll('style'))
+        .map(s => s.textContent).join('\n');
+      const w2 = window.open('', '_blank');
+      if (!w2) { toast('اسمح بالنوافذ المنبثقة', 'r'); return; }
+      w2.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
+        '<title>' + E(c.no) + '</title>' +
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">' +
+        '<style>' + styles + '</style><style>body{background:#fff;padding:22px;' +
+        'font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}@page{size:A4;margin:14mm}' +
+        '.report{border:0!important;box-shadow:none!important}</style></head><body>' +
+        el.outerHTML + '</body></html>');
+      w2.document.close();
+      setTimeout(() => { try { w2.focus(); w2.print(); } catch (e) {} }, 700);
+      return;
+    }
+    case 'ctrdaif': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      c.daif = v;
+      c.log = c.log || [];
+      c.log.unshift({ at:now(), by:actorLabel(), text:'حالة ضيف: ' + DAIF_ST[v].ar });
+      if (v === 'no' || v === 'na') c.daifNo = '';
+      logIt('عقد ' + c.no + ' — ' + DAIF_ST[v].ar, 'info');
+      toast(DAIF_ST[v].ar); save(); ctrDrawer(id); return;
+    }
+    case 'ctrdfsave': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      const n2 = (S.q.ctrdf || '').trim();
+      if (!n2) { toast('اكتب رقم ضيف', 'r'); return; }
+      c.daifNo = n2;
+      if (c.daif === 'pending') c.daif = 'reg';
+      c.log.unshift({ at:now(), by:actorLabel(), text:'سُجّل في ضيف برقم ' + n2 });
+      S.q.ctrdf = ''; toast('سُجّل الرقم'); save(); ctrDrawer(id); return;
+    }
+    case 'ctrstate': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      c.state = v;
+      c.log.unshift({ at:now(), by:actorLabel(), text:'حالة العقد: ' + CTR_ST[v].ar });
+      toast(CTR_ST[v].ar); save(); ctrDrawer(id); return;
+    }
+    case 'ctrxl': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      guidesTemplate(c); toast('نُزِّل القالب — عبّئه ثم ارفعه'); return;
+    }
+    case 'ctrnew': S.cform = { carrier:CARRIERS[0], orgId:(ORGS[0] || {}).id,
+      daif:'pending', state:'active' };
+      ['title','no','buses','seats','pil','trips','value','daifno']
+        .forEach(k => { S.q['c_' + k] = ''; });
+      if (S.files) delete S.files.ctrf;
+      ctrNew(); return;
+    case 'ccar':  { const d = S.cform || {}; d.carrier = v; S.cform = d; ctrNew(); return; }
+    case 'cdaif': { const d = S.cform || {}; d.daif = v; S.cform = d; ctrNew(); return; }
+    case 'ctrsave': {
+      const d = S.cform || {};
+      const g = k => (S.q['c_' + k] || '').trim();
+      const num = k => numOf(g(k));
+      if (!g('title')) { toast('اكتب موضوع العقد', 'r'); return; }
+      const o = orgById(d.orgId) || ORGS[0];
+      const f = (S.files || {}).ctrf;
+      const c = { id:uid('TC'), no:g('no') || ('NQ-' + (2400 + (S.ctrs || []).length * 7)),
+        title:g('title'), carrier:d.carrier || CARRIERS[0],
+        orgId:o.id, kt:o.kt,
+        buses:num('buses'), seats:num('seats'), pilgrims:num('pil'),
+        trips:num('trips'), value:num('value'),
+        from:now(), to:now() + 30 * DAY,
+        state:d.state || 'active', daif:d.daif || 'pending',
+        daifNo:g('daifno'),
+        file:f ? { name:f.name, size:f.size, type:f.type }
+               : { name:'عقد-جديد.pdf', size:0, type:'application/pdf' },
+        at:now(), guides:[],
+        log:[{ at:now(), by:actorLabel(), text:'سُجّل العقد' + (f ? ' ورُفع ملفّه' : ' بلا ملفّ') }] };
+      S.ctrs.unshift(c);
+      logIt('سُجّل عقد نقل ' + c.no + ' — ' + c.carrier, 'info');
+      S.cform = null; if (S.files) delete S.files.ctrf;
+      toast('سُجّل العقد'); save(); ctrDrawer(c.id); return;
+    }
+    case 'gmvxl': {
+      const rows = guidesTeam().map(u => ({
+        name:u.name, id:u.code, phone:u.phone, lic:'—',
+        bus:'—', lang:'العربية' }));
+      download('المرشدون.csv', toCsv(GD_COLS, rows));
+      toast('نُزِّل ' + AR(rows.length) + ' مرشدًا'); return;
+    }
+
+    /* ═══ الصلاحيات الدقيقة ═══ */
+    case 'rsedit': roleEdit(id); return;
+    case 'rstog': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const k = b.dataset.k;
+      rs.m = rs.m || {}; rs.m[k] = rs.m[k] || [];
+      const i = rs.m[k].indexOf(v);
+      if (i >= 0) rs.m[k].splice(i, 1); else rs.m[k].push(v);
+      /* الفعل يستلزم الاطّلاع — فلا يُعدّل ما لا يُرى */
+      if (rs.m[k].length && rs.m[k].indexOf('view') < 0) rs.m[k].push('view');
+      if (!rs.m[k].length) delete rs.m[k];
+      save(); roleEdit(id); return;
+    }
+    case 'rsrow': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const k = b.dataset.k;
+      rs.m = rs.m || {};
+      const full = ACT.map(a => a.k);
+      rs.m[k] = (rs.m[k] || []).length === full.length ? [] : full.slice();
+      if (!rs.m[k].length) delete rs.m[k];
+      save(); roleEdit(id); return;
+    }
+    case 'rsall': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      rs.m = v === 'none' ? {}
+        : RES.reduce((a, x) => { a[x.k] = ['view']; return a; }, {});
+      save(); roleEdit(id); return;
+    }
+    case 'rsname': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const n2 = (S.q.rs_n || '').trim(), d2 = (S.q.rs_d || '').trim();
+      if (n2) rs.name = n2;
+      if (d2) rs.d = d2;
+      S.q.rs_n = ''; S.q.rs_d = '';
+      toast('حُفظ'); save(); roleEdit(id); return;
+    }
+    case 'rsnew': {
+      const rs = { id:uid('RS'), name:'مجموعة جديدة', d:'صِفها لمن يمنحها',
+        sys:false, m:{} };
+      S.roleSets.push(rs);
+      logIt('أُنشئت مجموعة صلاحيات جديدة', 'info');
+      save(); roleEdit(rs.id); return;
+    }
+    case 'rsclone': {
+      const src = (S.roleSets || []).find(x => x.id === id); if (!src) return;
+      const rs = { id:uid('RS'), name:src.name + ' — نسخة', d:src.d, sys:false,
+        m:JSON.parse(JSON.stringify(src.m || {})) };
+      S.roleSets.push(rs);
+      toast('نُسخت'); save(); roleEdit(rs.id); return;
+    }
+    case 'rsdel': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs || rs.sys) return;
+      const used = Object.keys(S.roleOf || {}).filter(k => S.roleOf[k] === id);
+      if (used.length) { toast('ممنوحةٌ لـ' + AR(used.length) + ' صفة — انزعها أوّلًا', 'r'); return; }
+      S.roleSets = S.roleSets.filter(x => x.id !== id);
+      logIt('حُذفت مجموعة صلاحيات «' + rs.name + '»', 'warn');
+      S.drawer = null; clearDrawerStack();
+      toast('حُذفت'); save(); render(); return;
+    }
     case 'tlmove': {
       const d = Number(v);
       S.tab.tlo = d === 0 ? 0 : (Number(S.tab.tlo || 0) + d);
@@ -347,6 +622,14 @@ document.addEventListener('click', ev => {
       const u = userById(b.dataset.u); if (!u) return;
       if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
       if (g.members.some(m => m.id === u.id)) { toast('هو فيها أصلًا', 'r'); return; }
+      if (u.reserve && !b.dataset.why) {
+        S.pendSeat = { kind:'mseat', id:g.id, uid:u.id };
+        askWhy({ kind:'swapRes', act:'seatres', id:u.id,
+          title:'إدخال ' + u.name + ' من الاحتياط',
+          sub:g.no + ' · ' + ((orgById(g.orgId) || {}).kt || ''),
+          note:'من دخل مجموعةً لم يعد احتياطًا — فالقرار يُكتب سببه.' });
+        return;
+      }
       snapForm('إدخال ' + u.name + ' إلى ' + g.no);
       const cf = seatConflicts(g, u);
       const org = orgById(g.orgId) || {};
@@ -381,7 +664,7 @@ document.addEventListener('click', ev => {
       const rec = { ar, kt, name:get('name') || (o ? o.name : ar),
         country:get('country') || (o ? o.country : '—'),
         type:S.q.o_type || (o ? o.type : 'بعثة'),
-        pilgrims:Number(String(get('pilgrims')).replace(/\D/g, '')) || (o ? o.pilgrims : 0) };
+        pilgrims:numOf(get('pilgrims')) || (o ? o.pilgrims : 0) };
       if (o) { Object.assign(o, rec); logIt('عُدِّلت الجهة ' + ar, 'info'); toast('حُفظت'); }
       else {
         S.orgs.push(Object.assign({ id:'o' + (S.orgs.length + 1) }, rec));
@@ -400,7 +683,7 @@ document.addEventListener('click', ev => {
       const ar = get('ar') || (h ? h.ar : '');
       if (!ar) { toast('اسم الفندق لا بدّ منه', 'r'); return; }
       const rec = { ar, city:S.q.h_city || (h ? h.city : 'مكة المكرمة'),
-        rooms:Number(String(get('rooms')).replace(/\D/g, '')) || (h ? h.rooms : 0),
+        rooms:numOf(get('rooms')) || (h ? h.rooms : 0),
         dist:get('dist') || (h ? h.dist : '—') };
       if (h) { Object.assign(h, rec); logIt('عُدِّل الفندق ' + ar, 'info'); toast('حُفظ'); }
       else {
@@ -1369,10 +1652,52 @@ document.addEventListener('click', ev => {
     case 'pickdo': {
       const p = S.picker; if (!p) return;
       const u = userById(id); if (!u) return;
+      /* الاحتياط رصيدٌ مشترك بين الفرق — فسحبُه إلى مهمّةٍ ينقصه من غيرها.
+         لذلك يُسأل عن السبب قبل أن يقع، لا بعده. */
+      if (u.reserve && (p.kind === 'task' || p.kind === 'mseat')) {
+        const ref = p.kind === 'task' ? (taskById(p.id) || {})
+                                      : ((S.groups || []).find(x => x.id === p.id) || {});
+        S.pendSeat = { kind:p.kind, id:p.id, uid:u.id };
+        S.picker = null;
+        askWhy({ kind: p.kind === 'task' ? 'addRes' : 'swapRes',
+          act:'seatres', id:u.id,
+          title:'تسكين ' + u.name + ' من الاحتياط',
+          sub:(ref.title || ref.no || ''),
+          note:'الاحتياط رصيدٌ مشترك — وكلّ سحبٍ منه ينقص غيره. ' +
+               'يُكتب السبب ليُقرأ لا ليُملأ.' });
+        return;
+      }
+      /* بعض الأنواع تفتح درجًا بعد الاختيار — فلا يُغلق ما فُتح للتوّ */
+      const wasD = S.drawer;
       applyPick(p.kind, p.id, u);
-      S.picker = null; S.drawer = null;
+      const opened = S.drawer !== wasD ? S.drawer : null;
+      S.picker = null; S.drawer = opened;
       break;
     }
+    /* تسكين الاحتياط بعد كتابة سببه */
+    case 'seatres': {
+      const ps = S.pendSeat; if (!ps) return;
+      const u = userById(ps.uid); if (!u) return;
+      const why = b.dataset.why || 'بلا سبب';
+      const ref = ps.kind === 'task' ? (taskById(ps.id) || {})
+                                     : ((S.groups || []).find(x => x.id === ps.id) || {});
+      const where = ref.title || ref.no || '';
+      S.pendSeat = null; S.why = null;
+      if (ps.kind === 'mseat') {
+        /* الإفلات يمرّ من هنا أيضًا — فالحفظ للتراجع يسبق التغيير */
+        snapForm('إدخال ' + u.name + ' إلى ' + (ref.no || ''));
+      }
+      applyPick(ps.kind, ps.id, u);
+      if (ps.kind === 'task') { const t = taskById(ps.id);
+        if (t) txLog(t, 'سبب تسكين الاحتياط: ' + why, 'assign'); }
+      else if (ref.id) formLog(ref, 'سبب إدخال ' + u.name + ' من الاحتياط: ' + why);
+      whyOnUser(u.id, 'سُكِّن من الاحتياط على «' + where + '» — ' + why,
+        ps.kind === 'task' ? 'addRes' : 'swapRes');
+      logIt('احتياط: ' + u.name + ' → ' + where + ' — ' + why, 'assign');
+      S.picker = null; S.drawer = null; clearDrawerStack();
+      save(); render(); return;
+    }
+
     /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
     case 'gpub': {
       const g = S.guides.find(x => x.id === id); if (!g) return;

@@ -1582,7 +1582,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   border-bottom:1px solid var(--line); margin-bottom:16px}
 .doc h5{font-size:12.5px; color:var(--gold2); margin:18px 0 8px}
 .doc p{font-size:12.5px; color:var(--dim); margin:0 0 10px}
-.doc ol{margin:0; padding-inline-start:18px}
+.doc ol{margin:0; padding-inline-start:20px; list-style-type:arabic-indic}
 .doc li{font-size:12.5px; color:var(--dim); margin-bottom:6px}
 .doc .dkv{display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line)}
 .doc .dkv span{font-size:11.5px; color:var(--dim2); min-width:132px; flex:none}
@@ -1838,6 +1838,83 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .eyebtn.big{width:40px; height:40px; border-radius:13px}
 
 /* جدول الاكسترا كوتا: ثمانية أعمدة */
+/* عقود النقل: أحد عشر عمودًا — والأرقام هي ما يُقرأ في الصفّ */
+/* تضيق الأعمدة حتى تبقى أيقونات الملفّ والكشف في الشاشة — وهي المقصودة */
+.xtbl.ctbl{min-width:1170px}
+.xtbl.ctbl .xhead, .xtbl.ctbl .xrow{
+  grid-template-columns:210px 150px 112px 66px 66px 66px 66px 124px 72px 84px 146px}
+.xtbl.ctbl .xc{flex-direction:column; align-items:flex-start; justify-content:center; gap:2px}
+.xtbl.ctbl .xc.num{align-items:flex-end; justify-content:center}
+.xtbl.ctbl .xc.act{flex-direction:row; align-items:center; gap:7px}
+/* كشف المرشدين: ستة أعمدة داخل الدرج */
+.xtbl.gtbl{min-width:820px}
+.xtbl.gtbl .xhead, .xtbl.gtbl .xrow{
+  grid-template-columns:minmax(150px,1.4fr) 128px 140px 112px 104px 96px}
+
+/* زرّ الرفع: لصيقةٌ تتقمّص زرًّا — والمدخل مخفيٌّ داخلها */
+.eyebtn.up{cursor:pointer; position:relative}
+.eyebtn.up:hover{border-color:var(--gold2); background:var(--raise)}
+
+/* معاينة العقد كصورة: إطارٌ يُشعر أنها لقطةٌ لا صفحة */
+.ctrimg{padding:16px; border-radius:18px; background:var(--panel2,var(--panel));
+  border:1px solid var(--line2); box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+.ctrimg .report{box-shadow:0 18px 44px rgba(0,0,0,.34); border-radius:6px}
+
+/* العقد على ورقةٍ بيضاء: ألوان الوثيقة لا ألوان اللوحة */
+/* وثيقةٌ تُقرأ: عرض الورقة لا عرض الدرج */
+.report.doc2{max-width:920px; margin-inline:auto}
+.doc2 h4{font-size:16.5px; margin:0 0 3px; text-align:center; color:#12201A}
+.doc2 .dsub{font-size:11px; color:#5D6B63; text-align:center; padding-bottom:14px;
+  border-bottom:1px solid #E3EAE4; margin-bottom:16px}
+.doc2 h5{font-size:12.5px; color:#8A6A22; margin:18px 0 8px}
+.doc2 p{font-size:12.5px; color:#31423A; margin:0 0 10px; line-height:1.95}
+.doc2 ol{margin:0; padding-inline-start:20px; list-style-type:arabic-indic}
+.doc2 li{font-size:12.5px; color:#31423A; margin-bottom:6px; line-height:1.9}
+.doc2 .dkv{display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed #E3EAE4}
+.doc2 .dkv span{font-size:11.5px; color:#5D6B63; min-width:180px; flex:none}
+.doc2 .dkv b{font-size:12.5px; font-weight:600; color:#12201A}
+.doc2 .dsign{display:flex; gap:22px; margin-top:28px}
+.doc2 .dsign span{flex:1; text-align:center}
+.doc2 .dsign b{display:block; font-size:11.5px; color:#5D6B63; margin-bottom:28px}
+.doc2 .dsign i{display:block; border-top:1px solid #C9D4CC}
+
+/* مصفوفة الصلاحيات: صفٌّ لكل مورد، وعمودٌ لكل فعل */
+.mxlegend{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 12px}
+.mxlegend span{display:inline-flex; align-items:center; gap:6px; flex:none;
+  padding:6px 10px; border-radius:11px; background:var(--raise);
+  border:1px solid var(--line); font-size:10.5px; color:var(--dim2)}
+.mxlegend b{font-size:11px; color:var(--ink); font-weight:600}
+.mx{min-width:700px; max-width:840px; margin-inline:auto; display:flex; flex-direction:column}
+.mx > *{flex:none}
+.mxhead, .mxr{display:grid; align-items:center;
+  grid-template-columns:minmax(210px,1fr) repeat(5,78px) 66px}
+.mxhead{position:sticky; top:0; z-index:2; background:var(--panel);
+  border-bottom:1px solid var(--line2)}
+.mxhead > span{padding:10px 8px; font-size:10.5px; font-weight:700; color:var(--dim2);
+  text-align:center; letter-spacing:.2px}
+.mxhead .mxn, .mxhead .mxn2{text-align:start}
+.mxhead .mxn2{text-align:center}
+.mxg{padding:11px 12px 6px; font-size:10.5px; font-weight:700; color:var(--gold2);
+  letter-spacing:.6px; border-top:1px solid var(--line)}
+.mxg:first-of-type{border-top:0}
+.mxr{border-bottom:1px solid var(--line)}
+.mxr:hover{background:var(--sheen)}
+.mxn{display:flex; align-items:center; gap:8px; padding:9px 12px;
+  font-size:12px; color:var(--ink); min-width:0}
+.mxn svg{color:var(--dim2); flex:none}
+.mxc{justify-self:center; width:30px; height:30px; border-radius:9px; display:grid;
+  place-items:center; cursor:pointer; background:var(--raise);
+  border:1px solid var(--line2); color:var(--dim2); transition:.13s}
+.mxc:hover{border-color:var(--gold2)}
+.mxc.on{background:color-mix(in srgb,var(--g3) 22%,transparent);
+  border-color:var(--g3); color:var(--g3)}
+.mxc.on.danger{background:color-mix(in srgb,var(--red) 18%,transparent);
+  border-color:var(--red); color:var(--red)}
+.mxall{justify-self:center; width:30px; height:30px; border-radius:9px; display:grid;
+  place-items:center; cursor:pointer; background:transparent;
+  border:1px dashed var(--line2); color:var(--dim2)}
+.mxall:hover{border-color:var(--gold2); color:var(--gold2); border-style:solid}
+
 .xtbl.qtbl{min-width:1080px}
 .xtbl.qtbl .xhead, .xtbl.qtbl .xrow{grid-template-columns:repeat(8,minmax(120px,1fr))}
 .xtbl.qtbl .xrow.bad{background:color-mix(in srgb,var(--red) 10%,transparent)}
@@ -2786,8 +2863,8 @@ const SHOT_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 17;
-const APP_VER = 'نسخة ١٫٥';
+const SCHEMA = 18;
+const APP_VER = 'نسخة ١٫٦';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -3066,6 +3143,9 @@ function seed() {
   seedPilgrimData(st);
   seedSignals(st);
   seedActions(st);
+  seedWarns(st);
+  seedMove(st);
+  seedRoles(st);
   seedComply(st);
 
   return st;
@@ -3082,7 +3162,8 @@ function load() {
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
-  S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || [];
+  S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || []; S.warns = S.warns || []; S.ctrs = S.ctrs || [];
+  S.roleSets = S.roleSets || []; S.roleOf = S.roleOf || {};
   (S.groups || []).forEach(g => { g.state = g.state || 'approved'; g.log = g.log || []; }); S.groupsV = S.groupsV || []; S.attend = S.attend || {}; S.sched = S.sched || null;
   (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
@@ -3166,6 +3247,13 @@ function sendSms(c) {
 function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('أُعيد ضبط البيانات'); }
 
 /* ---------- مساعدات ---------- */
+/* ما يُكتب بالأرقام الهندية يُقرأ عددًا — فالمستخدم يكتب كما يقرأ */
+const deAr = s => String(s == null ? '' : s)
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+  .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+  .replace(/[٬،,]/g, '');
+const numOf = s => Number(deAr(s).replace(/[^\d.-]/g, '')) || 0;
+
 const userById = id => S.users.find(u => u.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const orgById = id => S.orgs.find(o => o.id === id);
@@ -3227,8 +3315,15 @@ const NAV = [
       { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
     ]},
     { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
-    { k:'transport', i:'i-bus',  l:'النقل',       d:'جدولة عشرة باصات على الموسم' },
     { k:'incidents', i:'i-warn', l:'البلاغات والحوادث', d:'دورةٌ من إحدى عشرة مرحلة' }
+  ]},
+
+  { g:'إدارة الحركة', items:[
+    { p:'moveg', i:'i-bus', l:'إدارة الحركة', d:'الباصات والمرشدون والعقود', kids:[
+      { k:'transport', i:'i-bus',   l:'النقل' },
+      { k:'gmv',       i:'i-users', l:'المرشدون' },
+      { k:'ctrs',      i:'i-doc',   l:'عقود النقل' }
+    ]}
   ]},
 
   { g:'الموظفون', items:[
@@ -3238,6 +3333,7 @@ const NAV = [
       { k:'reserve', i:'i-shield', l:'الفريق الاحتياطي' },
       { k:'shifts',  i:'i-swap',   l:'تبديل الشِفتات' },
       { k:'actions', i:'i-shield', l:'الإجراءات' },
+      { k:'warns',   i:'i-warn',   l:'الإنذارات' },
     ]},
     /* التشكيل بابٌ واحد وخطواته الثلاث من داخله — لا ثلاثة أبواب لشيء واحد.
        ويقع أسفل مع التشكيل السريع، فالبابان لعملٍ واحد. */
@@ -3289,6 +3385,8 @@ function navCount(k, t) {
   if (k === 'incidents') return sigOpen().filter(s => s.risk === 'high').length;
   if (k === 'shifts')    return openSwaps().length;
   if (k === 'actions')   return actOpen().length;
+  if (k === 'warns')     return (V.warns || []).filter(w => w.state === 'open').length;
+  if (k === 'ctrs')      return notInDaif();
   return 0;
 }
 const navUrgent = k => ['support', 'incidents'].indexOf(k) >= 0;
@@ -4726,6 +4824,10 @@ function applyPick(kind, id, u) {
     logIt('سُكِّن ' + u.name + ' على مهمة ' + t.title + ' — ' + t.kt + ' · من الكنترول', 'assign');
     toast(u.name + ' → ' + t.title);
     S.picker = null; taskDrawer(t.id); return;
+  } else if (kind === 'warn') {
+    S.wform = S.wform || { kind:'dress', lvl:null };
+    S.wform.userId = u.id;
+    S.picker = null; warnNew(u.id); return;
   } else if (kind === 'mseat') {
     const g = S.groups.find(x => x.id === id); if (!g) return;
     if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
@@ -4820,9 +4922,9 @@ const PERMS = [
   { k:'admin',   ar:'إدارة عليا',      i:'i-shield', scope:'all',   edit:true,
     d:'ترى كل شيء وتعدّل كل شيء — وهي وحدها كذلك' },
   { k:'mission', ar:'بعثة',            i:'i-flag',   scope:'org',   edit:false,
-    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+    d:'ترى محسنيها وحجاجها ومهامها — وما تفعله تقوله مجموعتها' },
   { k:'company', ar:'شركة',            i:'i-flag',   scope:'org',   edit:false,
-    d:'ترى محسنيها وحجاجها ومهامها — اطّلاع بلا تعديل' },
+    d:'ترى محسنيها وحجاجها ومهامها — وما تفعله تقوله مجموعتها' },
   { k:'sup',     ar:'مشرف',            i:'i-key',    scope:'hotel', edit:false,
     d:'يرى كل من تحته في الفندق' },
   { k:'mashaer', ar:'مشاعر',           i:'i-tent',   scope:'domain', edit:false, prov:true,
@@ -4843,7 +4945,16 @@ const SCOPE_AR = { all:'كل النظام', org:'جهته وحدها', hotel:'ف
 
 /* الصفة الفاعلة الآن، ومن تُمثِّله */
 const curPerm = () => permOf(S.actor && S.actor.perm);
-const canEdit = () => !!curPerm().edit;
+/* التعديل لم يعد صفةً ثابتة في الجدول: مجموعتها هي التي تقول.
+   فمن مُنح فعلًا واحدًا غير الاطّلاع فهو مُعدِّل — ثم يفصل الحارس
+   الدقيق أيَّ فعلٍ على أيِّ مورد. والإدارة العليا لا تُقيَّد. */
+const canEdit = () => {
+  const p = curPerm();
+  if (p.scope === 'all') return true;
+  const rs = roleSetOf(p.k);
+  return !!(rs && Object.keys(rs.m || {}).some(k =>
+    (rs.m[k] || []).some(x => x !== 'view')));
+};
 /* الشاشات المسموحة لهذه الصفة — والافتراض لا شيء */
 function allowed() {
   const p = curPerm();
@@ -4981,6 +5092,9 @@ function buildView() {
   V.assigns  = S.assigns.filter(x => has(userIds, x.to));
   V.swaps    = S.swaps.filter(w => has(userIds, w.from) || has(userIds, w.to));
   V.signals  = S.signals || [];
+  V.warns    = (S.warns || []).filter(w => has(userIds, w.userId));
+  V.ctrs     = (S.ctrs || []).filter(c => p.scope === 'org' ? c.orgId === a.orgId : true);
+  V.roleSets = S.roleSets || [];
   V.acts     = (S.acts || []).filter(a => has(userIds, a.userId));
   V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));
   V.log      = p.scope === 'self' ? [] : S.log;
@@ -5340,9 +5454,14 @@ function renderGate() {
               'data-a="grole" data-v="' + x.k + '">' +
               '<span class="fl" style="gap:8px;width:100%">' + icon(x.i, 's18') +
                 '<b style="flex:1">' + E(x.ar) + '</b>' +
-                (x.edit ? pill('تعديل','gold') : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
+                (x.scope === 'all' ? pill('بلا قيد','gold')
+                  : (n ? pill(AR(n),'live') : pill('بلا','no'))) +
               '</span>' +
-              '<span>' + E(SCOPE_AR[x.scope]) + '</span></button>';
+              /* المجموعة هي ما يُفعل، والنطاق هو ما يُرى — فيُذكران معًا */
+              '<span>' + E(SCOPE_AR[x.scope]) +
+              (x.scope === 'all' ? ''
+                : ' · ' + E((roleSetOf(x.k) || {}).name || 'بلا مجموعة')) +
+              '</span></button>';
           }).join('') + '</div>' +
 
           (who ? '<div class="whobox">' + who + '</div>' : '') +
@@ -5350,7 +5469,11 @@ function renderGate() {
           '<div class="gnote">' + icon(gr ? 'i-checkc' : 'i-warn','s16') +
             '<span>' + (p.scope === 'all'
               ? 'الإدارة العليا ترى كل شيء وتعدّل كل شيء.'
-              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. اطّلاع بلا تعديل.'
+              : gr ? 'لهذه الصفة ' + AR(gr) + ' شاشة، ونطاقها: ' + SCOPE_AR[p.scope] + '. ' +
+                (roleSetOf(p.k)
+                  ? 'وتفعل ما تُجيزه مجموعة «' + E(roleSetOf(p.k).name) + '» — ' +
+                    AR(setCount(roleSetOf(p.k))) + ' فعلًا.'
+                  : 'ولم تُمنح مجموعة أفعال — اطّلاع بلا تعديل.')
                    : 'لم تُسنَد لهذه الصفة أي شاشة — ستدخل ولا ترى شيئًا. هذا هو السلوك المقصود.') +
             '</span></div>' +
 
@@ -11897,6 +12020,1229 @@ function tlGap(list, a, b) {
 }
 
 /* ============================================================
+   السبب الإجباري — لا يُنقل أحدٌ بلا سببٍ مكتوب
+
+   القاعدة: كل فعلٍ يُحرّك إنسانًا — سحبًا من مهمّة، أو إدخالًا من
+   الاحتياط — يُسأل عن سببه قبل أن يقع، ويُحفَظ السبب في ثلاثة
+   أماكن: سجلّ المهمّة، وسجلّ النظام، وملفّ الشخص.
+
+   وليس هذا تشديدًا إداريًّا: حين يُسأل الكنترول بعد شهرٍ «لماذا سُحب
+   فلان من مهمّة عرفة؟» فالجواب مكتوبٌ لا مُتذكَّر.
+   ============================================================ */
+
+/* أسبابٌ جاهزة لكل فعل — تُنقر، أو يُكتب غيرها */
+const WHY_PRESETS = {
+  pullTask: ['تعارض في الوقت مع مهمّة أخرى', 'حالة صحّية طارئة', 'طلب الليدر',
+             'إعادة توزيع التخصّصات', 'تكرار عدم الإنجاز', 'بطلب المحسن نفسه',
+             'خارج شِفت المهمّة'],
+  addRes:   ['نقص في عدد المحسنين', 'غياب محسنٍ مسكَّن', 'تخصّص ناقص في الفريق',
+             'زيادة في حجم الفوج', 'طلب دعمٍ من الليدر', 'اكسترا كوتا أُضيفت'],
+  swapRes:  ['بديلٌ عن غائب', 'أقرب تخصّصًا للمطلوب', 'أخفّ حِملًا',
+             'بطلب المشرف', 'قرار الكنترول']
+};
+
+/* درج السبب: يعمل لأي فعلٍ — يحمل ما يُنفَّذ بعد الحفظ */
+function askWhy(o) {
+  /* o = { kind, title, sub, note, act, id, v, warn } */
+  /* إعادة الرسم تمرّ من هنا أيضًا — فلا يُمحى ما اختير إلّا عند فتحٍ جديد */
+  const fresh = !S.why || S.why.act !== o.act || S.why.id !== o.id;
+  S.why = { kind:o.kind, act:o.act, id:o.id, v:o.v || '' };
+  if (fresh) { S.q.whyTxt = ''; S.q.whyPick = ''; }
+  const list = WHY_PRESETS[o.kind] || [];
+  S.drawer = { title:o.title, sub:o.sub || 'السبب يُحفظ في السجلّ ولا يُمحى',
+    icon:'i-edit', wide:false, body:
+
+    '<div class="note a">' + icon('i-warn','s16') +
+      '<span>' + (o.note || 'لا يقع هذا الفعل بلا سببٍ مكتوب. ' +
+      'فالسجلّ هو ما يُحتكم إليه بعد شهر.') + '</span></div>' +
+
+    (o.warn ? '<div class="note r">' + icon('i-warn','s16') +
+      '<span>' + o.warn + '</span></div>' : '') +
+
+    '<div class="card">' +
+      head('السبب', 'انقر سببًا جاهزًا أو اكتب غيره', '', 'i-edit') +
+      (list.length ? '<div class="chipwrap">' + list.map(r =>
+        '<button class="chipbtn' + (S.q.whyPick === r ? ' on' : '') + '" ' +
+        'data-a="whypick" data-v="' + E(r) + '">' + E(r) + '</button>').join('') + '</div>' : '') +
+      '<label class="fl2">أو اكتب سببًا</label>' +
+      '<textarea class="fld" id="q-whyTxt" data-q="whyTxt" rows="3" ' +
+        'placeholder="اكتب السبب بوضوح — يقرؤه من يراجع بعدك."></textarea>' +
+    '</div>' +
+
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="whygo">' + icon('i-check','s16') + 'تنفيذ</button>' +
+      '<button class="btn l" data-a="whycancel">إلغاء</button></div>' };
+  renderDrawer();
+}
+const whyText = () => (qOf('whyTxt') || S.q.whyPick || '').trim();
+
+/* يُكتب السبب في ملفّ الشخص أيضًا — فالملفّ يجمع ما تفرّق */
+function whyOnUser(uid_, text, kind) {
+  const u = userById(uid_); if (!u) return;
+  u.moves = u.moves || [];
+  u.moves.unshift({ at: now(), by: actorLabel(), kind: kind || 'move', text });
+  if (u.moves.length > 60) u.moves.pop();
+}
+
+/* ============================================================
+   الإنذارات — سجلٌّ لكل محسن، لا رسائل متفرّقة
+
+   الإجراءات (٢٨) تُوثّق ما لم يُنفَّذ من المهامّ ويُرصد آليًّا. وهذه
+   شيءٌ آخر: **إنذارٌ يُسجَّل على الشخص** — تأخّرًا كان أو غيابًا أو
+   لبسًا غير لائق أو سوء تعامل. منها ما يرصده النظام، ومنها ما يكتبه
+   الكنترول بيده.
+
+   والتكرار هو المهمّ: ثلاثة إنذاراتٍ من نوعٍ واحد ليست ثلاثة أشياء،
+   بل شيءٌ واحد يتفاقم — فالشاشة تُظهر التكرار قبل أن تُظهر القائمة.
+   ============================================================ */
+const WARN_KIND = {
+  late:    { ar:'تأخّر عن مهمّة',     c:'#E67E22', p:'wait', i:'i-clock',  auto:true },
+  absent:  { ar:'غياب',               c:'#C0392B', p:'no',   i:'i-xc',     auto:true },
+  noshow:  { ar:'لم يُثبت حضوره',     c:'#B8791A', p:'gold', i:'i-target', auto:true },
+  undone:  { ar:'مهمّة لم تُنفَّذ',    c:'#A03028', p:'no',   i:'i-warn',   auto:true },
+  dress:   { ar:'لبس غير لائق',       c:'#6B4E9E', p:'grey', i:'i-idcard', auto:false },
+  conduct: { ar:'سوء تعامل',          c:'#8A5A1E', p:'gold', i:'i-users',  auto:false },
+  safety:  { ar:'مخالفة سلامة',       c:'#1B6E9C', p:'wait', i:'i-shield', auto:false },
+  device:  { ar:'عدم استخدام التطبيق', c:'#5A6C63', p:'grey', i:'i-phone',  auto:false },
+  other:   { ar:'أخرى',               c:'#7C8C84', p:'grey', i:'i-edit',   auto:false }
+};
+const WARN_LVL = {
+  note:  { ar:'ملاحظة',       p:'grey', w:1 },
+  first: { ar:'إنذار أول',    p:'wait', w:2 },
+  second:{ ar:'إنذار ثانٍ',   p:'gold', w:3 },
+  final: { ar:'إنذار نهائي',  p:'no',   w:5 }
+};
+const WARN_ST = {
+  open:     { ar:'قائم',        p:'no' },
+  ack:      { ar:'أُبلغ به',    p:'wait' },
+  explained:{ ar:'قُدّم عذر',   p:'gold' },
+  cleared:  { ar:'أُسقط',       p:'live' }
+};
+
+/* ---------- بذر: يُشتقّ من وقائع النظام ثم يُزاد ما يُكتب يدويًّا ---------- */
+function seedWarns(st) {
+  st.warns = [];
+  let n = 0;
+  const add = (u, kind, lvl, text, at, extra) => {
+    n++;
+    st.warns.push(Object.assign({
+      id:'WN' + (9600 + n), no:'WN-' + (9600 + n),
+      userId:u.id, kind, lvl, text,
+      at, by: WARN_KIND[kind].auto ? 'النظام' : 'الكنترول',
+      state: n % 5 === 0 ? 'cleared' : n % 3 === 0 ? 'explained' : n % 2 === 0 ? 'ack' : 'open',
+      sms: n % 3 === 0 ? 'delivered' : null, smsAt: n % 3 === 0 ? at + HR : null,
+      note:'', taskId:null
+    }, extra || {}));
+  };
+  st.users.filter(u => u.role === 'muhsen').forEach((u, i) => {
+    const mine = st.tasks.filter(t => (t.assigned || []).indexOf(u.id) >= 0);
+    const missed = mine.filter(t => t.status === 'done' && (t.attended || []).indexOf(u.id) < 0);
+    missed.slice(0, 3).forEach((t, k) => {
+      add(u, k === 0 ? 'noshow' : 'absent',
+        k === 0 ? 'note' : k === 1 ? 'first' : 'second',
+        'لم يُثبت حضوره في «' + t.title + '»',
+        t.start + 30 * MIN, { taskId: t.id });
+    });
+    if (i % 9 === 2 && mine[0]) add(u, 'late', 'first',
+      'تأخّر خمسًا وعشرين دقيقة عن «' + mine[0].title + '»',
+      mine[0].start + 25 * MIN, { taskId: mine[0].id });
+    /* ما يكتبه الكنترول بيده */
+    if (i % 17 === 5) add(u, 'dress', 'note',
+      'حضر بلا الزيّ الرسميّ في نوبة الاستقبال', Date.now() - 6 * DAY);
+    if (i % 23 === 7) add(u, 'conduct', 'first',
+      'رفع صوته على حاجّ في اللوبي — أفاد المشرف', Date.now() - 4 * DAY);
+    if (i % 29 === 11) add(u, 'safety', 'first',
+      'لم يلتزم بمسار الطوارئ أثناء التفويج', Date.now() - 9 * DAY);
+    if (i % 31 === 13) add(u, 'device', 'note',
+      'لم يؤشّر على خطواته في التطبيق ثلاث مهامّ متتالية', Date.now() - 2 * DAY);
+  });
+  st.warns.sort((a, b) => b.at - a.at);
+}
+
+/* ---------- حسابات ---------- */
+const warnsOf = uid_ => (V.warns || []).filter(w => w.userId === uid_);
+const warnLive = w => w.state !== 'cleared';
+const warnScore = uid_ => warnsOf(uid_).filter(warnLive)
+  .reduce((a, w) => a + (WARN_LVL[w.lvl] || WARN_LVL.note).w, 0);
+/* التكرار: أي نوعٍ تكرّر وكم مرّة — هو ما يُقرأ قبل القائمة */
+function warnRepeat(uid_) {
+  const c = {};
+  warnsOf(uid_).filter(warnLive).forEach(w => { c[w.kind] = (c[w.kind] || 0) + 1; });
+  return Object.keys(c).filter(k => c[k] > 1)
+    .map(k => ({ kind:k, n:c[k] })).sort((a, b) => b.n - a.n);
+}
+/* المستوى التالي يُقترح لا يُفرض */
+const nextLvl = uid_ => {
+  const live = warnsOf(uid_).filter(warnLive).length;
+  return live >= 3 ? 'final' : live === 2 ? 'second' : live === 1 ? 'first' : 'note';
+};
+
+/* ============================================================
+   الشاشة
+   ============================================================ */
+function screenWarns() {
+  const K = 'wrn';
+  const q = qOf(K);
+  const seg = S.tab.wk || 'all';
+  let list = (V.warns || []).slice().sort((a, b) => b.at - a.at);
+  const total = list.length;
+  if (seg === 'auto') list = list.filter(w => WARN_KIND[w.kind].auto);
+  else if (seg === 'manual') list = list.filter(w => !WARN_KIND[w.kind].auto);
+  else if (seg !== 'all') list = list.filter(w => w.kind === seg);
+  if (fOf(K, 'lvl'))   list = list.filter(w => w.lvl === fOf(K, 'lvl'));
+  if (fOf(K, 'state')) list = list.filter(w => w.state === fOf(K, 'state'));
+  if (fOf(K, 'kind'))  list = list.filter(w => w.kind === fOf(K, 'kind'));
+  if (fOf(K, 'lead'))  list = list.filter(w =>
+    (userById(w.userId) || {}).leaderId === fOf(K, 'lead'));
+  if (fOf(K, 'sms'))   list = list.filter(w => (w.sms || 'none') === fOf(K, 'sms'));
+  if (q) list = list.filter(w => (w.no + ' ' + w.text + ' ' +
+    ((userById(w.userId) || {}).name || '')).indexOf(q) >= 0);
+
+  const live = (V.warns || []).filter(warnLive).length;
+  const fin = (V.warns || []).filter(w => w.lvl === 'final' && warnLive(w)).length;
+  /* من تكرّر عليه نوعٌ واحد — هؤلاء أوّل من يُنظر فيهم */
+  const rep = [...new Set((V.warns || []).map(w => w.userId))]
+    .map(id => ({ id, r:warnRepeat(id), s:warnScore(id) }))
+    .filter(x => x.r.length).sort((a, b) => b.s - a.s);
+
+  return '<div class="grid g4">' +
+      stat({ label:'إنذارات قائمة', n:live, ic:'i-warn', cls:live ? 'down' : 'up',
+        sub:'لم تُسقَط بعد', series:[12,16,14,20,18,22,19,Math.max(1, live)] }) +
+      stat({ label:'إنذارات نهائية', n:fin, ic:'i-xc', cls:fin ? 'down' : 'up',
+        sub:'تُحال إلى لجنة الجزاءات', series:[1,2,1,3,2,4,3,Math.max(1, fin)] }) +
+      stat({ label:'تكرارٌ على شخص', n:rep.length, ic:'i-reset', cls:rep.length ? 'down' : 'up',
+        sub:'نوعٌ واحد تكرّر عليه', series:[4,6,5,8,7,9,8,Math.max(1, rep.length)] }) +
+      stat({ label:'سجّلها الكنترول', n:(V.warns || []).filter(w => !WARN_KIND[w.kind].auto).length,
+        ic:'i-edit', sub:'لبسٌ وتعاملٌ وسلامة', series:[2,4,6,8,10,12,13,14] }) +
+    '</div>' +
+
+    (rep.length ? '<div class="card gold">' +
+      head('تكرارٌ يستحقّ النظر', 'نوعٌ واحد تكرّر على الشخص — والتكرار غير الحادثة',
+        pill(AR(rep.length), 'no'), 'i-reset') +
+      '<div class="plist">' + rep.slice(0, 6).map(x => {
+        const u = userById(x.id) || {};
+        return '<div class="prow" data-a="wuser" data-id="' + x.id + '">' + avatar(u, 'sm') +
+          '<span class="nm" style="flex:1"><b>' + E(u.name || '') + '</b>' +
+          '<span>' + LTR(u.code || '') + ' · ' + E(u.specialty || '') + '</span></span>' +
+          '<span class="fl" style="gap:6px;flex-wrap:wrap">' + x.r.map(r =>
+            '<span class="actk" style="color:' + WARN_KIND[r.kind].c +
+            ';background:color-mix(in srgb,' + WARN_KIND[r.kind].c + ' 14%,transparent)">' +
+            icon(WARN_KIND[r.kind].i,'s13') + E(WARN_KIND[r.kind].ar) + ' ×' + AR(r.n) +
+            '</span>').join('') + '</span>' +
+          pill('ثِقل ' + AR(x.s), x.s >= 8 ? 'no' : 'wait') + '</div>';
+      }).join('') + '</div></div>' : '') +
+
+    '<div class="card">' +
+      head('الإنذارات', 'ما يرصده النظام وما يكتبه الكنترول — في سجلٍّ واحد',
+        '<button class="btn p sm" data-a="wnew">' + icon('i-plus','s16') +
+        'تسجيل إنذار</button>', 'i-warn') +
+      '<div class="tools">' + segmented('wk', [
+        ['all','الكل · ' + AR(total)],
+        ['auto','آليّة'], ['manual','سجّلها الكنترول']
+      ], seg) + '</div>' +
+      filterBar(K, [
+        { k:'kind',  label:'النوع',    opts:Object.keys(WARN_KIND).map(k => [k, WARN_KIND[k].ar]) },
+        { k:'lvl',   label:'الدرجة',   opts:Object.keys(WARN_LVL).map(k => [k, WARN_LVL[k].ar]) },
+        { k:'state', label:'الحالة',   opts:Object.keys(WARN_ST).map(k => [k, WARN_ST[k].ar]) },
+        { k:'lead',  label:'الليدر',   opts:optLeaders() },
+        { k:'sms',   label:'الرسالة',  opts:Object.keys(SMS_ST).map(k => [k, SMS_ST[k].ar]) }
+      ], list.length, total, 'ابحث برقم الإنذار أو نصّه أو اسم المحسن…') +
+      (list.length ? pagedList(list, K, warnRow)
+        : empty('لا إنذارات', 'السجلّ نظيف', 'i-checkc')) +
+    '</div>';
+}
+
+function warnRow(w) {
+  const u = userById(w.userId) || {}, k = WARN_KIND[w.kind], l = WARN_LVL[w.lvl];
+  const st = WARN_ST[w.state];
+  return '<div class="prow" style="--tsc:' + k.c + '" data-a="wopen" data-id="' + w.id + '">' +
+    '<span class="krail"></span>' + avatar(u, 'sm') +
+    '<span class="nm" style="flex:1;min-width:150px"><b>' + E(u.name || '') + '</b>' +
+      '<span>' + LTR(w.no) + ' · ' + E(w.text) + '</span></span>' +
+    '<span class="actk" style="color:' + k.c + ';background:color-mix(in srgb,' + k.c +
+      ' 14%,transparent)">' + icon(k.i,'s13') + E(k.ar) + '</span>' +
+    pill(l.ar, l.p) +
+    (w.sms ? pill('رسالة: ' + SMS_ST[w.sms].ar, SMS_ST[w.sms].p) : '') +
+    '<span class="when"><b>' + hijri(w.at) + '</b>' +
+      '<span class="num">' + ago(w.at) + '</span></span>' +
+    pill(w.by, 'grey') +
+    '<span class="end">' + pill(st.ar, st.p) + '</span></div>';
+}
+
+/* ---------- درج الإنذار ---------- */
+function warnDrawer(id) {
+  const w = (V.warns || []).find(x => x.id === id); if (!w) return;
+  const u = userById(w.userId) || {}, k = WARN_KIND[w.kind], l = WARN_LVL[w.lvl];
+  const t = w.taskId ? taskById(w.taskId) : null;
+  const mine = warnsOf(w.userId);
+  const rep = warnRepeat(w.userId);
+
+  S.drawer = { title:k.ar, sub:w.no + ' · ' + (u.name || ''), icon:k.i,
+    wide:!!S.dwide, expand:id, body:
+
+    '<div class="card" style="--kc:' + k.c + '">' +
+      head(k.ar, 'سجّله ' + w.by + ' ' + ago(w.at), pill(l.ar, l.p), k.i) +
+      '<div class="quote">' + E(w.text) + '</div>' +
+      '<div class="row" style="padding:10px 4px;margin-top:8px;border-top:1px solid var(--line)">' +
+        avatar(u, 'lg') +
+        '<span class="nm" style="flex:1"><b>' + E(u.name || '') + '</b>' +
+        '<span>' + LTR(u.code || '') + ' · ' + E(u.specialty || '') + ' · شِفت ' +
+        E(shiftOf(u)) + '</span></span>' +
+        '<button class="chipbtn" data-a="staffpage" data-id="' + u.id + '">الملفّ</button>' +
+      '</div>' +
+      (t ? '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="tlopen" ' +
+        'data-id="' + t.id + '">' + icon('i-tasks','s14') + E(t.title) + '</button>' : '') +
+    '</div>' +
+
+    (rep.length ? '<div class="note r">' + icon('i-reset','s16') +
+      '<span><b>تكرارٌ على هذا المحسن</b><br>' +
+      rep.map(r => WARN_KIND[r.kind].ar + ' ×' + AR(r.n)).join(' · ') +
+      ' — وثِقل سجلّه ' + AR(warnScore(w.userId)) + '.</span></div>' : '') +
+
+    '<div class="card">' +
+      head('الدرجة والحالة', 'الدرجة تُصعَّد بالتكرار لا بالمزاج', '', 'i-shield') +
+      '<div class="tiny faint" style="margin:4px 0 7px">الدرجة</div>' +
+      '<div class="chipwrap">' + Object.keys(WARN_LVL).map(x =>
+        '<button class="chipbtn' + (w.lvl === x ? ' on' : '') + '" data-a="wlvl" ' +
+        'data-id="' + w.id + '" data-v="' + x + '">' + E(WARN_LVL[x].ar) + '</button>').join('') + '</div>' +
+      '<div class="tiny faint" style="margin:13px 0 7px">الحالة</div>' +
+      '<div class="chipwrap">' + Object.keys(WARN_ST).map(x =>
+        '<button class="chipbtn' + (w.state === x ? ' on' : '') + '" data-a="wstate" ' +
+        'data-id="' + w.id + '" data-v="' + x + '">' + E(WARN_ST[x].ar) + '</button>').join('') + '</div>' +
+      (w.note ? '<div class="quote" style="margin-top:12px">' + E(w.note) + '</div>' : '') +
+      '<label class="fl2">عذرُ المحسن أو ملاحظة الكنترول</label>' +
+      '<textarea class="fld" id="q-wnote" data-q="wnote" rows="3" ' +
+        'placeholder="ما أفاد به، أو ما رآه الكنترول">' + E(qOf('wnote')) + '</textarea>' +
+      '<button class="btn l sm" style="width:100%;margin-top:10px" data-a="wnote" ' +
+        'data-id="' + w.id + '">' + icon('i-check','s14') + 'حفظ الملاحظة</button>' +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('إبلاغ المحسن', 'نصٌّ ثابتٌ لدرجة الإنذار',
+        w.sms ? pill(SMS_ST[w.sms].ar, SMS_ST[w.sms].p) : '', 'i-send') +
+      '<div class="smscard"><div class="smsline">' + icon('i-phone','s13') +
+        LTR(u.phone || '') + '</div>' +
+        '<div class="smsbody">' + E(warnSms(w)) + '</div>' +
+        (w.smsAt ? '<div class="tiny faint" style="margin-top:8px">' +
+          hijri(w.smsAt) + ' · ' + t12(w.smsAt) + '</div>' : '') + '</div>' +
+      '<button class="btn p sm" style="width:100%;margin-top:12px" data-a="wsms" ' +
+        'data-id="' + w.id + '">' + icon('i-send','s14') +
+        (w.sms ? 'إعادة الإرسال' : 'إرسال الإنذار') + '</button>' +
+    '</div>' +
+
+    (mine.length > 1 ? '<div class="card">' +
+      head('سجلّ إنذاراته', AR(mine.length) + ' إنذارًا — ' +
+        AR(mine.filter(warnLive).length) + ' قائمًا', '', 'i-hist') +
+      '<div class="plist">' + mine.slice(0, 10).map(x => {
+        const kk = WARN_KIND[x.kind];
+        return '<div class="prow" data-a="wopen" data-id="' + x.id + '">' +
+          '<span class="actk" style="color:' + kk.c + ';background:color-mix(in srgb,' + kk.c +
+          ' 14%,transparent)">' + icon(kk.i,'s13') + E(kk.ar) + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(x.text) + '</b>' +
+          '<span>' + LTR(x.no) + ' · ' + E(x.by) + ' · ' + ago(x.at) + '</span></span>' +
+          pill(WARN_LVL[x.lvl].ar, WARN_LVL[x.lvl].p) +
+          pill(WARN_ST[x.state].ar, WARN_ST[x.state].p) + '</div>';
+      }).join('') + '</div></div>' : '') +
+
+    '<button class="btn l" data-a="wuser" data-id="' + u.id + '">' +
+      icon('i-user','s16') + 'كل إنذارات ' + E(u.name || '') + '</button>' };
+  renderDrawer();
+}
+
+const WARN_SMS = {
+  note:  'ملاحظة من غرفة عمليات مُحسن: {text}. نأمل تلافيها. — الكنترول',
+  first: 'إنذار أول من غرفة عمليات مُحسن: {text} بتاريخ {date}. ' +
+         'يُرجى الالتزام تفاديًا للتصعيد. — الكنترول',
+  second:'إنذار ثانٍ: {text}. تكرّر عليك ({n}) مرّات هذا الموسم. ' +
+         'التكرار يُحال إلى لجنة الجزاءات. — غرفة عمليات مُحسن',
+  final: 'إنذار نهائي: {text}. أُحيل ملفّك إلى لجنة الجزاءات. ' +
+         'راجع مشرفك فورًا. — غرفة عمليات مُحسن'
+};
+const warnSms = w => String(WARN_SMS[w.lvl] || WARN_SMS.note)
+  .replace('{text}', w.text)
+  .replace('{date}', hijri(w.at))
+  .replace('{n}', AR(warnsOf(w.userId).filter(x => x.kind === w.kind && warnLive(x)).length));
+
+/* ---------- سجلّ شخصٍ بعينه ---------- */
+function warnUser(uid_) {
+  const u = userById(uid_); if (!u) return;
+  const mine = warnsOf(uid_);
+  const rep = warnRepeat(uid_);
+  const sc = warnScore(uid_);
+  S.drawer = { title:'إنذارات ' + u.name, sub:(u.code || '') + ' · ثِقل السجلّ ' + AR(sc),
+    icon:'i-warn', wide:!!S.dwide, expand:uid_, body:
+
+    '<div class="card" style="--kc:' + (sc >= 8 ? 'var(--red)' : 'var(--gold2)') + '">' +
+      head('ثِقل السجلّ', 'يُحسب بدرجات الإنذارات القائمة وحدها',
+        pill(AR(sc), sc >= 8 ? 'no' : sc >= 4 ? 'gold' : 'live'), 'i-shield') +
+      '<div class="fl" style="gap:12px">' +
+        ring(Math.min(100, sc * 10), sc >= 8 ? 'var(--red)' : 'var(--gold2)', 56) +
+        '<span class="sp"><b>' + AR(mine.filter(warnLive).length) + ' إنذارًا قائمًا</b>' +
+        '<div class="tiny faint">من ' + AR(mine.length) + ' سُجّل عليه هذا الموسم</div></span>' +
+      '</div>' +
+      (rep.length ? '<div class="note r" style="margin-top:12px">' + icon('i-reset','s16') +
+        '<span><b>تكرار:</b> ' + rep.map(r => WARN_KIND[r.kind].ar + ' ×' + AR(r.n)).join(' · ') +
+        '</span></div>' : '') +
+      '<button class="btn p sm" style="width:100%;margin-top:12px" data-a="wnew" ' +
+        'data-id="' + uid_ + '">' + icon('i-plus','s14') + 'تسجيل إنذار جديد عليه</button>' +
+    '</div>' +
+
+    '<div class="card">' + head('السجلّ', AR(mine.length) + ' إنذارًا', '', 'i-hist') +
+      (mine.length ? '<div class="plist">' + mine.map(x => {
+        const kk = WARN_KIND[x.kind];
+        return '<div class="prow" data-a="wopen" data-id="' + x.id + '">' +
+          '<span class="actk" style="color:' + kk.c + ';background:color-mix(in srgb,' + kk.c +
+          ' 14%,transparent)">' + icon(kk.i,'s13') + E(kk.ar) + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(x.text) + '</b>' +
+          '<span>' + LTR(x.no) + ' · ' + E(x.by) + ' · ' + hijri(x.at) + '</span></span>' +
+          pill(WARN_LVL[x.lvl].ar, WARN_LVL[x.lvl].p) +
+          (x.sms ? pill(SMS_ST[x.sms].ar, SMS_ST[x.sms].p) : '') +
+          pill(WARN_ST[x.state].ar, WARN_ST[x.state].p) + '</div>';
+      }).join('') + '</div>' : empty('لا إنذارات', 'سجلّه نظيف', 'i-checkc')) +
+    '</div>' +
+
+    ((u.moves || []).length ? '<div class="card">' +
+      head('حركاته', 'كل نقلٍ أو سحبٍ بسببه المكتوب', '', 'i-swap') +
+      histLog((u.moves || []).map(m => ({ at:m.at, text:m.by + ' — ' + m.text, kind:'info' }))) +
+    '</div>' : '') };
+  renderDrawer();
+}
+
+/* ---------- تسجيل إنذار جديد ---------- */
+function warnNew(uid_) {
+  const d = S.wform = S.wform || { userId:uid_ || null, kind:'dress', lvl:null };
+  if (uid_) d.userId = uid_;
+  const u = d.userId ? userById(d.userId) : null;
+  const lvl = d.lvl || (u ? nextLvl(u.id) : 'note');
+
+  S.drawer = { title:'تسجيل إنذار', sub:u ? u.name : 'اختر المحسن أوّلًا',
+    icon:'i-warn', wide:!!S.dwide, body:
+
+    '<div class="note b">' + icon('i-info','s16') +
+      '<span>ما يرصده النظام يُسجَّل وحده. وهذه لما يراه الكنترول بعينه: ' +
+      'لبسًا، أو تعاملًا، أو سلامةً — أو أيّ شيءٍ آخر.</span></div>' +
+
+    '<div class="card">' + head('المحسن', u ? 'مختار' : 'لم يُختر بعد', '', 'i-user') +
+      (u ? '<div class="row" style="padding:9px 4px">' + avatar(u) +
+        '<span class="nm" style="flex:1"><b>' + E(u.name) + '</b>' +
+        '<span>' + LTR(u.code || '') + ' · ' + E(u.specialty || '') + '</span></span>' +
+        pill(AR(warnsOf(u.id).filter(warnLive).length) + ' قائمًا',
+          warnsOf(u.id).filter(warnLive).length ? 'no' : 'live') +
+        '<button class="chipbtn" data-a="wpick">تغيير</button></div>'
+        : '<button class="btn p sm" style="width:100%" data-a="wpick">' +
+          icon('i-users','s14') + 'اختيار المحسن</button>') +
+    '</div>' +
+
+    '<div class="card">' + head('النوع', 'ما الذي وقع؟', '', 'i-list') +
+      '<div class="chipwrap">' + Object.keys(WARN_KIND).map(k =>
+        '<button class="chipbtn' + (d.kind === k ? ' on' : '') + '" data-a="wkind" ' +
+        'data-v="' + k + '">' + icon(WARN_KIND[k].i,'s13') + E(WARN_KIND[k].ar) +
+        '</button>').join('') + '</div>' +
+      '<label class="fl2">وصف الواقعة</label>' +
+      '<textarea class="fld" id="q-wtxt" data-q="wtxt" rows="3" ' +
+        'placeholder="أين ومتى وماذا — بوضوحٍ يُغني عن السؤال">' + E(qOf('wtxt')) + '</textarea>' +
+    '</div>' +
+
+    '<div class="card">' + head('الدرجة',
+      u ? 'المقترح بناءً على سجلّه: ' + WARN_LVL[nextLvl(u.id)].ar : 'تُصعَّد بالتكرار',
+      '', 'i-shield') +
+      '<div class="chipwrap">' + Object.keys(WARN_LVL).map(k =>
+        '<button class="chipbtn' + (lvl === k ? ' on' : '') + '" data-a="wnlvl" ' +
+        'data-v="' + k + '">' + E(WARN_LVL[k].ar) + '</button>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="wsave"' + (u ? '' : ' disabled') + '>' +
+        icon('i-check','s16') + 'تسجيل الإنذار</button>' +
+      '<button class="btn l" data-a="closedrawer">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* ============================================================
+   إدارة الحركة — النقل والمرشدون وعقود النقل
+
+   العقد ليس ملفًّا يُرفَع ويُنسى: هو **صفٌّ فيه أرقام** — باصاتٌ
+   وكراسٍ وحجّاج — و**ملفٌّ يُعايَن في مكانه** لا يُنزَّل ليُفتح، و**حالةٌ**
+   تقول أسُجِّل في نظام ضيف أم لا، و**كشفُ مرشدين** يُنزَّل قالبًا
+   ويُعبَّأ ويُرفع.
+
+   والمرشد محسنٌ تخصّصه نقل — فبابُه هنا لا في سجلّ الموظفين العامّ،
+   لأنّ من يدير الحركة لا يبحث في ثلاثمئة اسم عن أربعين.
+   ============================================================ */
+
+/* حالة العقد في نظام ضيف — وهي أوّل ما يُسأل عنه */
+const DAIF_ST = {
+  reg:     { ar:'مسجَّل في ضيف',   p:'live', c:'#16A34A', i:'i-checkc' },
+  pending: { ar:'قيد التسجيل',     p:'wait', c:'#E67E22', i:'i-clock' },
+  no:      { ar:'غير مسجَّل',      p:'no',   c:'#C0392B', i:'i-xc' },
+  na:      { ar:'لا يلزمه تسجيل', p:'grey', c:'#5A6C63', i:'i-info' }
+};
+const CTR_ST = {
+  draft:  { ar:'مسودّة',  p:'grey' },
+  active: { ar:'ساري',    p:'live' },
+  ended:  { ar:'منتهٍ',   p:'wait' },
+  void:   { ar:'ملغى',    p:'no' }
+};
+const CARRIERS = ['شركة رواحل الحرمين للنقل البري', 'مسار للنقل البرّي',
+  'النقل الجماعي الموحّد', 'شركة دروب المشاعر', 'أسطول الحرمين'];
+
+/* ---------- بذر العقود ---------- */
+function seedMove(st) {
+  st.ctrs = [];
+  const kinds = ['نقل الحجاج من المطار', 'التفويج إلى المشاعر', 'جولات المزارات',
+    'المغادرة إلى المطار', 'النقل بين الفنادق'];
+  ORGS.slice(0, 9).forEach((o, i) => {
+    const buses = 6 + (i * 3) % 22;
+    const seats = buses * (i % 3 === 0 ? 49 : i % 3 === 1 ? 45 : 53);
+    const pil = Math.min(o.pilgrims, Math.round(seats * (0.72 + (i % 4) * 0.06)));
+    const daif = i % 5 === 0 ? 'no' : i % 4 === 0 ? 'pending' : i % 7 === 0 ? 'na' : 'reg';
+    const nGuides = Math.max(2, Math.round(buses / 3));
+    st.ctrs.push({
+      id:'TC' + (9800 + i), no:'NQ-' + (2400 + i * 7),
+      title:kinds[i % kinds.length] + ' — ' + o.kt,
+      carrier:CARRIERS[i % CARRIERS.length],
+      orgId:o.id, kt:o.kt,
+      buses, seats, pilgrims:pil,
+      trips: buses * (2 + i % 3),
+      value: 180000 + i * 41000,
+      from: Date.now() - (20 - i) * DAY,
+      to:   Date.now() + (25 + i * 2) * DAY,
+      state: i === 8 ? 'draft' : i === 7 ? 'ended' : 'active',
+      daif,
+      daifNo: daif === 'reg' ? 'DF-' + (77100 + i * 13) : '',
+      file: { name:'عقد-' + (2400 + i * 7) + '.pdf', size:280000 + i * 21000,
+        type:'application/pdf' },
+      at: Date.now() - (22 - i) * DAY,
+      guides: Array.from({ length: nGuides }, (_, k) => {
+        const seed = i * 17 + k * 5;
+        return {
+          name: saName(seed % 5 < 1 ? 'f' : 'm', seed),
+          id: '10' + (4000000 + seed * 977),
+          phone: '+9665' + (58100000 + seed * 311),
+          lic: 'GL-' + (33000 + seed * 7),
+          bus: 'BUS-' + (100 + (k % buses)),
+          lang: ['العربية','الإنجليزية','الملايوية','الأردية'][seed % 4]
+        };
+      }),
+      log:[{ at: Date.now() - (22 - i) * DAY, by:'الكنترول',
+        text:'سُجّل العقد ورُفع ملفّه' }]
+    });
+  });
+}
+
+/* حسابات */
+const ctrsAll = () => (V.ctrs || []);
+const notInDaif = () => ctrsAll().filter(c => c.daif === 'no' || c.daif === 'pending').length;
+/* المرشد: محسنٌ تخصّصه نقل */
+const guidesTeam = () => (V.users || []).filter(u => u.role === 'muhsen' && u.specialty === 'نقل');
+
+/* ============================================================
+   ١) المرشدون — محسنو النقل وحدهم
+   ============================================================ */
+function screenGuidesMv() {
+  const K = 'gmv';
+  const q = qOf(K);
+  let list = guidesTeam();
+  const total = list.length;
+  if (fOf(K, 'shift')) list = list.filter(u => shiftOf(u) === fOf(K, 'shift'));
+  if (fOf(K, 'org'))   list = list.filter(u => (staffOrg(u) || {}).id === fOf(K, 'org'));
+  if (fOf(K, 'res'))   list = list.filter(u => fOf(K, 'res') === 'y' ? u.reserve : !u.reserve);
+  if (fOf(K, 'here'))  list = list.filter(u =>
+    fOf(K, 'here') === 'y' ? isPresent(u.id, now()) : !isPresent(u.id, now()));
+  if (q) list = list.filter(u => (u.name + ' ' + u.code + ' ' + (u.phone || '')).indexOf(q) >= 0);
+
+  const here = guidesTeam().filter(u => isPresent(u.id, now())).length;
+  const onTrip = guidesTeam().filter(u => (V.trips || []).some(t =>
+    (t.riders || []).indexOf(u.id) >= 0)).length;
+  const inCtr = ctrsAll().reduce((a, c) => a + (c.guides || []).length, 0);
+
+  return '<div class="grid g4">' +
+      stat({ label:'المرشدون', n:total, ic:'i-users',
+        sub:'محسنون تخصّصهم نقل', series:[20,24,28,32,36,38,39,Math.max(1, total)] }) +
+      stat({ label:'حاضرون الآن', n:here, ic:'i-checkc', cls:'up',
+        sub:'في شِفت ' + shiftAt(now()), series:[8,10,12,14,13,15,14,Math.max(1, here)] }) +
+      stat({ label:'على رحلات', n:onTrip, ic:'i-bus',
+        sub:'مسكَّنون على رحلاتٍ اليوم', series:[3,5,4,7,6,8,7,Math.max(1, onTrip)] }) +
+      stat({ label:'في كشوف العقود', n:inCtr, ic:'i-doc',
+        sub:'أسماءٌ وردت في كشوف الناقلين',
+        series:[10,18,26,34,42,48,52,Math.max(1, inCtr)] }) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('المرشدون', 'محسنو النقل وحدهم — من يدير الحركة لا يبحث في ثلاثمئة اسم',
+        '<button class="btn l sm" data-a="gmvxl">' + icon('i-doc','s14') +
+        'تصدير إكسل</button>', 'i-bus') +
+      filterBar(K, [
+        { k:'shift', label:'الشِفت',  opts:SHIFTS.map(s => [s.k, s.k]) },
+        { k:'here',  label:'الحضور',  opts:[['y','حاضر'],['n','غير حاضر']] },
+        { k:'org',   label:'الجهة',   opts:optOrgs() },
+        { k:'res',   label:'الاحتياط', opts:[['y','احتياط'],['n','مسكَّن']] }
+      ], list.length, total, 'ابحث باسم المرشد أو رمزه أو جوّاله…') +
+      (list.length ? pagedList(list, K, u => {
+        const g = staffGroup(u), o = staffOrg(u);
+        const trips = (V.trips || []).filter(t => (t.riders || []).indexOf(u.id) >= 0).length;
+        const wn = warnsOf(u.id).filter(warnLive).length;
+        return '<div class="prow" data-a="staffpage" data-id="' + u.id + '">' +
+          avatar(u, 'sm') +
+          '<span class="nm" style="flex:1;min-width:150px"><b>' + E(u.name) + '</b>' +
+          '<span>' + LTR(u.code) + ' · ' + LTR(u.phone || '') +
+          (o ? ' · ' + E(o.kt) : '') + '</span></span>' +
+          '<span class="tcnts">' + cnt('i-bus', trips, 'رحلات اليوم') +
+            (wn ? cnt('i-warn', wn, 'إنذارات قائمة', 'warn') : '') + '</span>' +
+          pill('شِفت ' + shiftOf(u), 'grey') +
+          (isPresent(u.id, now()) ? pill('حاضر', 'live') : pill('غير حاضر', 'no')) +
+          (u.reserve ? pill('احتياط', 'gold') : (g ? pill(g.no, 'grey') : '')) +
+          '<span class="end">' + icon('i-fwd','s16') + '</span></div>';
+      }) : empty('لا مرشد مطابق', 'امسح الفلاتر', 'i-bus')) +
+    '</div>';
+}
+
+/* ============================================================
+   ٢) عقود النقل
+   ============================================================ */
+function screenCtrs() {
+  const K = 'ctr';
+  const q = qOf(K);
+  let list = ctrsAll().slice().sort((a, b) => b.at - a.at);
+  const total = list.length;
+  if (fOf(K, 'daif'))  list = list.filter(c => c.daif === fOf(K, 'daif'));
+  if (fOf(K, 'state')) list = list.filter(c => c.state === fOf(K, 'state'));
+  if (fOf(K, 'org'))   list = list.filter(c => c.orgId === fOf(K, 'org'));
+  if (fOf(K, 'car'))   list = list.filter(c => c.carrier === fOf(K, 'car'));
+  if (q) list = list.filter(c => (c.no + ' ' + c.title + ' ' + c.carrier + ' ' +
+    c.kt + ' ' + (c.daifNo || '')).indexOf(q) >= 0);
+
+  const buses = ctrsAll().reduce((a, c) => a + c.buses, 0);
+  const seats = ctrsAll().reduce((a, c) => a + c.seats, 0);
+  const pil = ctrsAll().reduce((a, c) => a + c.pilgrims, 0);
+
+  return '<div class="grid g4">' +
+      stat({ label:'عقود سارية', n:ctrsAll().filter(c => c.state === 'active').length,
+        ic:'i-doc', sub:'من ' + AR(total) + ' عقدًا',
+        series:[3,4,5,6,7,7,8,Math.max(1, ctrsAll().filter(c => c.state === 'active').length)] }) +
+      stat({ label:'إجمالي الحافلات', n:buses, ic:'i-bus',
+        sub:AR(seats) + ' مقعدًا', series:[40,60,80,100,120,130,138,Math.max(1, buses)] }) +
+      stat({ label:'حجّاج مغطَّون', n:pil, ic:'i-users',
+        sub:AR(Math.round(pil / Math.max(1, seats) * 100)) + '٪ إشغال المقاعد',
+        series:[300,600,900,1100,1300,1400,1450,Math.max(1, pil)] }) +
+      stat({ label:'غير مسجَّل في ضيف', n:notInDaif(), ic:'i-warn',
+        cls:notInDaif() ? 'down' : 'up', sub:'يُوقف التفويج إن لم يُسجَّل',
+        series:[1,2,2,3,2,3,2,Math.max(1, notInDaif())] }) +
+    '</div>' +
+
+    '<div class="card">' +
+      head('عقود النقل', 'كل عقدٍ صفٌّ فيه أرقامه، وملفٌّ يُعايَن في مكانه، وكشفُ مرشدين',
+        '<button class="btn p sm" data-a="ctrnew">' + icon('i-plus','s16') +
+        'تسجيل عقد</button>', 'i-doc') +
+      (notInDaif() ? '<div class="note r">' + icon('i-warn','s16') +
+        '<span><b>' + AR(notInDaif()) + ' عقدًا لم يُسجَّل في نظام ضيف</b><br>' +
+        'التفويج لا يُعتمد بعقدٍ غير مسجَّل — سجّله أو علّم أنه لا يلزمه.</span></div>' : '') +
+      filterBar(K, [
+        { k:'daif',  label:'نظام ضيف', opts:Object.keys(DAIF_ST).map(k => [k, DAIF_ST[k].ar]) },
+        { k:'state', label:'حالة العقد', opts:Object.keys(CTR_ST).map(k => [k, CTR_ST[k].ar]) },
+        { k:'org',   label:'الجهة',    opts:optOrgs() },
+        { k:'car',   label:'الناقل',   opts:CARRIERS.map(c => [c, c]) }
+      ], list.length, total, 'ابحث برقم العقد أو اسمه أو الناقل أو رقم ضيف…') +
+      (list.length ? '<div class="xtwrap"><div class="xtbl ctbl">' +
+        '<div class="xhead">' + ['العقد','الناقل','الجهة','الحافلات','المقاعد','الحجاج',
+          'الرحلات','نظام ضيف','المرشدون','الحالة','الملفّ والكشف']
+          .map(t => '<span class="xth">' + t + '</span>').join('') + '</div>' +
+        list.map(ctrRow).join('') + '</div></div>'
+        : empty('لا عقود بهذه الفلاتر', 'امسح الفلاتر أو سجّل عقدًا', 'i-doc')) +
+    '</div>';
+}
+
+function ctrRow(c) {
+  const d = DAIF_ST[c.daif], st = CTR_ST[c.state];
+  const o = orgById(c.orgId) || {};
+  return '<div class="xrow" data-a="ctropen" data-id="' + c.id + '">' +
+    '<span class="xc nmc"><span class="nm"><b>' + E(c.title) + '</b>' +
+      '<span>' + LTR(c.no) + '</span></span></span>' +
+    '<span class="xc">' + E(c.carrier) + '</span>' +
+    '<span class="xc">' + LTR(c.kt) + '<span class="tiny faint">' + E(o.ar || '') + '</span></span>' +
+    '<span class="xc num">' + AR(c.buses) + '</span>' +
+    '<span class="xc num">' + AR(c.seats) + '</span>' +
+    '<span class="xc num">' + AR(c.pilgrims) + '</span>' +
+    '<span class="xc num">' + AR(c.trips) + '</span>' +
+    '<span class="xc">' + pill(d.ar, d.p) +
+      (c.daifNo ? '<span class="tiny faint">' + LTR(c.daifNo) + '</span>' : '') + '</span>' +
+    '<span class="xc num">' + AR((c.guides || []).length) + '</span>' +
+    '<span class="xc">' + pill(st.ar, st.p) + '</span>' +
+    '<span class="xc act">' +
+      '<button class="eyebtn" data-a="ctrfile" data-id="' + c.id + '" data-v="pdf" ' +
+        'aria-label="معاينة العقد" title="معاينة العقد في الموقع">' + icon('i-eye','s15') + '</button>' +
+      '<button class="eyebtn" data-a="ctrfile" data-id="' + c.id + '" data-v="img" ' +
+        'aria-label="معاينة كصورة" title="معاينة كصورة">' + icon('i-photo','s15') + '</button>' +
+      '<button class="eyebtn" data-a="ctrxl" data-id="' + c.id + '" ' +
+        'aria-label="قالب المرشدين" title="تنزيل قالب المرشدين">' + icon('i-doc','s15') + '</button>' +
+      '<label class="eyebtn up" title="رفع كشف المرشدين">' + icon('i-clip','s15') +
+        '<input type="file" data-gx="' + c.id + '" accept=".csv,.txt" hidden></label>' +
+    '</span></div>';
+}
+
+/* ---------- درج العقد ---------- */
+function ctrDrawer(id) {
+  const c = ctrsAll().find(x => x.id === id); if (!c) return;
+  const d = DAIF_ST[c.daif], st = CTR_ST[c.state];
+  const o = orgById(c.orgId) || {};
+  const gl = c.guides || [];
+
+  S.drawer = { title:c.title, sub:c.no + ' · ' + c.carrier, icon:'i-doc',
+    wide:!!S.dwide, expand:id, body:
+
+    '<div class="card" style="--kc:' + d.c + '">' +
+      head(st.ar, 'من ' + hijri(c.from) + ' إلى ' + hijri(c.to),
+        pill(d.ar, d.p), 'i-doc') +
+      '<div class="grid g2" style="gap:11px">' +
+        kv2('رقم العقد', LTR(c.no)) +
+        kv2('الناقل', E(c.carrier)) +
+        kv2('الجهة', LTR(c.kt) + ' · ' + E(o.ar || '')) +
+        kv2('قيمة العقد', AR(c.value) + ' ريال') +
+        kv2('عدد الحافلات', AR(c.buses)) +
+        kv2('عدد المقاعد', AR(c.seats)) +
+        kv2('عدد الحجاج', AR(c.pilgrims)) +
+        kv2('عدد الرحلات', AR(c.trips)) +
+        kv2('إشغال المقاعد', AR(Math.round(c.pilgrims / Math.max(1, c.seats) * 100)) + '٪') +
+        kv2('رقم ضيف', c.daifNo ? LTR(c.daifNo) : '—') +
+      '</div>' +
+      '<div class="grid g2" style="gap:8px;margin-top:13px">' +
+        '<button class="btn p sm" data-a="ctrfile" data-id="' + c.id + '" data-v="pdf">' +
+          icon('i-eye','s14') + 'معاينة العقد</button>' +
+        '<button class="btn l sm" data-a="ctrfile" data-id="' + c.id + '" data-v="img">' +
+          icon('i-photo','s14') + 'معاينة كصورة</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      head('نظام ضيف', 'التفويج لا يُعتمد بعقدٍ غير مسجَّل', '', d.i) +
+      '<div class="chipwrap">' + Object.keys(DAIF_ST).map(k =>
+        '<button class="chipbtn' + (c.daif === k ? ' on' : '') + '" data-a="ctrdaif" ' +
+        'data-id="' + c.id + '" data-v="' + k + '">' + E(DAIF_ST[k].ar) + '</button>').join('') + '</div>' +
+      (c.daif === 'reg' || c.daif === 'pending'
+        ? '<label class="fl2">رقم التسجيل في ضيف</label>' +
+          '<input class="fld" id="q-ctrdf" data-q="ctrdf" value="' + E(c.daifNo || '') +
+            '" placeholder="DF-77100">' +
+          '<button class="btn l sm" style="width:100%;margin-top:10px" data-a="ctrdfsave" ' +
+            'data-id="' + c.id + '">' + icon('i-check','s14') + 'حفظ الرقم</button>' : '') +
+      '<div class="tiny faint" style="margin-top:11px">حالة العقد</div>' +
+      '<div class="chipwrap">' + Object.keys(CTR_ST).map(k =>
+        '<button class="chipbtn' + (c.state === k ? ' on' : '') + '" data-a="ctrstate" ' +
+        'data-id="' + c.id + '" data-v="' + k + '">' + E(CTR_ST[k].ar) + '</button>').join('') + '</div>' +
+    '</div>' +
+
+    '<div class="card gold">' +
+      head('كشف المرشدين', gl.length ? AR(gl.length) + ' مرشدًا في الكشف'
+        : 'لم يُرفع كشفٌ بعد',
+        '<span class="fl" style="gap:7px">' +
+          '<button class="btn l sm" data-a="ctrxl" data-id="' + c.id + '">' +
+            icon('i-doc','s14') + 'قالب فارغ</button>' +
+          '<label class="btn p sm" style="cursor:pointer">' + icon('i-clip','s14') +
+            'رفع الكشف<input type="file" data-gx="' + c.id + '" accept=".csv,.txt" hidden>' +
+          '</label>' +
+        '</span>', 'i-users') +
+      '<div class="quote">نزِّل القالب فارغًا، عبّئه بأسماء المرشدين وأرقامهم، ثم ارفعه — ' +
+        'تُقرأ العناوين لا المواضع، فلا يضرّ ترتيبك.</div>' +
+      (gl.length ? '<div class="xtwrap" style="margin-top:12px"><div class="xtbl gtbl">' +
+        '<div class="xhead">' + ['الاسم','رقم الهوية','الجوال','رقم الرخصة','الحافلة','اللغة']
+          .map(t => '<span class="xth">' + t + '</span>').join('') + '</div>' +
+        gl.map(g => '<div class="xrow">' +
+          '<span class="xc"><b>' + E(g.name) + '</b></span>' +
+          '<span class="xc num">' + LTR(g.id) + '</span>' +
+          '<span class="xc num">' + LTR(g.phone) + '</span>' +
+          '<span class="xc num">' + LTR(g.lic) + '</span>' +
+          '<span class="xc num">' + LTR(g.bus) + '</span>' +
+          '<span class="xc">' + E(g.lang) + '</span></div>').join('') +
+        '</div></div>'
+        : '<div class="tiny faint" style="margin-top:12px">لا أسماء بعد.</div>') +
+    '</div>' +
+
+    '<div class="card">' + head('سجلّ العقد', AR((c.log || []).length) + ' قيدًا', '', 'i-hist') +
+      histLog((c.log || []).map(x => ({ at:x.at, text:x.by + ' — ' + x.text, kind:'info' }))) +
+    '</div>' };
+  renderDrawer();
+}
+
+/* ---------- معاينة العقد: تُفتح في الموقع لا تُنزَّل ---------- */
+function ctrFile(id, mode) {
+  const c = ctrsAll().find(x => x.id === id); if (!c) return;
+  const o = orgById(c.orgId) || {};
+  const kv = (a, b) => '<div class="dkv"><span>' + a + '</span><b>' + b + '</b></div>';
+  const paper =
+    '<h4>عقد نقل بري لحجاج بيت الله الحرام</h4>' +
+    '<div class="dsub">موسم حج ' + AR(1448) + 'هـ · رقم العقد ' + LTR(c.no) +
+      (c.daifNo ? ' · ضيف ' + LTR(c.daifNo) : '') + '</div>' +
+    '<p>إنه في يوم ' + dayName(c.from) + ' الموافق ' + hijri(c.from) +
+      'هـ، تمّ الاتفاق بين كلٍّ من:</p>' +
+    kv('الطرف الأول (الناقل)', E(c.carrier)) +
+    kv('الطرف الثاني (المتعاقد)', E(o.ar || '') + ' — ' + LTR(c.kt)) +
+    kv('الدولة', E(o.country || '—')) +
+    kv('موضوع العقد', E(c.title)) +
+    '<h5>أولًا: حجم التشغيل</h5>' +
+    kv('عدد الحافلات', AR(c.buses) + ' حافلة') +
+    kv('إجمالي المقاعد', AR(c.seats) + ' مقعدًا') +
+    kv('عدد الحجاج المنقولين', AR(c.pilgrims) + ' حاجًّا') +
+    kv('عدد الرحلات المتعاقد عليها', AR(c.trips) + ' رحلة') +
+    kv('عدد المرشدين المرافقين', AR((c.guides || []).length) + ' مرشدًا') +
+    kv('مدة العقد', hijri(c.from) + 'هـ — ' + hijri(c.to) + 'هـ') +
+    kv('قيمة العقد', AR(c.value) + ' ريال سعودي') +
+    '<h5>ثانيًا: التزامات الناقل</h5><ol>' +
+    '<li>حضور الحافلات قبل الموعد بساعتين على الأقلّ في نقطة الانطلاق.</li>' +
+    '<li>أن تكون الحافلات مكيّفة ونظيفة ومزوّدة بمياه باردة وحقيبة إسعافات.</li>' +
+    '<li>ألّا يتجاوز عمر الحافلة خمس سنوات، وأن تحمل لوحة المجموعة ورقمها.</li>' +
+    '<li>أن يرافق كلَّ ثلاث حافلاتٍ مرشدٌ مرخَّص من الكشف المعتمد.</li>' +
+    '<li>الالتزام بالمسار المعتمد من مركز التحكّم، وعدم التوقّف في غير نقاطه.</li></ol>' +
+    '<h5>ثالثًا: التسجيل النظامي</h5>' +
+    '<p>' + (c.daif === 'reg'
+      ? 'هذا العقد مسجَّل في نظام ضيف برقم ' + LTR(c.daifNo) + '، ويُعتمد التفويج بموجبه.'
+      : c.daif === 'pending'
+      ? 'هذا العقد قيد التسجيل في نظام ضيف، ولا يُعتمد التفويج حتى يكتمل تسجيله.'
+      : c.daif === 'na'
+      ? 'هذا العقد لا يلزمه تسجيلٌ في نظام ضيف لطبيعة تشغيله.'
+      : 'تنبيه: هذا العقد غير مسجَّل في نظام ضيف — ولا يُعتمد التفويج بموجبه.') + '</p>' +
+    '<h5>رابعًا: الجزاءات</h5>' +
+    '<p>يُخصم من قيمة العقد ما نسبته اثنان في المئة عن كل ساعة تأخير، ويحقّ للطرف ' +
+    'الثاني فسخ العقد عند تكرار المخالفة ثلاث مرّات في الموسم الواحد.</p>';
+
+  S.drawer = { title: mode === 'img' ? 'معاينة العقد كصورة' : 'معاينة العقد',
+    sub:c.no + ' · ' + c.carrier, icon: mode === 'img' ? 'i-photo' : 'i-file',
+    paper:true, expand:id, body:
+
+    '<div class="rpbar">' +
+      '<button class="btn' + (mode === 'pdf' ? ' p' : ' l') + ' sm" data-a="ctrfile" ' +
+        'data-id="' + c.id + '" data-v="pdf">' + icon('i-file','s14') + 'كـPDF</button>' +
+      '<button class="btn' + (mode === 'img' ? ' p' : ' l') + ' sm" data-a="ctrfile" ' +
+        'data-id="' + c.id + '" data-v="img">' + icon('i-photo','s14') + 'كصورة</button>' +
+      '<span class="fsp"></span>' +
+      '<button class="btn l sm" data-a="ctrprint" data-id="' + c.id + '">' +
+        icon('i-print','s14') + 'طباعة / حفظ PDF</button>' +
+      '<button class="btn l sm" data-a="ctropen" data-id="' + c.id + '">' +
+        icon('i-back','s14') + 'رجوع</button>' +
+    '</div>' +
+    '<div class="tiny faint" style="margin:10px 0">' + icon('i-clip','s13') + ' ' +
+      E(c.file ? c.file.name : '—') +
+      (c.file ? ' · ' + AR(Math.round(c.file.size / 1024)) + ' ك.ب' : '') +
+      ' — يُعايَن هنا ولا يُنزَّل.</div>' +
+    '<div class="' + (mode === 'img' ? 'ctrimg' : '') + '">' +
+      '<div class="report doc2" id="ctrdoc">' + paper +
+        '<div class="dsign"><span><b>الطرف الأول — ' + E(c.carrier) + '</b><i></i></span>' +
+        '<span><b>الطرف الثاني — ' + E(o.ar || '') + '</b><i></i></span></div>' +
+      '</div>' +
+    '</div>' };
+  renderDrawer();
+}
+
+/* ---------- تسجيل عقد جديد ---------- */
+function ctrNew() {
+  const d = S.cform = S.cform || { carrier:CARRIERS[0], orgId:(ORGS[0] || {}).id,
+    daif:'pending', state:'active' };
+  const f = (S.files || {}).ctrf;
+  const fld = (k, label, ph) => '<label class="fl2">' + E(label) + '</label>' +
+    '<input class="fld" id="q-c_' + k + '" data-q="c_' + k + '" value="' + E(qOf('c_' + k)) +
+    '" placeholder="' + E(ph || '') + '">';
+
+  S.drawer = { title:'تسجيل عقد نقل', sub:'بياناته وملفّه — والكشف يُرفع بعد الحفظ',
+    icon:'i-doc', wide:!!S.dwide, body:
+
+    '<div class="card">' + head('البيانات', 'الأرقام هي ما يُقرأ في الصفّ', '', 'i-doc') +
+      fld('title', 'موضوع العقد', 'نقل الحجاج من المطار — KT085') +
+      fld('no', 'رقم العقد', 'NQ-2450') +
+      '<label class="fl2">الناقل</label>' +
+      '<div class="chipwrap">' + CARRIERS.map(x =>
+        '<button class="chipbtn' + (d.carrier === x ? ' on' : '') + '" data-a="ccar" ' +
+        'data-v="' + E(x) + '">' + E(x) + '</button>').join('') + '</div>' +
+      '<label class="fl2">الجهة</label>' +
+      '<label class="fsel" style="width:100%"><span>الجهة</span>' +
+        '<select data-q2="cOrg">' + (V.orgs || []).map(o =>
+          '<option value="' + o.id + '"' + (d.orgId === o.id ? ' selected' : '') + '>' +
+          E(o.kt + ' · ' + o.ar) + '</option>').join('') + '</select>' +
+        icon('i-fwd','s14') + '</label>' +
+      '<div class="grid g2" style="gap:0 12px">' +
+        fld('buses', 'عدد الحافلات', '12') +
+        fld('seats', 'عدد المقاعد', '540') +
+        fld('pil', 'عدد الحجاج', '480') +
+        fld('trips', 'عدد الرحلات', '36') +
+        fld('value', 'قيمة العقد', '240000') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' + head('نظام ضيف', 'أسُجِّل أم لا؟', '', 'i-shield') +
+      '<div class="chipwrap">' + Object.keys(DAIF_ST).map(k =>
+        '<button class="chipbtn' + (d.daif === k ? ' on' : '') + '" data-a="cdaif" ' +
+        'data-v="' + k + '">' + E(DAIF_ST[k].ar) + '</button>').join('') + '</div>' +
+      (d.daif === 'reg' || d.daif === 'pending' ? fld('daifno', 'رقم ضيف', 'DF-77100') : '') +
+    '</div>' +
+
+    '<div class="card">' + head('ملفّ العقد', 'يُعايَن في الموقع لا يُنزَّل', '', 'i-clip') +
+      '<div style="margin-top:6px">' + filePick('ctrf') + '</div>' +
+    '</div>' +
+
+    '<div class="grid g2" style="gap:8px">' +
+      '<button class="btn p" data-a="ctrsave">' + icon('i-check','s16') + 'تسجيل العقد</button>' +
+      '<button class="btn l" data-a="closedrawer">إلغاء</button></div>' };
+  renderDrawer();
+}
+
+/* ---------- إكسل المرشدين: قالبٌ يُنزَّل ويُرفع بالبنية نفسها ---------- */
+const GD_COLS = [
+  ['name',  'اسم المرشد'],
+  ['id',    'رقم الهوية'],
+  ['phone', 'رقم الجوال'],
+  ['lic',   'رقم الرخصة'],
+  ['bus',   'رقم الحافلة'],
+  ['lang',  'اللغة']
+];
+function guidesTemplate(c) {
+  const sample = [{ name:'محمد القحطاني', id:'1044000123', phone:'+966581234567',
+    lic:'GL-33010', bus:'BUS-101', lang:'العربية' }];
+  download('كشف-مرشدين-' + c.no + '.csv', toCsv(GD_COLS, sample));
+}
+function parseGuides(text) {
+  const t = String(text).replace(/^﻿/, '').replace(/\r/g, '');
+  const lines = t.split('\n').filter(x => x.trim());
+  if (!lines.length) return [];
+  const sep = lines[0].split(';').length > lines[0].split(',').length ? ';' : ',';
+  const head = lines[0].split(sep).map(x => x.trim().replace(/^"|"$/g, ''));
+  const map = {};
+  GD_COLS.forEach(c => { const i = head.indexOf(c[1]); if (i >= 0) map[c[0]] = i; });
+  return lines.slice(1).map(l => {
+    const cells = l.split(sep).map(x => x.trim().replace(/^"|"$/g, ''));
+    const o = {};
+    Object.keys(map).forEach(k => { o[k] = cells[map[k]] || ''; });
+    return o;
+  }).filter(o => o.name);
+}
+
+/* ============================================================
+   الصلاحيات الدقيقة — أفعالٌ لا شاشات
+
+   كانت الصلاحية «يرى هذه الشاشة أو لا يراها»، و«يعدّل أو لا يعدّل».
+   وهذا خشنٌ لا يكفي: مَن يُسنِد مهمّةً ليس بالضرورة من يحذفها، ومن
+   يعتمد دفعة اكسترا كوتا ليس من يُصدّر بيانات الحجّاج.
+
+   فصارت الصلاحية **مصفوفة**: لكل **مورد** خمسة أفعال — اطّلاع،
+   وإضافة، وتعديل، وحذف، واعتماد. وتُجمع الأفعال في **مجموعةٍ مسمّاة**
+   تُمنح للصفة، فتُبنى مرّةً وتُمنح مرارًا.
+
+   وقاعدةٌ حاكمة: **الإدارة العليا لا تُقيَّد**، وما عداها لا يملك فعلًا
+   حتى يُمنحه صراحةً.
+   ============================================================ */
+
+/* الموارد: ما يُملَك فعلٌ عليه */
+const RES = [
+  { k:'tasks',   ar:'مهام الحجّ',       i:'i-kaaba',  g:'العمليات' },
+  { k:'enrich',  ar:'إثراء التجربة',    i:'i-pin',    g:'العمليات' },
+  { k:'pilgrim', ar:'بيانات الحجاج',    i:'i-idcard', g:'العمليات' },
+  { k:'quota',   ar:'الاكسترا كوتا',    i:'i-idcard', g:'العمليات' },
+  { k:'comply',  ar:'الامتثال',         i:'i-clip',   g:'العمليات' },
+  { k:'guides',  ar:'أدلة التنفيذ',     i:'i-guide',  g:'العمليات' },
+  { k:'signal',  ar:'البلاغات والحوادث', i:'i-warn',  g:'العمليات' },
+
+  { k:'staff',   ar:'سجلّ الموظفين',    i:'i-idcard', g:'الموظفون' },
+  { k:'form',    ar:'التشكيل',          i:'i-users',  g:'الموظفون' },
+  { k:'shifts',  ar:'الشِفتات',         i:'i-swap',   g:'الموظفون' },
+  { k:'acts',    ar:'الإجراءات',        i:'i-shield', g:'الموظفون' },
+  { k:'warns',   ar:'الإنذارات',        i:'i-warn',   g:'الموظفون' },
+
+  { k:'trans',   ar:'النقل والرحلات',   i:'i-bus',    g:'الحركة' },
+  { k:'ctrs',    ar:'عقود النقل',       i:'i-doc',    g:'الحركة' },
+  { k:'gmv',     ar:'المرشدون',         i:'i-users',  g:'الحركة' },
+
+  { k:'tickets', ar:'التذاكر',          i:'i-ticket', g:'المتابعة' },
+  { k:'reports', ar:'التقارير',         i:'i-flag',   g:'المتابعة' },
+  { k:'support', ar:'طلبات الدعم',      i:'i-send',   g:'المتابعة' },
+
+  { k:'orgs',    ar:'الجهات والفنادق',  i:'i-flag',   g:'الإدارة' },
+  { k:'cast',    ar:'الإشعارات والبثّ', i:'i-bell',   g:'الإدارة' },
+  { k:'perms',   ar:'الصلاحيات',        i:'i-shield', g:'الإدارة' },
+  { k:'audit',   ar:'سجل النظام',       i:'i-hist',   g:'الإدارة' },
+  { k:'cfg',     ar:'إعدادات الموقع',   i:'i-gear',   g:'الإدارة' }
+];
+const RES_G = [...new Set(RES.map(r => r.g))];
+
+/* الأفعال الخمسة */
+const ACT = [
+  { k:'view',    ar:'اطّلاع',  i:'i-eye',    d:'يرى ولا يمسّ' },
+  { k:'add',     ar:'إضافة',   i:'i-plus',   d:'يُنشئ جديدًا' },
+  { k:'edit',    ar:'تعديل',   i:'i-edit',   d:'يغيّر القائم' },
+  { k:'del',     ar:'حذف',     i:'i-x',      d:'يُزيل — وهو أخطرها' },
+  { k:'approve', ar:'اعتماد',  i:'i-checkc', d:'يُقرّ ما يُلزم الميدان' }
+];
+
+/* ---------- مجموعات جاهزة تُبنى مرّةً وتُمنح مرارًا ---------- */
+function seedRoles(st) {
+  const all = (acts) => RES.reduce((a, r) => { a[r.k] = acts.slice(); return a; }, {});
+  const only = (keys, acts) => keys.reduce((a, k) => { a[k] = acts.slice(); return a; }, {});
+  st.roleSets = [
+    { id:'RS1', name:'قراءة فقط', d:'يرى كلّ شيء ولا يمسّ شيئًا', sys:true,
+      m:all(['view']) },
+    { id:'RS2', name:'مشغّل غرفة', d:'يُسنِد ويؤشّر ويردّ — ولا يحذف ولا يعتمد', sys:true,
+      m:Object.assign(all(['view']),
+        only(['tasks','comply','signal','tickets','reports','support','warns','acts'],
+          ['view','add','edit'])) },
+    { id:'RS3', name:'مشرف عمليات', d:'يعتمد ما يُلزم الميدان ويعدّل التشكيل', sys:true,
+      m:Object.assign(all(['view']),
+        only(['tasks','comply','signal','tickets','reports','support','form','warns','acts',
+              'quota','trans','ctrs'], ['view','add','edit','approve'])) },
+    { id:'RS4', name:'بيانات الحجّاج', d:'يُدخل ويُصدِّر ويعتمد الاكسترا كوتا — لا غير', sys:true,
+      m:Object.assign(only(['pilgrim','quota'], ['view','add','edit','approve']),
+        only(['tasks'], ['view'])) },
+    { id:'RS5', name:'إدارة الحركة', d:'النقل والعقود والمرشدون وحدها', sys:true,
+      m:Object.assign(only(['trans','ctrs','gmv'], ['view','add','edit','del','approve']),
+        only(['tasks','staff'], ['view'])) },
+    { id:'RS6', name:'الجزاءات', d:'الإنذارات والإجراءات — إضافةً واعتمادًا', sys:true,
+      m:Object.assign(only(['warns','acts'], ['view','add','edit','approve']),
+        only(['staff','tasks'], ['view'])) }
+  ];
+  /* الصفات تُربط بمجموعة — والإدارة العليا لا تُقيَّد */
+  st.roleOf = { admin:null, mission:'RS1', company:'RS1', sup:'RS2',
+    mashaer:'RS2', food:'RS2', trans:'RS5', centers:'RS1', medina:'RS1' };
+}
+
+/* ---------- الفحص ---------- */
+const roleSetOf = permK => (S.roleSets || []).find(x => x.id === (S.roleOf || {})[permK]) || null;
+/* القاعدة: الإدارة العليا تملك كل شيء، وما عداها لا يملك حتى يُمنح */
+function can(res, act) {
+  const p = curPerm();
+  if (p.scope === 'all') return true;
+  const rs = roleSetOf(p.k);
+  if (!rs) return act === 'view';
+  const a = (rs.m || {})[res];
+  return !!(a && a.indexOf(act) >= 0);
+}
+const canAdd = r => can(r, 'add');
+const canEdit2 = r => can(r, 'edit');
+const canDel = r => can(r, 'del');
+const canApprove = r => can(r, 'approve');
+/* عدد الأفعال الممنوحة — يُعرض في البطاقة */
+const setCount = rs => Object.keys(rs.m || {}).reduce((a, k) => a + rs.m[k].length, 0);
+
+/* ============================================================
+   الشاشة — تُضاف إلى «الصلاحيات» تبويبًا ثانيًا
+   ============================================================ */
+function screenRoles() {
+  const seg = S.tab.pm || 'sets';
+  return '<div class="card">' +
+      head('الصلاحيات', 'مجموعاتٌ مسمّاة من الأفعال، تُبنى مرّةً وتُمنح للصفات',
+        seg === 'sets' ? '<button class="btn p sm" data-a="rsnew">' + icon('i-plus','s16') +
+          'مجموعة جديدة</button>' : '', 'i-shield') +
+      '<div class="tools">' + segmented('pm', [
+        ['sets','مجموعات الصلاحيات · ' + AR((V.roleSets || []).length)],
+        ['grant','منح الصفات'],
+        ['screens','الشاشات']
+      ], seg) + '</div>' +
+    '</div>' +
+    (seg === 'grant' ? rolesGrant() : seg === 'screens' ? screenPerms() : rolesSets());
+}
+
+function rolesSets() {
+  const sets = V.roleSets || [];
+  return '<div class="card">' +
+    head('المجموعات', 'كل مجموعةٍ مصفوفةُ أفعالٍ على الموارد',
+      pill(AR(sets.length), 'gold'), 'i-list') +
+    '<div class="gcards">' + sets.map(rs => {
+      const used = Object.keys(S.roleOf || {}).filter(k => S.roleOf[k] === rs.id);
+      const res = Object.keys(rs.m || {}).filter(k => (rs.m[k] || []).length);
+      const danger = res.filter(k => (rs.m[k] || []).indexOf('del') >= 0).length;
+      return '<div class="gcard">' +
+        '<span class="gtop" style="background:' + (danger ? 'var(--red)' : 'var(--g3)') + '"></span>' +
+        '<div class="fl" style="margin-bottom:11px">' +
+          '<span class="ico" style="color:var(--gold2)">' + icon('i-shield','s18') + '</span>' +
+          '<span class="nm" style="flex:1"><b>' + E(rs.name) + '</b>' +
+          '<span>' + E(rs.d) + '</span></span>' +
+          (rs.sys ? pill('جاهزة','grey') : pill('مخصّصة','gold')) + '</div>' +
+        '<div class="mrow">' +
+          '<span class="mchip">' + icon('i-list','s14') + AR(res.length) + ' موردًا</span>' +
+          '<span class="mchip">' + icon('i-checkc','s14') + AR(setCount(rs)) + ' فعلًا</span>' +
+          (danger ? '<span class="mchip" style="color:var(--red)">' + icon('i-x','s14') +
+            AR(danger) + ' حذف</span>' : '') +
+          '<span class="mchip">' + icon('i-users','s14') + AR(used.length) + ' صفة</span>' +
+        '</div>' +
+        '<div class="pfoot">' +
+          '<span class="ok">' + (used.length
+            ? used.map(k => permOf(k).ar).join('، ') : 'غير ممنوحة لأحد') + '</span>' +
+          '<span class="fl" style="gap:7px">' +
+            '<button class="btn l sm" data-a="rsedit" data-id="' + rs.id + '">تعديل</button>' +
+            '<button class="btn l sm" data-a="rsclone" data-id="' + rs.id + '">نسخ</button>' +
+            (rs.sys ? '' : '<button class="btn l sm" data-a="rsdel" data-id="' + rs.id + '">حذف</button>') +
+          '</span></div></div>';
+    }).join('') + '</div></div>';
+}
+
+function rolesGrant() {
+  return '<div class="card">' +
+    head('منح الصفات', 'لكل صفةٍ مجموعةٌ واحدة — والإدارة العليا لا تُقيَّد',
+      '', 'i-users') +
+    '<div class="plist">' + PERMS.map(p => {
+      const rs = roleSetOf(p.k);
+      const isAdmin = p.scope === 'all';
+      return '<div class="prow">' +
+        '<span class="ico" style="color:var(--gold2)">' + icon(p.i, 's18') + '</span>' +
+        '<span class="nm" style="flex:1"><b>' + E(p.ar) + '</b>' +
+        '<span>' + E(p.d) + '</span></span>' +
+        (isAdmin ? pill('غير مقيَّدة', 'live')
+          : '<label class="fsel' + (rs ? ' on' : '') + '"><span>المجموعة</span>' +
+            '<select data-q2="rg_' + p.k + '">' +
+              '<option value="">بلا مجموعة — اطّلاع فقط</option>' +
+              (V.roleSets || []).map(x => '<option value="' + x.id + '"' +
+                (rs && rs.id === x.id ? ' selected' : '') + '>' + E(x.name) + '</option>').join('') +
+            '</select>' + icon('i-fwd','s14') + '</label>') +
+        (rs ? pill(AR(setCount(rs)) + ' فعلًا', 'gold') : '') +
+        '</div>';
+    }).join('') + '</div>' +
+    '<div class="quote" style="margin-top:14px">من لا مجموعة له يرى ما مُنح من شاشات ' +
+      'ولا يملك فعلًا — لا إضافةً ولا تعديلًا ولا حذفًا.</div>' +
+  '</div>';
+}
+
+/* ---------- محرّر المجموعة: مصفوفةٌ تُنقر ---------- */
+function roleEdit(id) {
+  const rs = (S.roleSets || []).find(x => x.id === id);
+  if (!rs) return;
+  const cell = (r, a) => {
+    const on = ((rs.m || {})[r.k] || []).indexOf(a.k) >= 0;
+    return '<button class="mxc' + (on ? ' on' : '') + (a.k === 'del' && on ? ' danger' : '') +
+      '" data-a="rstog" data-id="' + rs.id + '" data-k="' + r.k + '" data-v="' + a.k + '" ' +
+      'aria-label="' + E(r.ar + ' — ' + a.ar) + '" title="' + E(r.ar + ' — ' + a.ar) + '">' +
+      (on ? icon('i-check','s13') : '') + '</button>';
+  };
+  S.drawer = { title:rs.name, sub:rs.d + (rs.sys ? ' · مجموعة جاهزة' : ''),
+    icon:'i-shield', paper:true, expand:id, body:
+
+    '<div class="rpbar">' +
+      '<button class="btn l sm" data-a="rsall" data-id="' + rs.id + '" data-v="view">' +
+        icon('i-eye','s14') + 'اطّلاع على الكلّ</button>' +
+      '<button class="btn l sm" data-a="rsall" data-id="' + rs.id + '" data-v="none">' +
+        icon('i-x','s14') + 'تفريغ الكلّ</button>' +
+      '<span class="fsp"></span>' +
+      '<span class="tiny faint">' + AR(setCount(rs)) + ' فعلًا ممنوحًا</span>' +
+      '<button class="btn l sm" data-a="go" data-n="perms">' + icon('i-back','s14') + 'رجوع</button>' +
+    '</div>' +
+
+    '<div class="card">' +
+      head('اسم المجموعة ووصفها', 'الاسم هو ما يُمنح — فليكن مفهومًا', '', 'i-edit') +
+      '<label class="fl2">الاسم</label>' +
+      '<input class="fld" id="q-rs_n" data-q="rs_n" value="' + E(rs.name) + '">' +
+      '<label class="fl2">الوصف</label>' +
+      '<input class="fld" id="q-rs_d" data-q="rs_d" value="' + E(rs.d) + '">' +
+      '<button class="btn l sm" style="width:100%;margin-top:11px" data-a="rsname" ' +
+        'data-id="' + rs.id + '">' + icon('i-check','s14') + 'حفظ الاسم والوصف</button>' +
+    '</div>' +
+
+    '<div class="card">' +
+      head('المصفوفة', 'صفٌّ لكل مورد، وعمودٌ لكل فعل — انقر الخانة', '', 'i-list') +
+      '<div class="mxlegend">' + ACT.map(a =>
+        '<span>' + icon(a.i,'s13') + '<b>' + E(a.ar) + '</b>' + E(a.d) + '</span>').join('') + '</div>' +
+      '<div class="xtwrap"><div class="mx">' +
+        '<div class="mxhead"><span class="mxn">المورد</span>' +
+          ACT.map(a => '<span>' + E(a.ar) + '</span>').join('') +
+          '<span class="mxn2">الكلّ</span></div>' +
+        RES_G.map(g => '<div class="mxg">' + E(g) + '</div>' +
+          RES.filter(r => r.g === g).map(r =>
+            '<div class="mxr"><span class="mxn">' + icon(r.i,'s14') + E(r.ar) + '</span>' +
+            ACT.map(a => cell(r, a)).join('') +
+            '<button class="mxall" data-a="rsrow" data-id="' + rs.id + '" data-k="' + r.k + '" ' +
+              'aria-label="كل الأفعال">' + icon('i-checkc','s13') + '</button></div>').join('')
+        ).join('') +
+      '</div></div>' +
+    '</div>' };
+  renderDrawer();
+}
+
+/* ============================================================
+   ربط الصلاحية بالفعل — وإلّا كانت المصفوفة زينةً لا حُكمًا
+
+   كل فعلٍ في المُوجِّه يُنسب إلى مورده وإلى نوعه. وما لم يُذكر هنا
+   فهو اطّلاعٌ أو تنقّل — يمرّ بلا سؤال.
+   ============================================================ */
+const GATE = (function () {
+  const m = {};
+  const put = (res, act, list) => list.forEach(a => { m[a] = [res, act]; });
+
+  put('tasks','add',    ['txreqnew','txfilenew','txfilesave']);
+  put('tasks','del',    ['txreqdel','txfiledel']);
+  put('tasks','edit',   ['txassign','txunassign','txpull','txaddres','txaddresdo','txattend',
+                         'txstart','txnotesave','txsub','txreq','txreqph','txtpl','txtplpick',
+                         'tguide','tguideset','tguideclr','seatres','txreqneed']);
+  put('tasks','approve',['txclose','txclosedo','txreopen']);
+
+  put('enrich','edit',  ['xassign']);
+
+  put('pilgrim','edit', ['phnsave','pcstep','phealth','phnote']);
+  put('quota','add',    ['qtnew','qtsave','qprow']);
+  put('quota','approve',['qtok','qtno']);
+
+  put('comply','add',   ['fnew','schsave']);
+  put('comply','edit',  ['fedit','fbscope','fbadd','fbup','fbdel','fbsave','fassign','fatarget',
+                         'fsched','schoteb','schall','schnone','schslot','schprio','schmode',
+                         'schwho','careassign','caswap','caprio','funfo']);
+  put('comply','approve',['fapproveall']);
+
+  put('guides','add',   ['gdnew','gbadd','gbmadd']);
+  put('guides','edit',  ['gdedit','gbscope','gbup','gbsave']);
+  put('guides','del',   ['gbdel','gbmdel']);
+  put('guides','approve',['gbsavepub','gdpub','gdunpub']);
+
+  put('signal','add',   ['signew','sgsave']);
+  put('signal','edit',  ['sgcat','sgkt','sgsrc','sgch','sgcls','sgrisk','sigver','sigfix',
+                         'sigcls','sigrisk','sigrule','sigown','sigfollow','sigreply']);
+  put('signal','approve',['sigconfirm','sigclose','sigreopen']);
+
+  put('staff','add',    ['gnew']);
+  put('staff','edit',   ['bsave','bspec','borg','bhotel','bsup','blead','bclrlead','bmem',
+                         'supassign','supswap','suprm','gleadswap','ghotel','ghotelset']);
+  put('staff','del',    ['bdel']);
+
+  put('form','edit',    ['seatdrop','soutr','soutdo','mseatin','mseatout']);
+  put('form','approve', ['gstate']);
+
+  put('acts','edit',    ['acwhy','acsms','acpen','acperf']);
+  put('acts','approve', ['acclose']);
+
+  put('warns','add',    ['wsave']);
+  put('warns','edit',   ['wlvl','wstate','wnote','wsms','wkind','wnlvl']);
+
+  put('trans','add',    ['trnew']);
+  put('trans','edit',   ['trmove','trdone','trbus','trbusset','trider','trrmv']);
+
+  put('ctrs','add',     ['ctrnew','ctrsave','ccar','cdaif']);
+  put('ctrs','edit',    ['ctrdaif','ctrdfsave','ctrstate']);
+
+  put('tickets','edit', ['tkassign','tkcat','tkpri','tkreply']);
+  put('tickets','approve',['tkclose']);
+  put('reports','edit', ['rpassign','rpreply']);
+  put('reports','approve',['rpclose']);
+  put('support','edit', ['roomapply']);
+  put('support','approve',['swok','swno','spok','spno']);
+
+  put('orgs','add',     ['orgnew','orgsave','hotnew','hotsave']);
+  put('orgs','edit',    ['otype','hcity']);
+
+  put('cast','add',     ['castsend']);
+  put('cast','del',     ['castclear']);
+
+  put('perms','add',    ['rsnew','rsclone']);
+  put('perms','edit',   ['rstog','rsrow','rsall','rsname','pgtog','pgall','pgdef','pgnone']);
+  put('perms','del',    ['rsdel']);
+
+  /* لوحة المستخدم وساعته تفضيلُ عرضٍ لا تغييرَ بيانات — فلا تُحجب */
+  put('cfg','edit',     ['cfgtog','cfgsave']);
+  put('cfg','del',      ['reset']);
+  return m;
+})();
+
+/* رسالةٌ تقول ما نقص بالضبط — لا «ليست لديك صلاحية» */
+function gateBlock(a) {
+  const pair = GATE[a];
+  if (!pair) return null;                        /* لم يُنسب: اطّلاعٌ أو تنقّل */
+  if (can(pair[0], pair[1])) return null;
+  const r = RES.find(x => x.k === pair[0]) || { ar: pair[0] };
+  const act = ACT.find(x => x.k === pair[1]) || { ar: pair[1] };
+  const rs = roleSetOf(curPerm().k);
+  return act.ar + ' في «' + r.ar + '» غير ممنوحٍ لـ' +
+    (rs ? 'مجموعة «' + rs.name + '»' : 'صفتك');
+}
+
+/* ============================================================
    الحركة والتفاعل — طبقة تعمل بعد كل رسم
    كل حركة هنا لها سبب وظيفي: تُسرّع القراءة أو تدلّ على تغيّر.
    ============================================================ */
@@ -12122,7 +13468,7 @@ const drawerDepth = () => dStack.length;
 ['formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit','askWhy','warnDrawer','warnUser','warnNew','ctrDrawer','ctrFile','ctrNew','roleEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   /* كل الوسائط تُمرَّر لا الأوّل وحده: فاتحٌ بوسيطين (txPhoto, docView,
@@ -12227,6 +13573,30 @@ document.addEventListener('change', e => {
   if (!t) return;
   /* مرفق: نحفظ وصفه لا محتواه — الاسم والحجم والنوع */
   /* ملفّ إكسل: يُقرأ محتواه فعلًا لا وصفُه — فالبيانات هي المقصودة */
+  /* ملفّ المرشدين المعبّأ يعود إلى عقده — تُقرأ العناوين لا المواضع */
+  const gx = t.getAttribute && t.getAttribute('data-gx');
+  if (gx) {
+    const gf = t.files && t.files[0];
+    if (!gf) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      const c = ctrsAll().find(x => x.id === gx);
+      let rows = [];
+      try { rows = parseGuides(fr.result); } catch (e3) { rows = []; }
+      if (!c) return;
+      if (!rows.length) { toast('الملفّ فارغ أو عناوينه غير مطابقة', 'r'); return; }
+      c.guides = rows;
+      c.log = c.log || [];
+      c.log.unshift({ at:now(), by:actorLabel(),
+        text:'رُفع ملفّ المرشدين — ' + AR(rows.length) + ' مرشدًا' });
+      logIt('عقد ' + c.no + ': رُفع ' + AR(rows.length) + ' مرشدًا', 'info');
+      toast('قُرئ ' + AR(rows.length) + ' مرشدًا');
+      save(); ctrDrawer(c.id);
+    };
+    fr.readAsText(gf, 'utf-8');
+    t.value = '';
+    return;
+  }
   const xk = t.getAttribute && t.getAttribute('data-xl');
   if (xk) {
     const f = t.files && t.files[0];
@@ -12266,6 +13636,18 @@ document.addEventListener('change', e => {
   const q2 = t.getAttribute && t.getAttribute('data-q2');
   if (q2) { S.q = S.q || {}; S.q[q2] = t.value;
     if (q2 === 'qorg' && S.qform) S.qform.orgId = t.value;
+    if (q2 === 'cOrg' && S.cform) S.cform.orgId = t.value;
+    /* منح مجموعة صلاحيات لصفة: الفراغ نزعٌ لا خطأ */
+    if (q2.indexOf('rg_') === 0) {
+      const pk = q2.slice(3);
+      S.roleOf = S.roleOf || {};
+      S.roleOf[pk] = t.value || null;
+      const rs = (S.roleSets || []).find(x => x.id === t.value);
+      logIt('صفة ' + permOf(pk).ar + ': ' +
+        (rs ? 'مُنحت مجموعة «' + rs.name + '»' : 'نُزعت مجموعتها — اطّلاع فقط'), 'info');
+      toast(rs ? permOf(pk).ar + ' → ' + rs.name : 'نُزعت المجموعة');
+      save(); render(); return;
+    }
     save(); if (S.drawer) repaintDrawer(); return; }
   const fsel = t.getAttribute && t.getAttribute('data-f');
   if (fsel) { fltSet(fsel, t.getAttribute('data-fk'), t.value); save(); if (S.drawer) repaintDrawer(); else render(); return; }
@@ -12384,11 +13766,12 @@ document.addEventListener('drop', e => {
    المُوجِّه والأحداث
    ============================================================ */
 const SCREENS = {
-  ops: screenOps, actions: screenActions, orgs: screenOrgs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
+  ops: screenOps, actions: screenActions, orgs: screenOrgs,
+  warns: screenWarns, gmv: screenGuidesMv, ctrs: screenCtrs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
-  timeline: screenTimeline, perms: screenPerms,
+  timeline: screenTimeline, perms: screenRoles,
   transport: screenTransport
 };
 
@@ -12397,7 +13780,7 @@ const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','t
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -12470,6 +13853,9 @@ document.addEventListener('click', ev => {
     toast('صفتك للاطّلاع لا للتعديل — ' + curPerm().ar, 'r');
     return;
   }
+  /* الصلاحية الدقيقة: المورد والفعل معًا — لا الشاشة وحدها */
+  const gb = gateBlock(a);
+  if (gb) { toast(gb, 'r'); return; }
 
   switch (a) {
     case 'go': S.route = { n: b.dataset.n, id }; break;
@@ -12619,10 +14005,19 @@ document.addEventListener('click', ev => {
     case 'txunassign': {
       const t = ensureTask(taskById(id)); if (!t) return;
       const u = userById(b.dataset.s); if (!u) return;
+      const why = b.dataset.why;
+      /* بلا سببٍ لا يقع السحب — يُسأل أوّلًا */
+      if (!why) { askWhy({ kind:'pullTask', act:'txunassign', id, v:u.id,
+        title:'سحب ' + u.name + ' من المهمّة', sub:t.title,
+        note:'السبب يُحفظ في سجلّ المهمّة وسجلّ النظام وملفّ المحسن.',
+        warn:(t.attended || []).indexOf(u.id) >= 0
+          ? 'هذا المحسن أثبت حضوره — سحبُه بعد الحضور يُسجَّل بوضوح.' : '' }); return; }
       t.assigned = t.assigned.filter(x => x !== u.id);
       t.attended = (t.attended || []).filter(x => x !== u.id);
-      txLog(t, 'سحب الكنترول ' + u.name + ' من المهمة', 'warn');
-      logIt('سُحب ' + u.name + ' من مهمة ' + t.title, 'assign');
+      txLog(t, 'سحب الكنترول ' + u.name + ' من المهمة — السبب: ' + why, 'warn');
+      whyOnUser(u.id, 'سُحب من «' + t.title + '» — ' + why, 'pullTask');
+      logIt('سُحب ' + u.name + ' من مهمة ' + t.title + ' — ' + why, 'assign');
+      S.drawer = null; clearDrawerStack();
       toast('سُحب ' + u.name); save(); taskDrawer(id); return;
     }
     case 'txattend': {
@@ -12677,6 +14072,268 @@ document.addEventListener('click', ev => {
 
     /* ═══ تنبيهات المهام ═══ */
     case 'alerts': alertsDrawer(); return;
+
+    /* ═══ السبب الإجباري ═══ */
+    case 'whypick':  S.q.whyPick = v; S.q.whyTxt = ''; repaintDrawer(); return;
+    case 'whycancel': S.why = null; S.drawer = null; clearDrawerStack(); renderDrawer(); return;
+    case 'whygo': {
+      const w = S.why || {};
+      const why = whyText();
+      if (!why) { toast('اكتب السبب أو اخترْه', 'r'); return; }
+      S.why = null;
+      const btn = document.createElement('button');
+      btn.dataset.a = w.act; btn.dataset.id = w.id || '';
+      btn.dataset.s = w.v || ''; btn.dataset.why = why;
+      btn.style.display = 'none';
+      document.body.appendChild(btn); btn.click(); btn.remove();
+      return;
+    }
+
+    /* السحب من مهمّة: يُسأل عن السبب أوّلًا */
+    case 'txpull': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      askWhy({ kind:'pullTask', act:'txunassign', id, v:u.id,
+        title:'سحب ' + u.name + ' من المهمّة', sub:t.title,
+        note:'السبب يُحفظ في سجلّ المهمّة وسجلّ النظام وملفّ المحسن.',
+        warn:(t.attended || []).indexOf(u.id) >= 0
+          ? 'هذا المحسن أثبت حضوره على المهمّة — سحبُه بعد الحضور يُسجَّل بوضوح.' : '' });
+      return;
+    }
+    /* إدخالٌ من الاحتياط: يُسأل عن السبب أوّلًا */
+    case 'txaddres': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      askWhy({ kind:'addRes', act:'txaddresdo', id, v:u.id,
+        title:'تسكين ' + u.name + ' من الاحتياط', sub:t.title,
+        note:'الاحتياط مشتركٌ بين كل الفرق — فسحبُه إلى مهمّةٍ ينقصه من غيرها.',
+        warn:shiftOf(u) !== shiftAt(t.start)
+          ? 'شِفتُه ' + shiftOf(u) + ' وموعد المهمّة في شِفت ' + shiftAt(t.start) + '.' : '' });
+      return;
+    }
+    case 'txaddresdo': {
+      const t = ensureTask(taskById(id)); if (!t) return;
+      const u = userById(b.dataset.s); if (!u) return;
+      const why = b.dataset.why || 'بلا سبب';
+      if (t.assigned.indexOf(u.id) < 0) t.assigned.push(u.id);
+      txLog(t, 'سكّن الكنترول ' + u.name + ' من الاحتياط — السبب: ' + why, 'assign');
+      whyOnUser(u.id, 'سُكِّن من الاحتياط على «' + t.title + '» — ' + why, 'addRes');
+      logIt('سُكِّن ' + u.name + ' من الاحتياط على ' + t.title + ' — ' + why, 'assign');
+      toast(u.name + ' → ' + t.title);
+      S.drawer = null; clearDrawerStack(); save(); taskDrawer(t.id); return;
+    }
+
+    /* ═══ الإنذارات ═══ */
+    case 'wopen': warnDrawer(id); return;
+    case 'wuser': warnUser(id); return;
+    case 'wnew':  S.wform = { userId:id || null, kind:'dress', lvl:null };
+      S.q.wtxt = ''; warnNew(id); return;
+    case 'wkind': { const d = S.wform || {}; d.kind = v; S.wform = d; warnNew(d.userId); return; }
+    case 'wnlvl': { const d = S.wform || {}; d.lvl = v; S.wform = d; warnNew(d.userId); return; }
+    case 'wpick': {
+      openPicker('warn', 'new', { title:'اختيار المحسن',
+        note:'من يُسجَّل عليه الإنذار — والرقم بجانب الاسم حِمله الحالي.',
+        cands:(V.users || []).filter(u => u.role === 'muhsen') });
+      return;
+    }
+    case 'wsave': {
+      const d = S.wform || {};
+      const u = d.userId ? userById(d.userId) : null;
+      const txt = (S.q.wtxt || '').trim();
+      if (!u) { toast('اختر المحسن', 'r'); return; }
+      if (!txt) { toast('اكتب وصف الواقعة', 'r'); return; }
+      const lvl = d.lvl || nextLvl(u.id);
+      const w = { id:uid('WN'), no:'WN-' + (9600 + (S.warns || []).length + 1),
+        userId:u.id, kind:d.kind || 'other', lvl, text:txt,
+        at:now(), by:actorLabel(), state:'open', sms:null, smsAt:null, note:'', taskId:null };
+      S.warns.unshift(w);
+      logIt('سُجّل إنذار ' + WARN_KIND[w.kind].ar + ' على ' + u.name + ' — ' + WARN_LVL[lvl].ar, 'info');
+      S.wform = null; S.q.wtxt = '';
+      toast('سُجّل الإنذار'); save(); warnDrawer(w.id); return;
+    }
+    case 'wlvl': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      w.lvl = v; toast(WARN_LVL[v].ar); save(); warnDrawer(id); return;
+    }
+    case 'wstate': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      w.state = v;
+      if (v === 'cleared') logIt('أُسقط إنذار ' + w.no, 'info');
+      toast(WARN_ST[v].ar); save(); warnDrawer(id); return;
+    }
+    case 'wnote': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      const t2 = (S.q.wnote || '').trim();
+      if (!t2) { toast('اكتب الملاحظة', 'r'); return; }
+      w.note = t2;
+      if (w.state === 'open') w.state = 'explained';
+      S.q.wnote = ''; toast('حُفظت'); save(); warnDrawer(id); return;
+    }
+    case 'wsms': {
+      const w = (S.warns || []).find(x => x.id === id); if (!w) return;
+      const u = userById(w.userId) || {};
+      const okNum = /^\+?9665\d{8}$/.test(String(u.phone || '').replace(/\s/g, ''));
+      w.sms = 'sent'; w.smsAt = now();
+      setTimeout(() => {
+        const ww = (S.warns || []).find(x => x.id === w.id); if (!ww) return;
+        ww.sms = okNum ? 'delivered' : 'failed'; ww.smsAt = now();
+        logIt('إنذار ' + ww.no + ': ' + (okNum ? 'وصل' : 'لم يصل — الرقم غير صالح'), 'info');
+        save(); if (S.route.n === 'warns') render();
+      }, 1800);
+      if (w.state === 'open') w.state = 'ack';
+      logIt('أُرسل إنذار ' + WARN_LVL[w.lvl].ar + ' إلى ' + u.name, 'info');
+      toast('أُرسل — تصل الحالة بعد لحظات'); save(); warnDrawer(id); return;
+    }
+
+    /* ═══ إدارة الحركة ═══ */
+    case 'ctropen': ctrDrawer(id); return;
+    case 'ctrfile': ctrFile(id, v || 'pdf'); return;
+    case 'ctrprint': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      const el = document.getElementById('ctrdoc');
+      if (!el) { toast('افتح المعاينة أوّلًا', 'r'); return; }
+      const styles = [].slice.call(document.querySelectorAll('style'))
+        .map(s => s.textContent).join('\n');
+      const w2 = window.open('', '_blank');
+      if (!w2) { toast('اسمح بالنوافذ المنبثقة', 'r'); return; }
+      w2.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
+        '<title>' + E(c.no) + '</title>' +
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">' +
+        '<style>' + styles + '</style><style>body{background:#fff;padding:22px;' +
+        'font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}@page{size:A4;margin:14mm}' +
+        '.report{border:0!important;box-shadow:none!important}</style></head><body>' +
+        el.outerHTML + '</body></html>');
+      w2.document.close();
+      setTimeout(() => { try { w2.focus(); w2.print(); } catch (e) {} }, 700);
+      return;
+    }
+    case 'ctrdaif': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      c.daif = v;
+      c.log = c.log || [];
+      c.log.unshift({ at:now(), by:actorLabel(), text:'حالة ضيف: ' + DAIF_ST[v].ar });
+      if (v === 'no' || v === 'na') c.daifNo = '';
+      logIt('عقد ' + c.no + ' — ' + DAIF_ST[v].ar, 'info');
+      toast(DAIF_ST[v].ar); save(); ctrDrawer(id); return;
+    }
+    case 'ctrdfsave': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      const n2 = (S.q.ctrdf || '').trim();
+      if (!n2) { toast('اكتب رقم ضيف', 'r'); return; }
+      c.daifNo = n2;
+      if (c.daif === 'pending') c.daif = 'reg';
+      c.log.unshift({ at:now(), by:actorLabel(), text:'سُجّل في ضيف برقم ' + n2 });
+      S.q.ctrdf = ''; toast('سُجّل الرقم'); save(); ctrDrawer(id); return;
+    }
+    case 'ctrstate': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      c.state = v;
+      c.log.unshift({ at:now(), by:actorLabel(), text:'حالة العقد: ' + CTR_ST[v].ar });
+      toast(CTR_ST[v].ar); save(); ctrDrawer(id); return;
+    }
+    case 'ctrxl': {
+      const c = ctrsAll().find(x => x.id === id); if (!c) return;
+      guidesTemplate(c); toast('نُزِّل القالب — عبّئه ثم ارفعه'); return;
+    }
+    case 'ctrnew': S.cform = { carrier:CARRIERS[0], orgId:(ORGS[0] || {}).id,
+      daif:'pending', state:'active' };
+      ['title','no','buses','seats','pil','trips','value','daifno']
+        .forEach(k => { S.q['c_' + k] = ''; });
+      if (S.files) delete S.files.ctrf;
+      ctrNew(); return;
+    case 'ccar':  { const d = S.cform || {}; d.carrier = v; S.cform = d; ctrNew(); return; }
+    case 'cdaif': { const d = S.cform || {}; d.daif = v; S.cform = d; ctrNew(); return; }
+    case 'ctrsave': {
+      const d = S.cform || {};
+      const g = k => (S.q['c_' + k] || '').trim();
+      const num = k => numOf(g(k));
+      if (!g('title')) { toast('اكتب موضوع العقد', 'r'); return; }
+      const o = orgById(d.orgId) || ORGS[0];
+      const f = (S.files || {}).ctrf;
+      const c = { id:uid('TC'), no:g('no') || ('NQ-' + (2400 + (S.ctrs || []).length * 7)),
+        title:g('title'), carrier:d.carrier || CARRIERS[0],
+        orgId:o.id, kt:o.kt,
+        buses:num('buses'), seats:num('seats'), pilgrims:num('pil'),
+        trips:num('trips'), value:num('value'),
+        from:now(), to:now() + 30 * DAY,
+        state:d.state || 'active', daif:d.daif || 'pending',
+        daifNo:g('daifno'),
+        file:f ? { name:f.name, size:f.size, type:f.type }
+               : { name:'عقد-جديد.pdf', size:0, type:'application/pdf' },
+        at:now(), guides:[],
+        log:[{ at:now(), by:actorLabel(), text:'سُجّل العقد' + (f ? ' ورُفع ملفّه' : ' بلا ملفّ') }] };
+      S.ctrs.unshift(c);
+      logIt('سُجّل عقد نقل ' + c.no + ' — ' + c.carrier, 'info');
+      S.cform = null; if (S.files) delete S.files.ctrf;
+      toast('سُجّل العقد'); save(); ctrDrawer(c.id); return;
+    }
+    case 'gmvxl': {
+      const rows = guidesTeam().map(u => ({
+        name:u.name, id:u.code, phone:u.phone, lic:'—',
+        bus:'—', lang:'العربية' }));
+      download('المرشدون.csv', toCsv(GD_COLS, rows));
+      toast('نُزِّل ' + AR(rows.length) + ' مرشدًا'); return;
+    }
+
+    /* ═══ الصلاحيات الدقيقة ═══ */
+    case 'rsedit': roleEdit(id); return;
+    case 'rstog': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const k = b.dataset.k;
+      rs.m = rs.m || {}; rs.m[k] = rs.m[k] || [];
+      const i = rs.m[k].indexOf(v);
+      if (i >= 0) rs.m[k].splice(i, 1); else rs.m[k].push(v);
+      /* الفعل يستلزم الاطّلاع — فلا يُعدّل ما لا يُرى */
+      if (rs.m[k].length && rs.m[k].indexOf('view') < 0) rs.m[k].push('view');
+      if (!rs.m[k].length) delete rs.m[k];
+      save(); roleEdit(id); return;
+    }
+    case 'rsrow': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const k = b.dataset.k;
+      rs.m = rs.m || {};
+      const full = ACT.map(a => a.k);
+      rs.m[k] = (rs.m[k] || []).length === full.length ? [] : full.slice();
+      if (!rs.m[k].length) delete rs.m[k];
+      save(); roleEdit(id); return;
+    }
+    case 'rsall': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      rs.m = v === 'none' ? {}
+        : RES.reduce((a, x) => { a[x.k] = ['view']; return a; }, {});
+      save(); roleEdit(id); return;
+    }
+    case 'rsname': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs) return;
+      const n2 = (S.q.rs_n || '').trim(), d2 = (S.q.rs_d || '').trim();
+      if (n2) rs.name = n2;
+      if (d2) rs.d = d2;
+      S.q.rs_n = ''; S.q.rs_d = '';
+      toast('حُفظ'); save(); roleEdit(id); return;
+    }
+    case 'rsnew': {
+      const rs = { id:uid('RS'), name:'مجموعة جديدة', d:'صِفها لمن يمنحها',
+        sys:false, m:{} };
+      S.roleSets.push(rs);
+      logIt('أُنشئت مجموعة صلاحيات جديدة', 'info');
+      save(); roleEdit(rs.id); return;
+    }
+    case 'rsclone': {
+      const src = (S.roleSets || []).find(x => x.id === id); if (!src) return;
+      const rs = { id:uid('RS'), name:src.name + ' — نسخة', d:src.d, sys:false,
+        m:JSON.parse(JSON.stringify(src.m || {})) };
+      S.roleSets.push(rs);
+      toast('نُسخت'); save(); roleEdit(rs.id); return;
+    }
+    case 'rsdel': {
+      const rs = (S.roleSets || []).find(x => x.id === id); if (!rs || rs.sys) return;
+      const used = Object.keys(S.roleOf || {}).filter(k => S.roleOf[k] === id);
+      if (used.length) { toast('ممنوحةٌ لـ' + AR(used.length) + ' صفة — انزعها أوّلًا', 'r'); return; }
+      S.roleSets = S.roleSets.filter(x => x.id !== id);
+      logIt('حُذفت مجموعة صلاحيات «' + rs.name + '»', 'warn');
+      S.drawer = null; clearDrawerStack();
+      toast('حُذفت'); save(); render(); return;
+    }
     case 'tlmove': {
       const d = Number(v);
       S.tab.tlo = d === 0 ? 0 : (Number(S.tab.tlo || 0) + d);
@@ -12729,6 +14386,14 @@ document.addEventListener('click', ev => {
       const u = userById(b.dataset.u); if (!u) return;
       if (g.members.length >= 5) { toast('المجموعة مكتملة', 'r'); return; }
       if (g.members.some(m => m.id === u.id)) { toast('هو فيها أصلًا', 'r'); return; }
+      if (u.reserve && !b.dataset.why) {
+        S.pendSeat = { kind:'mseat', id:g.id, uid:u.id };
+        askWhy({ kind:'swapRes', act:'seatres', id:u.id,
+          title:'إدخال ' + u.name + ' من الاحتياط',
+          sub:g.no + ' · ' + ((orgById(g.orgId) || {}).kt || ''),
+          note:'من دخل مجموعةً لم يعد احتياطًا — فالقرار يُكتب سببه.' });
+        return;
+      }
       snapForm('إدخال ' + u.name + ' إلى ' + g.no);
       const cf = seatConflicts(g, u);
       const org = orgById(g.orgId) || {};
@@ -12763,7 +14428,7 @@ document.addEventListener('click', ev => {
       const rec = { ar, kt, name:get('name') || (o ? o.name : ar),
         country:get('country') || (o ? o.country : '—'),
         type:S.q.o_type || (o ? o.type : 'بعثة'),
-        pilgrims:Number(String(get('pilgrims')).replace(/\D/g, '')) || (o ? o.pilgrims : 0) };
+        pilgrims:numOf(get('pilgrims')) || (o ? o.pilgrims : 0) };
       if (o) { Object.assign(o, rec); logIt('عُدِّلت الجهة ' + ar, 'info'); toast('حُفظت'); }
       else {
         S.orgs.push(Object.assign({ id:'o' + (S.orgs.length + 1) }, rec));
@@ -12782,7 +14447,7 @@ document.addEventListener('click', ev => {
       const ar = get('ar') || (h ? h.ar : '');
       if (!ar) { toast('اسم الفندق لا بدّ منه', 'r'); return; }
       const rec = { ar, city:S.q.h_city || (h ? h.city : 'مكة المكرمة'),
-        rooms:Number(String(get('rooms')).replace(/\D/g, '')) || (h ? h.rooms : 0),
+        rooms:numOf(get('rooms')) || (h ? h.rooms : 0),
         dist:get('dist') || (h ? h.dist : '—') };
       if (h) { Object.assign(h, rec); logIt('عُدِّل الفندق ' + ar, 'info'); toast('حُفظ'); }
       else {
@@ -13751,10 +15416,52 @@ document.addEventListener('click', ev => {
     case 'pickdo': {
       const p = S.picker; if (!p) return;
       const u = userById(id); if (!u) return;
+      /* الاحتياط رصيدٌ مشترك بين الفرق — فسحبُه إلى مهمّةٍ ينقصه من غيرها.
+         لذلك يُسأل عن السبب قبل أن يقع، لا بعده. */
+      if (u.reserve && (p.kind === 'task' || p.kind === 'mseat')) {
+        const ref = p.kind === 'task' ? (taskById(p.id) || {})
+                                      : ((S.groups || []).find(x => x.id === p.id) || {});
+        S.pendSeat = { kind:p.kind, id:p.id, uid:u.id };
+        S.picker = null;
+        askWhy({ kind: p.kind === 'task' ? 'addRes' : 'swapRes',
+          act:'seatres', id:u.id,
+          title:'تسكين ' + u.name + ' من الاحتياط',
+          sub:(ref.title || ref.no || ''),
+          note:'الاحتياط رصيدٌ مشترك — وكلّ سحبٍ منه ينقص غيره. ' +
+               'يُكتب السبب ليُقرأ لا ليُملأ.' });
+        return;
+      }
+      /* بعض الأنواع تفتح درجًا بعد الاختيار — فلا يُغلق ما فُتح للتوّ */
+      const wasD = S.drawer;
       applyPick(p.kind, p.id, u);
-      S.picker = null; S.drawer = null;
+      const opened = S.drawer !== wasD ? S.drawer : null;
+      S.picker = null; S.drawer = opened;
       break;
     }
+    /* تسكين الاحتياط بعد كتابة سببه */
+    case 'seatres': {
+      const ps = S.pendSeat; if (!ps) return;
+      const u = userById(ps.uid); if (!u) return;
+      const why = b.dataset.why || 'بلا سبب';
+      const ref = ps.kind === 'task' ? (taskById(ps.id) || {})
+                                     : ((S.groups || []).find(x => x.id === ps.id) || {});
+      const where = ref.title || ref.no || '';
+      S.pendSeat = null; S.why = null;
+      if (ps.kind === 'mseat') {
+        /* الإفلات يمرّ من هنا أيضًا — فالحفظ للتراجع يسبق التغيير */
+        snapForm('إدخال ' + u.name + ' إلى ' + (ref.no || ''));
+      }
+      applyPick(ps.kind, ps.id, u);
+      if (ps.kind === 'task') { const t = taskById(ps.id);
+        if (t) txLog(t, 'سبب تسكين الاحتياط: ' + why, 'assign'); }
+      else if (ref.id) formLog(ref, 'سبب إدخال ' + u.name + ' من الاحتياط: ' + why);
+      whyOnUser(u.id, 'سُكِّن من الاحتياط على «' + where + '» — ' + why,
+        ps.kind === 'task' ? 'addRes' : 'swapRes');
+      logIt('احتياط: ' + u.name + ' → ' + where + ' — ' + why, 'assign');
+      S.picker = null; S.drawer = null; clearDrawerStack();
+      save(); render(); return;
+    }
+
     /* اعتماد دليل: النسخة تُرفع والتطبيق يقرأ المعتمد وحده */
     case 'gpub': {
       const g = S.guides.find(x => x.id === id); if (!g) return;

@@ -31,8 +31,15 @@ const NAV = [
       { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
     ]},
     { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
-    { k:'transport', i:'i-bus',  l:'النقل',       d:'جدولة عشرة باصات على الموسم' },
     { k:'incidents', i:'i-warn', l:'البلاغات والحوادث', d:'دورةٌ من إحدى عشرة مرحلة' }
+  ]},
+
+  { g:'إدارة الحركة', items:[
+    { p:'moveg', i:'i-bus', l:'إدارة الحركة', d:'الباصات والمرشدون والعقود', kids:[
+      { k:'transport', i:'i-bus',   l:'النقل' },
+      { k:'gmv',       i:'i-users', l:'المرشدون' },
+      { k:'ctrs',      i:'i-doc',   l:'عقود النقل' }
+    ]}
   ]},
 
   { g:'الموظفون', items:[
@@ -42,6 +49,7 @@ const NAV = [
       { k:'reserve', i:'i-shield', l:'الفريق الاحتياطي' },
       { k:'shifts',  i:'i-swap',   l:'تبديل الشِفتات' },
       { k:'actions', i:'i-shield', l:'الإجراءات' },
+      { k:'warns',   i:'i-warn',   l:'الإنذارات' },
     ]},
     /* التشكيل بابٌ واحد وخطواته الثلاث من داخله — لا ثلاثة أبواب لشيء واحد.
        ويقع أسفل مع التشكيل السريع، فالبابان لعملٍ واحد. */
@@ -93,6 +101,8 @@ function navCount(k, t) {
   if (k === 'incidents') return sigOpen().filter(s => s.risk === 'high').length;
   if (k === 'shifts')    return openSwaps().length;
   if (k === 'actions')   return actOpen().length;
+  if (k === 'warns')     return (V.warns || []).filter(w => w.state === 'open').length;
+  if (k === 'ctrs')      return notInDaif();
   return 0;
 }
 const navUrgent = k => ['support', 'incidents'].indexOf(k) >= 0;

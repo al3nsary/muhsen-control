@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 17;
-const APP_VER = 'نسخة ١٫٥';
+const SCHEMA = 18;
+const APP_VER = 'نسخة ١٫٦';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -282,6 +282,9 @@ function seed() {
   seedPilgrimData(st);
   seedSignals(st);
   seedActions(st);
+  seedWarns(st);
+  seedMove(st);
+  seedRoles(st);
   seedComply(st);
 
   return st;
@@ -298,7 +301,8 @@ function load() {
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
-  S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || [];
+  S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || []; S.warns = S.warns || []; S.ctrs = S.ctrs || [];
+  S.roleSets = S.roleSets || []; S.roleOf = S.roleOf || {};
   (S.groups || []).forEach(g => { g.state = g.state || 'approved'; g.log = g.log || []; }); S.groupsV = S.groupsV || []; S.attend = S.attend || {}; S.sched = S.sched || null;
   (S.tasks || []).forEach(t => { ensureTask(t); t.alerts = t.alerts || []; });
 }
@@ -382,6 +386,13 @@ function sendSms(c) {
 function reset() { localStorage.removeItem(KEY); S = seed(); go('ops'); toast('أُعيد ضبط البيانات'); }
 
 /* ---------- مساعدات ---------- */
+/* ما يُكتب بالأرقام الهندية يُقرأ عددًا — فالمستخدم يكتب كما يقرأ */
+const deAr = s => String(s == null ? '' : s)
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+  .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+  .replace(/[٬،,]/g, '');
+const numOf = s => Number(deAr(s).replace(/[^\d.-]/g, '')) || 0;
+
 const userById = id => S.users.find(u => u.id === id);
 const taskById = id => S.tasks.find(t => t.id === id);
 const orgById = id => S.orgs.find(o => o.id === id);
