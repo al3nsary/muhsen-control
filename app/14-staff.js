@@ -333,6 +333,19 @@ function applyPick(kind, id, u) {
     logIt('سُكِّن ' + u.name + ' على مهمة ' + t.title + ' — ' + t.kt + ' · من الكنترول', 'assign');
     toast(u.name + ' → ' + t.title);
     S.picker = null; taskDrawer(t.id); return;
+  } else if (kind === 'swap') {
+    /* البديلُ اختير — يبقى السبب، ولا يقع شيءٌ قبله */
+    if (!S.pendSwap) return;
+    S.pendSwap.inId = u.id;
+    const o2 = userById(S.pendSwap.outId) || {};
+    S.picker = null;
+    askWhy({ kind:'swapRes', act:'swapdo', id:u.id,
+      title:u.name + ' مكان ' + o2.name,
+      sub:(u.specialty || '') + (u.reserve ? ' · من الاحتياط' : ''),
+      note:'يقع الخروجُ والدخول معًا، ويُكتب السبب في ملفَّيهما.',
+      warn:u.specialty !== o2.specialty
+        ? 'تخصّصُه ' + (u.specialty || '—') + ' وتخصّصُ الخارج ' + (o2.specialty || '—') + '.' : '' });
+    return;
   } else if (kind === 'warn') {
     S.wform = S.wform || { kind:'dress', lvl:null };
     S.wform.userId = u.id;

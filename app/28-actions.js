@@ -275,6 +275,8 @@ function screenStaffOne() {
   const rate = u.role === 'leader' ? leaderRating(u.id) : muhsenRating(u.id);
   const pil = L ? (L.pilgrims || 0) : (u.pilgrims || 0);
   const perf = actPerf(u.id);
+  const wMine = warnsOf(u.id), wLive = wMine.filter(warnLive);
+  const wRep = warnRepeat(u.id), wScore = warnScore(u.id);
 
   const kv = (ic, k, v) => '<div class="pfrow"><span class="ico">' + icon(ic,'s16') + '</span>' +
     '<span class="k">' + k + '</span><b>' + v + '</b></div>';
@@ -293,6 +295,8 @@ function screenStaffOne() {
             pill('شِفت ' + E(shiftOf(u)), 'gold') +
             (isPresent(u.id, now()) ? pill('حاضر الآن','live') : pill('غير حاضر','no')) +
             (acts.length ? pill(AR(acts.length) + ' إجراءً', 'no') : pill('بلا إجراءات','live')) +
+            (wLive.length ? pill(AR(wLive.length) + ' إنذارًا قائمًا', 'no')
+                          : pill('بلا إنذارات','live')) +
           '</div>' +
         '</span>' +
         '<div class="pfstats">' +
@@ -343,11 +347,53 @@ function screenStaffOne() {
       '</div>' +
     '</div>' +
 
+    /* ── الإنذارات: سجلُّه هو، في ملفّه هو ── */
+    '<div class="card' + (wScore >= 8 ? ' red' : wLive.length ? ' gold' : '') + '">' +
+      head('الإنذارات', wMine.length
+          ? AR(wLive.length) + ' قائمًا من ' + AR(wMine.length) + ' هذا الموسم · ثِقل السجلّ ' +
+            AR(wScore)
+          : 'سجلُّه نظيف — لا إنذار عليه',
+        '<span class="fl" style="gap:7px">' +
+          '<button class="btn p sm" data-a="wnew" data-id="' + u.id + '">' +
+            icon('i-plus','s14') + 'تسجيل إنذار</button>' +
+          (wMine.length ? '<button class="btn l sm" data-a="wuser" data-id="' + u.id + '">' +
+            icon('i-hist','s14') + 'السجلّ كاملًا</button>' : '') +
+        '</span>', 'i-warn') +
+
+      (wRep.length ? '<div class="note r">' + icon('i-reset','s16') +
+        '<span><b>تكرارٌ عليه:</b> ' +
+        wRep.map(r => WARN_KIND[r.kind].ar + ' ×' + AR(r.n)).join(' · ') +
+        ' — والتكرار غير الحادثة.</span></div>' : '') +
+
+      (wMine.length ? '<div class="plist">' + wMine.slice(0, 8).map(x => {
+        const kk = WARN_KIND[x.kind];
+        return '<div class="prow" style="--tsc:' + kk.c + '" data-a="wopen" data-id="' + x.id + '">' +
+          '<span class="krail"></span>' +
+          '<span class="actk" style="color:' + kk.c + ';background:color-mix(in srgb,' + kk.c +
+          ' 14%,transparent)">' + icon(kk.i,'s13') + E(kk.ar) + '</span>' +
+          '<span class="nm" style="flex:1;min-width:150px"><b>' + E(x.text) + '</b>' +
+          '<span>' + LTR(x.no) + ' · ' + E(x.by) + ' · ' + ago(x.at) + '</span></span>' +
+          pill(WARN_LVL[x.lvl].ar, WARN_LVL[x.lvl].p) +
+          (x.sms ? pill(SMS_ST[x.sms].ar, SMS_ST[x.sms].p) : '') +
+          pill(WARN_ST[x.state].ar, WARN_ST[x.state].p) + '</div>';
+      }).join('') + '</div>' +
+        (wMine.length > 8 ? '<div class="tiny faint" style="margin-top:9px">' +
+          'وأقدمُ منها ' + AR(wMine.length - 8) + ' — في السجلّ كاملًا.</div>' : '')
+        : empty('لا إنذارات', 'لم يُسجَّل عليه شيء', 'i-checkc')) +
+    '</div>' +
+
+    /* ── حركاته: كلُّ سحبٍ أو تسكينٍ أو استبدالٍ بسببه المكتوب ── */
+    ((u.moves || []).length ? '<div class="card">' +
+      head('حركاته', 'كلُّ نقلٍ أو سحبٍ أو استبدالٍ — بسببه كما كُتب وقتَه',
+        pill(AR(u.moves.length), 'grey'), 'i-swap') +
+      histLog(u.moves.map(m => ({ at:m.at, text:m.by + ' — ' + m.text, kind:'info' }))) +
+    '</div>' : '') +
+
     '<div class="card">' + head('مهامّه', AR(tasks.length) + ' مهمة',
       '', 'i-tasks') +
       (tasks.length ? '<div class="plist">' + tasks.slice(0, 14).map(t =>
         '<div class="prow"' + (t.type === 'hajj' ? ' data-a="tlopen" data-id="' + t.id + '"' : '') + '>' +
-        pill(TTYPE_AR[t.type] || t.type, TTYPE_PILL[t.type] || 'grey') +
+        pill((TASKTYPE[t.type] || {}).ar || t.type, TTYPE_PILL[t.type] || 'grey') +
         '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
         '<span>' + E(t.sub || '') + '</span></span>' +
         '<span class="when"><b>' + hijri(t.at) + '</b>' +

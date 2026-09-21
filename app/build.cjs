@@ -18,7 +18,7 @@ const imgCSS = '<style>\n' +
   '</style>\n';
 
 const JS = ['02-data.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
-  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '25-comply.js', '26-pilgrims.js', '27-signal.js', '28-actions.js', '29-build.js', '09-timeline.js', '30-timeline.js', '31-reason.js', '32-warn.js', '33-move.js', '34-roles.js', '08-fx.js', '07-router.js'];
+  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '25-comply.js', '26-pilgrims.js', '27-signal.js', '28-actions.js', '29-build.js', '09-timeline.js', '30-timeline.js', '31-reason.js', '32-warn.js', '33-move.js', '34-roles.js', '35-swap.js', '08-fx.js', '07-router.js'];
 
 const shell =
   '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>\n' +
@@ -97,6 +97,23 @@ const defined = new Set([...(js.match(/function\s+(screen[A-Za-z]+)/g) || [])].m
 const missing = routed.filter(n => !defined.has(n));
 if (missing.length) { console.log('MISSING SCREENS:', missing.join(', ')); process.exitCode = 1; }
 else console.log('screens: OK (' + defined.size + ')');
+
+/* وكل شاشة لها طريقٌ يصلها: إمّا قسمٌ في القائمة، وإمّا أمٌّ في DETAIL.
+   شاشةٌ بلا طريق تُرَدّ صامتةً إلى لوحة العمليات — وهذا أخبث من خطأ. */
+const scrKeys = Object.keys(
+  (js.match(/const SCREENS = \{[\s\S]*?\n\};/) || [''])[0]
+    .split('\n').join(' ').match(/([a-z]+)\s*:\s*screen/g) ?
+  ((js.match(/const SCREENS = \{[\s\S]*?\n\};/) || [''])[0]
+    .match(/([a-z]+)\s*:\s*screen/g) || [])
+    .reduce((a, p) => { a[p.split(':')[0].trim()] = 1; return a; }, {}) : {});
+const detailKeys = Object.keys(
+  ((js.match(/const DETAIL = \{([^}]*)\}/) || ['', ''])[1])
+    .split(',').reduce((a, p) => { const k = p.split(':')[0].trim(); if (k) a[k] = 1; return a; }, {}));
+const navSet = new Set(
+  [...(read('04-shell.js').match(/k:'([a-z]+)'/g) || [])].map(s => s.slice(3, -1)));
+const unreach = scrKeys.filter(k => !navSet.has(k) && detailKeys.indexOf(k) < 0);
+if (unreach.length) { console.log('UNREACHABLE SCREEN:', unreach.join(', ')); process.exitCode = 1; }
+else console.log('reach: OK (' + scrKeys.length + ' شاشة، منها ' + detailKeys.length + ' تفصيل)');
 
 /* كل قسم في القائمة له شاشة */
 const navKeys = [...(read('04-shell.js').match(/k:'([a-z]+)'/g) || [])].map(s => s.slice(3, -1));

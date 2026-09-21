@@ -55,7 +55,11 @@ function allowed() {
 /* هل خُصِّصت هذه الصفة أم ما زالت على افتراضها؟ */
 const isCustom = k => !!(S.grants && S.grants[k]);
 const grantsOf = k => (S.grants && S.grants[k]) || (DEFAULT_GRANTS[k] || []).slice();
-const maySee = k => allowed().indexOf(k) >= 0;
+/* شاشاتُ التفصيل ليست في القائمة، فلا تُمنح بذاتها — بل ترث إذنَ أمّها.
+   وبدون هذا كانت `staffone` تُرَدّ إلى لوحة العمليات لكل صفة، فملفُّ
+   الموظف لا يُفتح أصلًا وإن نُقر عليه. */
+const DETAIL = { staffone:'staff' };
+const maySee = k => allowed().indexOf(DETAIL[k] || k) >= 0;
 
 
 /* ============================================================

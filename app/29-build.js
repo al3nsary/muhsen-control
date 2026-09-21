@@ -240,9 +240,15 @@ function seatOutAsk(gid, uid_) {
       '<textarea class="fld" id="q-sout" data-q="sout" rows="3" ' +
         'placeholder="لماذا يُخرَج من مجموعته؟">' + E(qOf('sout')) + '</textarea>' +
     '</div>' +
+    '<div class="note b">' + icon('i-swap','s16') +
+      '<span>وإن كان المقعد لا يُترك فارغًا فاستبدلْه: يقع الخروجُ والدخول ' +
+      'معًا بسببٍ واحد، ويُكتب في الملفَّين من حلَّ محلَّ من.</span></div>' +
+    '<button class="btn l" style="width:100%;margin-bottom:9px" data-a="gswap" ' +
+      'data-id="' + gid + '" data-s="' + uid_ + '">' +
+      icon('i-swap','s16') + 'استبدالُه ببديلٍ من الاحتياط</button>' +
     '<div class="grid g2" style="gap:8px">' +
       '<button class="btn p" data-a="soutdo" data-id="' + gid + '" data-v="' + uid_ + '">' +
-        icon('i-out','s16') + 'إخراجه</button>' +
+        icon('i-out','s16') + 'إخراجه بلا بديل</button>' +
       '<button class="btn l" data-a="closedrawer">إلغاء</button></div>' };
   renderDrawer();
 }

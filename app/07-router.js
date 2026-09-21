@@ -359,6 +359,15 @@ document.addEventListener('click', ev => {
       S.drawer = null; clearDrawerStack(); save(); taskDrawer(t.id); return;
     }
 
+    /* ═══ الاستبدال: احتياطيٌّ مكان شخصٍ بعينه ═══ */
+    case 'txswap': swapAsk('task',  id, b.dataset.s); return;
+    case 'gswap':  swapAsk('group', id, b.dataset.s); return;
+    case 'swapdo': {
+      const why = b.dataset.why;
+      if (!why) { toast('السبب لا بدّ منه', 'r'); return; }
+      swapDo(why); return;
+    }
+
     /* ═══ الإنذارات ═══ */
     case 'wopen': warnDrawer(id); return;
     case 'wuser': warnUser(id); return;

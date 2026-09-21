@@ -2061,8 +2061,10 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .rulebtn b{display:block; font-size:12.5px}
 
 /* ══ ملفّ الموظّف: شاشةٌ كاملة ══ */
-.pfhead{position:relative; padding:24px}
-.pfback{position:absolute; top:18px; inset-inline-start:18px}
+/* زرّ الرجوع في سطره لا فوق الاسم — كان يُطبَق عليه في الشاشات الضيّقة */
+.pfhead{position:relative; padding:24px; display:flex; flex-direction:column; gap:14px}
+.pfhead > *{flex:none}
+.pfback{align-self:flex-start}
 .pfstats{display:flex; gap:22px; flex:none; margin-inline-start:auto; text-align:center}
 .pfstats span{display:block}
 .pfstats b{display:block; font-size:22px; color:var(--ink); line-height:1}
@@ -2863,8 +2865,8 @@ const SHOT_SEED = [
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 18;
-const APP_VER = 'نسخة ١٫٦';
+const SCHEMA = 19;
+const APP_VER = 'نسخة ١٫٦٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -3459,8 +3461,19 @@ function navGroup(x, narrow) {
 }
 
 /* ---------- الشريط العلوي ---------- */
+/* شاشةُ التفصيل ليست في القائمة، فعنوانُها يُشتقّ من محتواها لا منها —
+   وإلّا بقي الشريط يقول «لوحة العمليات» وأنت في ملفّ موظف. */
+function routeTitle() {
+  const n = S.route.n;
+  if (n === 'staffone') {
+    const u = userById(S.route.id);
+    return u ? { l:u.name, d:(ROLE_AR[u.role] || '') + ' · ' + (u.code || '') +
+      ' — من سجلّ الموظفين' } : { l:'ملفّ موظف', d:'سجلّ الموظفين' };
+  }
+  return navOf(n);
+}
 function topbar() {
-  const x = navOf(S.route.n);
+  const x = routeTitle();
   const live = runningTasks().length;
   return '<header class="top">' +
     '<span><h2>' + E(x.l) + '</h2><span class="crumb">' + E(x.d) + '</span></span>' +
@@ -4824,6 +4837,19 @@ function applyPick(kind, id, u) {
     logIt('سُكِّن ' + u.name + ' على مهمة ' + t.title + ' — ' + t.kt + ' · من الكنترول', 'assign');
     toast(u.name + ' → ' + t.title);
     S.picker = null; taskDrawer(t.id); return;
+  } else if (kind === 'swap') {
+    /* البديلُ اختير — يبقى السبب، ولا يقع شيءٌ قبله */
+    if (!S.pendSwap) return;
+    S.pendSwap.inId = u.id;
+    const o2 = userById(S.pendSwap.outId) || {};
+    S.picker = null;
+    askWhy({ kind:'swapRes', act:'swapdo', id:u.id,
+      title:u.name + ' مكان ' + o2.name,
+      sub:(u.specialty || '') + (u.reserve ? ' · من الاحتياط' : ''),
+      note:'يقع الخروجُ والدخول معًا، ويُكتب السبب في ملفَّيهما.',
+      warn:u.specialty !== o2.specialty
+        ? 'تخصّصُه ' + (u.specialty || '—') + ' وتخصّصُ الخارج ' + (o2.specialty || '—') + '.' : '' });
+    return;
   } else if (kind === 'warn') {
     S.wform = S.wform || { kind:'dress', lvl:null };
     S.wform.userId = u.id;
@@ -4965,7 +4991,11 @@ function allowed() {
 /* هل خُصِّصت هذه الصفة أم ما زالت على افتراضها؟ */
 const isCustom = k => !!(S.grants && S.grants[k]);
 const grantsOf = k => (S.grants && S.grants[k]) || (DEFAULT_GRANTS[k] || []).slice();
-const maySee = k => allowed().indexOf(k) >= 0;
+/* شاشاتُ التفصيل ليست في القائمة، فلا تُمنح بذاتها — بل ترث إذنَ أمّها.
+   وبدون هذا كانت `staffone` تُرَدّ إلى لوحة العمليات لكل صفة، فملفُّ
+   الموظف لا يُفتح أصلًا وإن نُقر عليه. */
+const DETAIL = { staffone:'staff' };
+const maySee = k => allowed().indexOf(DETAIL[k] || k) >= 0;
 
 
 /* ============================================================
@@ -7949,6 +7979,8 @@ function taskDrawer(id) {
           'data-a="txattend" data-id="' + t.id + '" data-s="' + m.id + '">' +
           icon(t.attended.indexOf(m.id) >= 0 ? 'i-checkc' : 'i-target','s13') +
           (t.attended.indexOf(m.id) >= 0 ? 'حاضر' : 'إثبات حضوره') + '</button>' +
+        '<button class="chipbtn" data-a="txswap" data-id="' + t.id + '" data-s="' + m.id + '">' +
+          icon('i-swap','s13') + 'استبدال</button>' +
         '<button class="chipbtn bad" data-a="txunassign" data-id="' + t.id + '" data-s="' + m.id + '">' +
           icon('i-x','s13') + 'سحب</button>' +
         '</div>').join('') + '</div>'
@@ -11285,6 +11317,8 @@ function screenStaffOne() {
   const rate = u.role === 'leader' ? leaderRating(u.id) : muhsenRating(u.id);
   const pil = L ? (L.pilgrims || 0) : (u.pilgrims || 0);
   const perf = actPerf(u.id);
+  const wMine = warnsOf(u.id), wLive = wMine.filter(warnLive);
+  const wRep = warnRepeat(u.id), wScore = warnScore(u.id);
 
   const kv = (ic, k, v) => '<div class="pfrow"><span class="ico">' + icon(ic,'s16') + '</span>' +
     '<span class="k">' + k + '</span><b>' + v + '</b></div>';
@@ -11303,6 +11337,8 @@ function screenStaffOne() {
             pill('شِفت ' + E(shiftOf(u)), 'gold') +
             (isPresent(u.id, now()) ? pill('حاضر الآن','live') : pill('غير حاضر','no')) +
             (acts.length ? pill(AR(acts.length) + ' إجراءً', 'no') : pill('بلا إجراءات','live')) +
+            (wLive.length ? pill(AR(wLive.length) + ' إنذارًا قائمًا', 'no')
+                          : pill('بلا إنذارات','live')) +
           '</div>' +
         '</span>' +
         '<div class="pfstats">' +
@@ -11353,11 +11389,53 @@ function screenStaffOne() {
       '</div>' +
     '</div>' +
 
+    /* ── الإنذارات: سجلُّه هو، في ملفّه هو ── */
+    '<div class="card' + (wScore >= 8 ? ' red' : wLive.length ? ' gold' : '') + '">' +
+      head('الإنذارات', wMine.length
+          ? AR(wLive.length) + ' قائمًا من ' + AR(wMine.length) + ' هذا الموسم · ثِقل السجلّ ' +
+            AR(wScore)
+          : 'سجلُّه نظيف — لا إنذار عليه',
+        '<span class="fl" style="gap:7px">' +
+          '<button class="btn p sm" data-a="wnew" data-id="' + u.id + '">' +
+            icon('i-plus','s14') + 'تسجيل إنذار</button>' +
+          (wMine.length ? '<button class="btn l sm" data-a="wuser" data-id="' + u.id + '">' +
+            icon('i-hist','s14') + 'السجلّ كاملًا</button>' : '') +
+        '</span>', 'i-warn') +
+
+      (wRep.length ? '<div class="note r">' + icon('i-reset','s16') +
+        '<span><b>تكرارٌ عليه:</b> ' +
+        wRep.map(r => WARN_KIND[r.kind].ar + ' ×' + AR(r.n)).join(' · ') +
+        ' — والتكرار غير الحادثة.</span></div>' : '') +
+
+      (wMine.length ? '<div class="plist">' + wMine.slice(0, 8).map(x => {
+        const kk = WARN_KIND[x.kind];
+        return '<div class="prow" style="--tsc:' + kk.c + '" data-a="wopen" data-id="' + x.id + '">' +
+          '<span class="krail"></span>' +
+          '<span class="actk" style="color:' + kk.c + ';background:color-mix(in srgb,' + kk.c +
+          ' 14%,transparent)">' + icon(kk.i,'s13') + E(kk.ar) + '</span>' +
+          '<span class="nm" style="flex:1;min-width:150px"><b>' + E(x.text) + '</b>' +
+          '<span>' + LTR(x.no) + ' · ' + E(x.by) + ' · ' + ago(x.at) + '</span></span>' +
+          pill(WARN_LVL[x.lvl].ar, WARN_LVL[x.lvl].p) +
+          (x.sms ? pill(SMS_ST[x.sms].ar, SMS_ST[x.sms].p) : '') +
+          pill(WARN_ST[x.state].ar, WARN_ST[x.state].p) + '</div>';
+      }).join('') + '</div>' +
+        (wMine.length > 8 ? '<div class="tiny faint" style="margin-top:9px">' +
+          'وأقدمُ منها ' + AR(wMine.length - 8) + ' — في السجلّ كاملًا.</div>' : '')
+        : empty('لا إنذارات', 'لم يُسجَّل عليه شيء', 'i-checkc')) +
+    '</div>' +
+
+    /* ── حركاته: كلُّ سحبٍ أو تسكينٍ أو استبدالٍ بسببه المكتوب ── */
+    ((u.moves || []).length ? '<div class="card">' +
+      head('حركاته', 'كلُّ نقلٍ أو سحبٍ أو استبدالٍ — بسببه كما كُتب وقتَه',
+        pill(AR(u.moves.length), 'grey'), 'i-swap') +
+      histLog(u.moves.map(m => ({ at:m.at, text:m.by + ' — ' + m.text, kind:'info' }))) +
+    '</div>' : '') +
+
     '<div class="card">' + head('مهامّه', AR(tasks.length) + ' مهمة',
       '', 'i-tasks') +
       (tasks.length ? '<div class="plist">' + tasks.slice(0, 14).map(t =>
         '<div class="prow"' + (t.type === 'hajj' ? ' data-a="tlopen" data-id="' + t.id + '"' : '') + '>' +
-        pill(TTYPE_AR[t.type] || t.type, TTYPE_PILL[t.type] || 'grey') +
+        pill((TASKTYPE[t.type] || {}).ar || t.type, TTYPE_PILL[t.type] || 'grey') +
         '<span class="nm" style="flex:1"><b>' + E(t.title) + '</b>' +
         '<span>' + E(t.sub || '') + '</span></span>' +
         '<span class="when"><b>' + hijri(t.at) + '</b>' +
@@ -11618,9 +11696,15 @@ function seatOutAsk(gid, uid_) {
       '<textarea class="fld" id="q-sout" data-q="sout" rows="3" ' +
         'placeholder="لماذا يُخرَج من مجموعته؟">' + E(qOf('sout')) + '</textarea>' +
     '</div>' +
+    '<div class="note b">' + icon('i-swap','s16') +
+      '<span>وإن كان المقعد لا يُترك فارغًا فاستبدلْه: يقع الخروجُ والدخول ' +
+      'معًا بسببٍ واحد، ويُكتب في الملفَّين من حلَّ محلَّ من.</span></div>' +
+    '<button class="btn l" style="width:100%;margin-bottom:9px" data-a="gswap" ' +
+      'data-id="' + gid + '" data-s="' + uid_ + '">' +
+      icon('i-swap','s16') + 'استبدالُه ببديلٍ من الاحتياط</button>' +
     '<div class="grid g2" style="gap:8px">' +
       '<button class="btn p" data-a="soutdo" data-id="' + gid + '" data-v="' + uid_ + '">' +
-        icon('i-out','s16') + 'إخراجه</button>' +
+        icon('i-out','s16') + 'إخراجه بلا بديل</button>' +
       '<button class="btn l" data-a="closedrawer">إلغاء</button></div>' };
   renderDrawer();
 }
@@ -13160,7 +13244,7 @@ const GATE = (function () {
 
   put('tasks','add',    ['txreqnew','txfilenew','txfilesave']);
   put('tasks','del',    ['txreqdel','txfiledel']);
-  put('tasks','edit',   ['txassign','txunassign','txpull','txaddres','txaddresdo','txattend',
+  put('tasks','edit',   ['txassign','txunassign','txpull','txaddres','txaddresdo','txattend','txswap',
                          'txstart','txnotesave','txsub','txreq','txreqph','txtpl','txtplpick',
                          'tguide','tguideset','tguideclr','seatres','txreqneed']);
   put('tasks','approve',['txclose','txclosedo','txreopen']);
@@ -13192,7 +13276,7 @@ const GATE = (function () {
                          'supassign','supswap','suprm','gleadswap','ghotel','ghotelset']);
   put('staff','del',    ['bdel']);
 
-  put('form','edit',    ['seatdrop','soutr','soutdo','mseatin','mseatout']);
+  put('form','edit',    ['seatdrop','soutr','soutdo','mseatin','mseatout','gswap','swapdo']);
   put('form','approve', ['gstate']);
 
   put('acts','edit',    ['acwhy','acsms','acpen','acperf']);
@@ -13240,6 +13324,97 @@ function gateBlock(a) {
   const rs = roleSetOf(curPerm().k);
   return act.ar + ' في «' + r.ar + '» غير ممنوحٍ لـ' +
     (rs ? 'مجموعة «' + rs.name + '»' : 'صفتك');
+}
+
+/* ============================================================
+   الاستبدال — احتياطيٌّ مكان شخصٍ بعينه، في فعلٍ واحد
+
+   كان الاستبدال فعلين منفصلين: تُخرج فلانًا، ثم تبحث عن بديلٍ
+   فتُدخله. وبينهما ثغرة: مقعدٌ فارغٌ لا يعلم به أحد، وسجلّان لا
+   يربطهما رابط — فلا يُعرف بعد شهرٍ أنّ هذا حلَّ محلّ ذاك.
+
+   فصار فعلًا واحدًا: **اخترِ البديل، واكتب السبب، فيقع الخروجُ
+   والدخول معًا** — ويُكتب في ملفّ الخارج أنه استُبدل بفلان، وفي ملفّ
+   الداخل أنه حلَّ محلّ فلان. والسبب واحدٌ في السجلّين.
+   ============================================================ */
+
+/* البدلاء: الاحتياط أوّلًا، فهو الموضوع لهذا. ثم من لا مجموعة له. */
+function swapCands(outU) {
+  const res = (V.users || []).filter(u =>
+    u.role === 'muhsen' && u.reserve && u.id !== (outU || {}).id);
+  const free = (V.users || []).filter(u =>
+    u.role === 'muhsen' && !u.reserve && !staffGroup(u) && u.id !== (outU || {}).id);
+  /* الأقربُ تخصّصًا أوّلًا — فالبديل يُراد لعمله لا لعدده */
+  const near = u => (u.specialty === (outU || {}).specialty ? 0 : 1);
+  return res.sort((a, b) => near(a) - near(b)).concat(free);
+}
+
+/* يُفتح المنتقي لاختيار البديل. scope: 'task' أو 'group' */
+function swapAsk(scope, refId, outId) {
+  const out = userById(outId); if (!out) return;
+  const ref = scope === 'task' ? taskById(refId)
+                               : (S.groups || []).find(x => x.id === refId);
+  if (!ref) return;
+  S.pendSwap = { scope, refId, outId };
+  const cands = swapCands(out);
+  if (!cands.length) { toast('لا بديل متاحًا — الاحتياط فارغ', 'r'); return; }
+  openPicker('swap', refId, {
+    title: 'بديلٌ عن ' + out.name,
+    note: 'الاحتياط أوّلًا، والأقربُ تخصّصًا في أعلى القائمة. ' +
+          'تخصّص ' + (out.specialty || '—') + ' — ' + (ref.title || ref.no || ''),
+    cands
+  });
+}
+
+/* ما يقع بعد كتابة السبب: خروجٌ ودخولٌ في قيدٍ واحد */
+function swapDo(why) {
+  const p = S.pendSwap; if (!p) return;
+  const out = userById(p.outId), inn = userById(p.inId);
+  S.pendSwap = null; S.why = null;
+  if (!out || !inn) return;
+  const where = p.scope === 'task' ? (taskById(p.refId) || {})
+                                   : ((S.groups || []).find(x => x.id === p.refId) || {});
+  const label = where.title || where.no || '';
+
+  if (p.scope === 'task') {
+    const t = ensureTask(where); if (!t) return;
+    t.assigned = (t.assigned || []).filter(x => x !== out.id);
+    t.attended = (t.attended || []).filter(x => x !== out.id);
+    if (t.assigned.indexOf(inn.id) < 0) t.assigned.push(inn.id);
+    txLog(t, 'استبدل الكنترول ' + out.name + ' بـ' + inn.name +
+      (inn.reserve ? ' من الاحتياط' : '') + ' — السبب: ' + why, 'assign');
+  } else {
+    const g = where;
+    snapForm('استبدال ' + out.name + ' بـ' + inn.name + ' في ' + g.no);
+    const org = orgById(g.orgId) || {};
+    const spec = (g.members.find(m => m.id === out.id) || {}).spec ||
+      inn.specialty || SPECS[0];
+    g.members = g.members.filter(m => m.id !== out.id);
+    out.groupId = null; out.leaderId = null; out.kt = '—';
+    g.members.push({ id:inn.id, spec });
+    inn.groupId = g.id; inn.leaderId = g.leaderId; inn.kt = org.kt;
+    if (inn.reserve) inn.reserve = false;
+    /* مهامُّ ليدر المجموعة تنتقل من الخارج إلى الداخل */
+    let n = 0;
+    (S.tasks || []).forEach(t => {
+      if (t.leaderId !== g.leaderId) return;
+      t.assigned = (t.assigned || []).filter(x => x !== out.id);
+      t.attended = (t.attended || []).filter(x => x !== out.id);
+      if (t.assigned.indexOf(inn.id) < 0) { t.assigned.push(inn.id); n++; }
+    });
+    formLog(g, 'استُبدل ' + out.name + ' بـ' + inn.name + ' على ' + AR(n) +
+      ' مهمة — السبب: ' + why);
+    if (gState(g) === 'approved') { g.state = 'draft'; formLog(g, 'عادت مسودّةً بعد التعديل'); }
+  }
+
+  /* الرابط بين الملفّين: كلٌّ يعرف بمن استُبدل */
+  whyOnUser(out.id, 'استُبدل بـ' + inn.name + ' في «' + label + '» — ' + why, 'swapRes');
+  whyOnUser(inn.id, 'حلَّ محلّ ' + out.name + ' في «' + label + '» — ' + why, 'swapRes');
+  logIt('استُبدل ' + out.name + ' بـ' + inn.name + ' في ' + label + ' — ' + why, 'assign');
+  toast(inn.name + ' مكان ' + out.name);
+  S.picker = null; S.drawer = null; clearDrawerStack();
+  save();
+  if (p.scope === 'task') taskDrawer(p.refId); else render();
 }
 
 /* ============================================================
@@ -13468,7 +13643,7 @@ const drawerDepth = () => dStack.length;
 ['formBuilder','formAssign','ticketDrawer','reportDrawer',
  'staffDrawer','ktDrawer','taskDrawer','pilgrimDrawer','formDash','subDrawer',
  'guideEdit','guideView','tripDrawer',
- 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit','askWhy','warnDrawer','warnUser','warnNew','ctrDrawer','ctrFile','ctrNew','roleEdit'].forEach(n => {
+ 'whoDrawer','dashEdit','txReqNew','txTplPick','txFileNew','txNoteNew','txCloseAsk','appPreview','delegDrawer','rateDrawer','txPhoto','docView','hotelProfile','formSchedule','cmpAsgDrawer','pilgrimFull','cardStates','vgDrawer','quotaDrawer','quotaNew','taskReport','sigDrawer','sigNew','actDrawer','groupLog','seatOutAsk','orgEdit','hotelEdit','askWhy','swapAsk','warnDrawer','warnUser','warnNew','ctrDrawer','ctrFile','ctrNew','roleEdit'].forEach(n => {
   const f = window[n];
   if (typeof f !== 'function') return;
   /* كل الوسائط تُمرَّر لا الأوّل وحده: فاتحٌ بوسيطين (txPhoto, docView,
@@ -14121,6 +14296,15 @@ document.addEventListener('click', ev => {
       logIt('سُكِّن ' + u.name + ' من الاحتياط على ' + t.title + ' — ' + why, 'assign');
       toast(u.name + ' → ' + t.title);
       S.drawer = null; clearDrawerStack(); save(); taskDrawer(t.id); return;
+    }
+
+    /* ═══ الاستبدال: احتياطيٌّ مكان شخصٍ بعينه ═══ */
+    case 'txswap': swapAsk('task',  id, b.dataset.s); return;
+    case 'gswap':  swapAsk('group', id, b.dataset.s); return;
+    case 'swapdo': {
+      const why = b.dataset.why;
+      if (!why) { toast('السبب لا بدّ منه', 'r'); return; }
+      swapDo(why); return;
     }
 
     /* ═══ الإنذارات ═══ */

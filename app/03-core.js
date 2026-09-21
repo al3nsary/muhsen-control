@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 18;
-const APP_VER = 'نسخة ١٫٦';
+const SCHEMA = 19;
+const APP_VER = 'نسخة ١٫٦٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);

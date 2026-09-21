@@ -246,7 +246,7 @@ const GATE = (function () {
 
   put('tasks','add',    ['txreqnew','txfilenew','txfilesave']);
   put('tasks','del',    ['txreqdel','txfiledel']);
-  put('tasks','edit',   ['txassign','txunassign','txpull','txaddres','txaddresdo','txattend',
+  put('tasks','edit',   ['txassign','txunassign','txpull','txaddres','txaddresdo','txattend','txswap',
                          'txstart','txnotesave','txsub','txreq','txreqph','txtpl','txtplpick',
                          'tguide','tguideset','tguideclr','seatres','txreqneed']);
   put('tasks','approve',['txclose','txclosedo','txreopen']);
@@ -278,7 +278,7 @@ const GATE = (function () {
                          'supassign','supswap','suprm','gleadswap','ghotel','ghotelset']);
   put('staff','del',    ['bdel']);
 
-  put('form','edit',    ['seatdrop','soutr','soutdo','mseatin','mseatout']);
+  put('form','edit',    ['seatdrop','soutr','soutdo','mseatin','mseatout','gswap','swapdo']);
   put('form','approve', ['gstate']);
 
   put('acts','edit',    ['acwhy','acsms','acpen','acperf']);

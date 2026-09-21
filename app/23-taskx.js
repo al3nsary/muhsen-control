@@ -474,6 +474,8 @@ function taskDrawer(id) {
           'data-a="txattend" data-id="' + t.id + '" data-s="' + m.id + '">' +
           icon(t.attended.indexOf(m.id) >= 0 ? 'i-checkc' : 'i-target','s13') +
           (t.attended.indexOf(m.id) >= 0 ? 'حاضر' : 'إثبات حضوره') + '</button>' +
+        '<button class="chipbtn" data-a="txswap" data-id="' + t.id + '" data-s="' + m.id + '">' +
+          icon('i-swap','s13') + 'استبدال</button>' +
         '<button class="chipbtn bad" data-a="txunassign" data-id="' + t.id + '" data-s="' + m.id + '">' +
           icon('i-x','s13') + 'سحب</button>' +
         '</div>').join('') + '</div>'

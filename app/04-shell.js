@@ -175,8 +175,19 @@ function navGroup(x, narrow) {
 }
 
 /* ---------- الشريط العلوي ---------- */
+/* شاشةُ التفصيل ليست في القائمة، فعنوانُها يُشتقّ من محتواها لا منها —
+   وإلّا بقي الشريط يقول «لوحة العمليات» وأنت في ملفّ موظف. */
+function routeTitle() {
+  const n = S.route.n;
+  if (n === 'staffone') {
+    const u = userById(S.route.id);
+    return u ? { l:u.name, d:(ROLE_AR[u.role] || '') + ' · ' + (u.code || '') +
+      ' — من سجلّ الموظفين' } : { l:'ملفّ موظف', d:'سجلّ الموظفين' };
+  }
+  return navOf(n);
+}
 function topbar() {
-  const x = navOf(S.route.n);
+  const x = routeTitle();
   const live = runningTasks().length;
   return '<header class="top">' +
     '<span><h2>' + E(x.l) + '</h2><span class="crumb">' + E(x.d) + '</span></span>' +

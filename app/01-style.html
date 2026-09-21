@@ -2061,8 +2061,10 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .rulebtn b{display:block; font-size:12.5px}
 
 /* ══ ملفّ الموظّف: شاشةٌ كاملة ══ */
-.pfhead{position:relative; padding:24px}
-.pfback{position:absolute; top:18px; inset-inline-start:18px}
+/* زرّ الرجوع في سطره لا فوق الاسم — كان يُطبَق عليه في الشاشات الضيّقة */
+.pfhead{position:relative; padding:24px; display:flex; flex-direction:column; gap:14px}
+.pfhead > *{flex:none}
+.pfback{align-self:flex-start}
 .pfstats{display:flex; gap:22px; flex:none; margin-inline-start:auto; text-align:center}
 .pfstats span{display:block}
 .pfstats b{display:block; font-size:22px; color:var(--ink); line-height:1}
