@@ -3,7 +3,7 @@
    ============================================================ */
 const SCREENS = {
   ops: screenOps, actions: screenActions, orgs: screenOrgs,
-  warns: screenWarns, gmv: screenGuidesMv, ctrs: screenCtrs, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
+  warns: screenWarns, gmv: screenGuidesMv, ctrs: screenCtrs, escal: screenEscal, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
   support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
@@ -16,7 +16,7 @@ const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','t
   'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','escopen','escxl','escpick','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -359,6 +359,92 @@ document.addEventListener('click', ev => {
       S.drawer = null; clearDrawerStack(); save(); taskDrawer(t.id); return;
     }
 
+    /* ═══ رقم التصريح: يُكتب في النموذج ويُطابَق بالمسجَّل ═══ */
+    case 'pinsave': {
+      const a2 = (S.assigns || []).find(x => x.id === id); if (!a2) return;
+      const t2 = (S.q['pin_' + id] || '').trim();
+      if (!t2) { toast('اكتب رقم التصريح', 'r'); return; }
+      a2.permitIn = t2;
+      const reg = a2.permit || permitOf(a2.target);
+      const ok = String(reg).replace(/s/g, '') === t2.replace(/s/g, '');
+      (a2.trail = a2.trail || []).unshift({ at:now(), by:actorLabel(),
+        text:'رقم التصريح المكتوب: ' + t2 + (ok ? ' — مطابق' : ' — لا يطابق المسجَّل ' + reg) });
+      logIt('تصريح ' + a2.no + ': ' + t2 + (ok ? ' (مطابق)' : ' (غير مطابق)'),
+        ok ? 'info' : 'warn');
+      toast(ok ? 'مطابق' : 'لا يطابق المسجَّل', ok ? 'g' : 'r');
+      save(); cmpAsgDrawer(id); return;
+    }
+    case 'pinsync': {
+      const a2 = (S.assigns || []).find(x => x.id === id); if (!a2) return;
+      if (!a2.permitIn) { toast('اكتب الرقم أوّلًا', 'r'); return; }
+      const h = HOTELS.find(x => x.ar === a2.target);
+      if (!h) { toast('هذه الجهة ليست فندقًا مسجَّلًا', 'r'); return; }
+      const was = h.permit;
+      h.permit = a2.permitIn; a2.permit = a2.permitIn;
+      (S.assigns || []).forEach(x => { if (x.target === h.ar) x.permit = h.permit; });
+      (a2.trail = a2.trail || []).unshift({ at:now(), by:actorLabel(),
+        text:'اعتُمد التصريح الجديد ' + h.permit + ' بدل ' + was + ' على ' + h.ar });
+      logIt('حُدِّث تصريح ' + h.ar + ': ' + was + ' ← ' + h.permit, 'info');
+      toast('حُدِّث تصريح ' + h.ar); save(); cmpAsgDrawer(id); return;
+    }
+
+    /* ═══ آليّةُ بلاغٍ بعينه ═══ */
+    case 'escpick': S.q.ep_cat = ''; S.q.ep_sub = ''; escPick(id); return;
+    case 'epcat': { S.q.ep_cat = v; S.q.ep_sub = ''; escPick(id); return; }
+    case 'epsub': { S.q.ep_sub = v; escPick(id); return; }
+    case 'epgo': {
+      const s2 = (S.signals || []).find(x => x.id === id); if (!s2) return;
+      const e = escOf(v); if (!e) return;
+      escApply(s2, e);
+      logIt('بلاغ ' + s2.no + ': آليّة «' + e.name + '» — خطورة ' +
+        ESC_RISK[e.risk].ar, 'info');
+      S.q.ep_cat = ''; S.q.ep_sub = '';
+      toast('طُبّقت الآليّة'); save(); sigDrawer(id); return;
+    }
+    case 'escgo': {
+      const s2 = (S.signals || []).find(x => x.id === id); if (!s2) return;
+      const e = sigEsc(s2) || {};
+      s2.escalated = true; s2.escAt = now();
+      (s2.trail = s2.trail || []).unshift({ at:now(), by:actorLabel(),
+        text:'صُعِّد إلى ' + (e.escTo || 'الكنترول') + ' — ' +
+          (sigLate(s2) ? 'لانقضاء المهلة' : 'بقرار الكنترول') });
+      logIt('صُعِّد بلاغ ' + s2.no + ' إلى ' + (e.escTo || 'الكنترول'), 'warn');
+      toast('صُعِّد إلى ' + (e.escTo || 'الكنترول'));
+      save(); sigDrawer(id); return;
+    }
+
+    /* ═══ كتالوج البلاغات وآليّات التصعيد ═══ */
+    case 'escopen': escDrawer(id); return;
+    case 'escsub': {
+      S.tab.ec = 'rules';
+      fltSet('esc', 'cat', id); fltSet('esc', 'sub', v);
+      save(); render(); return;
+    }
+    case 'escrisk': {
+      const e = (S.escal || []).find(x => x.id === id); if (!e) return;
+      const was = ESC_RISK[e.risk].ar;
+      e.risk = v;
+      logIt('خطورة «' + e.name + '»: ' + was + ' ← ' + ESC_RISK[v].ar, 'info');
+      toast(ESC_RISK[v].ar); save(); escDrawer(id); return;
+    }
+    case 'escraise': {
+      const e = (S.escal || []).find(x => x.id === id); if (!e) return;
+      e.raise = e.raise || [];
+      const i = e.raise.indexOf(v);
+      if (i >= 0) e.raise.splice(i, 1); else e.raise.push(v);
+      if (!e.raise.length) { e.raise.push(v); toast('لا بدّ من صفةٍ واحدة على الأقلّ', 'r'); }
+      else logIt('من يرفع «' + e.name + '»: ' + e.raise.join('، '), 'info');
+      save(); escDrawer(id); return;
+    }
+    case 'escsave': {
+      const e = (S.escal || []).find(x => x.id === id); if (!e) return;
+      const t = (S.q.esc_to || '').trim();
+      e.escTo = t;
+      logIt('جهة تصعيد «' + e.name + '»: ' + (t || 'أُزيلت'), 'info');
+      S.q.esc_to = ''; toast('حُفظت'); save(); escDrawer(id); return;
+    }
+    case 'escxl': escExport(); toast('نُزِّل الكتالوج'); return;
+
     /* ═══ الاستبدال: احتياطيٌّ مكان شخصٍ بعينه ═══ */
     case 'txswap': swapAsk('task',  id, b.dataset.s); return;
     case 'gswap':  swapAsk('group', id, b.dataset.s); return;
@@ -681,9 +767,9 @@ document.addEventListener('click', ev => {
       }
       S.oform = null; S.drawer = null; clearDrawerStack(); save(); render(); return;
     }
-    case 'hotnew':  S.hform = null; ['ar','rooms','dist','city']
+    case 'hotnew':  S.hform = null; ['ar','rooms','dist','city','permit']
       .forEach(k => { S.q['h_' + k] = ''; }); hotelEdit(null); return;
-    case 'hotedit': S.hform = null; ['ar','rooms','dist','city']
+    case 'hotedit': S.hform = null; ['ar','rooms','dist','city','permit']
       .forEach(k => { S.q['h_' + k] = ''; }); hotelEdit(id); return;
     case 'hcity':   S.q.h_city = v; repaintDrawer(); return;
     case 'hotsave': {
@@ -693,7 +779,8 @@ document.addEventListener('click', ev => {
       if (!ar) { toast('اسم الفندق لا بدّ منه', 'r'); return; }
       const rec = { ar, city:S.q.h_city || (h ? h.city : 'مكة المكرمة'),
         rooms:numOf(get('rooms')) || (h ? h.rooms : 0),
-        dist:get('dist') || (h ? h.dist : '—') };
+        dist:get('dist') || (h ? h.dist : '—'),
+        permit:get('permit') || (h ? h.permit : '') };
       if (h) { Object.assign(h, rec); logIt('عُدِّل الفندق ' + ar, 'info'); toast('حُفظ'); }
       else {
         HOTELS.push(Object.assign({ id:'h' + (HOTELS.length + 1) }, rec));

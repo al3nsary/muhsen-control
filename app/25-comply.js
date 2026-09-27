@@ -115,7 +115,7 @@ const CMP_ST = {
 /* رقم تصريح لكل جهة — يُسأل عنه في كل زيارة */
 function permitOf(target) {
   const h = HOTELS.find(x => x.ar === target);
-  if (h) return 'PR-' + (4400 + HOTELS.indexOf(h) * 7);
+  if (h) return h.permit || ('PR-' + (4400 + HOTELS.indexOf(h) * 7));
   const i = Math.abs(String(target).split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % 90;
   return 'PR-' + (4800 + i);
 }
@@ -661,12 +661,15 @@ function cmpAsgDrawer(id) {
   S.drawer = { title:f.title || 'مهمّة امتثال', sub:a.no + ' · ' + a.target,
     icon:f.icon || 'i-clip', wide:!!S.dwide, expand:id, body:
 
+    permitCard(a) +
+
     '<div class="card" style="--kc:' + pr.c + '">' +
       head(a.state, 'أولويّتها ' + pr.ar, pill(pr.ar, pr.p), 'i-clip') +
       '<div class="grid g2" style="gap:10px">' +
         '<span><div class="tiny faint">رقم المهمة</div><b>' + LTR(a.no) + '</b></span>' +
         '<span><div class="tiny faint">رقم النموذج</div><b>' + LTR(f.no || '') + '</b></span>' +
-        '<span><div class="tiny faint">رقم التصريح</div><b>' + LTR(a.permit || '') + '</b></span>' +
+        '<span><div class="tiny faint">رقم التصريح المسجَّل</div><b>' +
+          LTR(a.permit || '—') + '</b></span>' +
         '<span><div class="tiny faint">الجهة</div><b>' + E(a.target) + '</b></span>' +
         '<span><div class="tiny faint">الموعد</div><b>' + hijri(a.at) + ' · ' + t12(a.at) + '</b></span>' +
         '<span><div class="tiny faint">الشِفت</div><b>' + E(a.shift || '') + '</b></span>' +
@@ -743,4 +746,44 @@ function reassignComply(a, why) {
       (formById(a.formId) || {}).title + ' — ' + a.target + '» إلى ' + pick.name + '.' });
   logIt('أُعيد إسناد ' + a.no + ' إلى ' + pick.name + ' لغياب ' + (old.name || ''), 'assign');
   return pick;
+}
+
+/* ============================================================
+   رقمُ التصريح — يُكتب في النموذج لا يُشتقّ من اسم الفندق
+
+   كان الرقمُ يُحسَب من اسم الجهة، فيبدو موجودًا وهو مُختلَق: لو تغيّر
+   تصريحُ الفندق لم يتغيّر شيء، ولو أخطأ أحدٌ لم يُكتشف.
+
+   فصار في **النموذج نفسه**: يكتبه من زار، ويُطابَق بما هو مسجَّلٌ على
+   الفندق. والاختلافُ يُبرَز — فإمّا أنّ التصريح تجدّد ولم يُحدَّث في
+   النظام، وإمّا أنّ الزيارة في غير مكانها.
+   ============================================================ */
+function permitCard(a) {
+  const reg = a.permit || permitOf(a.target);
+  const got = a.permitIn || '';
+  const ok = got && reg && got.replace(/\s/g, '') === String(reg).replace(/\s/g, '');
+  const bad = got && !ok;
+  return '<div class="card' + (bad ? ' red' : ok ? '' : ' gold') + '">' +
+    head('رقم التصريح', ok ? 'مطابقٌ للمسجَّل على الفندق'
+        : bad ? 'لا يطابق ما هو مسجَّل — راجعه قبل الاعتماد'
+        : 'يُكتب أثناء الزيارة من لوحة التصريح',
+      got ? pill(ok ? 'مطابق' : 'غير مطابق', ok ? 'live' : 'no')
+          : pill('لم يُكتب بعد', 'wait'), 'i-idcard') +
+    '<div class="grid g2" style="gap:11px">' +
+      kv2('المسجَّل على ' + E(a.target || ''), LTR(reg || '—')) +
+      kv2('المكتوب في النموذج', got ? LTR(got) : '<span class="faint">—</span>') +
+    '</div>' +
+    (bad ? '<div class="note r" style="margin-top:12px">' + icon('i-warn','s16') +
+      '<span>الرقمان مختلفان. إمّا أنّ التصريح تجدّد ولم يُحدَّث في بيانات ' +
+      'الفندق، وإمّا أنّ الزيارة وقعت في غير موقعها.</span></div>' : '') +
+    '<label class="fl2">اكتب رقم التصريح كما قرأتَه على اللوحة</label>' +
+    '<input class="fld" id="q-pin_' + a.id + '" data-q="pin_' + a.id + '" value="' +
+      E(got) + '" placeholder="PR-4400">' +
+    '<div class="grid g2" style="gap:8px;margin-top:10px">' +
+      '<button class="btn l sm" data-a="pinsave" data-id="' + a.id + '">' +
+        icon('i-check','s14') + 'حفظ الرقم</button>' +
+      '<button class="btn l sm" data-a="pinsync" data-id="' + a.id + '"' +
+        (bad ? '' : ' disabled') + '>' + icon('i-reset','s14') +
+        'اعتمدْه وحدِّث الفندق</button>' +
+    '</div></div>';
 }

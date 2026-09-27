@@ -400,7 +400,8 @@ function hotelEdit(id) {
   const h = id ? HOTELS.find(x => x.id === id) : null;
   const d = S.hform = (S.hform && S.hform.id === id) ? S.hform
     : { id:id || null, ar:h ? h.ar : '', city:h ? h.city : 'مكة المكرمة',
-        rooms:h ? h.rooms : 0, dist:h ? h.dist : '' };
+        rooms:h ? h.rooms : 0, dist:h ? h.dist : '',
+        permit:h ? (h.permit || '') : '' };
   const val = k => S.q['h_' + k] != null && S.q['h_' + k] !== '' ? S.q['h_' + k] : d[k];
   const fld = (k, label, ph) => '<label class="fl2">' + E(label) + '</label>' +
     '<input class="fld" id="q-h_' + k + '" data-q="h_' + k + '" value="' + E(val(k)) +
@@ -413,6 +414,7 @@ function hotelEdit(id) {
       fld('ar', 'اسم الفندق', 'فندق منازل المقام') +
       fld('rooms', 'عدد الغرف', '180') +
       fld('dist', 'الموقع والبُعد', '٤٠٠ م من الحرم') +
+      fld('permit', 'رقم التصريح', 'PR-4400') +
       '<label class="fl2">المدينة</label>' +
       '<div class="chipwrap">' + ['مكة المكرمة', 'المدينة المنوّرة', 'جدة'].map(c =>
         '<button class="chipbtn' + ((S.q.h_city || d.city) === c ? ' on' : '') +

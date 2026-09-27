@@ -1915,6 +1915,44 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   border:1px dashed var(--line2); color:var(--dim2)}
 .mxall:hover{border-color:var(--gold2); color:var(--gold2); border-style:solid}
 
+/* ساعةُ المهلة: ما بقي أو ما تجاوز — تُقرأ بلمحة */
+.slaclk{display:inline-flex; align-items:center; gap:5px; flex:none;
+  padding:4px 10px; border-radius:9px; font-size:10.5px; font-weight:600;
+  color:var(--gold2); background:color-mix(in srgb,var(--gold2) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold2) 28%,transparent);
+  font-variant-numeric:tabular-nums}
+.slaclk.late{color:var(--red); background:color-mix(in srgb,var(--red) 14%,transparent);
+  border-color:color-mix(in srgb,var(--red) 32%,transparent)}
+.prow.on{border-color:var(--g3); background:color-mix(in srgb,var(--g3) 8%,transparent)}
+.bad{color:var(--red)}
+
+/* كتالوج البلاغات: سبعةُ أعمدة تسع الشاشة بلا تمرير */
+.xtbl.etbl{min-width:1150px}
+.xtbl.etbl .xhead, .xtbl.etbl .xrow{
+  grid-template-columns:minmax(280px,1.6fr) 96px 168px 92px 116px 200px 168px}
+.xtbl.etbl .xc{align-items:center; flex-wrap:wrap; gap:5px}
+.xtbl.etbl .xc.nmc .nm b{white-space:normal; line-height:1.5}
+/* جهةٌ خارج النظام: تُميَّز لأنّ التصعيد إليها بالهاتف لا بالنقر */
+.etout{display:inline-flex; align-items:center; gap:5px; padding:4px 9px;
+  border-radius:9px; font-size:10.5px; color:var(--dim2);
+  background:var(--raise); border:1px dashed var(--line2)}
+
+/* شجرة التصنيفات */
+.etree{display:grid; gap:11px; grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  margin-top:13px}
+.etcat{padding:13px 14px; border-radius:15px; background:var(--raise);
+  border:1px solid var(--line2)}
+.etop{display:flex; align-items:center; gap:9px; margin-bottom:10px}
+.etop b{flex:1; font-size:13px}
+.etsubs{display:flex; flex-wrap:wrap; gap:6px}
+.etsub{display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+  border-radius:10px; cursor:pointer; font-size:11px; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line); transition:.13s}
+.etsub:hover{border-color:var(--gold2)}
+.etsub i{font-style:normal; font-size:10px; color:var(--gold2);
+  font-variant-numeric:tabular-nums}
+.etsub.off{opacity:.5; cursor:default}
+
 .xtbl.qtbl{min-width:1080px}
 .xtbl.qtbl .xhead, .xtbl.qtbl .xrow{grid-template-columns:repeat(8,minmax(120px,1fr))}
 .xtbl.qtbl .xrow.bad{background:color-mix(in srgb,var(--red) 10%,transparent)}

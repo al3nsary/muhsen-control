@@ -128,6 +128,7 @@ const sigAvgResp = () => {
    ============================================================ */
 function screenIncidents() {
   const K = 'sig';
+  const board = escBoardCard();
   const q = qOf(K);
   let list = (V.signals || []).slice().sort((a, b) =>
     (SIG_RISK[a.risk].o - SIG_RISK[b.risk].o) || (b.at - a.at));
@@ -156,7 +157,7 @@ function screenIncidents() {
         sub:'حُلّت وأُبلغ صاحبها', series:[1,2,4,6,8,10,12,Math.max(1, closed)] }) +
       stat({ label:'متوسط الحلّ', n:sigAvgResp(), ic:'i-clock', suffix:' د',
         sub:'من الورود إلى الإغلاق', series:[40,36,34,30,28,26,24,Math.max(1, sigAvgResp())] }) +
-    '</div>' +
+    '</div>' + board +
 
     '<div class="card">' +
       head('البلاغات والحوادث', 'حدثٌ واحد له دورةٌ واحدة — من وروده إلى أرشفته',
@@ -212,6 +213,8 @@ function sigDrawer(id) {
 
   S.drawer = { title:s.title, sub:s.no + ' · ' + s.catAr + ' · ' + s.kt,
     icon:cl.i, wide:!!S.dwide, expand:id, body:
+
+    escCardFor(s) +
 
     '<div class="card" style="--kc:' + rk.c + '">' +
       head('المرحلة ' + AR(stg) + ' من ١٢', SIG_STAGES[Math.min(11, stg - 1)].ar,

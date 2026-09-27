@@ -188,6 +188,7 @@ function buildView() {
   V.signals  = S.signals || [];
   V.warns    = (S.warns || []).filter(w => has(userIds, w.userId));
   V.ctrs     = (S.ctrs || []).filter(c => p.scope === 'org' ? c.orgId === a.orgId : true);
+  V.escal = S.escal || [];
   V.roleSets = S.roleSets || [];
   V.acts     = (S.acts || []).filter(a => has(userIds, a.userId));
   V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));

@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 19;
-const APP_VER = 'نسخة ١٫٦٫١';
+const SCHEMA = 20;
+const APP_VER = 'نسخة ١٫٧';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -285,6 +285,9 @@ function seed() {
   seedWarns(st);
   seedMove(st);
   seedRoles(st);
+  seedEscal(st);
+  escTagSignals(st);
+  seedMore(st);
   seedComply(st);
 
   return st;
@@ -299,6 +302,7 @@ function load() {
   S.assigns = S.assigns || []; S.flt = S.flt || {}; S.q = S.q || {};
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.buses = S.buses || []; S.trips = S.trips || [];
+  S.escal = S.escal || [];
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
   S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || []; S.warns = S.warns || []; S.ctrs = S.ctrs || [];

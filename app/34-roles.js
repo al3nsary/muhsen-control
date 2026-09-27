@@ -39,6 +39,7 @@ const RES = [
 
   { k:'orgs',    ar:'الجهات والفنادق',  i:'i-flag',   g:'الإدارة' },
   { k:'cast',    ar:'الإشعارات والبثّ', i:'i-bell',   g:'الإدارة' },
+  { k:'escal',   ar:'كتالوج البلاغات',  i:'i-shield', g:'الإدارة' },
   { k:'perms',   ar:'الصلاحيات',        i:'i-shield', g:'الإدارة' },
   { k:'audit',   ar:'سجل النظام',       i:'i-hist',   g:'الإدارة' },
   { k:'cfg',     ar:'إعدادات الموقع',   i:'i-gear',   g:'الإدارة' }
@@ -260,7 +261,7 @@ const GATE = (function () {
   put('comply','add',   ['fnew','schsave']);
   put('comply','edit',  ['fedit','fbscope','fbadd','fbup','fbdel','fbsave','fassign','fatarget',
                          'fsched','schoteb','schall','schnone','schslot','schprio','schmode',
-                         'schwho','careassign','caswap','caprio','funfo']);
+                         'schwho','careassign','caswap','caprio','funfo','pinsave','pinsync']);
   put('comply','approve',['fapproveall']);
 
   put('guides','add',   ['gdnew','gbadd','gbmadd']);
@@ -271,7 +272,8 @@ const GATE = (function () {
   put('signal','add',   ['signew','sgsave']);
   put('signal','edit',  ['sgcat','sgkt','sgsrc','sgch','sgcls','sgrisk','sigver','sigfix',
                          'sigcls','sigrisk','sigrule','sigown','sigfollow','sigreply']);
-  put('signal','approve',['sigconfirm','sigclose','sigreopen']);
+  put('signal','edit',   ['escpick','epcat','epsub','epgo']);
+  put('signal','approve',['sigconfirm','sigclose','sigreopen','escgo']);
 
   put('staff','add',    ['gnew']);
   put('staff','edit',   ['bsave','bspec','borg','bhotel','bsup','blead','bclrlead','bmem',
@@ -306,6 +308,7 @@ const GATE = (function () {
   put('cast','add',     ['castsend']);
   put('cast','del',     ['castclear']);
 
+  put('escal','edit',   ['escrisk','escraise','escsave']);
   put('perms','add',    ['rsnew','rsclone']);
   put('perms','edit',   ['rstog','rsrow','rsall','rsname','pgtog','pgall','pgdef','pgnone']);
   put('perms','del',    ['rsdel']);
