@@ -633,7 +633,7 @@ function txCloseAsk(id) {
       '<textarea class="fld" id="q-txcw" data-q="txcw" rows="4" ' +
         'placeholder="مثال: أُنجزت ميدانيًّا ولم يُغلقها ليدرها.">' + E(qOf('txcw')) + '</textarea>' +
       '<div class="tiny faint" style="margin-top:9px">إنجاز الخطوات الآن: ' +
-        AR(subPct(t)) + '٪ — وما لم يُنجز يبقى مفتوحًا في التقرير.</div>' +
+        AR(subPct(t)) + '٪ — وما لم يُنجز يبقى مفتوحًا في البلاغ.</div>' +
     '</div>' +
     '<div class="grid g2" style="gap:8px">' +
       '<button class="btn p" data-a="txclosedo" data-id="' + id + '">' + icon('i-stop','s16') + 'إغلاقها</button>' +
@@ -948,7 +948,7 @@ function inRow(x) {
 }
 
 /* ============================================================
-   تقرير تنفيذ المهمّة الآليّ — قبليّ وبعديّ
+   بلاغ تنفيذ المهمّة الآليّ — قبليّ وبعديّ
 
    يُبنى من وقائع المهمّة نفسها لا يُكتب يدويًّا: التوقيت والأداء،
    وتفصيل الفرعيّات، والحضور الميداني، والتذاكر المرتبطة، وطلبات
@@ -981,7 +981,7 @@ function taskReport(id) {
       '<h3>' + E(title) + (sub2 ? '<small>' + E(sub2) + '</small>' : '') + '</h3>' +
       body + '</section>';
 
-  S.drawer = { title:'تقرير تنفيذ المهمة', sub:t.title + ' · ' + t.kt,
+  S.drawer = { title:'بلاغ تنفيذ المهمة', sub:t.title + ' · ' + t.kt,
     icon:'i-report', paper:true, expand:t.id, body:
 
     '<div class="rpbar">' +
@@ -998,7 +998,7 @@ function taskReport(id) {
 
     '<div class="report" id="rpdoc">' +
       '<header class="rphd">' +
-        '<div><h2>تقرير تنفيذ المهمة الآلي</h2>' +
+        '<div><h2>بلاغ تنفيذ المهمة الآلي</h2>' +
         '<div class="rpsub">' + E(t.title) + ' — ' + LTR(t.kt) + '</div></div>' +
         '<div class="rpst"><span class="tst" style="--tsc:' + st.c + '"><i></i>' +
           E(st.ar) + '</span>' +
@@ -1007,7 +1007,7 @@ function taskReport(id) {
       '</header>' +
 
       '<div class="rpmeta">' +
-        '<span><i>وقت إصدار التقرير</i><b>' + hijri(now()) + ' · ' + t12(now()) + '</b></span>' +
+        '<span><i>وقت إصدار البلاغ</i><b>' + hijri(now()) + ' · ' + t12(now()) + '</b></span>' +
         '<span><i>وقت آخر تحديث</i><b>' +
           ((t.hist || [])[0] ? hijri(t.hist[0].at) + ' · ' + t12(t.hist[0].at) : '—') + '</b></span>' +
         '<span><i>رقم المهمة</i><b>' + LTR('#' + t.code) + '</b></span>' +
@@ -1134,14 +1134,14 @@ function taskReport(id) {
   renderDrawer();
 }
 
-/* ---------- تصدير التقرير ---------- */
+/* ---------- تصدير البلاغ ---------- */
 function reportXl(t) {
   const L = userById(t.leaderId) || {}, sup = taskSup(t), h = taskHotel(t);
   const r = rateOf(t);
   const lines = [];
   const push = (a, b, c2, d2, e2, f2, g2) =>
     lines.push([a, b, c2, d2, e2, f2, g2].map(x => x == null ? '' : x));
-  push('تقرير تنفيذ المهمة الآلي');
+  push('بلاغ تنفيذ المهمة الآلي');
   push('المهمة', t.title); push('رقم المهمة', '#' + t.code); push('الـKT', t.kt);
   push('الحالة', tsOf(t).ar); push('نسبة الإنجاز', subPct(t) + '%');
   push('الفندق', h ? h.ar : '—'); push('المشرف', sup ? sup.name : '—');
@@ -1170,7 +1170,7 @@ function reportXl(t) {
 /* صورة: نرسم الورقة داخل SVG بخاصيّة foreignObject ثم نحوّلها canvas */
 function reportPng(t) {
   const el = document.getElementById('rpdoc');
-  if (!el) { toast('افتح التقرير أوّلًا', 'r'); return; }
+  if (!el) { toast('افتح البلاغ أوّلًا', 'r'); return; }
   const w = el.scrollWidth, h = el.scrollHeight;
   const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const html = '<div xmlns="http://www.w3.org/1999/xhtml" dir="rtl">' +
@@ -1192,7 +1192,7 @@ function reportPng(t) {
       a.href = u; a.download = 'report-' + t.code + '.png';
       document.body.appendChild(a); a.click();
       setTimeout(() => { a.remove(); URL.revokeObjectURL(u); }, 400);
-      toast('نُزِّلت صورة التقرير');
+      toast('نُزِّلت صورة البلاغ');
     }, 'image/png');
   };
   img.onerror = () => toast('تعذّر توليد الصورة — استخدم الطباعة', 'r');
@@ -1202,12 +1202,12 @@ function reportPng(t) {
 /* PDF: نافذة طباعة تحمل الورقة وحدها بأنماطها */
 function reportPrint(t) {
   const el = document.getElementById('rpdoc');
-  if (!el) { toast('افتح التقرير أوّلًا', 'r'); return; }
+  if (!el) { toast('افتح البلاغ أوّلًا', 'r'); return; }
   const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const w = window.open('', '_blank');
   if (!w) { toast('اسمح بالنوافذ المنبثقة للطباعة', 'r'); return; }
   w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
-    '<title>تقرير ' + E(t.title) + '</title>' +
+    '<title>بلاغ ' + E(t.title) + '</title>' +
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">' +
     '<style>' + styles + '</style>' +
     '<style>html[data-theme]{--x:0}body{background:#fff;padding:22px;font-family:' +

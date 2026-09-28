@@ -31,7 +31,7 @@ const WIDGETS = [
   { k:'kpiQuality', ar:'متوسط التقييم',       b:'kpi', w:1, i:'i-star',   f:wQualityKpi },
   { k:'kpiInc',     ar:'حوادث حرجة',          b:'kpi', w:1, i:'i-warn',   f:wIncKpi },
   { k:'kpiSupport', ar:'طلبات الدعم',         b:'kpi', w:1, i:'i-send',   f:wSupKpi },
-  { k:'kpiReports', ar:'تقارير مصعَّدة',      b:'kpi', w:1, i:'i-flag',   f:wRepKpi },
+  { k:'kpiReports', ar:'بلاغات مصعَّدة',      b:'kpi', w:1, i:'i-flag',   f:wRepKpi },
   { k:'kpiGroups',  ar:'مجموعات مشكَّلة',     b:'kpi', w:1, i:'i-users',  f:wGrpKpi },
   { k:'kpiFree',    ar:'محسنون بلا مجموعة',   b:'kpi', w:1, i:'i-user',   f:wFreeKpi },
   { k:'kpiEnrich',  ar:'رحلات المزارات',      b:'kpi', w:1, i:'i-pin',    f:wEnrKpi },
@@ -74,7 +74,7 @@ const WIDGETS = [
   { k:'busNext',    ar:'الرحلات القادمة',     b:'list', w:1, i:'i-bus',    f:wBusNext },
   { k:'lsSupport',  ar:'طلبات الدعم',         b:'list', w:1, i:'i-send',   f:wSupList },
   { k:'lsTickets',  ar:'آخر التذاكر',         b:'list', w:1, i:'i-ticket', f:wTktList },
-  { k:'lsReports',  ar:'آخر التقارير',        b:'list', w:1, i:'i-flag',   f:wRepList },
+  { k:'lsReports',  ar:'آخر البلاغات',        b:'list', w:1, i:'i-flag',   f:wRepList },
   { k:'lsShifts',   ar:'طلبات الشِفتات',      b:'list', w:1, i:'i-swap',   f:wShfList },
   { k:'lsCare',     ar:'حجاج يحتاجون رعاية',  b:'list', w:1, i:'i-user',   f:wCareList },
   { k:'lsGuides',   ar:'أحدث الأدلة',         b:'list', w:1, i:'i-guide',  f:wGdList },
@@ -260,7 +260,7 @@ function wDecideKpi() {
   const n = decisionItems().length;
   return stat({ label:'قرارات تنتظرك', n, delta:n ? n - 1 : 0, ic:'i-send',
     cls:n ? 'warn' : 'up', sub:AR(openSupport().length) + ' دعم · ' +
-      AR(escalatedReports().length) + ' تقرير', series:[1,2,1,3,2,4,3,Math.max(1, n)] });
+      AR(escalatedReports().length) + ' بلاغ', series:[1,2,1,3,2,4,3,Math.max(1, n)] });
 }
 function wTicketsKpi() {
   const crit = V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').length;
@@ -311,7 +311,7 @@ function wSupKpi() {
     series:[1,2,3,2,4,3,4,Math.max(1, openSupport().length)] });
 }
 function wRepKpi() {
-  return stat({ label:'تقارير مصعَّدة', n:escalatedReports().length, ic:'i-flag',
+  return stat({ label:'بلاغات مصعَّدة', n:escalatedReports().length, ic:'i-flag',
     cls:escalatedReports().length ? 'warn' : 'up', sub:'تجاوزت مستوى الفريق',
     series:[0,1,1,2,2,3,2,Math.max(1, escalatedReports().length)] });
 }
@@ -568,10 +568,10 @@ function wTktList() {
 }
 function wRepList() {
   const n = V.reports.slice().sort((a, b) => b.at - a.at).slice(0, 12);
-  return listCard('آخر التقارير', AR(n.length) + ' تقريرًا', 'i-flag',
+  return listCard('آخر البلاغات', AR(n.length) + ' بلاغًا', 'i-flag',
     n.map(r => rowMini('i-flag', r.escalated ? 'var(--red)' : 'var(--dim)',
       r.title, r.kt + ' · ' + r.cat,
-      pill(r.status, r.escalated ? 'no' : 'wait'), 'rpopen', r.id)), 'لا تقارير');
+      pill(r.status, r.escalated ? 'no' : 'wait'), 'rpopen', r.id)), 'لا بلاغات');
 }
 function wShfList() {
   const n = V.swaps.filter(w => w.state === 'pending').slice(0, 12);

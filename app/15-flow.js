@@ -2,7 +2,7 @@
    الإجراءات الحقيقية
    نُسك: فتح حالة · مسار خطوات · مرفقات وملاحظات · إنهاء
    الامتثال: بناء قالب · إسناد حسب الفندق
-   التذاكر والتقارير: ردّ · إسناد · تصنيف · إغلاق
+   التذاكر والبلاغات: ردّ · إسناد · تصنيف · إغلاق
    ============================================================ */
 
 /* ---------- المرفقات: يُلتقط الملف الحقيقي ويُحفظ وصفه ---------- */
@@ -21,7 +21,7 @@ function filePick(key) {
     (f ? fileChip(f) : '');
 }
 
-/* ══════════════ التذاكر والتقارير: إجراء حقيقي ══════════════ */
+/* ══════════════ التذاكر والبلاغات: إجراء حقيقي ══════════════ */
 function ticketDrawer(id) {
   const k = V.tickets.find(x => x.id === id); if (!k) return;
   const to = k.assignedTo ? userById(k.assignedTo) : null;
@@ -111,7 +111,7 @@ function reportDrawer(id) {
         '<button class="btn p" style="flex:1" data-a="rpreply" data-id="' + r.id + '">' +
           icon('i-send','s16') + 'إرسال</button>' +
         '<button class="btn l" data-a="rpclose" data-id="' + r.id + '">' +
-          icon('i-checkc','s16') + 'إغلاق التقرير</button>' +
+          icon('i-checkc','s16') + 'إغلاق البلاغ</button>' +
       '</div></div>' +
 
     '<div class="card">' + head('السجلّ', AR((r.thread || []).length) + ' قيدًا') +

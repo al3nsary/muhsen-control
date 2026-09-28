@@ -295,7 +295,7 @@ function seedLog(st) {
 }
 
 
-/* ---------- ٧) التذاكر والتقارير: من شجرتَي الكتالوج ---------- */
+/* ---------- ٧) التذاكر والبلاغات: من شجرتَي الكتالوج ---------- */
 const TKT_BODY = {
   'صيانة': 'المكيّف في الغرفة لا يبرّد منذ الأمس، والغرفة فيها ثلاثةٌ من كبار السنّ.',
   'نظافة': 'لم تُنظَّف الغرفة منذ يومين، ولم تُبدَّل المناشف.',
@@ -414,5 +414,56 @@ function seedMore(st) {
   escTagSignals(st);
   seedTicketsMore(st);
   seedReportsMore(st);
+  mergeReportsIntoSignals(st);
+  escTagSignals(st);
+  escSpread(st);
   seedLog(st);
+}
+
+/* ============================================================
+   الهجرة: البلاغُ والبلاغُ كيانٌ واحد
+
+   كانا جدولين: «البلاغات» يرفعها الميدان، و«البلاغات» لها دورةٌ من
+   اثنتي عشرة مرحلة. ثم صار لكليهما حالةٌ من الكتالوج نفسه — فبانا
+   شيئًا واحدًا سُمّي باسمين. فاندمجا، والاسمُ الباقي **البلاغ**.
+
+   والتذاكرُ تبقى كيانًا مستقلًّا: يفتحها الحاجّ بتصنيفٍ ووصفٍ حرّ،
+   بلا آليّةِ تصعيدٍ ولا مهلة — كما قال أصحابُ العمليات.
+   ============================================================ */
+function mergeReportsIntoSignals(st) {
+  const R = st.reports || [];
+  if (!R.length) return;
+  R.forEach((r, i) => {
+    const e = (st.escal || ESCAL).find(x => x.id === r.escId);
+    const at = r.at || now();
+    const closed = r.status === 'مغلق';
+    st.signals.push({
+      id: 'SG' + (9000 + i), no: r.no || ('SG-' + (9000 + i)),
+      src: 'report',                       /* جاء من الميدان لا من الغرفة */
+      title: r.title, text: r.body,
+      cat: r.cat || 'trans',
+      catAr: (INC_CATS.find(c => c.k === (r.cat || 'trans')) || {}).ar || 'نقل',
+      source: 'المحسن', channel: 'تطبيق مُحسن', outside: false,
+      verify: 'confirmed', wrongNote: '',
+      cls: 'notice',
+      risk: r.risk || 'mid',
+      rule: (r.risk === 'high') ? 'caseNew' : 'journey',
+      owner: r.to && r.to !== 'CONTROL' ? r.to : null,
+      followed: closed, confirm: closed,
+      state: closed ? 'closed' : r.escalated ? 'working' : 'open',
+      kt: r.kt || '—',
+      hotel: (HOTELS[i % HOTELS.length] || {}).ar,
+      at, resp: 10 + (i * 7) % 40,
+      closedAt: closed ? at + 40 * MIN : null,
+      taskId: r.taskId || null,
+      escId: r.escId || null,
+      escalated: !!r.escalated, escAt: r.escAt || null,
+      trail: [{ at, by:'الميدان', text:'رُفع من تطبيق مُحسن' +
+        (e ? ' — ' + e.loc + ' · ' + e.sec + ' · ' + e.name : '') }]
+        .concat(r.escalated ? [{ at:r.escAt || at, by:'النظام',
+          text:'صُعِّد إلى ' + (r.escTo || 'الكنترول') + ' لانقضاء المهلة' }] : [])
+    });
+  });
+  st.reports = [];
+  st.signals.sort((a, b) => b.at - a.at);
 }

@@ -1594,7 +1594,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 
 /* الدرج الموسَّع: البيانات كثيرة فالعرض يتبعها، والأقسام عمودان */
 .drawer.xl{width:min(1020px,96vw)}
-/* التقرير ورقةٌ لا بطاقة: جداولُه سبعة أعمدة، فيحتاج عرض ورقةٍ لا عرض درج */
+/* البلاغ ورقةٌ لا بطاقة: جداولُه سبعة أعمدة، فيحتاج عرض ورقةٍ لا عرض درج */
 .drawer.paper{width:min(1340px,98vw)}
 .drawer.paper .db{display:block}
 .drawer.xl .db{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-content:start;
@@ -1927,15 +1927,27 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .bad{color:var(--red)}
 
 /* كتالوج البلاغات: سبعةُ أعمدة تسع الشاشة بلا تمرير */
-.xtbl.etbl{min-width:1150px}
+.xtbl.etbl{min-width:1340px}
 .xtbl.etbl .xhead, .xtbl.etbl .xrow{
-  grid-template-columns:minmax(280px,1.6fr) 96px 168px 92px 116px 200px 168px}
+  grid-template-columns:minmax(250px,1.5fr) 84px 150px 78px 96px 116px 112px 182px 150px}
 .xtbl.etbl .xc{align-items:center; flex-wrap:wrap; gap:5px}
 .xtbl.etbl .xc.nmc .nm b{white-space:normal; line-height:1.5}
 /* جهةٌ خارج النظام: تُميَّز لأنّ التصعيد إليها بالهاتف لا بالنقر */
 .etout{display:inline-flex; align-items:center; gap:5px; padding:4px 9px;
   border-radius:9px; font-size:10.5px; color:var(--dim2);
   background:var(--raise); border:1px dashed var(--line2)}
+
+/* المرفقُ الإلزاميّ — يُقرأ بلمحة */
+.mustchip{display:inline-flex; align-items:center; gap:5px; padding:4px 8px;
+  border-radius:8px; font-size:10px; font-weight:600; color:var(--gold2);
+  background:color-mix(in srgb,var(--gold2) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold2) 26%,transparent)}
+/* الشجرةُ بالمواقع */
+.etloc{margin-top:14px}
+.etloc + .etloc{padding-top:14px; border-top:1px solid var(--line)}
+.etlh{display:flex; align-items:center; gap:9px; margin-bottom:10px; color:var(--gold2)}
+.etlh b{flex:1; font-size:13.5px; color:var(--ink)}
+.etsub{border-inline-start:3px solid var(--sc,var(--line2))}
 
 /* شجرة التصنيفات */
 .etree{display:grid; gap:11px; grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
@@ -2010,8 +2022,8 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   color:var(--amber)}
 .lbl2{font-size:11px; font-weight:700; color:var(--dim2); margin:16px 2px 8px}
 
-/* ══ ورقة التقرير: تُقرأ على الشاشة وتُطبع كما هي ══
-   أبيضُ على أبيض ولو كانت الغرفة ليلية — فالتقرير يُطبع ويُرسل،
+/* ══ ورقة البلاغ: تُقرأ على الشاشة وتُطبع كما هي ══
+   أبيضُ على أبيض ولو كانت الغرفة ليلية — فالبلاغ يُطبع ويُرسل،
    ولا يُطبع الأسود على الورق. */
 .rpbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 .report{background:#fff; color:#12201A; border-radius:16px; padding:26px 24px;

@@ -24,7 +24,7 @@ const PERMS = [
   { k:'trans',   ar:'نقل',             i:'i-bus',    scope:'domain', edit:false, prov:true,
     d:'المطار والمغادرة والجولات ورحلات المزارات' },
   { k:'centers', ar:'مراكز',           i:'i-target', scope:'domain', edit:false, prov:true,
-    d:'كل الحوادث والتذاكر والتقارير — بلا بيانات أشخاص' },
+    d:'كل الحوادث والتذاكر والبلاغات — بلا بيانات أشخاص' },
   { k:'medina',  ar:'مشرفو المدينة',   i:'i-pin',    scope:'domain', edit:false, prov:true,
     d:'المدينة المنوّرة — لا بيانات لها في هذه النسخة' }
 ];

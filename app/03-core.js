@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 20;
-const APP_VER = 'نسخة ١٫٧';
+const SCHEMA = 21;
+const APP_VER = 'نسخة ١٫٨';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -129,7 +129,7 @@ function seed() {
     });
   });
 
-  /* التقارير الصاعدة */
+  /* البلاغات الصاعدة */
   REPORT_SEED.forEach((r, i) => {
     const L = LEADERS[i % LEADERS.length];
     st.reports.push({
@@ -321,7 +321,7 @@ function muhsenRating(id) {
   const tilt = ((Number(String(id).replace(/\D/g, '')) % 7) - 3) / 10;
   return Math.max(1, Math.min(5, Math.round((base + tilt) * 10) / 10));
 }
-/* الملاحظات: ما رُفع عليه من تقارير أو تذاكر تخصّ فريقه */
+/* الملاحظات: ما رُفع عليه من بلاغات أو تذاكر تخصّ فريقه */
 function muhsenNotes(id) {
   const n = Number(String(id).replace(/\D/g, '')) % 4;
   return n;

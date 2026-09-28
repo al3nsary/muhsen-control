@@ -263,7 +263,7 @@ function renderDrawer() {
            LTR() أو pill() ظهر نصًّا نظيفًا لا ترميزًا حرفيًّا. */
         '<div class="tiny faint">' + E(String(d.sub || '').replace(/<[^>]*>/g, '')) +
         '</div></span>' +
-        /* التقرير: يُفتح من رأس الدرج مباشرةً — فهو أكثر ما يُطلب */
+        /* البلاغ: يُفتح من رأس الدرج مباشرةً — فهو أكثر ما يُطلب */
         (d.report ? '<button class="iconbtn" data-a="trep" data-id="' + E(d.report) +
           '" aria-label="تقرير المهمة" title="تقرير المهمة">' + icon('i-report','s18') +
           '</button>' : '') +

@@ -1,10 +1,12 @@
 /* ============================================================
    المُوجِّه والأحداث
    ============================================================ */
+/* البلاغات والتذاكر لم تعودا وجهتين: الأولى اندمجت في البلاغات،
+   والثانية صارت تبويبًا في شاشتها. ودالّتاهما باقيتان تُستدعَيان. */
 const SCREENS = {
   ops: screenOps, actions: screenActions, orgs: screenOrgs,
   warns: screenWarns, gmv: screenGuidesMv, ctrs: screenCtrs, escal: screenEscal, staffone: screenStaffOne, tasks: screenTasks, build: screenBuild, assign: screenAssign, staff: screenStaff, incidents: screenIncidents,
-  support: screenSupport, reports: screenReports, tickets: screenTickets, shifts: screenShifts,
+  support: screenSupport, shifts: screenShifts,
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
   timeline: screenTimeline, perms: screenRoles,
@@ -389,17 +391,17 @@ document.addEventListener('click', ev => {
     }
 
     /* ═══ آليّةُ بلاغٍ بعينه ═══ */
-    case 'escpick': S.q.ep_cat = ''; S.q.ep_sub = ''; escPick(id); return;
-    case 'epcat': { S.q.ep_cat = v; S.q.ep_sub = ''; escPick(id); return; }
-    case 'epsub': { S.q.ep_sub = v; escPick(id); return; }
+    case 'escpick': S.q.ep_loc = ''; S.q.ep_sec = ''; escPick(id); return;
+    case 'eploc': { S.q.ep_loc = v; S.q.ep_sec = ''; escPick(id); return; }
+    case 'epsec': { S.q.ep_sec = v; escPick(id); return; }
     case 'epgo': {
       const s2 = (S.signals || []).find(x => x.id === id); if (!s2) return;
       const e = escOf(v); if (!e) return;
       escApply(s2, e);
       logIt('بلاغ ' + s2.no + ': آليّة «' + e.name + '» — خطورة ' +
         ESC_RISK[e.risk].ar, 'info');
-      S.q.ep_cat = ''; S.q.ep_sub = '';
-      toast('طُبّقت الآليّة'); save(); sigDrawer(id); return;
+      S.q.ep_loc = ''; S.q.ep_sec = '';
+      toast('طُبّقت الحالة'); save(); sigDrawer(id); return;
     }
     case 'escgo': {
       const s2 = (S.signals || []).find(x => x.id === id); if (!s2) return;
@@ -415,11 +417,7 @@ document.addEventListener('click', ev => {
 
     /* ═══ كتالوج البلاغات وآليّات التصعيد ═══ */
     case 'escopen': escDrawer(id); return;
-    case 'escsub': {
-      S.tab.ec = 'rules';
-      fltSet('esc', 'cat', id); fltSet('esc', 'sub', v);
-      save(); render(); return;
-    }
+    /* أُزيلت escsub: الشجرةُ صارت تفتح الحالة نفسها لا تُصفّي بها */
     case 'escrisk': {
       const e = (S.escal || []).find(x => x.id === id); if (!e) return;
       const was = ESC_RISK[e.risk].ar;
@@ -1606,7 +1604,7 @@ document.addEventListener('click', ev => {
     case 'tkopen': { const k = S.tickets.find(x => x.id === id); if (!k) return;
       k.status = 'قيد المعالجة'; save(); ticketDrawer(id); toast('أُعيد فتحها'); return; }
 
-    /* ─── التقارير ─── */
+    /* ─── البلاغات ─── */
     case 'rpopen': reportDrawer(id); return;
     case 'rpassign': {
       const r = S.reports.find(x => x.id === id); if (!r) return;
@@ -1621,13 +1619,13 @@ document.addEventListener('click', ev => {
       r.thread.push({ at:now(), by:'الكنترول', text:t, file:(S.files || {}).rpReply || null });
       r.status = 'قيد المعالجة'; S.q.rpreply = '';
       if (S.files) delete S.files.rpReply;
-      logIt('رُدّ على تقرير ' + r.no, 'info');
+      logIt('رُدّ على بلاغ ' + r.no, 'info');
       save(); reportDrawer(id); toast('أُرسل الردّ'); return;
     }
     case 'rpclose': { const r = S.reports.find(x => x.id === id); if (!r) return;
       r.status = 'مغلق'; r.escalated = false;
-      logIt('أُغلق تقرير ' + r.no, 'info'); save(); reportDrawer(id);
-      toast('أُغلق التقرير'); return; }
+      logIt('أُغلق بلاغ ' + r.no, 'info'); save(); reportDrawer(id);
+      toast('أُغلق البلاغ'); return; }
 
     /* ─── ١) المشرف على الفندق: واحد لا أكثر ─── */
     case 'supassign':
@@ -1906,7 +1904,7 @@ document.addEventListener('click', ev => {
       const arr = S.pilgrims[r.kt] || [];
       if (arr[0]) { arr[0].floor = r.room.floor; arr[0].room = r.room.no; }
       pushFeed('ok', 'حُدِّثت بيانات غرفة', r.kt + ' · ' + r.room.floor + ' · غرفة ' + r.room.no);
-      logIt('حُدِّثت بيانات الغرفة من التقرير ' + r.no, 'ok');
+      logIt('حُدِّثت بيانات الغرفة من البلاغ ' + r.no, 'ok');
       toast('حُدِّثت قاعدة البيانات');
       break;
     }

@@ -34,7 +34,7 @@ const RES = [
   { k:'gmv',     ar:'المرشدون',         i:'i-users',  g:'الحركة' },
 
   { k:'tickets', ar:'التذاكر',          i:'i-ticket', g:'المتابعة' },
-  { k:'reports', ar:'التقارير',         i:'i-flag',   g:'المتابعة' },
+  { k:'reports', ar:'البلاغات',         i:'i-flag',   g:'المتابعة' },
   { k:'support', ar:'طلبات الدعم',      i:'i-send',   g:'المتابعة' },
 
   { k:'orgs',    ar:'الجهات والفنادق',  i:'i-flag',   g:'الإدارة' },

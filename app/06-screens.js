@@ -162,7 +162,7 @@ function screenReserve() {
         series:[20,20,20,20,20,19,18,Math.max(1, free.length)] }) +
     '</div>' +
     '<div class="card gold">' +
-      head('الفريق الاحتياطي', 'يديره الكنترول وحده — لا يراه ليدر ولا يختار منه',
+      head('فريق امتثال', 'يديره الكنترول وحده — لا يراه ليدر ولا يختار منه',
         pill(AR(res.length) + ' متاح', 'live'), 'i-shield') +
       '<div class="tiny muted" style="margin-bottom:14px">' +
         'يُسنَد من هنا استجابةً لطلبات الدعم، ويُوضَّح سبب القرار للّيدر الطالب.</div>' +
@@ -234,14 +234,14 @@ function screenTickets() {
       }).join('') + '</div>' : empty('لا تذاكر في هذا التصنيف', '', 'i-ticket')) + '</div>';
 }
 
-/* ---------- التقارير ---------- */
+/* ---------- البلاغات ---------- */
 function screenReports() {
   const f = S.tab.rf || 'all';
   const all = V.reports.slice().sort((a, b) => b.at - a.at);
   const list = f === 'room' ? all.filter(r => r.room)
     : f === 'esc' ? all.filter(r => r.escalated) : all;
   return '<div class="grid g3">' +
-      stat({ label:'تقارير صاعدة', n:all.length, ic:'i-flag',
+      stat({ label:'بلاغات صاعدة', n:all.length, ic:'i-flag',
         sub:'رفعها الليدرز', series:[1,2,2,3,4,4,5,all.length] }) +
       stat({ label:'مصعَّدة إليك', n:all.filter(r => r.escalated).length, ic:'i-send',
         cls:'warn', sub:'تجاوزت مستوى الفريق', series:[0,1,1,2,2,3,2,3] }) +
@@ -249,7 +249,7 @@ function screenReports() {
         sub:'تُحدَّث في قاعدة البيانات', series:[0,0,1,1,1,2,1,1] }) +
     '</div>' +
     '<div class="card">' +
-      head('التقارير الصاعدة', 'ما صعّده الليدرز — ومنها تعديلات بيانات الغرف', '', 'i-flag') +
+      head('البلاغات الصاعدة', 'ما صعّده الليدرز — ومنها تعديلات بيانات الغرف', '', 'i-flag') +
       '<div class="tools">' + segmented('rf',
         [['all','الكل'],['esc','مصعَّدة'],['room','تعديل غرف']], f) + '</div>' +
       (list.length ? '<div class="plist">' + list.map((r, i) => {
@@ -269,6 +269,6 @@ function screenReports() {
               '<span class="mchip">' + icon('i-key','s14') + E(r.room.floor) +
                 ' · غرفة ' + E(r.room.no) + '</span></div>' : '') +
           '</div></div>';
-      }).join('') + '</div>' : empty('لا تقارير في هذا التصنيف', '', 'i-flag')) + '</div>';
+      }).join('') + '</div>' : empty('لا بلاغات في هذا التصنيف', '', 'i-flag')) + '</div>';
 }
 

@@ -18,7 +18,7 @@ function castAud(dest) {
     ['all',      'كل المحسنين',      S.users.filter(u => u.role === 'muhsen' && !u.reserve).length],
     ['leaders',  'الليدرز',          leaders().length],
     ['sups',     'المشرفون',         supervisors().length],
-    ['reserve',  'الفريق الاحتياطي', reserveTeam().length]
+    ['reserve',  'فريق امتثال', reserveTeam().length]
   ].concat(S.orgs.map(o => ['kt:' + o.kt, o.kt + ' · ' + o.ar,
       S.users.filter(u => u.kt === o.kt && u.role === 'muhsen').length]))
    .concat(SPECS.map(s => ['sp:' + s, 'تخصّص ' + s,
@@ -209,7 +209,7 @@ function screenSettings() {
     '<div class="card gold">' + head('عن النظام', APP_VER, '', 'i-info') +
       '<div class="tiny muted" style="line-height:2.1">' +
       '· هذا النظام هو <b>المصدر الأصل</b>: منه تُخلق المهام والفرق والحجاج والأدلة.<br>' +
-      '· تطبيق الميدان يقرأ منه ويرفع إليه الطلبات والتقارير.<br>' +
+      '· تطبيق الميدان يقرأ منه ويرفع إليه الطلبات والبلاغات.<br>' +
       '· مشروعان منفصلان في مستودعين — يربطهما العقد لا الملفات.</div>' +
       '<div class="meta" style="margin-top:14px">' +
         '<div><span class="k">النسخة</span><b>' + APP_VER.replace('نسخة ', '') + '</b></div>' +

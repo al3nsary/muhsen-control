@@ -50,7 +50,7 @@ const KPI_GO = {
   'مهام المدة':{n:'tasks',k:'tt',v:'hajj'},
   'تنبيهات لم تُقرأ':{n:'tasks',k:'tt',v:'hajj'},
   'قرارات تنتظرك':{n:'support'}, 'طلبات الدعم':{n:'support'},
-  'تذاكر مفتوحة':{n:'tickets'}, 'تقارير مصعَّدة':{n:'reports'},
+  'تذاكر مفتوحة':{n:'tickets'}, 'بلاغات مصعَّدة':{n:'reports'},
   'حوادث حرجة':{n:'incidents'}, 'مفتوحة':{n:'incidents'},
   'قيد المعالجة':{n:'incidents'}, 'مغلقة':{n:'incidents'}, 'متوسط الحلّ':{n:'incidents'},
   'المحسنون':{n:'staff'}, 'إجمالي الموظفين':{n:'staff'}, 'مسكَّن':{n:'staff'},
@@ -157,9 +157,9 @@ function decisionItems() {
     acts: '<button class="btn p sm" data-a="roomapply" data-id="' + r.id + '">تحديث قاعدة البيانات</button>'
   }));
   escalatedReports().filter(r => !r.room).forEach(r => items.push({
-    kind: 'warn', ic: 'i-flag', t: 'تقرير مصعَّد — ' + r.kt,
+    kind: 'warn', ic: 'i-flag', t: 'بلاغ مصعَّد — ' + r.kt,
     s: r.title + ' — ' + r.body.slice(0, 70), at: r.at,
-    acts: '<button class="btn l sm" data-a="go" data-n="reports">فتح التقرير</button>'
+    acts: '<button class="btn l sm" data-a="go" data-n="reports">فتح البلاغ</button>'
   }));
   V.tickets.filter(k => k.pri === 'حرجة' && k.status !== 'مغلقة').forEach(k => items.push({
     kind: 'bad', ic: 'i-ticket', t: 'تذكرة حرجة — ' + k.kt,

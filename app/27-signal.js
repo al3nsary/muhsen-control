@@ -126,8 +126,24 @@ const sigAvgResp = () => {
 /* ============================================================
    الشاشة
    ============================================================ */
+/* شريطُ التبويبين — يعلو الشاشتين معًا */
+function escTabs() {
+  const n1 = (V.signals || []).filter(s => s.state !== 'closed').length;
+  const n2 = openTickets().length;
+  return '<div class="card">' +
+    head('البلاغات والتذاكر',
+      'البلاغُ يرفعه الميدان بآليّةٍ تحكمه · والتذكرةُ يفتحها الحاجّ بوصفه',
+      '', 'i-warn') +
+    '<div class="tools">' + segmented('sg', [
+      ['sig','البلاغات · ' + AR(n1)],
+      ['tkt','التذاكر · ' + AR(n2)]
+    ], S.tab.sg || 'sig') + '</div></div>';
+}
+
 function screenIncidents() {
   const K = 'sig';
+  /* تبويبان: البلاغاتُ بآليّاتها، والتذاكرُ بتصنيفاتها ووصفها الحرّ */
+  if ((S.tab.sg || 'sig') === 'tkt') return escTabs() + screenTickets();
   const board = escBoardCard();
   const q = qOf(K);
   let list = (V.signals || []).slice().sort((a, b) =>
@@ -148,7 +164,8 @@ function screenIncidents() {
   const work = (V.signals || []).filter(s => s.state === 'working').length;
   const closed = (V.signals || []).filter(s => s.state === 'closed').length;
 
-  return '<div class="grid g4">' +
+  return escTabs() +
+    '<div class="grid g4">' +
       stat({ label:'مفتوحة', n:open, ic:'i-warn', cls:open ? 'down' : 'up',
         sub:AR(high) + ' منها خطورتها عالية', series:[4,6,5,8,7,9,6,Math.max(1, open)] }) +
       stat({ label:'قيد المعالجة', n:work, ic:'i-hour',

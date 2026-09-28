@@ -31,7 +31,7 @@ const NAV = [
       { k:'guides',                   i:'i-guide',  l:'أدلة التنفيذ' }
     ]},
     { k:'timeline',  i:'i-hist', l:'الخط الزمني', d:'مسار اليوم لكل مجموعة' },
-    { k:'incidents', i:'i-warn', l:'البلاغات والحوادث', d:'دورةٌ من إحدى عشرة مرحلة' }
+    { k:'incidents', i:'i-warn', l:'البلاغات', d:'ما يرفعه الميدان والحاجّ — بآليّة تصعيده' }
   ]},
 
   { g:'إدارة الحركة', items:[
@@ -46,7 +46,7 @@ const NAV = [
     { p:'staffg', i:'i-idcard', l:'الموظفون', d:'السجلّ والتسكين والتعاقد', kids:[
       { k:'staff',   i:'i-idcard', l:'سجلّ الموظفين' },
       { k:'teams',   i:'i-flag',   l:'الفرق والمجموعات' },
-      { k:'reserve', i:'i-shield', l:'الفريق الاحتياطي' },
+      { k:'reserve', i:'i-shield', l:'فريق امتثال' },
       { k:'shifts',  i:'i-swap',   l:'تبديل الشِفتات' },
       { k:'actions', i:'i-shield', l:'الإجراءات' },
       { k:'warns',   i:'i-warn',   l:'الإنذارات' },
@@ -61,8 +61,7 @@ const NAV = [
   { g:'المتابعة', items:[
     { p:'followg', i:'i-send', l:'المتابعة', d:'ما يصعد من الميدان', kids:[
       { k:'support', i:'i-send',   l:'طلبات الدعم' },
-      { k:'reports', i:'i-flag',   l:'التقارير' },
-      { k:'tickets', i:'i-ticket', l:'التذاكر' }
+      /* البلاغاتُ صارت بلاغات، والتذاكرُ تبويبٌ في شاشتها */
     ]}
   ]},
 
@@ -99,7 +98,8 @@ function navCount(k, t) {
   if (k === 'support')   return openSupport().length;
   if (k === 'reports')   return escalatedReports().length;
   if (k === 'tickets')   return openTickets().length;
-  if (k === 'incidents') return sigOpen().filter(s => s.risk === 'high').length;
+  if (k === 'incidents') return sigOpen().filter(s => s.risk === 'high').length +
+    openTickets().length;
   if (k === 'shifts')    return openSwaps().length;
   if (k === 'actions')   return actOpen().length;
   if (k === 'warns')     return (V.warns || []).filter(w => w.state === 'open').length;

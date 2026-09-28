@@ -280,7 +280,7 @@ function applyPick(kind, id, u) {
     r.assignedTo = u.id; r.status = 'قيد المعالجة';
     r.thread = r.thread || [];
     r.thread.push({ at:now(), by:'الكنترول', text:'أُسند إلى ' + u.name });
-    logIt('أُسند تقرير ' + r.no + ' إلى ' + u.name, 'assign');
+    logIt('أُسند بلاغ ' + r.no + ' إلى ' + u.name, 'assign');
     toast('أُسند إلى ' + u.name);
   } else if (kind === 'sup') {
     /* لكل فندق مشرف واحد: يُزاح السابق، ويُترك فندق المختار الأوّل */
