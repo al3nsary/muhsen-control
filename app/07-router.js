@@ -53,14 +53,14 @@ function render() {
       '<i class="bar"></i></div>'
     : '');
   /* في جدار العرض: شريط تقدّم إن كان الدوران مفعّلًا، ومخرج ظاهر دائمًا */
-  document.getElementById('wallbar').innerHTML = S.wall
+  document.getElementById('wallbar').innerHTML = TR(S.wall
     ? (S.wallAuto ? '<div class="wallbar"><i></i></div>' : '') +
       '<button class="wallexit" data-a="wall">' + icon('i-x','s16') +
         'الخروج من جدار العرض · Esc</button>' +
       '<button class="wallexit" style="inset-inline-start:auto;inset-inline-end:22px" ' +
         'data-a="wallauto">' + icon(S.wallAuto ? 'i-stop' : 'i-play','s16') +
         (S.wallAuto ? 'إيقاف الدوران' : 'دوران تلقائي') + '</button>'
-    : '';
+    : '');
   afterRender();
   renderPalette();
   renderDrawer();
@@ -76,7 +76,7 @@ function render() {
 /* ساعة حيّة بلا إعادة رسم */
 setInterval(() => {
   const c = document.getElementById('ctime');
-  if (c && S) c.textContent = t12(now());
+  if (c && S) c.textContent = TT(t12(now()));
 }, 1000);
 
 const val = id => { const e = document.getElementById(id); return e ? String(e.value).trim() : ''; };

@@ -159,7 +159,7 @@ function renderGate() {
       .slice(0, 60).map(u => [u.id, u.name + ' · ' + u.code]), a.userId, 'guser');
   }
 
-  w.innerHTML =
+  w.innerHTML = TR(
     '<div id="gate">' +
       '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>' +
       '<button class="themebtn gtheme" data-a="theme">' +
@@ -208,7 +208,7 @@ function renderGate() {
         '</div>' +
         '<div class="gfoot">' + icon('i-shield','s14') + 'نظام مُحسن · نُزلي · ' + APP_VER + '</div>' +
       '</div>' +
-    '</div>';
+    '</div>');
 }
 
 function pickRow(label, opts, cur, act) {

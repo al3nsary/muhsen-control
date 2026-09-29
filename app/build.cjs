@@ -15,6 +15,8 @@ const imgCSS = '<style>\n' +
   '.mlogo{background-image:url(' + imgs.logo_white + ')}\n' +
   '.mlockup{background-image:url(' + imgs.logo_lockup + ')}\n' +
   '.mnozoly{background-image:url(' + imgs.nozoly_dark + ')}\n' +
+  /* شعارُ الورقة: داكنٌ على الأبيض — والأبيضُ لا يُطبع على الأبيض */
+  '.mmark{background-image:url(' + imgs.logo_mark + ')}\n' +
   '</style>\n';
 
 const JS = ['02-data.js', '40-i18n.js', '41-dict.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',

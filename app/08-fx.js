@@ -24,7 +24,8 @@ function countUp(el) {
   if (!isFinite(target)) return;
   const dec = /\./.test(raw) ? 1 : 0;
   const suffix = el.getAttribute('data-suffix') || '';
-  const write = v => { el.textContent = AR(dec ? v.toFixed(1) : Math.round(v)) + suffix; };
+  /* نصٌّ يُكتب مباشرةً بلا وسم — فلا تبلغه TR؛ تُستدعى TT له وحدها */
+  const write = v => { el.textContent = TT(AR(dec ? v.toFixed(1) : Math.round(v)) + suffix); };
   /* من طلب تقليل الحركة يرى الرقم النهائي فورًا */
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
     write(target); return;
@@ -163,7 +164,7 @@ function renderPalette() {
   const list = paletteItems().filter(it => paletteMatch(it, q)).slice(0, 9);
   S._pl = list;
   const sel = Math.min(S.psel || 0, Math.max(0, list.length - 1));
-  w.innerHTML = '<div class="scrim" data-a="closepal"></div>' +
+  w.innerHTML = TR('<div class="scrim" data-a="closepal"></div>' +
     '<div class="palette" role="dialog" aria-label="لوحة الأوامر">' +
       '<div class="pin">' + icon('i-search','s18') +
         '<input id="pq" placeholder="اكتب للبحث في الأقسام والمهام والفرق…" value="' + E(q) + '" autocomplete="off">' +
@@ -173,7 +174,7 @@ function renderPalette() {
         icon(it.i, 's18') + '<b>' + E(it.t) + '</b><span>' + E(it.s) + '</span></button>').join('')
         : '<div class="empty" style="padding:26px">' + icon('i-search','s26') +
           '<b>لا نتائج</b></div>') + '</div>' +
-    '</div>';
+    '</div>');
   const inp = document.getElementById('pq');
   if (inp) { inp.focus(); try { inp.setSelectionRange(q.length, q.length); } catch (e) {} }
 }

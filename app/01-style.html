@@ -2283,4 +2283,49 @@ body.dragmode .seat.empty{border-style:solid; border-color:var(--gold2);
 :root[dir="ltr"] [class*="i-back"], :root[dir="ltr"] [class*="i-fwd"],
 :root[dir="ltr"] .listitem > svg:last-child, :root[dir="ltr"] .prow .end svg,
 :root[dir="ltr"] .nav > svg:last-child, :root[dir="ltr"] .pfback svg{transform:scaleX(-1)}
+
+/* نصٌّ عربيٌّ لم تصله الترجمةُ بعد: يُعزَل اتّجاهُه فيُقرأ صحيحًا
+   داخل تخطيطٍ لاتينيّ — لا تقفز نقطتاه ولا تنقلب أرقامُه. */
+.arx{unicode-bidi:isolate; direction:rtl; display:inline-block; text-align:start}
+
+/* ══ ترويسةُ الورقة — هويّةُ مُحسن ══
+   الشعارُ الداكن على الأبيض، وخطٌّ ذهبيٌّ يفصل الاسمَ عن المتن.
+   وتتكرّر الترويسةُ والتذييلُ على كلّ ورقةٍ عند الطباعة. */
+.rpid{display:flex; align-items:center; gap:14px; padding-bottom:13px;
+  border-bottom:1px solid #E3EAE4; margin-bottom:0}
+.rpid .rpmk{width:46px; height:36px; flex:none; background-size:contain;
+  background-repeat:no-repeat; background-position:center}
+.rpid .rpwho b{display:block; font-size:15px; color:#0E3A2C; letter-spacing:.2px;
+  line-height:1.35}
+.rpid .rpwho span{display:block; font-size:9.5px; color:#8C9B93; letter-spacing:1.6px;
+  text-transform:uppercase; font-weight:600}
+.rpid .rpdno{margin-inline-start:auto; text-align:end; flex:none}
+.rpid .rpdno b{display:block; font-size:12.5px; color:#0E3A2C; font-weight:700}
+.rpid .rpdno span{display:block; font-size:10px; color:#8C9B93; margin-top:3px}
+.rprule{height:3px; border-radius:2px; margin:0 0 16px;
+  background:linear-gradient(90deg,#A8875A,#C6A86F 38%,#E7D1A2 62%,transparent)}
+:root[dir="ltr"] .rprule{background:linear-gradient(270deg,#A8875A,#C6A86F 38%,#E7D1A2 62%,transparent)}
+.rpsign{display:flex; align-items:center; gap:10px; margin-top:16px; padding-top:13px;
+  border-top:1px solid #E3EAE4}
+.rpsign .rpnz{width:78px; height:24px; flex:none; background-size:contain;
+  background-repeat:no-repeat; background-position:center; opacity:.85}
+.rpsign .rptxt{font-size:10px; color:#8C9B93; line-height:1.6}
+.rpsign .rptxt b{color:#3C4F47; font-weight:700}
+.rpsign .rpno b{color:#3C4F47; font-weight:700}
+.rpsign .rpno{margin-inline-start:auto; font-size:10px; color:#8C9B93; text-align:end}
+
+/* ══ الطباعة: ورقةٌ نظيفة بلا ظلٍّ ولا إطار ══
+   print-color-adjust يُجبر المتصفّح على طبع الأرضيّات، وإلّا
+   خرجت الجداولُ بلا خطوطٍ فاصلة وضاع تمييزُ الصفوف. */
+@media print{
+  @page{size:A4; margin:12mm}
+  html,body{background:#fff!important}
+  .report{border:0!important; box-shadow:none!important; border-radius:0!important;
+    padding:0!important; max-width:none!important}
+  .report,.report *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .rpsec,.rpid,.rphd,.rpmeta,.rptbl,.rpshot,.rpsign{break-inside:avoid}
+  .rpsec h3{break-after:avoid}
+  .rpbar,.drawerx,.scrim{display:none!important}
+}
+
 </style>

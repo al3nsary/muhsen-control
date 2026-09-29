@@ -745,7 +745,7 @@ function docView(t, k) {
       'ويحقّ للطرف الثاني نقل حجاجه على نفقة الطرف الأول عند تكرار الإخلال.</p>';
 
   S.drawer = { title: d.ar, sub: ref + ' · ' + t.title, icon: 'i-file', wide: !!S.dwide, expand: t.id, body:
-    '<div class="doc">' + body +
+    '<div class="rpdno">' + body +
       '<div class="dsign"><span><b>الطرف الأول</b><i></i></span>' +
       '<span><b>الطرف الثاني</b><i></i></span></div>' +
     '</div>' +
@@ -997,6 +997,17 @@ function taskReport(id) {
     '</div>' +
 
     '<div class="report" id="rpdoc">' +
+      /* الترويسة: من أصدر الورقة، وما هي، ورقمُها وتاريخُها — يُقرأ
+         خارج النظام وبلا سياق، فلا يكفيه عنوانُ المهمة وحده. */
+      '<div class="rpid">' +
+        '<span class="rpmk mmark"></span>' +
+        '<span class="rpwho"><b>مُحسن · غرفة العمليات</b>' +
+          '<span>MUHSEN · OPERATIONS ROOM</span></span>' +
+        '<span class="rpdno"><b>بلاغ تنفيذ المهمة</b>' +
+          '<span>' + LTR('#' + t.code) + ' · ' + hijri(now()) + '</span></span>' +
+      '</div>' +
+      '<div class="rprule"></div>' +
+
       '<header class="rphd">' +
         '<div><h2>بلاغ تنفيذ المهمة الآلي</h2>' +
         '<div class="rpsub">' + E(t.title) + ' — ' + LTR(t.kt) + '</div></div>' +
@@ -1027,7 +1038,7 @@ function taskReport(id) {
 
       sect('التوقيت والأداء', 'الفرق بين المخطّط والواقع',
         '<div class="rptbl t6">' +
-        hrow(['البيان','الوقت الأصلي','بعد التعديل','الوقت الفعلي','الفرق','المدة']) +
+        hrow(['البيان','الوقت الأصلي','بعد التعديل','الوقت الفعلي','فارق الوقت','المدة']) +
         row(['بدء المهمة', hm(t.start), hm(t.start), hm(startAct),
              dmin(startAct ? startAct - t.start : null),
              startAct && endAct ? durTxt(endAct - startAct) : '—']) +
@@ -1063,7 +1074,7 @@ function taskReport(id) {
       '<div class="rp3">' +
       sect('الحضور الميداني', '',
         '<div class="rptbl t5">' +
-        hrow(['الاسم','الدور','الوقت المطلوب','الحضور الفعلي','الفرق']) +
+        hrow(['الاسم','الدور','الوقت المطلوب','الحضور الفعلي','فارق الوقت']) +
         row([E(L.name || '—'), 'قائد', hm(t.start - 2 * HR),
              t.leaderAttendedAt ? hm(t.leaderAttendedAt) : hm(t.start - 105 * MIN),
              dmin(-15 * MIN)]) +
@@ -1126,9 +1137,13 @@ function taskReport(id) {
           hijri(t.end + 3 * DAY) + 'هـ.</p>' +
         '</div>') +
 
-      '<footer class="rpft">' +
-        '<span>نظام مُحسن · الكنترول — تقرير آليّ لا يحتاج توقيعًا</span>' +
-        '<span>' + LTR('#' + t.code) + ' · ' + hijri(now()) + '</span>' +
+      /* تذييلٌ واحد: جهةُ الإصدار وصاحبُ النظام ورقمُ الورقة ووقتُها */
+      '<footer class="rpsign">' +
+        '<span class="rpnz mnozoly"></span>' +
+        '<span class="rptxt"><b>صادر عن غرفة عمليات مُحسن لخدمات الحجّ</b><br>' +
+          'وثيقة إلكترونية معتمدة — تقرير آليّ لا يحتاج توقيعًا</span>' +
+        '<span class="rpno"><b>' + LTR('#' + t.code) + ' · ' + LTR(t.kt) + '</b><br>' +
+          hijri(now()) + ' · ' + t12(now()) + '</span>' +
       '</footer>' +
     '</div>' };
   renderDrawer();
@@ -1173,7 +1188,8 @@ function reportPng(t) {
   if (!el) { toast('افتح البلاغ أوّلًا', 'r'); return; }
   const w = el.scrollWidth, h = el.scrollHeight;
   const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
-  const html = '<div xmlns="http://www.w3.org/1999/xhtml" dir="rtl">' +
+  const dr = (typeof langOf === 'function' ? langOf() : 'ar') === 'ar' ? 'rtl' : 'ltr';
+  const html = '<div xmlns="http://www.w3.org/1999/xhtml" dir="' + dr + '">' +
     '<style>' + styles + '</style>' +
     '<div style="width:' + w + 'px;background:#fff">' + el.outerHTML + '</div></div>';
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '">' +
@@ -1206,14 +1222,19 @@ function reportPrint(t) {
   const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const w = window.open('', '_blank');
   if (!w) { toast('اسمح بالنوافذ المنبثقة للطباعة', 'r'); return; }
-  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">' +
-    '<title>بلاغ ' + E(t.title) + '</title>' +
+  /* الورقةُ تتبع لغةَ الشاشة واتّجاهَها — وتُطبع بألوانها لا بيضاء */
+  const lg = typeof langOf === 'function' ? langOf() : 'ar';
+  const dr = lg === 'ar' ? 'rtl' : 'ltr';
+  w.document.write('<!doctype html><html lang="' + lg + '" dir="' + dr + '"><head>' +
+    '<meta charset="utf-8"><title>' + E(t.title) + ' · ' + LTR('#' + t.code) + '</title>' +
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">' +
     '<style>' + styles + '</style>' +
-    '<style>html[data-theme]{--x:0}body{background:#fff;padding:22px;font-family:' +
-    '"IBM Plex Sans Arabic",system-ui,sans-serif}' +
-    '@page{size:A4;margin:12mm}.report{border:0!important;box-shadow:none!important}' +
-    '.rpsec{break-inside:avoid}</style></head><body data-print="1">' +
+    '<style>html[data-theme]{--x:0}html{direction:' + dr + '}' +
+    'body{background:#fff;margin:0;padding:0;font-family:' +
+    '"IBM Plex Sans Arabic",system-ui,sans-serif;' +
+    '-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+    '.report{border:0!important;box-shadow:none!important;border-radius:0!important;' +
+    'padding:0!important}</style></head><body data-print="1">' +
     el.outerHTML + '</body></html>');
   w.document.close();
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700);
