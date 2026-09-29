@@ -139,13 +139,19 @@ function applyDir() {
 }
 
 /* ---------- مبدّلُ اللغة ---------- */
+/* المبدّلُ يُرى قبل أن يُبحث عنه: كرةٌ أرضيّةٌ ثم اللغةُ الحاليّةُ
+   باسمها، والبقيّةُ تظهر عند الاقتراب. فالمستخدمُ لا يعرف أنّ «MS»
+   لغةٌ ما لم يُقَل له. */
 function langSwitch() {
   const cur = langOf();
-  return '<div class="langsw">' + Object.keys(LANGS).map(k =>
-    '<button class="langb' + (k === cur ? ' on' : '') + '" data-a="lang" data-v="' + k + '" ' +
-    'title="' + E(langName(k)) + '" lang="' + k + '">' +
-    E(LANGS[k].f) + '</button>').join('') + '</div>';
+  return '<div class="langsw" title="' + E('اللغة · Language · Bahasa') + '">' +
+    '<span class="langi">' + icon('i-globe','s16') + '</span>' +
+    Object.keys(LANGS).map(k =>
+      '<button class="langb' + (k === cur ? ' on' : '') + '" data-a="lang" data-v="' + k + '" ' +
+      'title="' + E(langName(k)) + '" aria-label="' + E(langName(k)) + '" lang="' + k + '">' +
+      E(LANGS[k].f) + '</button>').join('') + '</div>';
 }
+
 function setLang(k) {
   if (!LANGS[k]) return;
   S.lang = k;

@@ -1936,11 +1936,13 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 :root[dir="ltr"] .nm b, :root[dir="ltr"] .xth{letter-spacing:.1px}
 
 /* مبدّلُ اللغة */
-.langsw{display:flex; gap:3px; flex:none; padding:3px; border-radius:11px;
-  background:var(--raise); border:1px solid var(--line2)}
-.langb{min-width:30px; height:26px; padding:0 8px; border-radius:8px; cursor:pointer;
+.langsw{display:flex; align-items:center; gap:2px; flex:none; padding:3px 5px 3px 3px;
+  border-radius:11px; background:var(--raise); border:1px solid var(--line2)}
+.langi{display:grid; place-items:center; width:22px; height:26px; flex:none;
+  color:var(--gold2); opacity:.9}
+.langb{min-width:32px; height:26px; padding:0 9px; border-radius:8px; cursor:pointer;
   background:transparent; border:0; color:var(--dim2);
-  font-size:10.5px; font-weight:700; letter-spacing:.3px; transition:.13s}
+  font-size:11px; font-weight:700; letter-spacing:.3px; transition:.13s}
 .langb:hover{color:var(--ink)}
 .langb.on{background:var(--panel); color:var(--gold2);
   box-shadow:0 1px 3px rgba(0,0,0,.18)}
