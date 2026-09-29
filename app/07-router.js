@@ -15,7 +15,7 @@ const SCREENS = {
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
 const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
+  'lang','closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','escopen','escxl','escpick','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
@@ -37,21 +37,21 @@ function render() {
   const wrap = document.getElementById('stagewrap');
   const prev = wrap.querySelector('.view');
   const keep = same && prev ? prev.scrollTop : 0;
-  document.getElementById('sidewrap').innerHTML = sidebar();
+  document.getElementById('sidewrap').innerHTML = TR(sidebar());
   /* لا يُمسح صنف .stage وإلا فقد المسرح تخطيطه ولم يعمل أي تمرير */
   wrap.className = 'stage' + (same ? ' nofx' : '');
-  wrap.innerHTML = topbar() + '<div class="view">' + fn() + '</div>';
+  wrap.innerHTML = TR(topbar() + '<div class="view">' + fn() + '</div>');
 
   const v = wrap.querySelector('.view');
   if (v && keep) v.scrollTop = keep;
   S._key = key;
 
   const tw = document.getElementById('toastwrap');
-  tw.innerHTML = S.toast
+  tw.innerHTML = TR(S.toast
     ? '<div class="toast ' + (S.toast.kind || 'g') + '">' +
       icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span>' +
       '<i class="bar"></i></div>'
-    : '';
+    : '');
   /* في جدار العرض: شريط تقدّم إن كان الدوران مفعّلًا، ومخرج ظاهر دائمًا */
   document.getElementById('wallbar').innerHTML = S.wall
     ? (S.wallAuto ? '<div class="wallbar"><i></i></div>' : '') +
@@ -107,6 +107,7 @@ document.addEventListener('click', ev => {
       toast(S.wall ? 'جدار العرض — Esc أو F للخروج' : 'عاد العرض العادي'); break;
     case 'wallauto': S.wallAuto = !S.wallAuto;
       toast(S.wallAuto ? 'يدور بين اللوحات كل ١٢ ثانية' : 'أُوقف الدوران'); break;
+    case 'lang': setLang(v); return;
     case 'theme': toggleTheme(); break;
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
@@ -1930,6 +1931,8 @@ document.addEventListener('keydown', e => {
 
 /* ---------- إقلاع ---------- */
 load();
+/* الاتّجاهُ يُضبط قبل أوّل رسم — وإلّا ارتدّ التخطيطُ أمام العين */
+applyDir();
 if (!S.theme) {
   S.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'day' : 'night';
 }

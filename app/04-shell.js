@@ -201,6 +201,7 @@ function topbar() {
       (navCount('incidents') ? '<span class="bdg">' + AR(navCount('incidents')) + '</span>' : '') + '</button>' +
     '<button class="iconbtn" data-a="palette" aria-label="لوحة الأوامر" title="Ctrl+K">' +
       icon('i-search','s18') + '</button>' +
+    langSwitch() +
     '<button class="themebtn" data-a="theme" title="تبديل الوضع · T">' +
       '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
       '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +

@@ -17,7 +17,7 @@ const imgCSS = '<style>\n' +
   '.mnozoly{background-image:url(' + imgs.nozoly_dark + ')}\n' +
   '</style>\n';
 
-const JS = ['02-data.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
+const JS = ['02-data.js', '40-i18n.js', '41-dict.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
   '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '25-comply.js', '26-pilgrims.js', '27-signal.js', '28-actions.js', '29-build.js', '09-timeline.js', '30-timeline.js', '31-reason.js', '32-warn.js', '33-move.js', '34-roles.js', '35-swap.js', '36-escal.js', '37-escrt.js', '38-seedmore.js', '08-fx.js', '07-router.js'];
 
 const shell =

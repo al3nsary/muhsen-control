@@ -254,7 +254,7 @@ function renderDrawer() {
   const old = w.querySelector('.db');
   const keep = (old && S._dkey === d.title) ? old.scrollTop : 0;
   S._dkey = d.title;
-  w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
+  w.innerHTML = TR('<div class="scrim" data-a="closedrawer"></div>' +
     '<aside class="drawer' + (d.paper ? ' paper' : d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
         '<span class="sp"><b style="font-size:15px">' +
@@ -276,7 +276,7 @@ function renderDrawer() {
           (d.wide ? 'تضييق العرض' : 'توسيع العرض') + '">' +
           icon(d.wide ? 'i-fwd' : 'i-back','s18') + '</button>' : '') +
         '<button class="iconbtn" data-a="closedrawer" aria-label="إغلاق">' + icon('i-x','s18') + '</button></div>' +
-      '<div class="db">' + d.body + '</div></aside>';
+      '<div class="db">' + d.body + '</div></aside>');
   /* الأشرطة تمتلئ بعد الرسم لا معه — وكانت تُملأ في المسرح وحده فتبقى
      أشرطة الدرج فارغة مهما كانت قيمتها. */
   const db = w.querySelector('.db');

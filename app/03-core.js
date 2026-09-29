@@ -10,22 +10,28 @@ const uid = p => p + Math.random().toString(36).slice(2, 8);
 const MIN = 60000, HR = 3600000, DAY = 86400000;
 const now = () => Date.now() + (S && S.clockOffset ? S.clockOffset : 0) * MIN;
 const VV = () => (typeof V !== 'undefined' && V) || S;
-const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+/* الأصلُ العربيُّ يبقى باسمٍ صريح، والاسمُ العامُّ يسأل عن اللغة */
+const ARd = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const AR = n => (typeof NUM === 'function' ? NUM(n) : ARd(n));
 const two = n => (n < 10 ? '0' : '') + n;
 const dayStart = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
 
-function t12(ts) {
+function t12Ar(ts) {
   const d = new Date(ts); let h = d.getHours();
   const ap = h >= 12 ? 'م' : 'ص'; h = h % 12 || 12;
   return AR(two(h) + ':' + two(d.getMinutes())) + ' ' + ap;
 }
-function hijri(ts) {
+function hijriAr(ts) {
   try {
     return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab',
       { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ts));
   } catch (e) { return AR(new Date(ts).toLocaleDateString('ar')); }
 }
-const dayName = ts => ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(ts).getDay()];
+const dayNameAr = ts => ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(ts).getDay()];
+/* الأسماءُ العامّة تُوجَّه بحسب اللغة — وتُعرَّف بعد i18n فتُقرأ وقتَ النداء */
+const t12     = ts => (typeof TIME === 'function' ? TIME(ts) : t12Ar(ts));
+const hijri   = ts => (typeof DATE === 'function' ? DATE(ts) : hijriAr(ts));
+const dayName = ts => (typeof DAYNAME === 'function' ? DAYNAME(ts) : dayNameAr(ts));
 function ago(ts) {
   const d = Math.max(0, now() - ts);
   if (d < MIN) return 'الآن';
@@ -45,6 +51,7 @@ function untilTxt(ts) {
 function seed() {
   const st = {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
+    lang: 'ar',
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
@@ -303,6 +310,7 @@ function load() {
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.escal = S.escal || [];
+  S.lang = S.lang || 'ar';
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
   S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || []; S.warns = S.warns || []; S.ctrs = S.ctrs || [];

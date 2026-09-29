@@ -119,14 +119,14 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{height:100%; margin:0}
 body{
-  direction:rtl; font-family:var(--f); font-size:14px; line-height:1.75;
+  font-family:var(--f); font-size:14px; line-height:1.75;
   font-feature-settings:"tnum" 1;
   color:var(--ink); background:var(--void); overflow:hidden;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
   transition:background .5s var(--e), color .5s var(--e);
 }
-button{font:inherit; color:inherit; border:0; background:none; cursor:pointer; text-align:right}
+button{font:inherit; color:inherit; border:0; background:none; cursor:pointer; text-align:start}
 a{color:inherit; text-decoration:none}
 :focus-visible{outline:2px solid var(--gold2); outline-offset:3px; border-radius:10px}
 ::selection{background:color-mix(in srgb, var(--live) 30%, transparent)}
@@ -203,7 +203,7 @@ a{color:inherit; text-decoration:none}
 .nav.on::before{opacity:1}
 .nav > *{position:relative}
 .nav .ic{width:18px; height:18px; flex:none}
-.nav b{font-size:13px; font-weight:700; flex:1; text-align:right; overflow:hidden;
+.nav b{font-size:13px; font-weight:700; flex:1; text-align:start; overflow:hidden;
   text-overflow:ellipsis}
 .nav .n{font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT); font-variant-numeric:tabular-nums}
@@ -221,7 +221,7 @@ a{color:inherit; text-decoration:none}
   transition:color .18s var(--e), background .18s var(--e), transform .18s var(--e)}
 .kid:hover{color:var(--navInk); background:var(--navSheen); transform:translateX(-2px)}
 .kid.on{color:var(--navOnInk); background:var(--navSheen2)}
-.kid b{font-size:12px; font-weight:700; flex:1; text-align:right}
+.kid b{font-size:12px; font-weight:700; flex:1; text-align:start}
 .kid .ic{flex:none; opacity:.85}
 .kid .n{font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:99px; flex:none;
   background:var(--pNoB); color:var(--pNoT)}
@@ -760,12 +760,12 @@ a{color:inherit; text-decoration:none}
 /* ══ صفّ شخص — بطاقة قائمة بذاتها كما في التطبيق ══ */
 .prow{display:flex; align-items:center; gap:11px; border-radius:17px; padding:11px 13px;
   background:var(--panel); box-shadow:var(--shadow); border:var(--cardEdge); width:100%;
-  text-align:right; transition:transform .18s var(--e), box-shadow .26s var(--e3)}
+  text-align:start; transition:transform .18s var(--e), box-shadow .26s var(--e3)}
 .prow:hover{box-shadow:var(--lift)}
 .prow:active{transform:scale(.985)}
 .prow .nm b{display:block; font-size:13.5px; line-height:1.45}
 .prow .nm span{display:block; font-size:11px; color:var(--dim2); line-height:1.5}
-.prow .end{margin-inline-start:auto; text-align:left; flex:none}
+.prow .end{margin-inline-start:auto; text-align:end; flex:none}
 .plist{display:flex; flex-direction:column; gap:9px}
 /* حاسم — وهو الدرس نفسه الذي لدغنا في الأدراج: ابن المرن ينكمش ما لم
    يُمنَع. وقائمةٌ في صندوقٍ محدّد الارتفاع كانت تسحق صفوفها إلى ٢٤ بكسل
@@ -920,7 +920,7 @@ a{color:inherit; text-decoration:none}
 .tswitch{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px}
 @media (max-width:1180px){ .tswitch{grid-template-columns:repeat(2,minmax(0,1fr))} }
 .tcard{display:flex; align-items:center; gap:12px; padding:14px 15px; border-radius:var(--r);
-  text-align:right; position:relative; overflow:hidden;
+  text-align:start; position:relative; overflow:hidden;
   background:linear-gradient(180deg,var(--panel),var(--deep)); border:var(--cardEdge);
   box-shadow:var(--shadow); color:var(--dim);
   transition:transform .3s var(--e3), box-shadow .3s var(--e3), color .2s var(--e)}
@@ -982,7 +982,7 @@ a{color:inherit; text-decoration:none}
   border-radius:99px; background:var(--sheen2); color:var(--dim2)}
 
 .pcard{display:flex; align-items:center; gap:10px; width:100%; padding:9px 11px; margin-bottom:7px;
-  border-radius:13px; text-align:right; color:var(--dim); background:var(--sheen);
+  border-radius:13px; text-align:start; color:var(--dim); background:var(--sheen);
   box-shadow:inset 0 0 0 1px var(--line);
   transition:transform .2s var(--e), background .2s var(--e), box-shadow .2s var(--e)}
 .pcard:hover{transform:translateX(-3px); color:var(--ink); background:var(--sheen2);
@@ -1101,7 +1101,7 @@ select{color-scheme:inherit}
 .prow .sn{width:26px; height:26px; border-radius:9px; flex:none; display:grid; place-items:center;
   font-size:11px; font-weight:700; color:var(--onGold);
   background:linear-gradient(150deg,var(--g3),var(--g2))}
-.prow.pick{cursor:pointer; text-align:right}
+.prow.pick{cursor:pointer; text-align:start}
 .prow.pick:hover{box-shadow:var(--lift), inset 0 0 0 1px var(--gold2)}
 .prow.pick[disabled]{opacity:.45; cursor:not-allowed}
 
@@ -1111,7 +1111,7 @@ select{color-scheme:inherit}
 .kv2:last-child{border-bottom:0}
 .kv2 .ico.sm{width:28px; height:28px; border-radius:9px}
 .kv2 .k{font-size:11.5px; color:var(--dim2); min-width:66px}
-.kv2 b{font-size:12.5px; flex:1; text-align:left}
+.kv2 b{font-size:12.5px; flex:1; text-align:end}
 
 /* ══ شاشة الدخول ══ */
 #gate{position:fixed; inset:0; z-index:80; display:grid; place-items:center; padding:24px;
@@ -1136,7 +1136,7 @@ select{color-scheme:inherit}
   background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
 #gate .roles{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:16px}
 #gate .role{display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:13px;
-  border-radius:14px; text-align:right; color:var(--dim);
+  border-radius:14px; text-align:start; color:var(--dim);
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
   transition:all .24s var(--e)}
 #gate .role:hover{color:var(--ink); background:var(--sheen2)}
@@ -1148,7 +1148,7 @@ select{color-scheme:inherit}
 @media (max-width:520px){ #gate .roles{grid-template-columns:1fr} }
 
 /* ══ بطاقة فريق تُطوى وتُفتح ══ */
-.teamhead{width:100%; text-align:right; gap:12px}
+.teamhead{width:100%; text-align:start; gap:12px}
 .teamhead .chev{color:var(--dim2); transition:transform .3s var(--e2)}
 .teamcard.open .teamhead .chev{transform:rotate(90deg); color:var(--gold2)}
 .teamcard{transition:box-shadow .3s var(--e3)}
@@ -1182,7 +1182,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 /* ══ شبكة منح الشاشات ══ */
 .permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(176px,1fr)); gap:8px}
 .pchk{display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:12px;
-  text-align:right; color:var(--dim); background:var(--sheen);
+  text-align:start; color:var(--dim); background:var(--sheen);
   box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
 .pchk:hover{color:var(--ink); background:var(--sheen2)}
 .pchk b{font-size:12px; flex:1; font-weight:700}
@@ -1197,7 +1197,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 #gate .role{gap:6px}
 .whobox{margin-top:14px; padding-top:14px; border-top:1px solid var(--line)}
 .fsel.wide{width:100%; justify-content:space-between}
-.fsel.wide select{max-width:none; flex:1; text-align:left}
+.fsel.wide select{max-width:none; flex:1; text-align:end}
 .gnote{display:flex; align-items:flex-start; gap:9px; margin-top:14px; padding:11px 13px;
   border-radius:12px; font-size:11.5px; line-height:1.8; color:var(--dim);
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line)}
@@ -1206,7 +1206,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .asgsteps{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
 @media (max-width:1080px){ .asgsteps{grid-template-columns:1fr} }
 .astep{display:flex; align-items:center; gap:12px; padding:14px 15px; border-radius:var(--r);
-  text-align:right; position:relative; overflow:hidden; color:var(--dim);
+  text-align:start; position:relative; overflow:hidden; color:var(--dim);
   background:linear-gradient(180deg,var(--panel),var(--deep)); border:var(--cardEdge);
   box-shadow:var(--shadow); transition:all .3s var(--e3)}
 .astep:hover{transform:translateY(-3px); box-shadow:var(--lift); color:var(--ink)}
@@ -1216,7 +1216,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   background:var(--sheen2)}
 .astep.on .an{color:var(--onGold); background:linear-gradient(150deg,var(--gold3),var(--gold))}
 .astep .nm{flex:1} .astep .nm b{font-size:13px} .astep .nm span{font-size:10.5px}
-.astep .ae{flex:none; text-align:left; min-width:64px}
+.astep .ae{flex:none; text-align:end; min-width:64px}
 .astep .ae b{display:block; font-size:12px}
 .astep .ae .meter{margin-top:5px; width:60px}
 /* ══ مقاعد المجموعة ══ */
@@ -1226,7 +1226,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
    خمسةٌ في صفٍّ من ثلاثة أوضح من خمسةٍ مقصوصة في أربعة. */
 .seats{display:grid; grid-template-columns:repeat(auto-fill,minmax(216px,1fr)); gap:8px}
 .seat{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
-  text-align:right; color:var(--dim2); background:var(--panel2);
+  text-align:start; color:var(--dim2); background:var(--panel2);
   box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
 .seat:hover{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2)}
 .seat.full{color:var(--ink)}
@@ -1258,7 +1258,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
   transition:all .22s var(--e)}
 .who:hover{color:var(--ink); background:var(--sheen2); box-shadow:inset 0 0 0 1px var(--gold2)}
-.who .nm{min-width:0; text-align:right}
+.who .nm{min-width:0; text-align:start}
 .who .nm b{display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .who .nm span{display:block; font-size:10px; color:var(--dim2); white-space:nowrap}
 .who .ic{flex:none; opacity:.6}
@@ -1322,7 +1322,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 /* ══ شبكة الصلاحيات ══ */
 .permgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:8px}
 .pchk{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:12px;
-  text-align:right; color:var(--dim); background:var(--sheen);
+  text-align:start; color:var(--dim); background:var(--sheen);
   box-shadow:inset 0 0 0 1px var(--line); transition:all .2s var(--e)}
 .pchk:hover{color:var(--ink); background:var(--sheen2)}
 .pchk.on{color:var(--ink); box-shadow:inset 0 0 0 1px var(--gold2); background:var(--pGoldB)}
@@ -1343,7 +1343,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .dests{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px}
 @media (max-width:900px){ .dests{grid-template-columns:1fr} }
 .dest{display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:12px;
-  border-radius:14px; text-align:right; color:var(--dim);
+  border-radius:14px; text-align:start; color:var(--dim);
   background:var(--sheen); box-shadow:inset 0 0 0 1px var(--line);
   transition:all .24s var(--e)}
 .dest:hover{color:var(--ink); background:var(--sheen2)}
@@ -1501,7 +1501,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .xfold{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--panel)}
 .xfold.on{border-color:var(--line2)}
 .xfold .xh{display:flex; align-items:center; gap:10px; width:100%; padding:13px 14px;
-  background:transparent; border:0; color:var(--ink); font:inherit; cursor:pointer; text-align:right}
+  background:transparent; border:0; color:var(--ink); font:inherit; cursor:pointer; text-align:start}
 .xfold .xh:hover{background:var(--sheen)}
 .xfold .xh .sp{flex:1; min-width:0}
 .xfold .xh .sp b{display:block; font-size:13.5px}
@@ -1514,7 +1514,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .reqs{display:flex; flex-direction:column; gap:7px; margin-top:12px}
 .req{display:flex; align-items:flex-start; gap:10px; width:100%; padding:10px 11px;
   border-radius:13px; background:var(--sheen); border:1px solid transparent; color:var(--ink);
-  font:inherit; cursor:pointer; text-align:right}
+  font:inherit; cursor:pointer; text-align:start}
 .req:hover{border-color:var(--line2)}
 .req .tick{width:19px; height:19px; border-radius:7px; border:1.6px solid var(--line2);
   flex:none; display:grid; place-items:center; margin-top:1px; transition:all .2s var(--e)}
@@ -1533,7 +1533,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .xsub{display:flex; align-items:stretch; gap:8px}
 .xsub .xt{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:9px 11px;
   border-radius:13px; background:var(--sheen); border:0; color:var(--ink); font:inherit;
-  cursor:pointer; text-align:right}
+  cursor:pointer; text-align:start}
 .xsub .xt:hover{background:var(--raise)}
 .xsub .tick{width:22px; height:22px; border-radius:8px; border:1.6px solid var(--line2);
   flex:none; display:grid; place-items:center; font-size:10.5px; font-weight:700; color:var(--dim2)}
@@ -1556,7 +1556,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .xfile{display:flex; align-items:stretch; gap:7px}
 .xfile .fi{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:10px 11px;
   border-radius:13px; background:var(--sheen); border:0; color:var(--ink); font:inherit;
-  cursor:pointer; text-align:right}
+  cursor:pointer; text-align:start}
 .xfile .fi:hover{background:var(--raise)}
 .xfile .ft{width:34px; height:40px; border-radius:7px; flex:none; display:grid; place-items:center;
   background:var(--panel2); border:1px solid var(--line2); color:var(--gold2)}
@@ -1662,7 +1662,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .phone .pn > svg{flex:none; margin-top:2px}
 
 .phone .pcta{display:flex; align-items:center; gap:11px; width:100%; padding:14px;
-  border-radius:18px; border:0; cursor:pointer; text-align:right; font:inherit;
+  border-radius:18px; border:0; cursor:pointer; text-align:start; font:inherit;
   background:linear-gradient(135deg,#177E52,#0E5738); color:#fff}
 .phone .pcta.sm{padding:11px 13px}
 .phone .pcta.stop{background:linear-gradient(135deg,#B3403F,#7E2A2A)}
@@ -1677,7 +1677,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .phone .psub{display:flex; gap:7px; align-items:stretch}
 .phone .psub .pt{flex:1; min-width:0; display:flex; align-items:center; gap:9px;
   padding:10px 11px; border-radius:14px; background:var(--psh); border:1px solid var(--pln);
-  color:var(--pi); font:inherit; font-size:11.5px; cursor:pointer; text-align:right}
+  color:var(--pi); font:inherit; font-size:11.5px; cursor:pointer; text-align:start}
 .phone .psub .pt:disabled{cursor:default}
 .phone .psub .pt .sp{flex:1; min-width:0; line-height:1.55}
 .phone .psub.next .pt{border-color:rgba(198,168,111,.5)}
@@ -1923,6 +1923,36 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
   border:1px dashed var(--line2); color:var(--dim2)}
 .mxall:hover{border-color:var(--gold2); color:var(--gold2); border-style:solid}
 
+/* اللغاتُ اللاتينيّة تُقرأ يسارًا إلى يمين — والتخطيطُ ينعكس معها.
+   والشيفرةُ مكتوبةٌ بخصائصَ منطقيّة (inline-start/end) في أكثرها، فينعكس
+   أكثرُها وحده. وما بقي مكتوبًا باتّجاهٍ صريح يُصحَّح هنا. */
+/* الاتّجاهُ من سمة <html> وحدها — وكان مثبَّتًا rtl في body فلا ينعكس */
+:root[dir="rtl"] body{direction:rtl}
+:root[dir="ltr"] body{direction:ltr}
+:root[dir="ltr"] body, .ltr body{font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+:root[dir="ltr"] .num, .ltr .num{direction:ltr}
+/* الأرقامُ اللاتينيّة لا تُقلب */
+:root[dir="ltr"] .ltr-num{direction:ltr; unicode-bidi:plaintext}
+/* الشريطُ الجانبيّ ينتقل إلى اليسار بفضل الخصائص المنطقيّة، ويبقى الظلُّ */
+:root[dir="ltr"] .side{box-shadow:1px 0 0 var(--line)}
+/* ما كُتب بـ left/right صريحين */
+:root[dir="ltr"] .kgoi{left:12px; right:auto}
+:root[dir="ltr"] .pfback{align-self:flex-start}
+:root[dir="ltr"] .bdg{left:8px; right:auto}
+/* الخطُّ اللاتينيُّ أضيقُ من العربيّ، فيُزاد وزنُ العناوين قليلًا */
+:root[dir="ltr"] h1, :root[dir="ltr"] h2, :root[dir="ltr"] h3,
+:root[dir="ltr"] .nm b, :root[dir="ltr"] .xth{letter-spacing:.1px}
+
+/* مبدّلُ اللغة */
+.langsw{display:flex; gap:3px; flex:none; padding:3px; border-radius:11px;
+  background:var(--raise); border:1px solid var(--line2)}
+.langb{min-width:30px; height:26px; padding:0 8px; border-radius:8px; cursor:pointer;
+  background:transparent; border:0; color:var(--dim2);
+  font-size:10.5px; font-weight:700; letter-spacing:.3px; transition:.13s}
+.langb:hover{color:var(--ink)}
+.langb.on{background:var(--panel); color:var(--gold2);
+  box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
 /* ساعةُ المهلة: ما بقي أو ما تجاوز — تُقرأ بلمحة */
 .slaclk{display:inline-flex; align-items:center; gap:5px; flex:none;
   padding:4px 10px; border-radius:9px; font-size:10.5px; font-weight:600;
@@ -2111,7 +2141,7 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .rules > *{flex:none}
 .rulebtn{display:flex; align-items:center; gap:11px; width:100%; padding:11px 12px;
   border-radius:13px; background:var(--sheen); border:1px solid transparent;
-  color:var(--ink); font:inherit; cursor:pointer; text-align:right}
+  color:var(--ink); font:inherit; cursor:pointer; text-align:start}
 .rulebtn:hover{border-color:var(--line2)}
 .rulebtn.on{background:color-mix(in srgb,var(--live) 11%,transparent);
   border-color:color-mix(in srgb,var(--live) 40%,transparent)}
@@ -2923,6 +2953,647 @@ const SHOT_SEED = [
 ];
 
 /* ============================================================
+   اللغات الثلاث — العربية والإنجليزية والماليزية
+
+   القاعدةُ التي بُني عليها هذا: **النصُّ العربيُّ يبقى في الشيفرة كما
+   هو**، ولا يُستبدل بمفاتيحَ مثل `t('nav.tasks')`. لسببين:
+
+   ١) استبدالُ ستّة آلاف موضعٍ بمفاتيحَ يفتح ستّة آلاف فرصةٍ للخطأ،
+      والعربيّةُ تختفي من الشيفرة فتصير غيرَ مقروءة لمن يصونها.
+   ٢) النصُّ العربيُّ **هو المفتاح**: لا يُنسى مفتاحٌ ولا يُكتب خطأً،
+      وإن سقطت الترجمةُ ظهرت العربيّةُ لا فراغٌ ولا `undefined`.
+
+   والترجمةُ تقع على **ناتج الرسم** لا على الشيفرة: يُمرَّر HTML كاملًا
+   فتُترجَم مواضعُ العرض وحدها — النصُّ بين الوسمين، وسماتٌ معدودة.
+   وما كان منطقًا (`data-v="منجزة"`, `t.status === 'منجزة'`) لا يُمسّ،
+   فالحالةُ تبقى عربيّةً في الذاكرة مهما كانت لغةُ الشاشة.
+   ============================================================ */
+
+const LANGS = {
+  ar: { ar:'العربية',   en:'Arabic',  ms:'Arab',        dir:'rtl', code:'ar-SA', f:'ع' },
+  en: { ar:'الإنجليزية', en:'English', ms:'Inggeris',    dir:'ltr', code:'en-GB', f:'EN' },
+  ms: { ar:'الماليزية',  en:'Malay',   ms:'Bahasa Melayu', dir:'ltr', code:'ms-MY', f:'MS' }
+};
+const langOf = () => (S && S.lang) || 'ar';
+const isRTL  = () => LANGS[langOf()].dir === 'rtl';
+/* اسمُ اللغة بلغتها هي — فالمستخدمُ يبحث عن لغته لا عن ترجمتها */
+const langName = k => LANGS[k][k];
+
+/* ---------- القاموس ---------- */
+/* DICT[lang][arabic] = translation — يُملأ من 41-dict.js */
+const DICT = { en:{}, ms:{} };
+let _re = null, _cache = null, _reLang = null;
+
+function dictKeys() {
+  const L = langOf();
+  if (_reLang !== L) {
+    const d = DICT[L] || {};
+    const keys = Object.keys(d).sort((a, b) => b.length - a.length);
+    _re = keys.length
+      ? new RegExp(keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g')
+      : null;
+    _cache = new Map();
+    _reLang = L;
+  }
+  return _re;
+}
+/* يُنادى حين يتغيّر القاموس أو اللغة */
+function i18nReset() { _reLang = null; _re = null; _cache = null; }
+
+/* ترجمةُ قطعةٍ واحدة: بحثٌ كاملٌ أوّلًا، فإن أخفق فاستبدالٌ داخليّ */
+function TT(piece) {
+  const L = langOf();
+  if (L === 'ar' || !piece) return piece;
+  const d = DICT[L] || {};
+  const t = piece.trim();
+  if (!t || !AR_RE.test(t)) return piece;
+  if (_cache && _cache.has(piece)) return _cache.get(piece);
+  /* إمّا تُترجَم القطعةُ كاملةً أو تبقى عربيّةً كاملةً.
+     والاستبدالُ الجزئيُّ — أن يُترجَم «العمليات» داخل «غرفة العمليات» —
+     يُنتج «غرفة Operations»: نصًّا مشوّهًا لا هو عربيٌّ ولا إنجليزيّ.
+     فالنقصُ يظهر عربيًّا نظيفًا، والحارسُ يقوله بالعدد. */
+  const out = d[t] != null ? piece.replace(t, d[t]) : piece;
+  if (_cache) _cache.set(piece, out);
+  return out;
+}
+const AR_RE = /[؀-ۿ]/;
+
+/* ---------- ترجمةُ ناتج الرسم ---------- */
+/* السماتُ التي تُعرض للقارئ — وما عداها منطقٌ لا يُترجم */
+const TR_ATTRS = /\b(placeholder|title|aria-label|alt)="([^"]*)"/g;
+/* نصٌّ بين وسمين */
+const TR_TEXT  = />([^<>]*[؀-ۿ][^<>]*)</g;
+
+function TR(html) {
+  if (langOf() === 'ar' || !html) return html;
+  dictKeys();
+  return String(html)
+    .replace(TR_TEXT, (m, txt) => '>' + TT(txt) + '<')
+    .replace(TR_ATTRS, (m, a, v) => AR_RE.test(v) ? a + '="' + TT(v).replace(/"/g, '&quot;') + '"' : m);
+}
+
+/* ---------- الأرقام والتواريخ تتبع اللغة ---------- */
+/* AR() كانت تُحوّل دائمًا إلى الهنديّة. صارت تسأل عن اللغة أوّلًا. */
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+function NUM(n) {
+  if (n == null || n === '') return '';
+  const s = String(n);
+  return langOf() === 'ar'
+    ? s.replace(/[0-9]/g, d => AR_DIGITS[+d])
+    : s.replace(/[٠-٩]/g, d => String(AR_DIGITS.indexOf(d)));
+}
+
+/* التقويم: هجريٌّ بالعربية، وميلاديٌّ بغيرها — ومعه الهجريُّ بين قوسين */
+function DATE(ts) {
+  const L = langOf();
+  if (L === 'ar') return hijriAr(ts);
+  const d = new Date(ts);
+  const g = new Intl.DateTimeFormat(LANGS[L].code,
+    { day:'numeric', month:'short', year:'numeric' }).format(d);
+  return g;
+}
+function TIME(ts) {
+  const L = langOf();
+  if (L === 'ar') return t12Ar(ts);
+  return new Intl.DateTimeFormat(LANGS[L].code,
+    { hour:'numeric', minute:'2-digit', hour12:true }).format(new Date(ts));
+}
+function DAYNAME(ts) {
+  const L = langOf();
+  if (L === 'ar') return dayNameAr(ts);
+  return new Intl.DateTimeFormat(LANGS[L].code, { weekday:'long' }).format(new Date(ts));
+}
+
+/* ---------- الاتّجاه ---------- */
+function applyDir() {
+  const L = langOf(), d = LANGS[L].dir;
+  const r = document.documentElement;
+  r.setAttribute('dir', d);
+  r.setAttribute('lang', L);
+  r.classList.toggle('ltr', d === 'ltr');
+}
+
+/* ---------- مبدّلُ اللغة ---------- */
+function langSwitch() {
+  const cur = langOf();
+  return '<div class="langsw">' + Object.keys(LANGS).map(k =>
+    '<button class="langb' + (k === cur ? ' on' : '') + '" data-a="lang" data-v="' + k + '" ' +
+    'title="' + E(langName(k)) + '" lang="' + k + '">' +
+    E(LANGS[k].f) + '</button>').join('') + '</div>';
+}
+function setLang(k) {
+  if (!LANGS[k]) return;
+  S.lang = k;
+  i18nReset();
+  applyDir();
+  save();
+  render();
+  renderDrawer();
+}
+
+/* ============================================================
+   قاموسُ اللغات — العربيّةُ مفتاحٌ، والإنجليزيّةُ والماليزيّةُ قيمتان
+
+   يُملأ موجةً بعد موجة، ويفرض حارسُ `i18n-scan.cjs` اكتمالَه: ما لم
+   يُترجَم ظهر عربيًّا في شاشةٍ إنجليزيّة — وهو عطبٌ لا تكشفه تجربةُ
+   العربيّة إطلاقًا.
+
+   والمفاتيحُ **ذرّيّة** قدر المستطاع: المصطلحُ الواحد يُترجَم مرّةً،
+   ثم يُركّبه المحرّكُ في الجمل المركّبة باستبدالٍ داخليّ. فلا يُترجَم
+   «المهام · ٥ جارية» بل «المهام» و«جارية».
+   ============================================================ */
+
+/* ─────────────  الإنجليزية  ───────────── */
+DICT.en = {
+/* — التنقّل: المجموعات — */
+'العمليات':'Operations',
+'الموظفون':'Personnel',
+'المتابعة':'Follow-up',
+'السجلات والنشر':'Records & Publishing',
+'إدارة الحركة':'Transport Management',
+'العرض':'Display',
+
+/* — التنقّل: الأقسام — */
+'لوحة العمليات':'Operations Dashboard',
+'الوضع الآن — لوحة تُخصَّص':'Current status — a configurable dashboard',
+'المهام':'Tasks',
+'أربعة أنواع وأدلّتها':'Four types and their guides',
+'أدلة التنفيذ':'Execution Guides',
+'الخط الزمني':'Timeline',
+'مسار اليوم لكل مجموعة':'Each group’s route for the day',
+'البلاغات':'Reports',
+'ما يرفعه الميدان والحاجّ — بآليّة تصعيده':'Raised by the field and by pilgrims — with its escalation rule',
+'الباصات والمرشدون والعقود':'Buses, guides and contracts',
+'النقل':'Transport',
+'المرشدون':'Guides',
+'عقود النقل':'Transport Contracts',
+'السجلّ والتسكين والتعاقد':'Records, assignment and contracting',
+'سجلّ الموظفين':'Personnel Register',
+'الفرق والمجموعات':'Teams & Groups',
+'تبديل الشِفتات':'Shift Swaps',
+'الإجراءات':'Disciplinary Actions',
+'الإنذارات':'Warnings',
+'التشكيل':'Formation',
+'مشرفون وليدرز ومحسنون — ثلاث خطوات':'Supervisors, leaders and muhsens — three steps',
+'التشكيل السريع':'Quick Formation',
+'مجموعة كاملة في صندوق واحد':'A complete group in one box',
+'الجهات والفنادق':'Organisations & Hotels',
+'تُضاف وتُعدَّل — ويقرؤها النظام':'Added and edited — and read by the system',
+'ما يصعد من الميدان':'What escalates from the field',
+'طلبات الدعم':'Support Requests',
+'الحجاج':'Pilgrims',
+'السجلّ الأصل — غرفهم وحالاتهم':'The master register — their rooms and their status',
+'الجودة والتقييم':'Quality & Rating',
+'تقييم المشرفين والحجاج':'Ratings by supervisors and pilgrims',
+'الإشعارات':'Notifications',
+'إلى المحسن أو الحاجّ أو الكنترول':'To the muhsen, the pilgrim or Control',
+'سجل النظام':'System Log',
+'كل قرار بصاحبه ووقته':'Every decision with its author and time',
+'كتالوج البلاغات':'Report Catalogue',
+'التصنيفات وآليّات التصعيد والمهل':'Categories, escalation rules and deadlines',
+'الصلاحيات':'Permissions',
+'من يرى ماذا — وأمن مستوى الصفّ':'Who sees what — and row-level security',
+'الإعدادات':'Settings',
+'إعدادات الموقع والتجربة':'Site and experience settings',
+'فريق امتثال':'Imtithal Team',
+'الاحتياط':'Reserve',
+'التذاكر':'Tickets',
+'التذاكر والبلاغات':'Tickets & Reports',
+
+/* — الشريط العلويّ والهوية — */
+'مُحسن · الكنترول':'Muhsen · Control',
+'غرفة العمليات — موسم حج ١٤٤٨ هـ':'Operations Room — Hajj Season 1448 AH',
+'نظام مُحسن · نُزلي':'Muhsen System · Nozoly',
+'مهام جارية':'Tasks in progress',
+'الحوادث':'Incidents',
+'لوحة الأوامر':'Command Palette',
+'جدار العرض':'Display Wall',
+'الاختصارات':'Shortcuts',
+'الوضع الليلي':'Night Mode',
+'الوضع النهاري':'Day Mode',
+'تبديل الوضع':'Toggle mode',
+'هويتك ونطاقك':'Your role and scope',
+'الأقسام':'Sections',
+'طيّ القائمة':'Collapse menu',
+'توسيع':'Expand',
+'طيّ':'Collapse',
+'القائمة':'Menu',
+'إغلاق':'Close',
+'توسيع العرض':'Widen',
+'تضييق العرض':'Narrow',
+'رجوع':'Back',
+'الصفحة':'Page',
+
+/* — الأزرار والأفعال الشائعة — */
+'حفظ':'Save',
+'إلغاء':'Cancel',
+'تنفيذ':'Apply',
+'تعديل':'Edit',
+'حذف':'Delete',
+'إضافة':'Add',
+'نسخ':'Duplicate',
+'اعتماد':'Approve',
+'رفض':'Reject',
+'إرسال':'Send',
+'تصدير إكسل':'Export to Excel',
+'طباعة':'Print',
+'معاينة':'Preview',
+'بحث':'Search',
+'الكل':'All',
+'دخول':'Sign in',
+'خروج':'Sign out',
+'التالي':'Next',
+'السابق':'Previous',
+'المزيد':'More',
+'إرفاق ملف':'Attach file',
+'تحميل':'Download',
+'رفع':'Upload',
+'فلاتر أخرى':'More filters',
+'امسح الفلاتر':'Clear filters',
+
+/* — الحالات — */
+'مفتوح':'Open',
+'مفتوحة':'Open',
+'مغلق':'Closed',
+'مغلقة':'Closed',
+'قيد المعالجة':'In progress',
+'جارية':'Running',
+'منجزة':'Completed',
+'متأخّرة':'Late',
+'مجدولة':'Scheduled',
+'ملغاة':'Cancelled',
+'مسودّة':'Draft',
+'معتمد':'Approved',
+'ساري':'Active',
+'منتهٍ':'Expired',
+'قائم':'Standing',
+'بانتظار القرار':'Awaiting decision',
+'بانتظار قرارك':'Awaiting your decision',
+'لُبّي':'Fulfilled',
+'لُبّيت':'Fulfilled',
+'اعتُذر':'Declined',
+'مرتفع':'High',
+'متوسط':'Medium',
+'منخفض':'Low',
+'عاجلة':'Urgent',
+'حرجة':'Critical',
+'عادية':'Normal',
+'نشط':'Active',
+'حاضر':'Present',
+'غير حاضر':'Absent',
+'متاح':'Available',
+
+/* — المسمّيات — */
+'محسن':'Muhsen',
+'المحسن':'The muhsen',
+'محسنون':'Muhsens',
+'المحسنون':'The muhsens',
+'ليدر':'Leader',
+'الليدر':'The leader',
+'ليدرز':'Leaders',
+'مشرف':'Supervisor',
+'المشرف':'The supervisor',
+'مشرفون':'Supervisors',
+'الكنترول':'Control',
+'حاجّ':'Pilgrim',
+'حاج':'Pilgrim',
+'الحاجّ':'The pilgrim',
+'الميدان':'The field',
+'الجهة':'Organisation',
+'الفندق':'Hotel',
+'الفنادق':'Hotels',
+'المجموعة':'Group',
+'مجموعة':'Group',
+'الفريق':'Team',
+'فريق':'Team',
+'بلا فريق':'No team',
+'إدارة عليا':'Executive',
+'بعثة':'Mission',
+'شركة':'Company',
+'مشاعر':'Mashaer',
+'إعاشة':'Catering',
+'مراكز':'Centres',
+'مشرفو المدينة':'Madinah Supervisors',
+'كل النظام':'Entire system',
+'جهته وحدها':'Their organisation only',
+'فندقه ومن فيه':'Their hotel and its people',
+'اختصاصه عبر الجهات':'Their domain across organisations',
+'بياناته وحدها':'Their own data only',
+
+/* — المواقع — */
+'مكة المكرمة':'Makkah',
+'المدينة المنورة':'Madinah',
+'المشاعر':'The Holy Sites',
+'جدة':'Jeddah',
+'منى':'Mina',
+'عرفة':'Arafah',
+'مزدلفة':'Muzdalifah',
+'الجمرات':'Jamarat',
+'المسجد الحرام':'The Grand Mosque',
+'مزارات':'Ziyarat Sites',
+
+/* — عناصر عامّة — */
+'ملاحظة':'Note',
+'ملاحظات':'Notes',
+'السبب':'Reason',
+'التصنيف':'Category',
+'النوع':'Type',
+'الأولوية':'Priority',
+'الحالة':'Status',
+'الوقت':'Time',
+'التاريخ':'Date',
+'المدة':'Duration',
+'العدد':'Count',
+'الاسم':'Name',
+'الوصف':'Description',
+'التفاصيل':'Details',
+'العنوان':'Title',
+'الملفّ':'File',
+'السجلّ':'Log',
+'قيدًا':'entries',
+'لا قيود':'No entries',
+'بلا قيد':'No record',
+'المصدر':'Source',
+'القناة':'Channel',
+'المسؤول':'Owner',
+'الإسناد':'Assignment',
+'مُسنَدة':'Assigned',
+'بلا إسناد':'Unassigned',
+'لم تُسنَد بعد':'Not yet assigned',
+'لم يُسنَد بعد':'Not yet assigned',
+'المُسنَد إليه':'Assigned to',
+'الردّ':'Reply',
+'المحادثة':'Conversation',
+'لا ردّ بعد':'No reply yet',
+'من':'From',
+'إلى':'To',
+'اليوم':'Today',
+'أمس':'Yesterday',
+'غدًا':'Tomorrow',
+'الآن':'Now',
+'دقيقة':'minute',
+'دقائق':'minutes',
+'ساعة':'hour',
+'ساعات':'hours',
+'يوم':'day',
+'أيّام':'days',
+'حالًا':'Immediately',
+'م.ب':'MB',
+'ك.ب':'KB',
+'نظيف':'Clean',
+'بند':'item',
+'لا شيء معلّق':'Nothing pending',
+'يحتاج قرارك الآن':'Needs your decision now',
+'لا بيانات':'No data',
+'بلا ملاحظات':'No findings'
+};
+
+/* ─────────────  الماليزية  ───────────── */
+DICT.ms = {
+/* — Navigasi: kumpulan — */
+'العمليات':'Operasi',
+'الموظفون':'Kakitangan',
+'المتابعة':'Susulan',
+'السجلات والنشر':'Rekod & Penerbitan',
+'إدارة الحركة':'Pengurusan Pergerakan',
+'العرض':'Paparan',
+
+/* — Navigasi: bahagian — */
+'لوحة العمليات':'Papan Pemuka Operasi',
+'الوضع الآن — لوحة تُخصَّص':'Keadaan semasa — papan pemuka boleh disesuaikan',
+'المهام':'Tugasan',
+'أربعة أنواع وأدلّتها':'Empat jenis dan panduannya',
+'أدلة التنفيذ':'Panduan Pelaksanaan',
+'الخط الزمني':'Garis Masa',
+'مسار اليوم لكل مجموعة':'Laluan harian bagi setiap kumpulan',
+'البلاغات':'Laporan',
+'ما يرفعه الميدان والحاجّ — بآليّة تصعيده':'Dikemukakan oleh petugas dan jemaah — dengan kaedah eskalasinya',
+'الباصات والمرشدون والعقود':'Bas, pembimbing dan kontrak',
+'النقل':'Pengangkutan',
+'المرشدون':'Pembimbing',
+'عقود النقل':'Kontrak Pengangkutan',
+'السجلّ والتسكين والتعاقد':'Rekod, penempatan dan kontrak',
+'سجلّ الموظفين':'Daftar Kakitangan',
+'الفرق والمجموعات':'Pasukan & Kumpulan',
+'تبديل الشِفتات':'Pertukaran Syif',
+'الإجراءات':'Tindakan Tatatertib',
+'الإنذارات':'Amaran',
+'التشكيل':'Pembentukan',
+'مشرفون وليدرز ومحسنون — ثلاث خطوات':'Penyelia, ketua dan muhsin — tiga langkah',
+'التشكيل السريع':'Pembentukan Pantas',
+'مجموعة كاملة في صندوق واحد':'Satu kumpulan lengkap dalam satu kotak',
+'الجهات والفنادق':'Organisasi & Hotel',
+'تُضاف وتُعدَّل — ويقرؤها النظام':'Ditambah dan disunting — dan dibaca oleh sistem',
+'ما يصعد من الميدان':'Perkara yang dieskalasi dari lapangan',
+'طلبات الدعم':'Permohonan Sokongan',
+'الحجاج':'Jemaah',
+'السجلّ الأصل — غرفهم وحالاتهم':'Daftar induk — bilik dan status mereka',
+'الجودة والتقييم':'Kualiti & Penilaian',
+'تقييم المشرفين والحجاج':'Penilaian oleh penyelia dan jemaah',
+'الإشعارات':'Pemberitahuan',
+'إلى المحسن أو الحاجّ أو الكنترول':'Kepada muhsin, jemaah atau Kawalan',
+'سجل النظام':'Log Sistem',
+'كل قرار بصاحبه ووقته':'Setiap keputusan dengan pemilik dan masanya',
+'كتالوج البلاغات':'Katalog Laporan',
+'التصنيفات وآليّات التصعيد والمهل':'Kategori, kaedah eskalasi dan tempoh',
+'الصلاحيات':'Kebenaran',
+'من يرى ماذا — وأمن مستوى الصفّ':'Siapa melihat apa — dan keselamatan peringkat baris',
+'الإعدادات':'Tetapan',
+'إعدادات الموقع والتجربة':'Tetapan laman dan pengalaman',
+'فريق امتثال':'Pasukan Imtithal',
+'الاحتياط':'Simpanan',
+'التذاكر':'Tiket',
+'التذاكر والبلاغات':'Tiket & Laporan',
+
+/* — Bar atas dan identiti — */
+'مُحسن · الكنترول':'Muhsin · Kawalan',
+'غرفة العمليات — موسم حج ١٤٤٨ هـ':'Bilik Operasi — Musim Haji 1448H',
+'نظام مُحسن · نُزلي':'Sistem Muhsin · Nozoly',
+'مهام جارية':'Tugasan berjalan',
+'الحوادث':'Insiden',
+'لوحة الأوامر':'Palet Arahan',
+'جدار العرض':'Dinding Paparan',
+'الاختصارات':'Pintasan',
+'الوضع الليلي':'Mod Malam',
+'الوضع النهاري':'Mod Siang',
+'تبديل الوضع':'Tukar mod',
+'هويتك ونطاقك':'Peranan dan skop anda',
+'الأقسام':'Bahagian',
+'طيّ القائمة':'Kuncupkan menu',
+'توسيع':'Kembangkan',
+'طيّ':'Kuncupkan',
+'القائمة':'Menu',
+'إغلاق':'Tutup',
+'توسيع العرض':'Lebarkan',
+'تضييق العرض':'Sempitkan',
+'رجوع':'Kembali',
+'الصفحة':'Halaman',
+
+/* — Tindakan lazim — */
+'حفظ':'Simpan',
+'إلغاء':'Batal',
+'تنفيذ':'Laksana',
+'تعديل':'Sunting',
+'حذف':'Padam',
+'إضافة':'Tambah',
+'نسخ':'Salin',
+'اعتماد':'Luluskan',
+'رفض':'Tolak',
+'إرسال':'Hantar',
+'تصدير إكسل':'Eksport ke Excel',
+'طباعة':'Cetak',
+'معاينة':'Pratonton',
+'بحث':'Cari',
+'الكل':'Semua',
+'دخول':'Log masuk',
+'خروج':'Log keluar',
+'التالي':'Seterusnya',
+'السابق':'Sebelumnya',
+'المزيد':'Lagi',
+'إرفاق ملف':'Lampirkan fail',
+'تحميل':'Muat turun',
+'رفع':'Muat naik',
+'فلاتر أخرى':'Penapis lain',
+'امسح الفلاتر':'Kosongkan penapis',
+
+/* — Status — */
+'مفتوح':'Terbuka',
+'مفتوحة':'Terbuka',
+'مغلق':'Ditutup',
+'مغلقة':'Ditutup',
+'قيد المعالجة':'Sedang diuruskan',
+'جارية':'Berjalan',
+'منجزة':'Selesai',
+'متأخّرة':'Lewat',
+'مجدولة':'Dijadualkan',
+'ملغاة':'Dibatalkan',
+'مسودّة':'Draf',
+'معتمد':'Diluluskan',
+'ساري':'Aktif',
+'منتهٍ':'Tamat tempoh',
+'قائم':'Masih berkuat kuasa',
+'بانتظار القرار':'Menunggu keputusan',
+'بانتظار قرارك':'Menunggu keputusan anda',
+'لُبّي':'Dipenuhi',
+'لُبّيت':'Dipenuhi',
+'اعتُذر':'Ditolak',
+'مرتفع':'Tinggi',
+'متوسط':'Sederhana',
+'منخفض':'Rendah',
+'عاجلة':'Segera',
+'حرجة':'Kritikal',
+'عادية':'Biasa',
+'نشط':'Aktif',
+'حاضر':'Hadir',
+'غير حاضر':'Tidak hadir',
+'متاح':'Tersedia',
+
+/* — Peranan — */
+'محسن':'Muhsin',
+'المحسن':'Muhsin tersebut',
+'محسنون':'Muhsin',
+'المحسنون':'Para muhsin',
+'ليدر':'Ketua',
+'الليدر':'Ketua tersebut',
+'ليدرز':'Ketua',
+'مشرف':'Penyelia',
+'المشرف':'Penyelia tersebut',
+'مشرفون':'Penyelia',
+'الكنترول':'Kawalan',
+'حاجّ':'Jemaah',
+'حاج':'Jemaah',
+'الحاجّ':'Jemaah tersebut',
+'الميدان':'Lapangan',
+'الجهة':'Organisasi',
+'الفندق':'Hotel',
+'الفنادق':'Hotel',
+'المجموعة':'Kumpulan',
+'مجموعة':'Kumpulan',
+'الفريق':'Pasukan',
+'فريق':'Pasukan',
+'بلا فريق':'Tiada pasukan',
+'إدارة عليا':'Eksekutif',
+'بعثة':'Misi',
+'شركة':'Syarikat',
+'مشاعر':'Masyair',
+'إعاشة':'Katering',
+'مراكز':'Pusat',
+'مشرفو المدينة':'Penyelia Madinah',
+'كل النظام':'Seluruh sistem',
+'جهته وحدها':'Organisasinya sahaja',
+'فندقه ومن فيه':'Hotelnya dan penghuninya',
+'اختصاصه عبر الجهات':'Bidangnya merentas organisasi',
+'بياناته وحدها':'Datanya sahaja',
+
+/* — Lokasi — */
+'مكة المكرمة':'Makkah',
+'المدينة المنورة':'Madinah',
+'المشاعر':'Masyair',
+'جدة':'Jeddah',
+'منى':'Mina',
+'عرفة':'Arafah',
+'مزدلفة':'Muzdalifah',
+'الجمرات':'Jamarat',
+'المسجد الحرام':'Masjidil Haram',
+'مزارات':'Tapak Ziarah',
+
+/* — Umum — */
+'ملاحظة':'Catatan',
+'ملاحظات':'Catatan',
+'السبب':'Sebab',
+'التصنيف':'Kategori',
+'النوع':'Jenis',
+'الأولوية':'Keutamaan',
+'الحالة':'Status',
+'الوقت':'Masa',
+'التاريخ':'Tarikh',
+'المدة':'Tempoh',
+'العدد':'Bilangan',
+'الاسم':'Nama',
+'الوصف':'Penerangan',
+'التفاصيل':'Butiran',
+'العنوان':'Tajuk',
+'الملفّ':'Fail',
+'السجلّ':'Log',
+'قيدًا':'catatan',
+'لا قيود':'Tiada catatan',
+'بلا قيد':'Tiada rekod',
+'المصدر':'Sumber',
+'القناة':'Saluran',
+'المسؤول':'Pemilik',
+'الإسناد':'Penugasan',
+'مُسنَدة':'Ditugaskan',
+'بلا إسناد':'Belum ditugaskan',
+'لم تُسنَد بعد':'Belum ditugaskan',
+'لم يُسنَد بعد':'Belum ditugaskan',
+'المُسنَد إليه':'Ditugaskan kepada',
+'الردّ':'Balasan',
+'المحادثة':'Perbualan',
+'لا ردّ بعد':'Belum ada balasan',
+'من':'Daripada',
+'إلى':'Kepada',
+'اليوم':'Hari ini',
+'أمس':'Semalam',
+'غدًا':'Esok',
+'الآن':'Sekarang',
+'دقيقة':'minit',
+'دقائق':'minit',
+'ساعة':'jam',
+'ساعات':'jam',
+'يوم':'hari',
+'أيّام':'hari',
+'حالًا':'Serta-merta',
+'م.ب':'MB',
+'ك.ب':'KB',
+'نظيف':'Bersih',
+'بند':'perkara',
+'لا شيء معلّق':'Tiada yang tertangguh',
+'يحتاج قرارك الآن':'Memerlukan keputusan anda sekarang',
+'لا بيانات':'Tiada data',
+'بلا ملاحظات':'Tiada penemuan'
+};
+
+/* ============================================================
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
@@ -2934,22 +3605,28 @@ const uid = p => p + Math.random().toString(36).slice(2, 8);
 const MIN = 60000, HR = 3600000, DAY = 86400000;
 const now = () => Date.now() + (S && S.clockOffset ? S.clockOffset : 0) * MIN;
 const VV = () => (typeof V !== 'undefined' && V) || S;
-const AR = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+/* الأصلُ العربيُّ يبقى باسمٍ صريح، والاسمُ العامُّ يسأل عن اللغة */
+const ARd = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const AR = n => (typeof NUM === 'function' ? NUM(n) : ARd(n));
 const two = n => (n < 10 ? '0' : '') + n;
 const dayStart = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
 
-function t12(ts) {
+function t12Ar(ts) {
   const d = new Date(ts); let h = d.getHours();
   const ap = h >= 12 ? 'م' : 'ص'; h = h % 12 || 12;
   return AR(two(h) + ':' + two(d.getMinutes())) + ' ' + ap;
 }
-function hijri(ts) {
+function hijriAr(ts) {
   try {
     return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab',
       { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ts));
   } catch (e) { return AR(new Date(ts).toLocaleDateString('ar')); }
 }
-const dayName = ts => ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(ts).getDay()];
+const dayNameAr = ts => ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(ts).getDay()];
+/* الأسماءُ العامّة تُوجَّه بحسب اللغة — وتُعرَّف بعد i18n فتُقرأ وقتَ النداء */
+const t12     = ts => (typeof TIME === 'function' ? TIME(ts) : t12Ar(ts));
+const hijri   = ts => (typeof DATE === 'function' ? DATE(ts) : hijriAr(ts));
+const dayName = ts => (typeof DAYNAME === 'function' ? DAYNAME(ts) : dayNameAr(ts));
 function ago(ts) {
   const d = Math.max(0, now() - ts);
   if (d < MIN) return 'الآن';
@@ -2969,6 +3646,7 @@ function untilTxt(ts) {
 function seed() {
   const st = {
     v: SCHEMA, clockOffset: 0, route: { n: 'ops' }, tab: {}, sort: {}, q: {}, wide: false,
+    lang: 'ar',
     orgs: ORGS, users: [], tasks: [], tickets: [], reports: [], support: [],
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
@@ -3227,6 +3905,7 @@ function load() {
   S.grants = S.grants || {}; S.actor = S.actor || { perm: 'admin' };
   S.buses = S.buses || []; S.trips = S.trips || [];
   S.escal = S.escal || [];
+  S.lang = S.lang || 'ar';
   S.open = S.open || {}; S.cfg = S.cfg || {}; S.dash = S.dash || [];
   S.forms = S.forms || []; S.subs = S.subs || [];
   S.reqtpl = S.reqtpl || []; S.quota = S.quota || []; S.signals = S.signals || []; S.acts = S.acts || []; S.undoForm = S.undoForm || []; S.warns = S.warns || []; S.ctrs = S.ctrs || [];
@@ -3552,6 +4231,7 @@ function topbar() {
       (navCount('incidents') ? '<span class="bdg">' + AR(navCount('incidents')) + '</span>' : '') + '</button>' +
     '<button class="iconbtn" data-a="palette" aria-label="لوحة الأوامر" title="Ctrl+K">' +
       icon('i-search','s18') + '</button>' +
+    langSwitch() +
     '<button class="themebtn" data-a="theme" title="تبديل الوضع · T">' +
       '<span>' + (S.theme === 'day' ? 'الوضع النهاري' : 'الوضع الليلي') + '</span>' +
       '<span class="knob">' + icon(S.theme === 'day' ? 'i-sun' : 'i-hour', 's14') + '</span></button>' +
@@ -14847,7 +15527,7 @@ function renderDrawer() {
   const old = w.querySelector('.db');
   const keep = (old && S._dkey === d.title) ? old.scrollTop : 0;
   S._dkey = d.title;
-  w.innerHTML = '<div class="scrim" data-a="closedrawer"></div>' +
+  w.innerHTML = TR('<div class="scrim" data-a="closedrawer"></div>' +
     '<aside class="drawer' + (d.paper ? ' paper' : d.wide ? ' xl' : '') + '" role="dialog" aria-label="' + E(d.title) + '">' +
       '<div class="dh">' + icon(d.icon || 'i-info','s18') +
         '<span class="sp"><b style="font-size:15px">' +
@@ -14869,7 +15549,7 @@ function renderDrawer() {
           (d.wide ? 'تضييق العرض' : 'توسيع العرض') + '">' +
           icon(d.wide ? 'i-fwd' : 'i-back','s18') + '</button>' : '') +
         '<button class="iconbtn" data-a="closedrawer" aria-label="إغلاق">' + icon('i-x','s18') + '</button></div>' +
-      '<div class="db">' + d.body + '</div></aside>';
+      '<div class="db">' + d.body + '</div></aside>');
   /* الأشرطة تمتلئ بعد الرسم لا معه — وكانت تُملأ في المسرح وحده فتبقى
      أشرطة الدرج فارغة مهما كانت قيمتها. */
   const db = w.querySelector('.db');
@@ -15128,7 +15808,7 @@ const SCREENS = {
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
 const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','theme','palette','closepal','palrun',
-  'closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
+  'lang','closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
   'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','escopen','escxl','escpick','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
@@ -15150,21 +15830,21 @@ function render() {
   const wrap = document.getElementById('stagewrap');
   const prev = wrap.querySelector('.view');
   const keep = same && prev ? prev.scrollTop : 0;
-  document.getElementById('sidewrap').innerHTML = sidebar();
+  document.getElementById('sidewrap').innerHTML = TR(sidebar());
   /* لا يُمسح صنف .stage وإلا فقد المسرح تخطيطه ولم يعمل أي تمرير */
   wrap.className = 'stage' + (same ? ' nofx' : '');
-  wrap.innerHTML = topbar() + '<div class="view">' + fn() + '</div>';
+  wrap.innerHTML = TR(topbar() + '<div class="view">' + fn() + '</div>');
 
   const v = wrap.querySelector('.view');
   if (v && keep) v.scrollTop = keep;
   S._key = key;
 
   const tw = document.getElementById('toastwrap');
-  tw.innerHTML = S.toast
+  tw.innerHTML = TR(S.toast
     ? '<div class="toast ' + (S.toast.kind || 'g') + '">' +
       icon(S.toast.kind === 'r' ? 'i-warn' : 'i-checkc', 's18') + '<span>' + E(S.toast.text) + '</span>' +
       '<i class="bar"></i></div>'
-    : '';
+    : '');
   /* في جدار العرض: شريط تقدّم إن كان الدوران مفعّلًا، ومخرج ظاهر دائمًا */
   document.getElementById('wallbar').innerHTML = S.wall
     ? (S.wallAuto ? '<div class="wallbar"><i></i></div>' : '') +
@@ -15220,6 +15900,7 @@ document.addEventListener('click', ev => {
       toast(S.wall ? 'جدار العرض — Esc أو F للخروج' : 'عاد العرض العادي'); break;
     case 'wallauto': S.wallAuto = !S.wallAuto;
       toast(S.wallAuto ? 'يدور بين اللوحات كل ١٢ ثانية' : 'أُوقف الدوران'); break;
+    case 'lang': setLang(v); return;
     case 'theme': toggleTheme(); break;
     case 'palette': S.palette = true; S.pq = ''; S.psel = 0; renderPalette(); return;
     case 'closepal': S.palette = false; renderPalette(); return;
@@ -17043,6 +17724,8 @@ document.addEventListener('keydown', e => {
 
 /* ---------- إقلاع ---------- */
 load();
+/* الاتّجاهُ يُضبط قبل أوّل رسم — وإلّا ارتدّ التخطيطُ أمام العين */
+applyDir();
 if (!S.theme) {
   S.theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'day' : 'night';
 }
