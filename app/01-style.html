@@ -2275,4 +2275,10 @@ body.dragmode .seat.empty{border-style:solid; border-color:var(--gold2);
     transition-duration:.001ms !important; transition-delay:0ms !important;
     scroll-behavior:auto !important}
 }
+
+/* الأيقوناتُ الاتّجاهيّة تنعكس مع اللغة — سهمُ الرجوع في الإنجليزيّة
+   يشير يسارًا لا يمينًا، وإلّا قاد العينَ إلى غير وجهتها. */
+:root[dir="ltr"] [class*="i-back"], :root[dir="ltr"] [class*="i-fwd"],
+:root[dir="ltr"] .listitem > svg:last-child, :root[dir="ltr"] .prow .end svg,
+:root[dir="ltr"] .nav > svg:last-child, :root[dir="ltr"] .pfback svg{transform:scaleX(-1)}
 </style>

@@ -47,6 +47,9 @@ function dictKeys() {
 function i18nReset() { _reLang = null; _re = null; _cache = null; }
 
 /* ترجمةُ قطعةٍ واحدة: بحثٌ كاملٌ أوّلًا، فإن أخفق فاستبدالٌ داخليّ */
+/* الأرقامُ تُستبدل بفجوةٍ قبل البحث ثم تُعاد — فـ«٥ مهام» و«٧ مهام»
+   مفتاحٌ واحد «{n} مهام»، ولولا ذلك لاحتاج كلُّ عددٍ مدخلًا. */
+const NUM_HOLE = /[٠-٩0-9]+(?:[.,٫][٠-٩0-9]+)?/g;
 function TT(piece) {
   const L = langOf();
   if (L === 'ar' || !piece) return piece;
@@ -54,11 +57,24 @@ function TT(piece) {
   const t = piece.trim();
   if (!t || !AR_RE.test(t)) return piece;
   if (_cache && _cache.has(piece)) return _cache.get(piece);
-  /* إمّا تُترجَم القطعةُ كاملةً أو تبقى عربيّةً كاملةً.
-     والاستبدالُ الجزئيُّ — أن يُترجَم «العمليات» داخل «غرفة العمليات» —
-     يُنتج «غرفة Operations»: نصًّا مشوّهًا لا هو عربيٌّ ولا إنجليزيّ.
-     فالنقصُ يظهر عربيًّا نظيفًا، والحارسُ يقوله بالعدد. */
-  const out = d[t] != null ? piece.replace(t, d[t]) : piece;
+
+  let hit = d[t];
+  if (hit == null) {
+    /* بحثٌ بالفجوة: تُحفظ الأعدادُ بترتيبها ثم تُعاد إلى مواضعها */
+    const nums = [];
+    const key = t.replace(NUM_HOLE, m => { nums.push(m); return '{n}'; });
+    const tpl = d[key];
+    if (tpl != null) {
+      let i = 0;
+      hit = tpl.replace(/{n}/g, () => {
+        const v = nums[i++];
+        return v == null ? '' : NUM(v);
+      });
+    }
+  }
+  /* إمّا تُترجَم القطعةُ كاملةً أو تبقى عربيّةً كاملة. والاستبدالُ
+     الجزئيُّ يُنتج «غرفة Operations»: مشوّهًا لا عربيًّا ولا إنجليزيًّا. */
+  const out = hit != null ? piece.replace(t, hit) : piece;
   if (_cache) _cache.set(piece, out);
   return out;
 }
@@ -114,6 +130,9 @@ function DAYNAME(ts) {
 function applyDir() {
   const L = langOf(), d = LANGS[L].dir;
   const r = document.documentElement;
+  /* الاتّجاهُ يُكتب على العنصر الجذر — وقد يُشغَّل المحرّك بلا DOM
+     (في اختبارٍ أو توليدٍ خارج المتصفّح)، فيُترك بلا ضرر. */
+  if (!r || !r.setAttribute) return;
   r.setAttribute('dir', d);
   r.setAttribute('lang', L);
   r.classList.toggle('ltr', d === 'ltr');
