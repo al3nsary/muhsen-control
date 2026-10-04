@@ -100,7 +100,9 @@
 }
 
 :root{
-  --r:18px; --r2:24px; --r3:14px;
+  /* سلّمُ الفراغ — كلُّ حشوٍ وفجوةٍ منه، فيستقيم الإيقاع عبر الشاشات */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --r:16px; --r2:22px; --r3:12px; --r4:9px;
   --f:"IBM Plex Sans Arabic","SF Arabic","Segoe UI",system-ui,sans-serif;
   --rail:80px; --side:268px; --top:66px;
   --e:cubic-bezier(.22,.7,.2,1);
@@ -302,21 +304,20 @@ a{color:inherit; text-decoration:none}
 #stagewrap.nofx .view > *{animation:none}
 
 /* ══ البطاقات ══ */
-.card{position:relative; border-radius:var(--r); padding:18px; overflow:hidden;
+.card{position:relative; border-radius:var(--r); padding:var(--s5); overflow:hidden;
   background:linear-gradient(180deg,var(--panel),var(--deep));
   border:var(--cardEdge); box-shadow:var(--shadow);
   transition:transform .28s var(--e), box-shadow .28s var(--e), border-color .28s var(--e)}
-.card::after{content:""; position:absolute; inset:0; pointer-events:none; opacity:0;
-  transition:opacity .3s var(--e);
-  background:radial-gradient(240px 180px at var(--mx,50%) var(--my,0%), var(--sheen2), transparent 70%)}
-.card:hover::after{opacity:1}
+/* الوهجُ التابعُ للمؤشّر زخرفةٌ بلا معنًى — والبطاقةُ تُقرأ لا تُلاعَب */
 .card.hov:hover{transform:translateY(-3px); box-shadow:var(--lift); border-color:var(--line2)}
 .card.gold::before{content:""; position:absolute; inset-inline:22px; top:0; height:1px;
   background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
 .card.live{border-color:color-mix(in srgb, var(--live) 32%, transparent); box-shadow:var(--shadow), var(--glowLive)}
 
-.h{display:flex; align-items:center; gap:11px; margin-bottom:15px}
-.h b{font-size:15px; letter-spacing:-.2px; display:block}
+.h{display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s4)}
+/* عنوانُ البطاقة درجةٌ دون عنوان الشاشة ودرجةٌ فوق الصفّ — فيُعرف الأهمّ */
+.h b{font-size:14.5px; font-weight:700; letter-spacing:-.1px; display:block; line-height:1.45}
+.h .sub,.h .sm{font-size:11.5px; color:var(--dim2); line-height:1.7; margin-top:2px}
 .h .sp{flex:1; min-width:0}
 .h > .ic{color:var(--gold2); flex:none}
 /* علامة القسم: خطّ ذهبي رفيع — لا أيقونة معمّمة */
@@ -328,7 +329,7 @@ a{color:inherit; text-decoration:none}
 .tiny{font-size:11.5px} .sm{font-size:12.5px}
 .num{font-variant-numeric:tabular-nums}
 
-.grid{display:grid; gap:16px}
+.grid{display:grid; gap:var(--s4)}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -750,7 +751,8 @@ a{color:inherit; text-decoration:none}
 .stars.lg b{font-size:15px}
 
 /* ══ صفّ شخص — بطاقة قائمة بذاتها كما في التطبيق ══ */
-.prow{display:flex; align-items:center; gap:11px; border-radius:17px; padding:11px 13px;
+.prow{display:flex; align-items:center; gap:var(--s3); border-radius:var(--r3);
+  min-height:52px; padding:var(--s3) var(--s4);
   background:var(--panel); box-shadow:var(--shadow); border:var(--cardEdge); width:100%;
   text-align:start; transition:transform .18s var(--e), box-shadow .26s var(--e3)}
 .prow:hover{box-shadow:var(--lift)}
@@ -758,7 +760,7 @@ a{color:inherit; text-decoration:none}
 .prow .nm b{display:block; font-size:13.5px; line-height:1.45}
 .prow .nm span{display:block; font-size:11px; color:var(--dim2); line-height:1.5}
 .prow .end{margin-inline-start:auto; text-align:end; flex:none}
-.plist{display:flex; flex-direction:column; gap:9px}
+.plist{display:flex; flex-direction:column; gap:var(--s2)}
 /* حاسم — وهو الدرس نفسه الذي لدغنا في الأدراج: ابن المرن ينكمش ما لم
    يُمنَع. وقائمةٌ في صندوقٍ محدّد الارتفاع كانت تسحق صفوفها إلى ٢٤ بكسل
    فيفيض نصّها خارجها ويبدو الصفّ ممزّقًا. */
@@ -807,7 +809,7 @@ a{color:inherit; text-decoration:none}
    ═══════════════════════════════════════════════════ */
 
 /* ══ صفّ أدوات فوق الجدول ══ */
-.tools{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:15px}
+.tools{display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; margin-bottom:var(--s4)}
 
 /* ══ حقل بحث ══ */
 .find{display:flex; align-items:center; gap:10px; flex:1; min-width:230px; height:42px;
@@ -1475,6 +1477,10 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
 .tcnt.ok{color:var(--live)} .tcnt.ok b{color:var(--live)}
 .tcnt.warn{background:color-mix(in srgb,var(--red) 14%,transparent); color:var(--red)}
 .tcnt.warn b{color:var(--red)}
+/* الحبّةُ المزدوجة: حاضرون على مسكَّنين — الشرطةُ باهتةٌ فلا تُنافس الرقمين */
+.tcnt2{min-width:56px}
+.tcnt2 b i{font-style:normal; color:var(--dim2); font-weight:400; margin:0 1px}
+.tcnt2.ok b i{color:color-mix(in srgb,var(--live) 55%,transparent)}
 .tprogs{display:flex; align-items:center; gap:12px; flex:none}
 .tprogs .tp{display:flex; flex-direction:column; align-items:center; gap:4px;
   white-space:nowrap; min-width:54px}
@@ -2058,57 +2064,95 @@ bdi.ltr{unicode-bidi:isolate; direction:ltr}
    أبيضُ على أبيض ولو كانت الغرفة ليلية — فالبلاغ يُطبع ويُرسل،
    ولا يُطبع الأسود على الورق. */
 .rpbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-.report{background:#fff; color:#12201A; border-radius:16px; padding:26px 24px;
-  border:1px solid #DCE5DE; line-height:1.75;
-  font-variant-numeric:tabular-nums; box-shadow:0 20px 50px -28px rgba(0,0,0,.5)}
-.report *{border-color:#E3EAE4}
-.rphd{display:flex; align-items:flex-start; gap:18px; padding-bottom:16px;
-  border-bottom:2px solid #16483A; margin-bottom:16px}
-.rphd h2{margin:0; font-size:19px; color:#0E3A2C}
-.rphd .rpsub{font-size:12.5px; color:#5A6C63; margin-top:4px}
-.rphd .rpst{margin-inline-start:auto; text-align:center; flex:none}
-.rphd .rpst .tst{display:inline-flex; align-items:center; gap:5px; padding:4px 10px;
-  border-radius:99px; font-size:11px; font-weight:700; color:var(--tsc);
-  background:color-mix(in srgb,var(--tsc) 14%,#fff);
-  border:1px solid color-mix(in srgb,var(--tsc) 40%,#fff)}
-.rphd .rpst .tst i{width:6px; height:6px; border-radius:50%; background:var(--tsc)}
-.rphd .rpst b{display:block; font-size:26px; color:#0E3A2C; margin-top:7px; line-height:1}
-.rphd .rpst .tiny{font-size:10px; color:#7C8C84}
-.rpmeta{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px;
-  background:#E3EAE4; border:1px solid #E3EAE4; border-radius:10px; overflow:hidden;
-  margin-bottom:20px}
-.rpmeta span{background:#F6F9F7; padding:9px 11px}
-.rpmeta i{display:block; font-style:normal; font-size:9.5px; color:#7C8C84; margin-bottom:2px}
-.rpmeta b{font-size:12px; color:#12201A; font-weight:600}
-.rpsec{margin-bottom:20px}
-.rpsec h3{margin:0 0 9px; font-size:13.5px; color:#0E3A2C;
-  display:flex; align-items:baseline; gap:9px}
-.rpsec h3 small{font-size:10.5px; color:#7C8C84; font-weight:500}
-.rptbl{border:1px solid #E3EAE4; border-radius:10px; overflow:hidden; font-size:11.5px}
-.rphead,.rprow{display:grid; gap:1px; background:#E3EAE4}
-.rphead{background:#E9F0EB}
-.rphead span{background:#E9F0EB; padding:8px 10px; font-weight:700; color:#3C4F47;
-  font-size:10.5px}
-.rprow span{background:#fff; padding:8px 10px; color:#2A3A33}
-.rprow:nth-child(even) span{background:#FAFCFB}
+.report{background:#fff; color:#121A16; border-radius:4px; padding:34px 32px;
+  border:1px solid #E6EBE7; line-height:1.72; letter-spacing:.1px;
+  font-variant-numeric:tabular-nums; box-shadow:0 18px 44px -32px rgba(0,0,0,.45)}
+.report *{border-color:#E8EDE9}
+
+/* ── الترويسة: الاسمُ يسارًا والوثيقةُ يمينًا، وبينهما فراغٌ يفصل ── */
+.rpid{display:flex; align-items:center; gap:16px; padding-bottom:16px;
+  border-bottom:1px solid #E6EBE7}
+.rpid .rpmk{width:44px; height:34px; flex:none; background-size:contain;
+  background-repeat:no-repeat; background-position:center}
+.rpid .rpwho b{display:block; font-size:15px; color:#0E3A2C; line-height:1.3; font-weight:700}
+.rpid .rpwho span{display:block; font-size:8.5px; color:#9AA8A1; letter-spacing:2px;
+  text-transform:uppercase; font-weight:600; margin-top:3px}
+.rpid .rpdno{margin-inline-start:auto; text-align:end; flex:none}
+.rpid .rpdno b{display:block; font-size:12px; color:#0E3A2C; font-weight:700}
+.rpid .rpdno span{display:block; font-size:10px; color:#9AA8A1; margin-top:4px}
+.rprule{height:2px; border-radius:0; margin:0 0 26px;
+  background:linear-gradient(90deg,#A8875A,#D9C49A 46%,transparent)}
+:root[dir="ltr"] .rprule{background:linear-gradient(270deg,#A8875A,#D9C49A 46%,transparent)}
+
+/* ── العنوان الأوّل: أكبرُ شيءٍ في الورقة، ثم لا شيء يُنافسه ── */
+.rphd{display:flex; align-items:flex-start; gap:24px; padding-bottom:22px;
+  border-bottom:1px solid #E6EBE7; margin-bottom:26px}
+.rphd h2{margin:0; font-size:23px; color:#0E3A2C; font-weight:700; letter-spacing:-.2px}
+.rphd .rpsub{font-size:12.5px; color:#78877F; margin-top:6px}
+.rphd .rpst{margin-inline-start:auto; text-align:end; flex:none}
+.rphd .rpst .tst{display:inline-flex; align-items:center; gap:6px; padding:3px 10px;
+  border-radius:3px; font-size:10.5px; font-weight:700; color:var(--tsc);
+  background:color-mix(in srgb,var(--tsc) 10%,#fff);
+  border:1px solid color-mix(in srgb,var(--tsc) 28%,#fff)}
+.rphd .rpst .tst i{width:5px; height:5px; border-radius:50%; background:var(--tsc)}
+.rphd .rpst b{display:block; font-size:34px; color:#0E3A2C; margin-top:10px; line-height:.95;
+  font-weight:700; letter-spacing:-1px}
+.rphd .rpst .tiny{font-size:9.5px; color:#9AA8A1; letter-spacing:.4px}
+
+/* ── الترويسةُ البيانيّة: أربعةُ أعمدةٍ بلا صناديق — خطوطٌ شعريّة ── */
+.rpmeta{display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  column-gap:28px; row-gap:0; margin-bottom:30px;
+  border-top:1px solid #E6EBE7; border-bottom:1px solid #E6EBE7;
+  background:none; border-radius:0; overflow:visible}
+.rpmeta span{background:none; padding:13px 0}
+.rpmeta i{display:block; font-style:normal; font-size:9px; color:#9AA8A1;
+  letter-spacing:.8px; margin-bottom:4px; text-transform:uppercase}
+.rpmeta b{font-size:12.5px; color:#121A16; font-weight:600}
+
+/* ── الأقسام: فراغٌ فوق العنوان أكثرُ ممّا تحته، فيُنسب إلى ما بعده ── */
+.rpsec{margin-bottom:30px}
+.rpsec h3{margin:0 0 12px; font-size:12px; color:#0E3A2C; font-weight:700;
+  display:flex; align-items:baseline; gap:10px; letter-spacing:.3px;
+  padding-bottom:7px; border-bottom:1px solid #0E3A2C}
+.rpsec h3 small{font-size:10px; color:#9AA8A1; font-weight:400; letter-spacing:0}
+
+/* ── الجداول: بلا تعبئةٍ ولا تبادلِ ألوان — صفٌّ وخطٌّ شعريّ ── */
+.rptbl{border:0; border-radius:0; overflow:visible; font-size:11.5px}
+.rphead,.rprow{display:grid; gap:0; background:none}
+.rphead{background:none; border-bottom:1px solid #D7DFD9}
+.rphead span{background:none; padding:0 10px 8px; font-weight:600; color:#8E9C94;
+  font-size:9px; letter-spacing:.7px; text-transform:uppercase}
+.rprow span{background:none; padding:10px; color:#243029; border-bottom:1px solid #F0F3F1}
+.rprow:nth-child(even) span{background:none}
+.rprow:last-child span{border-bottom:0}
 .rptbl.t2 .rphead,.rptbl.t2 .rprow{grid-template-columns:1fr 1fr}
-.rptbl.t3 .rphead,.rptbl.t3 .rprow{grid-template-columns:110px 1fr 180px}
+.rptbl.t3 .rphead,.rptbl.t3 .rprow{grid-template-columns:104px 1fr 190px}
 .rptbl.t5 .rphead,.rptbl.t5 .rprow{grid-template-columns:repeat(5,minmax(0,1fr))}
 .rptbl.t6 .rphead,.rptbl.t6 .rprow{grid-template-columns:repeat(6,minmax(0,1fr))}
-.rptbl.t7 .rphead,.rptbl.t7 .rprow{grid-template-columns:1.6fr repeat(6,minmax(0,1fr))}
-.rpnote{font-size:10.5px; color:#7C8C84; margin-top:8px}
-.rp2{display:grid; grid-template-columns:1fr 1.4fr; gap:20px}
+.rptbl.t7 .rphead,.rptbl.t7 .rprow{grid-template-columns:1.7fr repeat(6,minmax(0,1fr))}
+.rpnote{font-size:10px; color:#9AA8A1; margin-top:10px; line-height:1.8}
+
+.rp2{display:grid; grid-template-columns:1fr 1.45fr; gap:30px}
 .rp3{display:grid; grid-template-columns:1fr; gap:0}
-.rpshots{display:flex; gap:12px; flex-wrap:wrap}
-.rpshot{margin:0; width:150px}
-.rpshot span{display:block; height:96px; border-radius:8px; background-size:cover;
-  background-position:center; border:1px solid #E3EAE4}
-.rpshot figcaption{font-size:9.5px; color:#7C8C84; margin-top:5px; line-height:1.5}
-.rpfree p{margin:0 0 7px; font-size:12px; color:#2A3A33}
-.rpfree .faint{color:#9AA8A1}
-.rparch{padding-top:9px; border-top:1px dashed #E3EAE4; margin-top:9px!important}
-.rpft{display:flex; justify-content:space-between; gap:12px; padding-top:14px;
-  border-top:2px solid #16483A; font-size:10px; color:#7C8C84}
+.rpshots{display:flex; gap:14px; flex-wrap:wrap}
+.rpshot{margin:0; width:152px}
+.rpshot span{display:block; height:98px; border-radius:3px; background-size:cover;
+  background-position:center; border:1px solid #E6EBE7}
+.rpshot figcaption{font-size:9.5px; color:#9AA8A1; margin-top:6px; line-height:1.6}
+.rpfree p{margin:0 0 9px; font-size:12px; color:#243029}
+.rpfree .faint{color:#A6B2AB}
+.rparch{padding-top:11px; border-top:1px solid #EDF1EE; margin-top:11px!important}
+
+/* ── التوقيع: خطٌّ واحدٌ يفصل، ولا إطارَ حوله ── */
+.rpsign{display:flex; align-items:center; gap:14px; margin-top:34px; padding-top:16px;
+  border-top:2px solid #0E3A2C}
+.rpsign .rpnz{width:76px; height:23px; flex:none; background-size:contain;
+  background-repeat:no-repeat; background-position:center; opacity:.8}
+.rpsign .rptxt{font-size:10px; color:#8E9C94; line-height:1.75}
+.rpsign .rptxt b{color:#334039; font-weight:700}
+.rpsign .rpno{margin-inline-start:auto; font-size:10px; color:#8E9C94; text-align:end;
+  line-height:1.75}
+.rpsign .rpno b{color:#334039; font-weight:700}
 @media (max-width:900px){ .rpmeta{grid-template-columns:repeat(2,1fr)} .rp2{grid-template-columns:1fr} }
 
 /* ══ دورة البلاغ: اثنتا عشرة محطّة تُقرأ كشريطٍ واحد ══ */
@@ -2327,5 +2371,64 @@ body.dragmode .seat.empty{border-style:solid; border-color:var(--gold2);
   .rpsec h3{break-after:avoid}
   .rpbar,.drawerx,.scrim{display:none!important}
 }
+
+
+  /* عدّادُ التصعيد: أخضرُ متّسعٌ، أصفرُ يوشك، أحمرُ انقضى — كألوان الخطورة */
+  .cd{display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:8px;
+    font-variant-numeric:tabular-nums; font-size:11px; line-height:1.6; white-space:nowrap;
+    unicode-bidi:isolate; flex:none}
+  .cd b{font-weight:700; letter-spacing:.2px}
+  .cd-ok{background:var(--pLiveB); color:var(--pLiveT)}
+  .cd-soon{background:var(--pWaitB); color:var(--pWaitT)}
+  .cd-over{background:var(--pNoB); color:var(--pNoT)}
+  .cd-over b{animation:cdpulse 1.6s ease-in-out infinite}
+  @keyframes cdpulse{0%,100%{opacity:1}50%{opacity:.55}}
+  @media (prefers-reduced-motion:reduce){ .cd-over b{animation:none} }
+
+
+/* ══ الردود: صفٌّ يُقرأ أفقيًّا — بدايةٌ فعددٌ فوصولٌ فبُعد ══ */
+.rdcells{display:flex; align-items:center; gap:18px; flex:none; flex-wrap:wrap}
+.rdc{display:flex; flex-direction:column; gap:2px; min-width:62px}
+.rdc i{font-style:normal; font-size:9.5px; color:var(--dim2); letter-spacing:.2px}
+.rdc b{font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink)}
+.rdseq{font-style:normal; font-size:10.5px; font-weight:600; color:var(--gold2);
+  background:var(--pGoldB); padding:1px 7px; border-radius:7px; margin-inline-start:6px}
+.rdstep{display:inline-flex; align-items:center; gap:7px; flex:none;
+  background:var(--sheen); padding:4px 9px; border-radius:11px}
+.rdstep b{font-size:15px; min-width:18px; text-align:center}
+.btn.xs{min-height:24px; padding:0 9px; font-size:13px; font-weight:700; border-radius:8px}
+.mvrow{align-items:center; gap:12px; flex-wrap:wrap}
+
+
+/* ══ نموذجُ المهمة وطلباتُ تعديلها ══ */
+.frow{margin-bottom:14px}
+.flbl{display:block; margin-bottom:6px}
+.flbl b{display:block; font-size:12.5px; color:var(--ink)}
+.flbl span{display:block; font-size:10.5px; color:var(--dim2); margin-top:2px; line-height:1.7}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.crdiff{display:flex; align-items:center; gap:10px; padding:9px 0;
+  border-bottom:1px solid var(--line)}
+.crdiff:last-child{border-bottom:0}
+.crdiff .k{font-size:11px; color:var(--dim2); min-width:92px; flex:none}
+.crdiff s{color:var(--dim2); text-decoration-color:var(--red); font-size:12px}
+.crdiff b{color:var(--live); font-size:12.5px}
+.crdiff svg{color:var(--dim2); flex:none; transform:scaleX(-1)}
+:root[dir="ltr"] .crdiff svg{transform:none}
+
+
+/* ══ مواضعُ الأزرار: قاعدةٌ واحدةٌ عبر الشاشات ══
+   الفعلُ الأوّل في طرف السطر المنتهي، وما دونه يسبقه بفجوةٍ واحدة.
+   وكان كلُّ صفٍّ يرصّ أزرارَه كما اتّفق، فتختلف مواضعُها بين شاشتين
+   لعملٍ واحد — فتُطلب بالبحث لا بالعادة. */
+.prow .end{margin-inline-start:auto; display:flex; align-items:center;
+  gap:var(--s2); flex:none}
+.h .sp + .btn, .h .sp + .fl{margin-inline-start:auto}
+.acts{display:flex; align-items:center; gap:var(--s2); margin-inline-start:auto; flex:none}
+.acts .btn.d{margin-inline-start:var(--s2)}
+
+/* البطاقةُ الأخيرةُ في الشاشة لا تحتاج هامشًا أسفلها */
+.view > .card:last-child{margin-bottom:0}
+/* فراغٌ بين الأقسام أوسعُ من الفراغ داخلها — فتُقرأ كأقسام */
+.view > .card + .card{margin-top:var(--s4)}
 
 </style>

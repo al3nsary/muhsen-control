@@ -149,6 +149,12 @@ const cnt = (ic, n, ttl, cls) =>
   '<span class="tcnt ' + (cls || '') + '" title="' + E(ttl) + '">' + icon(ic, 's14') +
   '<b class="num">' + AR(n) + '</b></span>';
 
+/* الحضورُ والتسكينُ رقمان لحقيقةٍ واحدة: كم مَن سُكِّن حضَر فعلًا.
+   فيُقرآن معًا «٤/٥» لا في حبّتين متجاورتين يُقارن بينهما القارئ. */
+const cntOf = (ic, a, b, ttl, cls) =>
+  '<span class="tcnt tcnt2 ' + (cls || '') + '" title="' + E(ttl) + '">' + icon(ic, 's14') +
+  '<b class="num">' + AR(a) + '<i>/</i>' + AR(b) + '</b></span>';
+
 /* صورة توثيق */
 function shotTile(s, tid) {
   if (!s || !s.shot) return '';
@@ -183,8 +189,9 @@ function taskRow(t) {
 
     '<span class="tcnts">' +
       cnt('i-users', taskPilgrims(t), 'حجاج المجموعة') +
-      cnt('i-assign', t.assigned.length, 'محسنون مسكَّنون') +
-      cnt('i-checkc', t.attended.length, 'أثبتوا حضورهم', t.attended.length ? 'ok' : '') +
+      cntOf('i-assign', t.attended.length, t.assigned.length,
+        'أثبتوا حضورهم من المسكَّنين على المهمة',
+        t.assigned.length && t.attended.length === t.assigned.length ? 'ok' : '') +
       (tk ? cnt('i-ticket', tk, 'تذاكر مرفوعة على المهمة', 'warn') : '') +
       (un ? cnt('i-bell', un, 'تنبيهات لم تُقرأ', 'warn') : '') +
     '</span>' +
@@ -408,6 +415,21 @@ function taskDrawer(id) {
       (t.closedBy === 'system' ? '<div class="evt bad" style="margin-top:10px"><span class="dot"></span>' +
         '<span class="sp"><b>أُغلقت من قبل النظام</b><p>' + E(t.closeWhy || 'أغلقها الكنترول') + '</p></span></div>' : '') +
     '</div>' +
+
+    /* ── تعديلُ المهمة: بابٌ واحدٌ للكنترول وللجهات، والفرقُ في الأثر ── */
+    '<div class="card">' +
+      head('تعديل المهمة',
+        mayApplyDirect() ? 'ما تحفظه يقع في حينه'
+          : 'ما تحفظه يصير طلبًا ينتظر اعتماد الكنترول',
+        pill(mayApplyDirect() ? 'مباشر' : 'بطلب', mayApplyDirect() ? 'live' : 'wait'), 'i-edit') +
+      '<div class="grid g3" style="gap:8px">' +
+        '<button class="btn p sm" data-a="tedit" data-id="' + t.id + '">' +
+          icon('i-edit','s14') + 'تعديل التفاصيل</button>' +
+        '<button class="btn l sm" data-a="crask" data-id="' + t.id + '" data-v="postpone">' +
+          icon('i-clock','s14') + 'تأجيل</button>' +
+        '<button class="btn d sm" data-a="crask" data-id="' + t.id + '" data-v="cancel">' +
+          icon('i-x','s14') + 'إلغاء</button>' +
+      '</div></div>' +
 
     /* ── تحكّم الكنترول ── */
     '<div class="card gold">' +

@@ -20,7 +20,7 @@ const imgCSS = '<style>\n' +
   '</style>\n';
 
 const JS = ['02-data.js', '40-i18n.js', '41-dict.js', '03-core.js', '04-shell.js', '10-ui.js', '05-ops.js', '06-screens.js',
-  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '25-comply.js', '26-pilgrims.js', '27-signal.js', '28-actions.js', '29-build.js', '09-timeline.js', '30-timeline.js', '31-reason.js', '32-warn.js', '33-move.js', '34-roles.js', '35-swap.js', '36-escal.js', '37-escrt.js', '38-seedmore.js', '08-fx.js', '07-router.js'];
+  '11-more.js', '14-staff.js', '16-perm.js', '15-flow.js', '12-types.js', '13-build.js', '17-assign.js', '19-transport.js', '20-guides.js', '21-notify.js', '22-dash.js', '23-taskx.js', '24-appview.js', '25-comply.js', '26-pilgrims.js', '27-signal.js', '28-actions.js', '29-build.js', '09-timeline.js', '30-timeline.js', '31-reason.js', '32-warn.js', '33-move.js', '34-roles.js', '35-swap.js', '36-escal.js', '37-escrt.js', '38-seedmore.js', '39-rides.js', '42-chreq.js', '08-fx.js', '07-router.js'];
 
 const shell =
   '<div class="bg"><span class="grid"></span><span class="sweep"></span></div>\n' +
@@ -126,3 +126,20 @@ const screenKeys = Object.keys(
 const noScreen = [...new Set(navKeys)].filter(k => screenKeys.indexOf(k) < 0);
 if (noScreen.length) { console.log('NAV WITHOUT SCREEN:', noScreen.join(', ')); process.exitCode = 1; }
 else console.log('nav: OK (' + new Set(navKeys).size + ')');
+
+/* حارسٌ ثامن: أنماطٌ خارج <style> تظهر نصًّا خامًا في أعلى الصفحة.
+   وقعتُ فيه مرّتين — مرّةً بـ«+=» على ملفّ الأنماط — فصار يُفحص. */
+(function cssGuard() {
+  const files = ['01-style.html'];
+  files.forEach(f => {
+    let s; try { s = read(f); } catch (e) { return; }
+    const i = s.lastIndexOf('</style>');
+    if (i < 0) { console.log('!! لا وسمَ إغلاقٍ في ' + f); process.exitCode = 1; return; }
+    const tail = s.slice(i + 8).trim();
+    if (tail) {
+      console.log('CSS OUTSIDE STYLE: ' + f + ' — ' + tail.length + ' حرفًا بعد </style>');
+      process.exitCode = 1;
+    }
+  });
+  console.log('css: OK');
+})();

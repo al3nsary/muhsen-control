@@ -30,7 +30,7 @@ function ticketDrawer(id) {
     '<div class="fl" style="gap:9px;flex-wrap:wrap">' +
       pill(k.cat, 'grey') +
       pill(k.pri, k.pri === 'حرجة' ? 'no' : k.pri === 'عاجلة' ? 'wait' : 'grey') +
-      pill(k.status, closed ? 'live' : 'wait') +
+      pill(k.status, closed ? 'grey' : 'wait') +
       '<span class="sp"></span><span class="tiny faint">' + ago(k.at) + '</span></div>' +
     '<div class="quote">' + E(k.body) + '</div>' +
 

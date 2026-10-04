@@ -221,8 +221,11 @@ function screenTickets() {
           '<span class="ico">' + icon('i-ticket','s18') + '</span>' +
           '<span class="nm" style="flex:1"><b>' + E(k.title) + '</b>' +
           '<span>' + LTR(k.no) + ' · ' + E(k.from) + ' · ' + E(k.kt) + '</span></span>' +
-          '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') + pill(k.pri, pr) +
-            pill(k.status, k.status === 'مغلقة' ? 'live' : 'wait') + '</span>' +
+          '<span class="fl" style="gap:7px">' + pill(k.cat, 'grey') +
+            pill(k.pri, pr) + pill(k.status, k.status === 'مغلقة' ? 'grey' : 'wait') +
+            /* ما بقي على تصعيد التذكرة تلقائيًّا — كالبلاغ سواء */
+            cdown(tktDue(k), { sla:tktRule(k).sla,
+              ttl:'حتى التصعيد التلقائي إلى ' + tktRule(k).to }) + '</span>' +
           (to ? '<span class="fl" style="gap:7px">' + avatar(to, 'sm') +
             '<span class="tiny faint">' + E(to.name) + '</span></span>' : '') +
           '<span class="tiny faint">' + ago(k.at) + '</span>' +

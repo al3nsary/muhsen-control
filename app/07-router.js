@@ -10,7 +10,7 @@ const SCREENS = {
   teams: screenTeams, reserve: screenReserve, pilgrims: screenPilgrims, quality: screenQuality,
   guides: screenGuides, broadcast: screenBroadcast, audit: screenAudit, settings: screenSettings,
   timeline: screenTimeline, perms: screenRoles,
-  transport: screenTransport
+  transport: screenTransport, arrive: screenArrive, chreq: screenChreq
 };
 
 /* أفعال لا تُغيّر شيئًا — مسموحة لكل صفة */
@@ -18,7 +18,7 @@ const READ_ACTS = ['go','kgo','gokid','grp','whoami','wide','wall','wallauto','t
   'lang','closedrawer','shortcuts','timeline','tlopen','seg','sort','ktopen','pilopen','gdview','tropen','copen','whoami','dashedit','dashtog',
   'dashoff','dashup','dashdn','dashreset',
   'fdash','fsub','staffopen','qclear','fclear','fmore','logout','grole','gin','nopen','tkopen2',
-  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','escopen','escxl','escpick','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen'];
+  'rpopen','bedit','bclear','clock','dback','pg','alerts','hprof','caopen','pilopen2','pcard','vgopen','qtopen','sigopen','staffpage','actopen','mnote','glog','orgedit','hotedit','tlmove','wopen','wuser','escopen','escxl','escpick','ctropen','ctrfile','ctrprint','ctrxl','gmvxl','whycancel','wnew','wpick','rsedit','trep','rpprint','rpxl','rppng','txfold','txwide','txphoto','txfileopen','avopen','avas','avm','avrate','avdelegopen','rdopen','mvcrew','cropen','tedit','tnew','tfk','crask'];
 
 function render() {
   buildView();                       /* الرؤية قبل أي قراءة */
@@ -77,6 +77,7 @@ function render() {
 setInterval(() => {
   const c = document.getElementById('ctime');
   if (c && S) c.textContent = TT(t12(now()));
+  tickCountdowns();
 }, 1000);
 
 const val = id => { const e = document.getElementById(id); return e ? String(e.value).trim() : ''; };
@@ -1241,6 +1242,42 @@ document.addEventListener('click', ev => {
     case 'whoami': whoDrawer(); return;
 
     /* ─── النقل ─── */
+    /* ---------- طلبات تعديل المهام ---------- */
+    case 'tedit':  taskEditDrawer(id, 'edit'); return;
+    case 'tnew':   S.tform = null; taskEditDrawer(null, 'create'); return;
+    case 'tfk':    S.tform = Object.assign(S.tform || {}, { kind: v }); renderDrawer(); return;
+    case 'crsave': crSave(id, v); return;
+    case 'crask':  crAsk(id, v); return;
+    case 'crdo':   crDo(id, v); return;
+    case 'cropen': crDrawer(id); return;
+    case 'crok':   crDecide(id, true); return;
+    case 'crno':   crDecide(id, false); return;
+
+    /* ---------- الردود وتأكيد الوصول ---------- */
+    case 'rdopen': rideDrawer(id); return;
+    case 'mvcrew': moveCrewDrawer(id); return;
+    case 'mvnew':  moveNew(); return;
+    case 'mvrd': {
+      const m = moveById(id); if (!m) return;
+      m.rounds = Math.max(1, Math.min(RIDE_MAX, m.rounds + Number(v)));
+      logIt('صار عددُ ردود «' + m.ar + '» ' + AR(m.rounds));
+      save(); render(); return;
+    }
+    case 'mvpick': {
+      const m = moveById(id); if (!m) return;
+      m.crew = m.crew || [];
+      const i = m.crew.indexOf(v);
+      if (i >= 0) m.crew.splice(i, 1); else m.crew.push(v);
+      save(); moveCrewDrawer(m.id); return;
+    }
+    case 'mvgen': {
+      const m = moveById(id); if (!m) return;
+      if (!(m.crew || []).length) { toast('اختر الطاقم أوّلًا', 'r'); return; }
+      const n = moveGenerate(m);
+      logIt('وُلِّدت ' + AR(n) + ' ردًّا على حركة «' + m.ar + '»');
+      toast(n ? 'وُلِّدت ' + AR(n) + ' ردًّا' : 'لا جديد — الردود مولَّدة سلفًا');
+      save(); render(); return;
+    }
     case 'tropen': tripDrawer(id); return;
     case 'trmove': {
       const t = S.trips.find(x => x.id === id); if (!t) return;

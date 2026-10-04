@@ -73,8 +73,9 @@ const DEFAULT_GRANTS = {
   admin:   null,                     /* لا تُقيَّد أصلًا */
 
   /* الجهات: بياناتها التشغيلية كاملة — اطّلاعًا */
-  mission: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports'],
-  company: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports'],
+  /* ومعها طلباتُ تعديل مهامها — ترفعها وتتابع قرارَها */
+  mission: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports','chreq'],
+  company: ['ops','tasks','timeline','staff','teams','pilgrims','quality','tickets','reports','chreq'],
 
   /* المشرف: فندقه ومن فيه — ومعه ما يُرفع عن السكن */
   sup:     ['ops','tasks','timeline','staff','teams','pilgrims','tickets','reports',
@@ -143,7 +144,7 @@ function buildView() {
     /* المقاول لا يرى إلا نفسه وعقده */
     V = Object.create(S);
             ['users','groups','orgs','tasks','tickets','reports','support','enrich',
-     'subs','assigns','swaps','feed','log','buses','trips'].forEach(k => { V[k] = []; });
+     'subs','assigns','swaps','feed','log','buses','trips','rides','moves'].forEach(k => { V[k] = []; });
     V.pilgrims = {};
     return;
   } else if (p.scope === 'self' && a.userId) {
@@ -191,6 +192,11 @@ function buildView() {
   V.escal = S.escal || [];
   V.roleSets = S.roleSets || [];
   V.acts     = (S.acts || []).filter(a => has(userIds, a.userId));
+  /* الردود: المحسنُ يرى ردودَه، ومن فوقه يرى ردودَ فريقه */
+  V.rides    = (S.rides || []).filter(r => has(userIds, r.userId));
+  V.moves    = S.moves || [];
+  /* الجهةُ ترى طلباتِها هي، والكنترولُ يرى الكلّ */
+  V.chreq    = (S.chreq || []).filter(r => !orgIds.length || r.byOrg === orgIds[0] || !r.byOrg);
   V.feed     = S.feed.filter(f => !f.kt || has(kts, f.kt));
   V.log      = p.scope === 'self' ? [] : S.log;
   V.forms    = S.forms;

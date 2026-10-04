@@ -417,6 +417,8 @@ function seedMore(st) {
   mergeReportsIntoSignals(st);
   escTagSignals(st);
   escSpread(st);
+  seedRides(st);
+  seedChreq(st);
   seedLog(st);
 }
 
@@ -466,4 +468,90 @@ function mergeReportsIntoSignals(st) {
   });
   st.reports = [];
   st.signals.sort((a, b) => b.at - a.at);
+}
+
+/* ---------- الردود: حركتان مولَّدتان، منها ما وصل وما يجري ----------
+   الشاشةُ الفارغةُ لا تُقرأ ولا تُقاس. فتُبذَر حركتان بطاقمٍ وردودٍ
+   في مراحلَ مختلفة — وصلَ بعضُها وبعضُها على الطريق وبعضُها تأخّر. */
+function seedRides(st) {
+  const d0 = new Date(Date.now()); d0.setHours(0, 0, 0, 0);
+  const base = d0.getTime();
+  const crewAll = st.users.filter(u => u.role === 'muhsen' && !u.reserve);
+  const legs = MOVE_LEGS;
+  st.moves = []; st.rides = [];
+  [[0, 5, 3], [1, 2, 4]].forEach(([li, hour, rounds], mi) => {
+    const leg = legs[li];
+    const m = {
+      id: 'MV' + (90 + mi), ar: leg.ar, leg: leg.k, rounds: rounds,
+      at: base + hour * HR, at0: base,
+      crew: crewAll.slice(mi * 4, mi * 4 + 4).map(u => u.id)
+    };
+    st.moves.push(m);
+    m.crew.forEach((uid2, ui) => {
+      for (let i = 0; i < rounds; i++) {
+        const planAt = m.at + i * Math.round(leg.mins * 2.2) * MIN + ui * 4 * MIN;
+        const past = planAt < Date.now();
+        const rolling = !past && planAt < Date.now() + 40 * MIN;
+        const dur = (leg.mins + ((ui + i) % 3) * 6) * MIN;
+        const jitter = k => ({
+          lat: SITE_GEO[k].lat + ((ui * 7 + i * 3) % 9 - 4) * 0.0012,
+          lng: SITE_GEO[k].lng + ((ui * 5 + i * 11) % 9 - 4) * 0.0012
+        });
+        const started = past || rolling;
+        const ended = past && (ui + i) % 5 !== 3;      /* واحدٌ من خمسةٍ لم يصل بعد */
+        st.rides.push({
+          id: 'RD' + (900 + st.rides.length), no: 'RD-' + (4100 + st.rides.length),
+          moveId: m.id, userId: uid2, seq: i + 1,
+          from: leg.from, to: leg.to, mins: leg.mins, legAr: leg.ar,
+          planAt: planAt,
+          startedAt: started ? planAt + ((ui + i) % 4) * 3 * MIN : null,
+          startLoc: started ? Object.assign(jitter(leg.from), { at: planAt, acc: 8 + (ui % 5) * 4 }) : null,
+          pax: started ? 38 + ((ui * 9 + i * 13) % 14) : null,
+          endedAt: ended ? planAt + dur : null,
+          endLoc: ended ? Object.assign(jitter(leg.to), { at: planAt + dur, acc: 6 + (i % 4) * 5 }) : null
+        });
+      }
+    });
+  });
+  st.rides.sort((a, b) => a.planAt - b.planAt);
+}
+
+/* ---------- طلباتُ تعديل المهام: بعضُها ينتظر وبعضُها بُتَّ فيه ---------- */
+function seedChreq(st) {
+  st.chreq = [];
+  const tasks = st.tasks.slice(0, 8);
+  const who = [{ k:'mission', ar:'بعثة' }, { k:'company', ar:'شركة' }];
+  const SEED = [
+    { kind:'edit',     off:-35,  why:'تأخّر وصول الفوج ساعةً كاملة — نطلب تأخير بداية المهمة.', st:'pending' },
+    { kind:'postpone', off:-80,  why:'تعارضُ موعد التفويج مع جدول الحرم — نطلب تأجيلها ساعتين.', st:'pending' },
+    { kind:'edit',     off:-160, why:'زاد عدد الحجّاج أربعين بعد دفعة اكسترا كوتا.', st:'pending' },
+    { kind:'cancel',   off:-260, why:'أُلغيت الجولة لظرفٍ جوّيّ — ولا بديل اليوم.', st:'approved',
+      note:'اعتُمد — وأُبلغ الليدر والفريق.' },
+    { kind:'create',   off:-320, why:'نطلب مهمةً إضافيّةً لاستقبال دفعةٍ متأخّرة.', st:'approved',
+      note:'اعتُمد وأُنشئت المهمة وأُسندت.' },
+    { kind:'edit',     off:-420, why:'تعديل المكان إلى البوّابة الشمالية.', st:'rejected',
+      note:'البوّابة الشمالية مغلقة اليوم — يبقى المكان كما هو.' }
+  ];
+  SEED.forEach((x, i) => {
+    const t = tasks[i % tasks.length]; if (!t) return;
+    const w = who[i % who.length];
+    const at = Date.now() + x.off * MIN;
+    const d = {
+      title: x.kind === 'create' ? 'استقبال دفعة متأخّرة — صالة الحج' : t.title,
+      kind: t.kind, place: x.kind === 'edit' && i === 5 ? 'البوّابة الشمالية' : t.place,
+      start: t.start + (x.kind === 'postpone' ? 2 * HR : x.kind === 'edit' ? 60 * MIN : 0),
+      durH: t.durH, end: t.end + (x.kind === 'postpone' ? 2 * HR : 0),
+      pax: x.kind === 'edit' && i === 2 ? 112 : null, why: x.why
+    };
+    st.chreq.push({
+      id: 'CR' + (500 + i), no: 'CR-' + (1400 + i), at,
+      kind: x.kind, taskId: x.kind === 'create' ? null : t.id,
+      taskTitle: d.title, kt: t.kt,
+      byPerm: w.k, byAr: w.ar, byOrg: t.orgId,
+      fields: d, reason: x.why, state: x.st,
+      decidedAt: x.st === 'pending' ? null : at + 40 * MIN,
+      decidedBy: x.st === 'pending' ? null : 'الكنترول',
+      decideNote: x.note || ''
+    });
+  });
 }

@@ -37,9 +37,11 @@ const SIG_CLASS = {
   notice:  { ar:'إشعار',   i:'i-bell',   c:'#B8791A' },
   complaint:{ ar:'شكوى (بلاغ)', i:'i-warn', c:'#C0392B' }
 };
+/* اللونُ يدلّ على الخطورة لا على شيءٍ آخر — واحدٌ في المشروعين:
+   أخضرُ البسيط، أصفرُ المتوسط، أحمرُ المرتفع، ورماديُّ المغلق. */
 const SIG_RISK = {
-  low:  { ar:'منخفض', p:'grey', c:'#5A6C63', o:2 },
-  mid:  { ar:'متوسط', p:'wait', c:'#E67E22', o:1 },
+  low:  { ar:'منخفض', p:'live', c:'#16A34A', o:2 },
+  mid:  { ar:'متوسط', p:'wait', c:'#D08C00', o:1 },
   high: { ar:'عالي',  p:'no',   c:'#C0392B', o:0 }
 };
 const SIG_RULE = {
@@ -51,7 +53,7 @@ const SIG_STATE = {
   open:    { ar:'مفتوح',        p:'no',   c:'#C0392B' },
   working: { ar:'قيد المعالجة', p:'wait', c:'#E67E22' },
   waiting: { ar:'بانتظار تأكيد',p:'gold', c:'#B8791A' },
-  closed:  { ar:'مغلق',         p:'live', c:'#16A34A' }
+  closed:  { ar:'مغلق',         p:'grey', c:'#5A6C63' }
 };
 
 const sigStage = s => {
@@ -131,12 +133,12 @@ function escTabs() {
   const n1 = (V.signals || []).filter(s => s.state !== 'closed').length;
   const n2 = openTickets().length;
   return '<div class="card">' +
-    head('البلاغات والتذاكر',
+    head('البلاغات',
       'البلاغُ يرفعه الميدان بآليّةٍ تحكمه · والتذكرةُ يفتحها الحاجّ بوصفه',
       '', 'i-warn') +
     '<div class="tools">' + segmented('sg', [
-      ['sig','البلاغات · ' + AR(n1)],
-      ['tkt','التذاكر · ' + AR(n2)]
+      ['sig','الميدان · ' + AR(n1)],
+      ['tkt','الحجّاج · ' + AR(n2)]
     ], S.tab.sg || 'sig') + '</div></div>';
 }
 
@@ -211,8 +213,11 @@ function sigRow(s) {
       '<span class="sigbar"><i style="width:' + Math.round(stg / 12 * 100) + '%"></i></span></span>' +
     '<span class="fl" style="gap:6px;flex-wrap:wrap">' +
       pill(cl.ar, 'grey') + pill(ver.ar, ver.p) + pill(rk.ar, rk.p) + '</span>' +
+    /* العدّاد: ما بقي على التصعيد التلقائيّ — رقمٌ يتناقص أمام العين */
     '<span class="when"><b>' + untilTxt(s.at) + '</b>' +
-      '<span class="num">استجابة ' + AR(s.resp) + ' د</span></span>' +
+      (s.state !== 'closed' && s.due
+        ? cdown(s.due, { sla:s.sla, ttl:'حتى التصعيد التلقائي إلى ' + (s.escTo || 'الكنترول') })
+        : '<span class="num">استجابة ' + AR(s.resp) + ' د</span>') + '</span>' +
     '<span class="end">' + pill(st.ar, st.p) + '</span></div>';
 }
 

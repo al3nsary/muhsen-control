@@ -150,7 +150,7 @@ function screenActions() {
 function actRow(a) {
   const u = userById(a.userId) || {}, k = ACT_KIND[a.kind];
   const pen = PENALTY[a.penalty] || PENALTY.none;
-  const st = a.state === 'closed' ? ['مغلق','live'] :
+  const st = a.state === 'closed' ? ['مغلق','grey'] :
     a.state === 'answered' ? ['أُفيد بالسبب','wait'] : ['مفتوح','no'];
   return '<div class="prow" style="--tsc:' + k.c + '" data-a="actopen" data-id="' + a.id + '">' +
     '<span class="krail"></span>' + avatar(u, 'sm') +

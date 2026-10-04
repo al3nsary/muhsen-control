@@ -2,8 +2,8 @@
    مُحسن · الكنترول — النواة
    ============================================================ */
 const KEY = 'muhsen_control_v1';
-const SCHEMA = 21;
-const APP_VER = 'نسخة ٢٫٠';
+const SCHEMA = 22;
+const APP_VER = 'نسخة ٢٫١';
 let S = null;
 
 const uid = p => p + Math.random().toString(36).slice(2, 8);
@@ -56,7 +56,11 @@ function seed() {
     feed: [], pilgrims: {}, log: [], toast: null,
     assigns: [], flt: {}, auth: false,
     /* لا شيء يُمنَح ابتداءً — إلا الإدارة العليا فلا تُقيَّد أصلًا */
-    grants: {}, actor: { perm: 'admin' }, open: {}, cfg: {}, dash: []
+    grants: {}, actor: { perm: 'admin' }, open: {}, cfg: {}, dash: [],
+    /* الردود وحركاتها — حركةُ الكوسترات في المشاعر */
+    moves: [], rides: [],
+    /* طلباتُ تعديل المهام من الجهات */
+    chreq: []
   };
   S = st;
 
@@ -432,3 +436,58 @@ function pushFeed(kind, title, body) {
 }
 function toast(text, kind) { S.toast = { text, kind: kind || 'g', at: Date.now() }; }
 function go(n, id) { S.route = { n, id }; save(); render(); }
+
+/* ============================================================
+   عدٌّ تنازليٌّ حيٌّ حتّى التصعيد التلقائيّ
+
+   المهلةُ رقمٌ في السجلّ لا يُحسُّ. والعدُّ التنازليُّ يجعلها شيئًا
+   يُرى يتناقص، فيُعالَج البلاغُ قبل أن يُصعَّد لا بعده.
+
+   ويُرسم مرّةً ويُحدَّث في موضعه كلَّ ثانية — ولو أُعيد رسمُ الشاشة
+   كلَّ ثانية لضاع ما يكتبه الكنترولُ في الحقول. */
+const cdPad = n => (n < 10 ? '0' : '') + n;
+
+/* نصُّ العدّاد: «١:٠٤:٣٠» وما تجاوز مهلته يُسبق بـ«+» */
+function cdText(until) {
+  const diff = (until || 0) - now();
+  const over = diff < 0;
+  let s = Math.floor(Math.abs(diff) / 1000);
+  const h = Math.floor(s / 3600); s -= h * 3600;
+  const m = Math.floor(s / 60); const q = s - m * 60;
+  return (over ? '+' : '') + AR(cdPad(h) + ':' + cdPad(m) + ':' + cdPad(q));
+}
+/* حالةُ العدّاد تُلوَّن كما تُلوَّن الخطورة: أخضرُ متّسعٌ، أصفرُ يوشك،
+   أحمرُ انقضى. والخُمسُ الأخير هو «يوشك» — نسبةً إلى المهلة نفسها. */
+function cdState(until, slaMin) {
+  const left = (until || 0) - now();
+  if (left <= 0) return 'over';
+  const sla = Math.max(1, slaMin || 10) * 60000;
+  return left <= Math.max(120000, sla * 0.2) ? 'soon' : 'ok';
+}
+function cdown(until, opt) {
+  if (!until) return '';
+  opt = opt || {};
+  const st = cdState(until, opt.sla);
+  return '<span class="cd cd-' + st + (opt.cls ? ' ' + opt.cls : '') + '"' +
+    ' data-u="' + until + '" data-sla="' + (opt.sla || '') + '"' +
+    ' title="' + E(opt.ttl || 'الوقت المتبقّي حتى التصعيد التلقائي') + '">' +
+    (opt.bare ? '' : icon('i-hour', 's12')) +
+    '<b>' + cdText(until) + '</b></span>';
+}
+/* يُستدعى من نبضة الثانية — يُحدِّث كلَّ عدّادٍ معروضٍ في مكانه */
+function tickCountdowns() {
+  const els = document.querySelectorAll('.cd[data-u]');
+  for (let i = 0; i < els.length; i++) {
+    const e = els[i], u = +e.getAttribute('data-u');
+    if (!u) continue;
+    const b = e.querySelector('b');
+    const txt = cdText(u);
+    if (b) { if (b.textContent !== txt) b.textContent = txt; }
+    else if (e.textContent !== txt) e.textContent = txt;
+    const st = 'cd-' + cdState(u, +e.getAttribute('data-sla') || 0);
+    if (!e.classList.contains(st)) {
+      e.classList.remove('cd-ok', 'cd-soon', 'cd-over');
+      e.classList.add(st);
+    }
+  }
+}
