@@ -32,8 +32,12 @@ function screenSupport() {
           '<span class="nm" style="flex:1"><b>' + LTR(s.no) + ' · ' + E(t.title || '') + '</b>' +
           '<span>' + E(t.kt || '') + ' · ' + E(L.name || '') + ' — يطلب ' +
             AR(s.count) + ' محسن</span></span>' +
-          '<span class="end">' + pill(st[0], st[1]) +
-            '<div class="tiny faint" style="margin-top:6px">' + ago(s.at) + '</div></span>' +
+          '<span class="end" style="flex-direction:column;align-items:flex-end;gap:6px">' +
+            pill(st[0], st[1]) +
+            /* ما بقي على تصعيد الطلب — مهلةُ البتّ ساعةٌ واحدة */
+            (s.state === 'pending'
+              ? cdown(s.at + 60 * MIN, { sla:60, ttl:'حتى يُصعَّد طلبُ الدعم لتأخّر البتّ فيه' })
+              : '<div class="tiny faint">' + ago(s.at) + '</div>') + '</span>' +
           '<div style="width:100%">' +
             '<div class="quote">' + E(s.why) + '</div>' +
             (s.reason ? '<div class="tiny" style="margin-top:8px;color:var(--gold3)">' +

@@ -208,10 +208,12 @@ function seedThicken(st) {
   /* البلاغات: تُبنى على الكتالوج فتتّسق مع آليّاته */
   const pool = st.escal || ESCAL;
   const L = st.users.filter(u => u.role === 'leader');
-  const ESC_TO_INC = { 'النقل والحركة':'trans', 'السكن والمرافق':'house',
-    'الإعاشة':'food', 'الصحة والمساندة':'med', 'الأمن والسلامة':'sec',
-    'مفقودات':'crowd', 'طلبات':'crowd', 'الشكاوى':'crowd',
-    'التطبيق':'crowd', 'أخرى':'crowd' };
+  /* الخريطةُ تُقرأ من **قطاع** الجدول — وكانت تُقرأ من حقلٍ لا وجودَ له
+     فيسقط كلُّ بلاغٍ في «تفويج» ويخرج سطرُ أثره «undefined ← undefined». */
+  const ESC_TO_INC = { 'نقل':'trans', 'إسكان':'house', 'إسكان المخيمات':'house',
+    'إعاشة':'food', 'صحة ومساندة':'med', 'مزارات':'crowd',
+    'مناسك مكة (عمرة, طواف الوداع)':'crowd', 'مناسك المشاعر':'crowd',
+    'مناسك المدينة المنورة (الروضة)':'crowd' };
   const n0 = st.signals.length;
   pool.forEach((e, i) => {
     if (i % 2) return;                      /* واحدةٌ من كلّ اثنتين */
@@ -219,7 +221,7 @@ function seedThicken(st) {
     const at = Date.now() - ((i * 37) % 900 + 8) * MIN;
     const closed = i % 4 === 0;
     const work = !closed && i % 3 === 0;
-    const cat = ESC_TO_INC[e.cat] || 'crowd';
+    const cat = ESC_TO_INC[e.sec] || 'crowd';
     const catAr = (INC_CATS.find(c => c.k === cat) || {}).ar || 'تفويج';
     st.signals.push({
       id: 'SG' + (8200 + n0 + i), no: 'SG-' + (8200 + n0 + i),
@@ -244,7 +246,7 @@ function seedThicken(st) {
       at, resp: 6 + (i * 5) % 40,
       closedAt: closed ? at + (6 + (i * 5) % 40) * MIN : null,
       trail: [{ at, by:'النظام', text:'وصل البلاغ عبر ' +
-        (i % 5 === 0 ? 'اتصال هاتفي' : 'تطبيق مُحسن') + ' — ' + e.cat + ' ← ' + e.sub }]
+        (i % 5 === 0 ? 'اتصال هاتفي' : 'تطبيق مُحسن') + ' — ' + e.loc + ' · ' + e.sec }]
     });
   });
 }
